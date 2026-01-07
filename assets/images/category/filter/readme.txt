@@ -1,0 +1,1 @@
+rate_select_indiacator_inside_color = #db0d0d

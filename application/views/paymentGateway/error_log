@@ -1,0 +1,3 @@
+[17-Jan-2018 14:50:07 UTC] PHP Notice:  Undefined index: order_id in /home/mrnmrsekart/public_html/paymentGateway/GetRSA.php on line 5
+[18-Jan-2018 08:29:59 UTC] PHP Notice:  Undefined index: order_id in /home/mrnmrsekart/public_html/paymentGateway/GetRSA.php on line 5
+[24-Jan-2018 19:09:36 UTC] PHP Notice:  Undefined index: order_id in /home/mrnmrsekart/public_html/paymentGateway/GetRSA.php on line 5

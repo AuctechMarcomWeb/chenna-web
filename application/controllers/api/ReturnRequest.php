@@ -1,0 +1,35 @@
+
+<?php if(!defined('BASEPATH')) exit ('No direct script access allowed'); 
+class ReturnRequest extends CI_Controller {
+
+  public function __construct()
+  {
+    parent::__construct();  
+    $this->load->model('api/Api_model');  
+  }
+
+
+ public function index() {
+     $request_data           = isset($HTTP_RAW_POST_DATA) ? $HTTP_RAW_POST_DATA : file_get_contents('php://input'); 
+     $requestJson            = json_decode($request_data, true);
+     $check_request_keys     = array( '0'  => 'orderId',
+                                      '1'  => 'productId',
+                                      '2'  => 'reasonId',
+                                      '3'  => 'remark'
+                                      
+                                      
+                                   );
+        $resultJson = validateJson($requestJson, $check_request_keys);
+        if($resultJson > 0)
+        {
+        
+           $this->Api_model->returnOrder($requestJson);
+        
+        }else
+        {
+          generateServerResponse('0', '101');
+        }
+
+  }
+
+}?>

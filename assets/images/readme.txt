@@ -1,0 +1,1 @@
+body_bg_color = #f3f7f8
