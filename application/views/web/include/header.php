@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="icon" href="<?php echo base_url('plugins/images/logo.png'); ?>" type="image/x-icon">
-    <title>Wazi Wears</title>
+    <title>Chenna.co</title>
 
     <!-- Google font -->
     <link rel="preconnect" href="https://fonts.gstatic.com/">
@@ -55,7 +55,7 @@
         }
 
         header .top-nav .navbar-top .web-logo img {
-            width: calc(62px + 25 * (100vw - 320px) / 1600);
+            width: calc(95px + 25 * (100vw - 320px) / 1600);
         }
 
         .no-dropdown::before {
@@ -68,7 +68,7 @@
         }
 
         header .main-nav {
-            padding: 10px 0
+            padding: 8px 0
         }
 
         .btn-view-more {
@@ -102,24 +102,11 @@
             background-image: none;
         }
 
-        @media (max-width: 480px) {
-            .product-box-4 .product-image img {
-                width: 100%;
-            }
+    
+        header .navbar-light .navbar-nav .nav-link {
+            color: #fb5808;
+            font-weight: 500 !important;
         }
-
-        @media (max-width:800px) {
-            .modal {
-                top: 35%;
-                height: auto;
-            }
-        }
-
-        .header-2 .top-nav span {
-            color: #ffffff;
-            background: #d80101;
-        }
-
 
         .owl-theme .owl-dots .owl-dot span {
 
@@ -129,7 +116,7 @@
 
         .owl-theme .owl-dots .owl-dot.active span,
         .owl-theme .owl-dots .owl-dot:hover span {
-            background: #d80101;
+            background: #fb5808;
         }
 
         .header-icon .badge-theme {
@@ -146,11 +133,11 @@
 
         .header-2 .top-nav {
             padding: 15px 0;
-            border-bottom: 1px solid #ac9734;
+            border-bottom: 1px solid #f7ad899e;
         }
 
         .product-product-box-5 .wow .fadeInUp-5 {
-            border: 1px solid #d80101;
+            border: 1px solid #fb5808;
         }
 
         .header-2 .rightside-menu .option-list>ul>li .header-icon {
@@ -158,6 +145,70 @@
             height: calc(30px + 11 * (100vw - 320px) / 1600);
         }
 
+        header .onhover-dropdown:hover .onhover-div {
+            border: 1px solid #fa6223;
+            padding: 17px;
+            border-radius: 6px;
+        }
+
+        header .onhover-dropdown .onhover-div-login .user-box-name li {
+            font-size: 15px;
+            border-left: 2px solid #fa6223;
+            padding-left: 7px;
+            transition: transform 0.4s ease;
+        }
+
+        header .onhover-dropdown .onhover-div-login .user-box-name li:hover {
+            transform: scale(1.1);
+            background: #ecebebff;
+        }
+
+        .header-2 .top-nav .middle-box .searchbar-box .search-button {
+            height: 99%;
+            background: #fb5808;
+            color: #fff;
+            border-radius: 0px 4px 4px 0px;
+            border: none;
+        }
+
+        .header-2 .top-nav .middle-box .searchbar-box .search-button .iconly-Search {
+            color: #fff;
+        }
+        .header-2 .right-nav .nav-number span {
+            font-size: calc(10px + 9 * (100vw - 320px) / 1600);
+            width: 100%;
+            color: #3e3e3e;
+        }
+
+        .start-100 {
+            left: 65% !important;
+        }
+
+        .product-box-4 .product-image img {
+            object-fit: cover;
+            margin: 0px;
+        }
+
+        .top-selling-box .top-selling-contain .top-selling-image img {
+            object-fit: cover;
+        }
+        .fa-chevron-down::before {
+            content: "";
+            font-size: 9px;
+        }
+
+        @media (max-width: 480px) {
+            .product-box-4 .product-image img {
+                width: 100%;
+            }
+        }
+
+        @media (max-width:800px) {
+            .modal {
+                top: 35%;
+                height: auto;
+            }
+        }
         @media (max-width: 767px) {
             header .main-nav {
                 padding: 5px 0px !important;
@@ -271,19 +322,7 @@
             }
         }
 
-        .start-100 {
-            left: 65% !important;
-        }
-
-        .product-box-4 .product-image img {
-            object-fit: cover;
-            margin: 0px;
-        }
-
-        .top-selling-box .top-selling-contain .top-selling-image img {
-            object-fit: cover;
-        }
-
+        
         @media (max-width: 767px) {
             #cart_items .mobile-badge {
                 width: 14px;
@@ -306,11 +345,7 @@
             }
         }
 
-        .fa-chevron-down::before {
-            content: "";
-            font-size: 9px;
-
-        }
+       
 
         @media (min-width: 769px) {
             header .onhover-dropdown .onhover-div-login .user-box-name li a:hover::after {
@@ -347,7 +382,6 @@
 
     <!-- Header Start -->
     <header class="header-2">
-        <!--</div>-->
         <div class="top-nav top-header sticky-header sticky-header-3">
             <div class="container-fluid-lg">
                 <div class="row">
@@ -364,8 +398,6 @@
                                     class="img-fluid blur-up lazyload" alt="">
                             </a>
 
-
-
                             <div class="middle-box">
                                 <div class="center-box">
                                     <form id="searchForm"
@@ -374,8 +406,7 @@
                                         <div class="searchbar-box order-xl-1 d-none d-xl-block"
                                             style="display: flex; align-items: center; position: relative;">
                                             <input class="form-control search-type" type="search" id="gsearch"
-                                                name="gsearch" placeholder="Search here..." autocomplete="off"
-                                                style="width: 100%;">
+                                                name="gsearch" placeholder="Search here..." autocomplete="off">
 
                                             <!-- Suggestion Dropdown -->
                                             <div id="suggestions" class="suggestion-box"
@@ -395,24 +426,25 @@
                                     <ul>
                                         <?php if (empty($userData))
                                         { ?>
-                                            <li class="onhover-dropdown" style="margin-right:10px">
-                                                <a class="header-icon swap-icon" data-bs-toggle="modal"
-                                                    data-bs-target="#login-popup">
-                                                    <i class="iconly-Heart icli"></i>
-                                                    <span class="badge rounded-pill badge-theme"
-                                                        id="no_of_wishlist_item">0</span>
-                                                </a>
-                                            </li>
+                                        <li class="onhover-dropdown" style="margin-right:10px">
+                                            <a class="header-icon swap-icon" data-bs-toggle="modal"
+                                                data-bs-target="#login-popup">
+                                                <i class="iconly-Heart icli"></i>
+                                                <span class="badge rounded-pill badge-theme"
+                                                    id="no_of_wishlist_item">0</span>
+                                            </a>
+                                        </li>
                                         <?php } else
                                         { ?>
-                                            <li class="onhover-dropdown" style="margin-right:10px">
-                                                <a href="<?php echo base_url('web/wishlist'); ?>"
-                                                    class="header-icon swap-icon">
-                                                    <i class="iconly-Heart icli"></i>
-                                                    <span class="badge rounded-pill badge-theme"
-                                                        id="no_of_wishlist_item"><?= $wishlist_count; ?></span>
-                                                </a>
-                                            </li>
+                                        <li class="onhover-dropdown" style="margin-right:10px">
+                                            <a href="<?php echo base_url('web/wishlist'); ?>"
+                                                class="header-icon swap-icon">
+                                                <i class="iconly-Heart icli"></i>
+                                                <span class="badge rounded-pill badge-theme" id="no_of_wishlist_item">
+                                                    <?= $wishlist_count; ?>
+                                                </span>
+                                            </a>
+                                        </li>
                                         <?php } ?>
 
 
@@ -428,77 +460,82 @@
 
                                         <?php if (empty($userData))
                                         { ?>
-                                            <li class="right-side d-flex align-items-center justify-content-center"
-                                                style="cursor:pointer">
-                                                <div class="delivery-login-box">
-                                                    <div class="delivery-icon" href="javascript:void(0)"
-                                                        data-bs-toggle="modal" data-bs-target="#login-popup">
-                                                        <i data-feather="user"></i>
-                                                        <span class="bg-white text-black">Login & Signup</span>
-                                                    </div>
+                                        <li class="right-side d-flex align-items-center justify-content-center"
+                                            style="cursor:pointer">
+                                            <div class="delivery-login-box">
+                                                <div class="delivery-icon" href="javascript:void(0)"
+                                                    data-bs-toggle="modal" data-bs-target="#login-popup">
+                                                    <i data-feather="user"></i>
+                                                    <span class="bg-white text-black">Login & Signup</span>
                                                 </div>
-                                            </li>
+                                            </div>
+                                        </li>
                                         <?php } else if ($userData['username'] === "")
                                         { ?>
-                                                <li class="right-side onhover-dropdown d-flex align-items-center justify-content-center"
-                                                    style="cursor:pointer">
+                                        <li class="right-side onhover-dropdown d-flex align-items-center justify-content-center"
+                                            style="cursor:pointer">
 
-                                                    <div class="delivery-login-box">
-                                                        <div class="delivery-icon">
-                                                            <i data-feather="user"></i>
-                                                            <span>Hello, User </span>
-                                                        </div>
-                                                    </div>
-                                                    <div class="onhover-div onhover-div-login">
-                                                        <ul class="user-box-name">
+                                            <div class="delivery-login-box d-flex align-items-center" style="gap:10px">
+                                                <div class="delivery-icon">
+                                                    <i data-feather="user" style="height:30px; width:30px"></i>
+                                                </div>
+                                                <div class="delivery-detail onhover-dropdown ">
+                                                    <h6>Hello,</h6>
+                                                    <h5 class="fw-bold">My Account <i class="fa-solid fa-chevron-down"></i></h5>
+                                                </div>
+                                            </div>
+                                            <div class="onhover-div onhover-div-login">
+                                                <ul class="user-box-name">
 
-                                                            <li class="product-box-contain">
-                                                                <a href="<?php echo base_url('web/account_profile'); ?>">My
-                                                                    Account</a>
-                                                            </li>
-                                                            <li class="product-box-contain">
-                                                                <a href="<?php echo base_url('web/logout'); ?>">Logout</a>
-                                                            </li>
+                                                    <li class="product-box-contain">
+                                                        <a href="<?php echo base_url('web/account_profile'); ?>">My
+                                                            Account</a>
+                                                    </li>
+                                                    <li class="product-box-contain">
+                                                        <a href="<?php echo base_url('web/logout'); ?>">Logout</a>
+                                                    </li>
 
 
 
-                                                        </ul>
-                                                    </div>
-                                                </li>
+                                                </ul>
+                                            </div>
+                                        </li>
+
                                         <?php } else
                                         { ?>
-                                                <li class="right-side onhover-dropdown d-flex align-items-center justify-content-center"
-                                                    style="cursor:pointer">
+                                        <li class="right-side onhover-dropdown d-flex align-items-center justify-content-center"
+                                            style="cursor:pointer">
 
-                                                    <div class="delivery-login-box">
-                                                        <div class="delivery-icon">
-                                                            <i data-feather="user"></i>
-                                                            <span
-                                                                style="background:white !important;color: black !important;"><?= $userData['username'] ?>
-                                                                <i class="ms-2 fa fa-chevron-down"></i></span>
-                                                        </div>
-                                                    </div>
-                                                    <div class="onhover-div onhover-div-login">
-                                                        <ul class="user-box-name">
+                                            <div class="delivery-login-box">
+                                                <div class="delivery-icon">
+                                                    <i data-feather="user"></i>
+                                                    <span style="background:white !important;color: black !important;">
+                                                        <?= $userData['username'] ?>
+                                                        <i class="ms-2 fa fa-chevron-down"></i>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="onhover-div onhover-div-login">
+                                                <ul class="user-box-name">
 
-                                                            <li class="product-box-contain">
-                                                                <a href="<?php echo base_url('web/account_profile'); ?>">My
-                                                                    Account</a>
-                                                            </li>
-                                                            <li class="product-box-contain">
-                                                                <a href="<?= base_url('web/account_profile?tab=order'); ?>">My
-                                                                    Oders
-                                                                </a>
-                                                            </li>
-                                                            <li class="product-box-contain">
-                                                                <a href="<?php echo base_url('web/logout'); ?>">Logout</a>
-                                                            </li>
+                                                    <li class="product-box-contain">
+                                                        <a href="<?php echo base_url('web/account_profile'); ?>">My
+                                                            Account</a>
+                                                    </li>
+                                                    <li class="product-box-contain">
+                                                        <a href="<?= base_url('web/account_profile?tab=order'); ?>">My
+                                                            Orders
+                                                        </a>
+                                                    </li>
+                                                    <li class="product-box-contain">
+                                                        <a href="<?php echo base_url('web/logout'); ?>">Logout</a>
+                                                    </li>
 
 
 
-                                                        </ul>
-                                                    </div>
-                                                </li>
+                                                </ul>
+                                            </div>
+                                        </li>
                                         <?php } ?>
                                     </ul>
                                 </div>
@@ -534,38 +571,39 @@
                                         if ($menParent):
                                             $menCategories = $this->db->get_where('category_master', ['status' => 1, 'mai_id' => $menParent['id']])->result_array();
                                             ?>
-                                            <li class="nav-item dropdown">
-                                                <a class="nav-link dropdown-toggle" href="javascript:void(0)"
-                                                    data-bs-toggle="dropdown">
-                                                    <?= $menParent['name']; ?>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-3 dropdown-menu-2">
-                                                    <div class="row">
-                                                        <?php
+                                        <li class="nav-item dropdown">
+                                            <a class="nav-link dropdown-toggle" href="javascript:void(0)"
+                                                data-bs-toggle="dropdown">
+                                                <?= $menParent['name']; ?>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-3 dropdown-menu-2">
+                                                <div class="row">
+                                                    <?php
                                                         $i = 1;
                                                         foreach ($menCategories as $cat):
                                                             $colClass = "col-xl-3"; // keeping same column structure
                                                             $subcategories = $this->db->get_where('sub_category_master', ['status' => 1, 'category_master_id' => $cat['id']])->result_array();
                                                             ?>
-                                                            <div class="<?= $colClass; ?>">
-                                                                <div class="dropdown-column m-0">
-                                                                    <h5 class="dropdown-header"><?= $cat['category_name']; ?>
-                                                                    </h5>
-                                                                    <?php foreach ($subcategories as $sub): ?>
-                                                                        <a class="dropdown-item"
-                                                                            href="<?= base_url(slugify($menParent['name']) . '/' . slugify($cat['category_name']) . '/' . slugify($sub['sub_category_name'])); ?>">
-                                                                            <?= $sub['sub_category_name']; ?>
-                                                                        </a>
-                                                                    <?php endforeach; ?>
-                                                                </div>
-                                                            </div>
-                                                            <?php
+                                                    <div class="<?= $colClass; ?>">
+                                                        <div class="dropdown-column m-0">
+                                                            <h5 class="dropdown-header">
+                                                                <?= $cat['category_name']; ?>
+                                                            </h5>
+                                                            <?php foreach ($subcategories as $sub): ?>
+                                                            <a class="dropdown-item"
+                                                                href="<?= base_url(slugify($menParent['name']) . '/' . slugify($cat['category_name']) . '/' . slugify($sub['sub_category_name'])); ?>">
+                                                                <?= $sub['sub_category_name']; ?>
+                                                            </a>
+                                                            <?php endforeach; ?>
+                                                        </div>
+                                                    </div>
+                                                    <?php
                                                             $i++;
                                                         endforeach;
                                                         ?>
-                                                    </div>
                                                 </div>
-                                            </li>
+                                            </div>
+                                        </li>
                                         <?php endif; ?>
 
                                         <?php
@@ -573,38 +611,39 @@
                                         if ($womenParent):
                                             $womenCategories = $this->db->get_where('category_master', ['status' => 1, 'mai_id' => $womenParent['id']])->result_array();
                                             ?>
-                                            <li class="nav-item dropdown">
-                                                <a class="nav-link dropdown-toggle" href="javascript:void(0)"
-                                                    data-bs-toggle="dropdown">
-                                                    <?= $womenParent['name']; ?>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-3 dropdown-menu-2">
-                                                    <div class="row">
-                                                        <?php
+                                        <li class="nav-item dropdown">
+                                            <a class="nav-link dropdown-toggle" href="javascript:void(0)"
+                                                data-bs-toggle="dropdown">
+                                                <?= $womenParent['name']; ?>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-3 dropdown-menu-2">
+                                                <div class="row">
+                                                    <?php
                                                         $i = 1;
                                                         foreach ($womenCategories as $cat):
                                                             $colClass = "col-xl-3"; // keeping same column structure
                                                             $subcategories = $this->db->get_where('sub_category_master', ['status' => 1, 'category_master_id' => $cat['id']])->result_array();
                                                             ?>
-                                                            <div class="<?= $colClass; ?>">
-                                                                <div class="dropdown-column m-0">
-                                                                    <h5 class="dropdown-header"><?= $cat['category_name']; ?>
-                                                                    </h5>
-                                                                    <?php foreach ($subcategories as $sub): ?>
-                                                                        <a class="dropdown-item"
-                                                                            href="<?= base_url(slugify($womenParent['name']) . '/' . slugify($cat['category_name']) . '/' . slugify($sub['sub_category_name'])); ?>">
-                                                                            <?= $sub['sub_category_name']; ?>
-                                                                        </a>
-                                                                    <?php endforeach; ?>
-                                                                </div>
-                                                            </div>
-                                                            <?php
+                                                    <div class="<?= $colClass; ?>">
+                                                        <div class="dropdown-column m-0">
+                                                            <h5 class="dropdown-header">
+                                                                <?= $cat['category_name']; ?>
+                                                            </h5>
+                                                            <?php foreach ($subcategories as $sub): ?>
+                                                            <a class="dropdown-item"
+                                                                href="<?= base_url(slugify($womenParent['name']) . '/' . slugify($cat['category_name']) . '/' . slugify($sub['sub_category_name'])); ?>">
+                                                                <?= $sub['sub_category_name']; ?>
+                                                            </a>
+                                                            <?php endforeach; ?>
+                                                        </div>
+                                                    </div>
+                                                    <?php
                                                             $i++;
                                                         endforeach;
                                                         ?>
-                                                    </div>
                                                 </div>
-                                            </li>
+                                            </div>
+                                        </li>
                                         <?php endif; ?>
 
 
@@ -613,38 +652,39 @@
                                         if ($kidsParent):
                                             $kidsCategories = $this->db->get_where('category_master', ['status' => 1, 'mai_id' => $kidsParent['id']])->result_array();
                                             ?>
-                                            <li class="nav-item dropdown">
-                                                <a class="nav-link dropdown-toggle" href="javascript:void(0)"
-                                                    data-bs-toggle="dropdown">
-                                                    <?= $kidsParent['name']; ?>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-2">
-                                                    <div class="row">
-                                                        <?php
+                                        <li class="nav-item dropdown">
+                                            <a class="nav-link dropdown-toggle" href="javascript:void(0)"
+                                                data-bs-toggle="dropdown">
+                                                <?= $kidsParent['name']; ?>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-2">
+                                                <div class="row">
+                                                    <?php
                                                         $i = 1;
                                                         foreach ($kidsCategories as $cat):
                                                             $colClass = "col-xl-3"; // keeping same column structure
                                                             $subcategories = $this->db->get_where('sub_category_master', ['status' => 1, 'category_master_id' => $cat['id']])->result_array();
                                                             ?>
-                                                            <div class="<?= $colClass; ?>">
-                                                                <div class="dropdown-column m-0">
-                                                                    <h5 class="dropdown-header"><?= $cat['category_name']; ?>
-                                                                    </h5>
-                                                                    <?php foreach ($subcategories as $sub): ?>
-                                                                        <a class="dropdown-item"
-                                                                            href="<?= base_url(slugify($kidsParent['name']) . '/' . slugify($cat['category_name']) . '/' . slugify($sub['sub_category_name'])); ?>">
-                                                                            <?= $sub['sub_category_name']; ?>
-                                                                        </a>
-                                                                    <?php endforeach; ?>
-                                                                </div>
-                                                            </div>
-                                                            <?php
+                                                    <div class="<?= $colClass; ?>">
+                                                        <div class="dropdown-column m-0">
+                                                            <h5 class="dropdown-header">
+                                                                <?= $cat['category_name']; ?>
+                                                            </h5>
+                                                            <?php foreach ($subcategories as $sub): ?>
+                                                            <a class="dropdown-item"
+                                                                href="<?= base_url(slugify($kidsParent['name']) . '/' . slugify($cat['category_name']) . '/' . slugify($sub['sub_category_name'])); ?>">
+                                                                <?= $sub['sub_category_name']; ?>
+                                                            </a>
+                                                            <?php endforeach; ?>
+                                                        </div>
+                                                    </div>
+                                                    <?php
                                                             $i++;
                                                         endforeach;
                                                         ?>
-                                                    </div>
                                                 </div>
-                                            </li>
+                                            </div>
+                                        </li>
                                         <?php endif; ?>
 
                                         <?php
@@ -652,38 +692,39 @@
                                         if ($womenParent):
                                             $womenCategories = $this->db->get_where('category_master', ['status' => 1, 'mai_id' => $womenParent['id']])->result_array();
                                             ?>
-                                            <li class="nav-item dropdown">
-                                                <a class="nav-link dropdown-toggle" href="javascript:void(0)"
-                                                    data-bs-toggle="dropdown">
-                                                    <?= $womenParent['name']; ?>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-3 dropdown-menu-2">
-                                                    <div class="row">
-                                                        <?php
+                                        <li class="nav-item dropdown">
+                                            <a class="nav-link dropdown-toggle" href="javascript:void(0)"
+                                                data-bs-toggle="dropdown">
+                                                <?= $womenParent['name']; ?>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-3 dropdown-menu-2">
+                                                <div class="row">
+                                                    <?php
                                                         $i = 1;
                                                         foreach ($womenCategories as $cat):
                                                             $colClass = "col-xl-3"; // keeping same column structure
                                                             $subcategories = $this->db->get_where('sub_category_master', ['status' => 1, 'category_master_id' => $cat['id']])->result_array();
                                                             ?>
-                                                            <div class="<?= $colClass; ?>">
-                                                                <div class="dropdown-column m-0">
-                                                                    <h5 class="dropdown-header"><?= $cat['category_name']; ?>
-                                                                    </h5>
-                                                                    <?php foreach ($subcategories as $sub): ?>
-                                                                        <a class="dropdown-item"
-                                                                            href="<?= base_url(slugify($womenParent['name']) . '/' . slugify($cat['category_name']) . '/' . slugify($sub['sub_category_name'])); ?>">
-                                                                            <?= $sub['sub_category_name']; ?>
-                                                                        </a>
-                                                                    <?php endforeach; ?>
-                                                                </div>
-                                                            </div>
-                                                            <?php
+                                                    <div class="<?= $colClass; ?>">
+                                                        <div class="dropdown-column m-0">
+                                                            <h5 class="dropdown-header">
+                                                                <?= $cat['category_name']; ?>
+                                                            </h5>
+                                                            <?php foreach ($subcategories as $sub): ?>
+                                                            <a class="dropdown-item"
+                                                                href="<?= base_url(slugify($womenParent['name']) . '/' . slugify($cat['category_name']) . '/' . slugify($sub['sub_category_name'])); ?>">
+                                                                <?= $sub['sub_category_name']; ?>
+                                                            </a>
+                                                            <?php endforeach; ?>
+                                                        </div>
+                                                    </div>
+                                                    <?php
                                                             $i++;
                                                         endforeach;
                                                         ?>
-                                                    </div>
                                                 </div>
-                                            </li>
+                                            </div>
+                                        </li>
                                         <?php endif; ?>
 
 
@@ -709,23 +750,15 @@
                         <div class="right-nav">
                             <div class="nav-number">
                                 <a href="tel:89320 50110" class="d-flex align-items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round" class="feather feather-phone">
-                                        <path
-                                            d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
-                                        </path>
-                                    </svg>
-                                    <span>+91 89320 50110</span>
+                                    <div>
+                                        <i style="height: 28px; width: 28px; margin-right: 4px; color: #333;" data-feather="phone-call"></i>
+                                    </div>
+                                    <div>
+                                        <span style="font-size: 13px;">24/7 Support</span>
+                                        <span style="font-size: 16px; font-weight: 500; color: #333;">+91 89320 50110</span>
+                                    </div>
                                 </a>
                             </div>
-                            <!--<a href="javascript:void(0)" class="btn theme-bg-color ms-3 fire-button"-->
-                            <!--    data-bs-toggle="modal" data-bs-target="#deal-box">-->
-                            <!--    <div class="fire">-->
-                            <!--        <img src="../plugins/images/icon/hot-sale.png" class="img-fluid" alt="">-->
-                            <!--    </div>-->
-                            <!--    <span>Explore Masale</span>-->
-                            <!--</a>-->
                         </div>
                     </div>
                 </div>
@@ -760,26 +793,28 @@
             </li>
             <?php if (empty($userData))
             { ?>
-                <li class="onhover-dropdown" style="margin-right:10px; position: relative;">
-                    <a class="header-icon swap-icon position-relative" data-bs-toggle="modal" data-bs-target="#login-popup">
-                        <i class="iconly-Heart icli"></i>
-                        <!-- Count Badge -->
-                        <span class="badge rounded-pill bg-danger position-absolute top-0 start-100 translate-middle p-1"
-                            id="no_of_wishlist_item">0</span>
-                        <span>My Wishlist</span>
-                    </a>
-                </li>
+            <li class="onhover-dropdown" style="margin-right:10px; position: relative;">
+                <a class="header-icon swap-icon position-relative" data-bs-toggle="modal" data-bs-target="#login-popup">
+                    <i class="iconly-Heart icli"></i>
+                    <!-- Count Badge -->
+                    <span class="badge rounded-pill bg-danger position-absolute top-0 start-100 translate-middle p-1"
+                        id="no_of_wishlist_item">0</span>
+                    <span>My Wishlist</span>
+                </a>
+            </li>
             <?php } else
             { ?>
-                <li class="onhover-dropdown" style="margin-right:10px; position: relative;">
-                    <a href="<?php echo base_url('web/wishlist'); ?>" class="header-icon swap-icon position-relative">
-                        <i class="iconly-Heart icli"></i>
-                        <!-- Count Badge -->
-                        <span class="badge rounded-pill bg-danger position-absolute top-0 start-100 translate-middle p-1"
-                            id="no_of_wishlist_item"><?= $wishlist_count ?? 0; ?></span>
-                        <span>My Wishlist</span>
-                    </a>
-                </li>
+            <li class="onhover-dropdown" style="margin-right:10px; position: relative;">
+                <a href="<?php echo base_url('web/wishlist'); ?>" class="header-icon swap-icon position-relative">
+                    <i class="iconly-Heart icli"></i>
+                    <!-- Count Badge -->
+                    <span class="badge rounded-pill bg-danger position-absolute top-0 start-100 translate-middle p-1"
+                        id="no_of_wishlist_item">
+                        <?= $wishlist_count ?? 0; ?>
+                    </span>
+                    <span>My Wishlist</span>
+                </a>
+            </li>
             <?php } ?>
             <li class="onhover-dropdown" style="margin-right:10px; position: relative;" id="cart_items">
                 <a href="<?php echo base_url(); ?>web/cart" class="header-icon swap-icon position-relative">
@@ -939,8 +974,13 @@
         function sendQueryData(mobile, otp) {
             fetch("<?= base_url('web/send_otp') ?>", {
                 method: "POST",
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ mobile: mobile, otp: otp })
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    mobile: mobile,
+                    otp: otp
+                })
             })
                 .then(res => res.json())
                 .then(data => {
@@ -977,8 +1017,13 @@
 
             fetch("<?= base_url('web/verify_otp') ?>", {
                 method: "POST",
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ mobile: mobileNumber, otp: enteredOtp })
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    mobile: mobileNumber,
+                    otp: enteredOtp
+                })
             })
                 .then(res => res.json())
                 .then(data => {
@@ -1060,7 +1105,9 @@
 
 
             $(document).click(function (e) {
-                if (!$(e.target).closest('#gsearch, #suggestions, #mainSearchBox, #toggleSearchText, #toggleSearchIcon').length) {
+                if (!$(e.target).closest(
+                    '#gsearch, #suggestions, #mainSearchBox, #toggleSearchText, #toggleSearchIcon')
+                    .length) {
                     $('#suggestions').hide();
                     $('#mainSearchBox').hide();
                 }
@@ -1071,27 +1118,28 @@
                 var query = $(this).val();
                 if (query.length > 1) {
                     $.ajax({
-                        url: '<?= base_url('Web/get_product_suggestions'); ?>',
+                        url: '<?= base_url('Web/ get_product_suggestions'); ?>',
                         type: 'POST',
-                        data: { search: query },
+                        data: {
+                        search: query
+                    },
                         success: function (data) {
                             $('#suggestions').html(data).show();
                         }
-                    });
-                } else {
-                    $('#suggestions').hide();
-                }
-            });
-
-
-            $(document).on('click', '.suggestion-item', function () {
-                var selected = $(this).text();
-                $('#gsearch').val(selected);
-                $('#suggestions').hide();
-                $('#searchForm').submit();
-            });
+                });
+        } else {
+            $('#suggestions').hide();
+        }
         });
 
+
+        $(document).on('click', '.suggestion-item', function () {
+            var selected = $(this).text();
+            $('#gsearch').val(selected);
+            $('#suggestions').hide();
+            $('#searchForm').submit();
+        });
+    });
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {

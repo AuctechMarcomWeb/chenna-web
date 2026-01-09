@@ -51,20 +51,19 @@
                     <div>
                         <div class="review-title">
                             <h4>About Us</h4>
-                            <h2>Where Style Meets Tradition — The Essence of Wazi Wears</h2>
+                            <h2>Your Everyday Shopping Partner</h2>
                         </div>
 
                         <div class="delivery-list">
                             <p class="text-content" style="text-align: justify;">
-                                Wazi Wears isn’t just a clothing brand — it’s a celebration of style, culture, and
-                                individuality. Born with a vision to blend traditional charm with modern trends, we
-                                craft fashion that speaks to every generation. Just like your favorite outfit passed
-                                down with love, our journey started with a simple idea: to deliver premium quality,
-                                authentic design, and timeless comfort to every wardrobe.
-                                <br>
-                                From handpicked fabrics to intricate stitching, each Wazi Wears product reflects
-                                dedication, passion, and a commitment to excellence. No fast fashion gimmicks — just
-                                genuine craftsmanship and style made to last.
+                                Cenna.co is a multi-category online marketplace designed to make shopping simple, fast,
+                                and reliable.
+                                We bring together a wide range of products from trusted sellers, all in one easy-to-use
+                                platform.
+                                Our goal is to offer quality products, fair prices, and a smooth shopping experience for
+                                everyone. <br><br>
+                                From daily essentials to trending items, we make sure you always find what you need.
+                                At Cenna, customer trust, support, and satisfaction come first.
                             </p>
 
                             <ul class="delivery-box">
@@ -76,7 +75,7 @@
                                         </div>
 
                                         <div class="delivery-detail">
-                                            <h5 class="text"> Signature Prints & Embroideries</h5>
+                                            <h5 class="text"> One-stop shopping platform</h5>
                                         </div>
                                     </div>
                                 </li>
@@ -89,7 +88,7 @@
                                         </div>
 
                                         <div class="delivery-detail">
-                                            <h5 class="text"> Pure Cotton Classics</h5>
+                                            <h5 class="text"> Wide product categories</h5>
                                         </div>
                                     </div>
                                 </li>
@@ -102,7 +101,7 @@
                                         </div>
 
                                         <div class="delivery-detail">
-                                            <h5 class="text">Trendsetting Fusion Wear</h5>
+                                            <h5 class="text">7-day return policy</h5>
                                         </div>
                                     </div>
                                 </li>
@@ -115,7 +114,7 @@
                                         </div>
 
                                         <div class="delivery-detail">
-                                            <h5 class="text"> Occasion-Ready Styles</h5>
+                                            <h5 class="text"> Occasion-Ready Style</h5>
                                         </div>
                                     </div>
                                 </li>
@@ -147,10 +146,29 @@
                                     class="blur-up lazyload" alt="">
                             </div>
                             <h2><img style="max-height: 100px;" src="../plugins/images/logo.png" alt=""></h2>
-                            <h4> Unmatched Fabric & Quality</h4>
-                            <p>We carefully source premium fabrics — from breathable cottons to luxurious silks —
-                                ensuring every outfit is soft, durable, and comfortable. Whether it’s traditional ethnic
-                                wear or trendy western styles, quality is never compromised.</p>
+                            <h4> Wide Product Range</h4>
+                            <p>Shop from multiple categories in one place without switching between different websites.
+                                We bring daily essentials, trending items, and quality products together.
+                                Everything is well-organized so you can find what you need easily.
+                                More choices, better value, and a smooth shopping experience.</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="clint-contain">
+                            <div class="client-icon">
+
+                                <img src="https://img.icons8.com/external-outline-design-circle/a81e23/external-Trust-logistic-outline-design-circle.png"
+                                    class="blur-up lazyload" alt="">
+                            </div>
+                            <h2><img style="max-height: 100px;" src="../plugins/images/logo.png" alt=""></h2>
+                            <h4>Trusted & Secure Shopping</h4>
+                            <p>We work only with verified sellers to ensure product quality and reliability.
+                                Your payments are protected with secure and trusted payment gateways.
+                                Every order is handled carefully from checkout to delivery.
+                                Shop confidently knowing your safety comes first.
+
+                            </p>
                         </div>
                     </div>
 
@@ -161,26 +179,11 @@
                                     class="blur-up lazyload" alt="">
                             </div>
                             <h2><img style="max-height: 100px;" src="../plugins/images/logo.png" alt=""></h2>
-                            <h4>Timeless Style with Modern Trends</h4>
-                            <p>At Wazi Wears, tradition meets trend. Our in-house designers blend classic prints,
-                                regional artistry, and the latest fashion statements to bring you clothing that’s
-                                unique, vibrant, and always in style — for men, women, and kids.
-
-                            </p>
-                        </div>
-                    </div>
-
-                    <div>
-                        <div class="clint-contain">
-                            <div class="client-icon">
-                                <img src="https://img.icons8.com/external-outline-design-circle/a81e23/external-Trust-logistic-outline-design-circle.png"
-                                    class="blur-up lazyload" alt="">
-                            </div>
-                            <h2><img style="max-height: 100px;" src="../plugins/images/logo.png" alt=""></h2>
-                            <h4>Trusted Service & Happy Customers</h4>
-                            <p>We believe shopping should be stress-free. That’s why we offer fast shipping, secure
-                                payments, and responsive support. Our growing family of satisfied customers speaks for
-                                our dedication to service and satisfaction.</p>
+                            <h4>Customer First Approach</h4>
+                            <p>Your satisfaction is our top priority in every step of shopping.
+                                We offer easy returns and quick resolution for any issues.
+                                Our support team is always ready to help you.
+                                We grow by earning your trust every day.</p>
                         </div>
                     </div>
                 </div>
@@ -190,258 +193,122 @@
 </section>
 <!-- Client Section End -->
 
+<style>
+.vendor-section {
+    background: #ffffffff;
+    border-bottom:1px solid #fa580741
+}
 
+.vendor-card {
+    background: #ffe6d898;
+    border-radius: 18px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.06);
+    transition: all 0.35s ease;
+    border:1px solid #rgba(250, 88, 7, 0.17)
+}
 
-<!-- Review Section Start -->
-<section class="review-section section-lg-space">
-    <div class="container-fluid">
-        <div class="about-us-title text-center">
-            <h4 class="text-content">Our Testimonials</h4>
-            <h2 class="center">What people say</h2>
+.vendor-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 50px rgba(251, 89, 8, 0.19);
+}
+
+.vendor-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(251, 88, 8, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    font-size: 32px;
+    color: #fb5808;
+}
+.vendor-card{
+
+}
+.vendor-card p {
+    font-size: 15px;
+    color: #555;
+    margin-bottom: 6px;
+}
+
+.btn-vendor {
+    background-color: #fb5808;
+    color: #fff;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    max-width: 210px;
+}
+
+.btn-vendor:hover {
+    background-color: #e84f06;
+    color: #fff;
+    transform: translateY(-2px);
+}
+</style>
+<!-- VENDOR -->
+<section class="vendor-section py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Sell on Cenna.co</h2>
+            <p class="text-muted mt-2">
+                Start selling online and grow your business with our trusted marketplace.
+            </p>
         </div>
-        <div class="row">
-            <div class="col-12">
-                <div class="slider-4-half product-wrapper">
-                    <div>
-                        <div class="reviewer-box">
-                            <i class="fa-solid fa-quote-right"></i>
-                            <div class="product-rating">
-                                <ul class="rating">
-                                    <li>
-                                        <i data-feather="star" class="fill"></i>
-                                    </li>
-                                    <li>
-                                        <i data-feather="star" class="fill"></i>
-                                    </li>
-                                    <li>
-                                        <i data-feather="star" class="fill"></i>
-                                    </li>
-                                    <li>
-                                        <i data-feather="star" class="fill"></i>
-                                    </li>
-                                    <li>
-                                        <i data-feather="star" class="fill"></i>
-                                    </li>
-                                </ul>
-                            </div>
 
-                            <h3>I ordered a men's kurta set and was amazed at how well it fit. The stitching, material,
-                                and color were all top-notch. Great job, Wazi Wears!.</h3>
+        <div class="row g-4 align-items-stretch">
 
-                            <div class="reviewer-profile">
-                                <div class="reviewer-image">
-                                    <img src="https://img.icons8.com/parakeet-line/a81e23/user-male-circle.png"
-                                        class="blur-up lazyload" alt="">
-                                </div>
-
-                                <div class="reviewer-name">
-                                    <h4>Priya Singh</h4>
-                                    <h6>Bachelor living in Lucknow</h6>
-                                </div>
-                            </div>
-                        </div>
+            <!-- Card 1 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="vendor-card h-100 text-center p-4 ">
+                    <div class="vendor-icon mb-4">
+                        <i class="fas fa-file-signature"></i>
                     </div>
-
-                    <div>
-                        <div class="reviewer-box">
-                            <i class="fa-solid fa-quote-right"></i>
-                            <div class="product-rating">
-                                <ul class="rating">
-                                    <li>
-                                        <i data-feather="star" class="fill"></i>
-                                    </li>
-                                    <li>
-                                        <i data-feather="star" class="fill"></i>
-                                    </li>
-                                    <li>
-                                        <i data-feather="star" class="fill"></i>
-                                    </li>
-                                    <li>
-                                        <i data-feather="star" class="fill"></i>
-                                    </li>
-                                    <li>
-                                        <i data-feather="star" class="fill"></i>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <h3>It’s hard to find stylish plus-size outfits that feel good and look great, but Wazi Wears
-                                nailed it! The shrug and tunic I bought are now my go-to outfits।</h3>
-                            <div class="reviewer-profile">
-                                <div class="reviewer-image">
-                                    <img src="https://img.icons8.com/parakeet-line/a81e23/user-male-circle.png"
-                                        class="blur-up lazyload" alt="">
-                                </div>
-
-                                <div class="reviewer-name">
-                                    <h4>Simran Jaiswal</h4>
-                                    <h6>Jaipur</h6>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <div class="reviewer-box">
-                            <i class="fa-solid fa-quote-right"></i>
-                            <div class="product-rating">
-                                <ul class="rating">
-                                    <li>
-                                        <i data-feather="star" class="fill"></i>
-                                    </li>
-                                    <li>
-                                        <i data-feather="star" class="fill"></i>
-                                    </li>
-                                    <li>
-                                        <i data-feather="star" class="fill"></i>
-                                    </li>
-                                    <li>
-                                        <i data-feather="star" class="fill"></i>
-                                    </li>
-                                    <li>
-                                        <i data-feather="star"></i>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <h3>I had a size issue, and their team helped me replace the product without any hassle.
-                                Smooth shopping experience!</h3>
-                            <div class="reviewer-profile">
-                                <div class="reviewer-image">
-                                    <img src="https://img.icons8.com/parakeet-line/a81e23/user-male-circle.png"
-                                        class="blur-up lazyload" alt="">
-                                </div>
-
-                                <div class="reviewer-name">
-                                    <h4>Ayesha Khan</h4>
-                                    <h6>Delhi</h6>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <div class="reviewer-box">
-                            <i class="fa-solid fa-quote-right"></i>
-                            <div class="product-rating">
-                                <ul class="rating">
-                                    <li>
-                                        <i data-feather="star" class="fill"></i>
-                                    </li>
-                                    <li>
-                                        <i data-feather="star" class="fill"></i>
-                                    </li>
-                                    <li>
-                                        <i data-feather="star" class="fill"></i>
-                                    </li>
-                                    <li>
-                                        <i data-feather="star" class="fill"></i>
-                                    </li>
-                                    <li>
-                                        <i data-feather="star" class="fill"></i>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <h3>Bought clothes for my kids, husband, and myself from a single store. Everything arrived
-                                on time, well-packed, and exactly as shown.
-                            </h3>
-                            <div class="reviewer-profile">
-                                <div class="reviewer-image">
-                                    <img src="https://img.icons8.com/parakeet-line/a81e23/user-male-circle.png"
-                                        class="blur-up lazyload" alt="">
-                                </div>
-
-                                <div class="reviewer-name">
-                                    <h4>Hari Om</h4>
-                                    <h6>IT Professional, Greater Noida</h6>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <div class="reviewer-box">
-                            <i class="fa-solid fa-quote-right"></i>
-                            <div class="product-rating">
-                                <ul class="rating">
-                                    <li>
-                                        <i data-feather="star" class="fill"></i>
-                                    </li>
-                                    <li>
-                                        <i data-feather="star" class="fill"></i>
-                                    </li>
-                                    <li>
-                                        <i data-feather="star" class="fill"></i>
-                                    </li>
-                                    <li>
-                                        <i data-feather="star" class="fill"></i>
-                                    </li>
-                                    <li>
-                                        <i data-feather="star"></i>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <h3>Wazi Wears always has the latest styles. I recently bought a Kanjivaram saree for a
-                                festival and it was gorgeous. The zari work was just stunning
-                            </h3>
-                            <div class="reviewer-profile">
-                                <div class="reviewer-image">
-                                    <img src="https://img.icons8.com/parakeet-line/a81e23/user-male-circle.png"
-                                        class="blur-up lazyload" alt="">
-                                </div>
-
-                                <div class="reviewer-name">
-                                    <h4>Sana Rizvi</h4>
-                                    <h6>Lucknow</h6>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <div class="reviewer-box">
-                            <i class="fa-solid fa-quote-right"></i>
-                            <div class="product-rating">
-                                <ul class="rating">
-                                    <li>
-                                        <i data-feather="star" class="fill"></i>
-                                    </li>
-                                    <li>
-                                        <i data-feather="star" class="fill"></i>
-                                    </li>
-                                    <li>
-                                        <i data-feather="star" class="fill"></i>
-                                    </li>
-                                    <li>
-                                        <i data-feather="star" class="fill"></i>
-                                    </li>
-                                    <li>
-                                        <i data-feather="star" class="fill"></i>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <h3>Got a stitched kurta-pajama set for Diwali. No tailoring hassle, just ordered and wore
-                                it. Fit like it was made for me!.</h3>
-
-                            <div class="reviewer-profile">
-                                <div class="reviewer-image">
-                                    <img src="https://img.icons8.com/parakeet-line/a81e23/user-male-circle.png"
-                                        class="blur-up lazyload" alt="">
-                                </div>
-
-                                <div class="reviewer-name">
-                                    <h4>Tanuja Singh </h4>
-                                    <h6>Banaras.</h6>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <h3 class="fw-bold mb-3">Easy Vendor Registration</h3>
+                    <p>Fill a simple registration form with basic business details.</p>
+                    <p>Our team reviews your information carefully.</p>
+                    <p>No complex steps or hidden requirements.</p>
+                    <p>Quick and transparent onboarding process.</p>
                 </div>
             </div>
+
+            <!-- Card 2 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="vendor-card h-100 text-center p-4">
+                    <div class="vendor-icon mb-4">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <h3 class="fw-bold mb-3">Verified & Approved</h3>
+                    <p>Your details are checked to ensure seller authenticity.</p>
+                    <p>Approved vendors receive login credentials via email.</p>
+                    <p>Only verified sellers can list products.</p>
+                    <p>This builds trust for buyers and sellers.</p>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="col-lg-4 col-md-6 mx-auto">
+                <div class="vendor-card h-100 text-center p-4">
+                    <div class="vendor-icon mb-4">
+                        <i class="fas fa-store"></i>
+                    </div>
+                   <h3 class="fw-bold mb-3">Add Products & Earn</h3>
+                    <p>Login to your vendor dashboard anytime.</p>
+                    <p>Add products, set prices, and manage stock.</p>
+                    <p>Receive orders directly from customers.</p>
+                    <p>Earn money and grow your online business.</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- CTA -->
+        <div class="text-center mt-5 d-flex justify-content-center">
+            <a href="#" class="btn btn-vendor px-5 py-3">
+                <i class="fas fa-user-plus me-2"></i> Register as Vendor
+            </a>
         </div>
     </div>
 </section>
-<!-- Review Section End -->
