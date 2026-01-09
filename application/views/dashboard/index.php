@@ -1,132 +1,85 @@
-<style type="text/css">
-  .progress.xs,
+<style>
+  /* Progress bar styling */
   .progress-xs {
     height: 20px;
   }
 
-  .modal-confirm {
-    color: #434e65;
-    width: 525px;
+  .progress-bar-custom {
+    background-color: #28a745;
   }
 
-  .modal-confirm .modal-content {
-    padding: 20px;
+  .small-box .inner {
     font-size: 16px;
-    border-radius: 5px;
-    border: none;
   }
 
-  .modal-confirm .modal-header {
-    background: #47c9a2;
-    border-bottom: none;
-    position: relative;
-    text-align: center;
-    margin: -20px -20px 0;
-    border-radius: 5px 5px 0 0;
-    padding: 35px;
-  }
-
-  .modal-confirm h4 {
-    text-align: center;
-    font-size: 36px;
-    margin: 10px 0;
-  }
-
-  .modal-confirm .form-control,
-  .modal-confirm .btn {
-    min-height: 40px;
-    border-radius: 3px;
-  }
-
-  .modal-confirm .close {
+  .small-box .icon {
     position: absolute;
-    top: 15px;
-    right: 15px;
+    top: 10px;
+    right: 10px;
+    font-size: 40px;
+    opacity: 0.2;
+  }
+
+  .small-box-footer {
     color: #fff;
-    text-shadow: none;
-    opacity: 0.5;
-  }
-
-  .modal-confirm .close:hover {
-    opacity: 0.8;
-  }
-
-  .modal-confirm .icon-box {
-    color: #fff;
-    width: 95px;
-    height: 95px;
-    display: inline-block;
-    border-radius: 50%;
-    z-index: 9;
-    border: 5px solid #fff;
-    padding: 15px;
-    text-align: center;
-  }
-
-  .modal-confirm .icon-box i {
-    font-size: 64px;
-    margin: -4px 0 0 -4px;
-  }
-
-  .modal-confirm.modal-dialog {
-    margin-top: 80px;
-  }
-
-  .modal-confirm .btn,
-  .modal-confirm .btn:active {
-    color: #fff;
-    border-radius: 4px;
-    background: #eeb711 !important;
-    text-decoration: none;
-    transition: all 0.4s;
-    line-height: normal;
-    border-radius: 30px;
+    display: block;
     margin-top: 10px;
-    padding: 6px 20px;
-    border: none;
+    text-decoration: none;
   }
 
-  .modal-confirm .btn:hover,
-  .modal-confirm .btn:focus {
-    background: #eda645 !important;
-    outline: none;
+  .small-box-footer:hover {
+    text-decoration: underline;
   }
 
-  .modal-confirm .btn span {
-    margin: 1px 3px 0;
-    float: left;
+  /* Vendor welcome card */
+  .vendor-card,
+  .admin-card {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
   }
 
-  .modal-confirm .btn i {
-    margin-left: 1px;
-    font-size: 20px;
-    float: right;
+  .vendor-card h3,
+  .admin-card h3 {
+    margin-bottom: 10px;
   }
 
-  .trigger-btn {
-    display: inline-block;
-    margin: 100px auto;
+  .vendor-card p,
+  .admin-card p {
+    margin-bottom: 0;
   }
 </style>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
-<!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
-  <?php $adminData = $this->session->userdata('adminData');
-  $seller_id = $this->uri->segment('4');
 
+  <?php
+  $adminData = $this->session->userdata('adminData');
+  $seller_id = $this->uri->segment(4);
   ?>
   <input type="hidden" value="<?= @$seller_id; ?>" id="login_success">
 
   <section class="content-header">
     <h1>
-      Dashboard
-      <small>Control panel</small>
-
+      <?php
+      if ($adminData['Type'] == 1)
+      {
+        echo "Admin Dashboard";
+      } elseif ($adminData['Type'] == 2)
+      {
+        echo "Vendor Dashboard";
+      } else
+      {
+        echo "Dashboard";
+      }
+      ?>
+     
     </h1>
   </section>
 
-  <?php if ($adminData['Type'] == 1)
+
+  <!-- ======================== ADMIN DASHBOARD ======================== -->
+   <?php if ($adminData['Type'] == 1)
   { ?>
     <section class="content">
       <div class="row">
@@ -255,222 +208,150 @@
   <?php } ?>
 
 
-
-
-</div>
-
-
-<!-- Add similar blocks for failed, shipped, cancelled, total -->
-
-
-
-
-<?php if ($adminData['Type'] == 2)
-{
-  $per = '10';
-  $this->db->select('mobile_verify,email_verify,profile_pic');
-  $staff = $this->db->get_where('staff_master', array('id' => $adminData['Id']))->row_array();
-
-  $this->db->select('id');
-  $shop = $this->db->get_where('shop_master', array('vendor_id' => $adminData['Id']))->result_array();
-
-  $shop_id = array_column($shop, 'id');
-
-  if (!empty($shop_id))
+  <!-- ======================== VENDOR DASHBOARD ======================== -->
+  <?php if ($adminData['Type'] == 2)
   {
 
+    $per = 10;
+
+    // VENDOR BASIC INFO
+    $this->db->select('mobile_verify,email_verify,profile_pic');
+    $staff = $this->db->get_where('staff_master', ['id' => $adminData['Id']])->row_array();
+
+    // SHOPS
     $this->db->select('id');
-    $this->db->where_in('shop_id', $shop_id);
-    $product = $this->db->get('sub_product_master')->result();
-    if (!empty($product))
+    $shop = $this->db->get_where('shop_master', ['vendor_id' => $adminData['Id']])->result_array();
+    $shop_id = array_column($shop, 'id');
+
+    if (!empty($shop_id))
     {
-      $per = $per + '15';
+      $this->db->select('id');
+      $this->db->where_in('shop_id', $shop_id);
+      $product = $this->db->get('sub_product_master')->result();
+      if (!empty($product))
+      {
+        $per += 15;
+      }
     }
 
-  }
+    // MOBILE VERIFY
+    if (!empty($staff['mobile_verify']) && $staff['mobile_verify'] == '1')
+    {
+      $per += 15;
+    }
 
+    // EMAIL VERIFY
+    if (!empty($staff['email_verify']) && $staff['email_verify'] == '1')
+    {
+      $per += 15;
+    }
 
+    // PROFILE PIC
+    if (!empty($staff['profile_pic']))
+    {
+      $per += 5;
+    }
 
+    ?>
 
-  if ($staff['mobile_verify'] == '1')
-  {
-    $per = $per + '15';
-  } else
-  {
-    $per = $per;
-  }
-  if ($staff['email_verify'] == '1')
-  {
-    $per = $per + '15';
-  } else
-  {
-    $per = $per;
-  }
-  if (!empty($staff['profile_pic']))
-  {
-    $per = $per + '5';
-  } else
-  {
-    $per = $per;
-  }
-
-  $doc = $this->db->get_where('staff_kyc_document', array('staff_id' => $adminData['Id']))->num_rows();
-
-  if ($doc == '0')
-  {
-    $per = $per;
-  } else if ($doc == '1')
-  {
-    $per = $per + '10';
-  } else if ($doc == '2')
-  {
-    $per = $per + '20';
-  } else if ($doc == '3')
-  {
-    $per = $per + '30';
-  } else if ($doc == '4')
-  {
-    $per = $per + '40';
-  }
-
-
-
-  ?>
-  <section class="content">
-    <div class="row">
-
-      <div class="col-md-12">
-        <b style="margin-top: -30px;">0% <span style="float: right;">100%</span></b>
-        <div class="progress progress-xs progress-striped active">
-          <div class="progress-bar progress-bar-success" style="width: <?= $per; ?>%"><?= $per; ?>%</div>
-
+    <section class="content">
+      <div class="admin-card">
+        <h3>Welcome, <?= ucwords($adminData['Name']); ?>!</h3>
+        <p>You are logged in as <strong>Admin</strong>.</p>
+      </div>
+      <!-- <div class="row">
+        <div class="col-md-12">
+          <b>0% <span style="float:right;">100%</span></b>
+          <div class="progress progress-xs progress-striped active">
+            <div class="progress-bar progress-bar-success" style="width: <?= $per; ?>%;">
+              <?= $per; ?>%
+            </div>
+          </div>
         </div>
+      </div> -->
 
-
-      </div>
-
-
-    </div>
-    <div class="row">
-      <div class="col-md-12" style="margin-top: -28px;">
-        <h3><?= $adminData['Name']; ?> Your seller profile is <b><?= $per; ?>%</b> Completed<?php if ($per < 99)
-             { ?>, please
-            complete your profile to start selling.<?php } ?></h3>
-
-      </div>
-    </div>
-    <div class="row">
-
-      <div class="col-lg-3 col-xs-6">
-        <!-- small box -->
-        <div class="small-box bg-aqua">
-          <div class="inner">
-            <h3><?php echo $this->user_model->TotalGetProducts() ?></h3>
-
-            <p>Total Product</p>
-          </div>
-          <div class="icon">
-            <i class="ion ion-bag"></i>
-          </div>
-          <a href="<?php echo site_url('admin/Product/'); ?>" class="small-box-footer">View Products <i
-              class="fa fa-arrow-circle-right"></i></a>
+      <div class="row">
+        <div class="col-md-12">
+          <!-- <h3><?= $adminData['Name']; ?> Your seller profile is
+            <b><?= $per; ?>%</b> Completed
+            <?php if ($per < 99)
+            { ?>, please complete your profile to start selling.<?php } ?>
+          </h3> -->
         </div>
       </div>
 
+      <div class="row">
 
-
-      <div class="col-lg-3 col-xs-6">
-        <!-- small box -->
-        <div class="small-box bg-blue">
-          <div class="inner">
-            <h3><?php echo $this->user_model->getTotalShop() ?></h3>
-
-            <p>Total Shops</p>
+        <div class="col-lg-3 col-xs-6">
+          <div class="small-box bg-aqua">
+            <div class="inner">
+              <h3><?php echo $this->user_model->TotalGetProducts(); ?></h3>
+              <p>Total Product</p>
+            </div>
+            <div class="icon"><i class="ion ion-bag"></i></div>
+            <a href="<?php echo site_url('admin/Product/VendorProductList'); ?>" class="small-box-footer">
+              View Products <i class="fa fa-arrow-circle-right"></i>
+            </a>
           </div>
-          <div class="icon">
-            <i class="ion ion-bag"></i>
-          </div>
-          <a href="<?php echo site_url('admin/Shop/'); ?>" class="small-box-footer">View Shops <i
-              class="fa fa-arrow-circle-right"></i></a>
         </div>
+
+        <!-- <div class="col-lg-3 col-xs-6">
+          <div class="small-box bg-blue">
+            <div class="inner">
+              <h3><?php echo $this->user_model->getTotalShop(); ?></h3>
+              <p>Total Shops</p>
+            </div>
+            <div class="icon"><i class="ion ion-bag"></i></div>
+            <a href="<?php echo site_url('admin/Shop'); ?>" class="small-box-footer">
+              View Shops <i class="fa fa-arrow-circle-right"></i>
+            </a>
+          </div>
+        </div> -->
+
+        <div class="col-lg-3 col-xs-6">
+          <div class="small-box bg-green">
+            <div class="inner">
+              <h3>Account</h3>
+              <p>My Account</p>
+            </div>
+            <div class="icon"><i class="ion ion-android-people"></i></div>
+            <a href="<?php echo site_url('admin/Users/myAccount'); ?>" class="small-box-footer">
+              View My Account <i class="fa fa-arrow-circle-right"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-xs-6">
+          <div class="small-box bg-aqua">
+            <div class="inner">
+              <h3>Bulk</h3>
+              <p>Add Bulk Product</p>
+            </div>
+            <div class="icon"><i class="ion ion-bag"></i></div>
+            <a href="<?php echo site_url('admin/Product/AddBulkProduct'); ?>" class="small-box-footer">
+              Add Bulk Product <i class="fa fa-arrow-circle-right"></i>
+            </a>
+          </div>
+        </div>
+
       </div>
 
-      <div class="col-lg-3 col-xs-6">
-        <!-- small box -->
-        <div class="small-box bg-green">
-          <div class="inner">
-            <h3>Account</h3>
-
-            <p>My Account</p>
-          </div>
-          <div class="icon">
-            <i class="ion ion-android-people"></i>
-          </div>
-          <a href="<?php echo site_url('admin/Users/myAccount'); ?>" class="small-box-footer">View My Account <i
-              class="fa fa-arrow-circle-right"></i></a>
-        </div>
-      </div>
-
-
-      <div class="col-lg-3 col-xs-6">
-        <!-- small box -->
-        <div class="small-box bg-aqua">
-          <div class="inner">
-            <h3>Bulk</h3>
-
-            <p>Add Bulk Product</p>
-          </div>
-          <div class="icon">
-            <i class="ion ion-bag"></i>
-          </div>
-          <a href="<?php echo site_url('admin/Product/AddBulkProduct'); ?>" class="small-box-footer">Add Bulk Product<i
-              class="fa fa-arrow-circle-right"></i></a>
-        </div>
-      </div>
-
-  </section>
-
-<?php } ?>
-
-
-
-
-
-
-
-
-
-
-
-
+    </section>
+  <?php } ?>
 
 </div>
-<script src="<?php echo base_url() ?>assets/admin/bower_components/jquery/dist/jquery.min.js"></script>
-<!-- jQuery UI 1.11.4 -->
-<script src="<?php echo base_url() ?>assets/admin/bower_components/jquery-ui/jquery-ui.min.js"></script>
-<!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+
+
+<script src="<?php echo base_url(); ?>assets/admin/bower_components/jquery/dist/jquery.min.js"></script>
+<script src="<?php echo base_url(); ?>assets/admin/bower_components/jquery-ui/jquery-ui.min.js"></script>
+
 <script>
   $.widget.bridge('uibutton', $.ui.button);
-</script>
-<!-- Bootstrap 3.3.7 -->
-
-
-<script type="text/javascript">
 
   $(document).ready(function () {
-
     var flag = $('#login_success').val();
-
     if (flag == '1') {
-
       $('#vendor_login_succ_modal').modal('show');
-    } else {
-
     }
-
-    //  setTimeout(function() {
-    //  $('#welcomeModal').modal('hide');
-    //  }, 5000);
   });
-
 </script>

@@ -54,40 +54,65 @@ class User_model extends CI_Model
 
 
   # Admin login here
-public function login()
+// ---------------- ADMIN LOGIN ----------------
+ public function adminLogin($email, $password)
+    {
+        $this->db->select("id, username, email, profile_pic");
+        $query = $this->db->get_where('admin_master', [
+            'email'    => $email,
+            'password' => base64_encode($password), // admin password encoded
+            'status'   => 0   // 0 = active
+        ]);
+
+        return $query->row_array();
+    }
+
+    // ---------------- VENDOR LOGIN ----------------
+  public function vendorLogin($mobile, $password)
 {
-    $mobile = $this->input->post('mobile');
-    $password = $this->input->post('password');
-    $role = $this->input->post('role');
+    $this->db->select("id, name, email, mobile, profile_pic, password, status");
+    $query = $this->db->get_where('vendors', [
+        'mobile' => $mobile,
+        'status' => 1   // 1 = active vendor
+    ]);
 
-    $user = ($role == 'vendor') ? 
-        $this->db->get_where('vendors', ['mobile' => $mobile])->row() : 
-        $this->db->get_where('promoters', ['mobile' => $mobile])->row();
+    $vendor = $query->row_array();
 
-    if (!$user) {
-        $this->session->set_flashdata('error', 'User not found');
-        redirect($_SERVER['HTTP_REFERER']);
-        return;
+    if ($vendor) {
+        // bcrypt password verify
+        if (password_verify($password, $vendor['password'])) {
+            return $vendor;
+        }
     }
 
-    if (!password_verify($password, $user->password)) {
-        $this->session->set_flashdata('error', 'Invalid password');
-        redirect($_SERVER['HTTP_REFERER']);
-        return;
-    }
-
-    if ($user->status == 0) {
-        $this->session->set_flashdata('error', 'Not approved by Admin yet');
-        redirect($_SERVER['HTTP_REFERER']);
-        return;
-    }
-
-    // Login successful
-    $this->session->set_userdata(['user_id' => $user->id, 'role' => $role]);
-    redirect('dashboard');
+    return false;
 }
 
 
+
+  // public function login($username, $password, $loginType)
+  //   {
+  //       if ($loginType == 1)
+  //       {
+  //           $this->db->select("id, username, email, profile_pic");
+  //           $query = $this->db->get_where('admin_master', [
+  //               'email'    => $username,
+  //               'password' => $password,
+  //               'status'   => '0' 
+  //           ]);
+  //           return $query->row_array();
+  //       } 
+  //       else 
+  //       {
+  //           $this->db->select("id, name, email, mobile, profile_pic");
+  //           $query = $this->db->get_where('vendors', [
+  //               'mobile'   => $username,
+  //               'password' => $password,
+  //               'status'   => '1' 
+  //           ]);
+  //           return $query->row_array();
+  //       }
+  //   }
 
   public function add_pincode_data($request)
   {
@@ -963,20 +988,20 @@ public function login()
 
     $data = array();
     $data['coupon_code'] = $request['coupon_code'];
-
+   
     $data['discount_type'] = $request['discount_type'];
     $data['discount_value'] = $request['discount_value'];
-
+   
     $data['start_date'] = date('Y-m-d H:i:s', strtotime($start_date));
     $data['end_date'] = date('Y-m-d H:i:s', strtotime($end_date));
     $data['usage_limit_total'] = $request['usage_limit_total'] ?? 0;
     $data['usage_limit_per_user'] = $request['usage_limit_per_user'] ?? 1;
-
+ 
     $data['parent_category_id'] = $request['parent_category_id'] ?? null;
     $data['category_ids'] = isset($request['category_ids']) ? implode(',', $request['category_ids']) : '';
     $data['product_ids'] = isset($request['product_ids']) ? implode(',', $request['product_ids']) : '';
     $data['sub_category_ids'] = isset($request['sub_category_ids']) ? implode(',', $request['sub_category_ids']) : '';
-
+   
     $data['status'] = $request['status'] ?? 1;
     $data['created_at'] = date('Y-m-d H:i:s');
     $data['updated_at'] = date('Y-m-d H:i:s');
@@ -994,41 +1019,40 @@ public function login()
 
 
 
-  public function UpdateCouponData($request)
-  {
-    if (empty($request['id']))
-    {
-      return 0;
+public function UpdateCouponData($request)
+{
+    if (empty($request['id'])) {
+        return 0;
     }
 
     $start_date = $request['start_date'] ?? date('Y-m-d H:i:s');
-    $end_date = $request['end_date'] ?? date('Y-m-d H:i:s');
+    $end_date   = $request['end_date'] ?? date('Y-m-d H:i:s');
 
     $data = [
-      'coupon_code' => $request['coupon_code'] ?? '',
-
-      'discount_type' => $request['discount_type'] ?? 'fixed',
-      'discount_value' => $request['discount_value'] ?? 0,
-
-      'start_date' => date('Y-m-d H:i:s', strtotime($start_date)),
-      'end_date' => date('Y-m-d H:i:s', strtotime($end_date)),
-      'usage_limit_total' => $request['usage_limit_total'] ?? 0,
-      'usage_limit_per_user' => $request['usage_limit_per_user'] ?? 1,
-
-      'parent_category_id' => $request['parent_category_id'] ?? null,
-      'category_ids' => isset($request['category_ids']) ? implode(',', $request['category_ids']) : '',
-      'sub_category_ids' => isset($request['sub_category_ids']) ? implode(',', $request['sub_category_ids']) : '',
-      'product_ids' => isset($request['product_ids']) ? implode(',', $request['product_ids']) : '',
-
-      'status' => $request['status'] ?? 1,
-      'updated_at' => date('Y-m-d H:i:s')
+        'coupon_code'          => $request['coupon_code'] ?? '',
+     
+        'discount_type'        => $request['discount_type'] ?? 'fixed',
+        'discount_value'       => $request['discount_value'] ?? 0,
+      
+        'start_date'           => date('Y-m-d H:i:s', strtotime($start_date)),
+        'end_date'             => date('Y-m-d H:i:s', strtotime($end_date)),
+        'usage_limit_total'    => $request['usage_limit_total'] ?? 0,
+        'usage_limit_per_user' => $request['usage_limit_per_user'] ?? 1,
+     
+        'parent_category_id'   => $request['parent_category_id'] ?? null,
+        'category_ids'         => isset($request['category_ids']) ? implode(',', $request['category_ids']) : '',
+        'sub_category_ids'     => isset($request['sub_category_ids']) ? implode(',', $request['sub_category_ids']) : '',
+        'product_ids'          => isset($request['product_ids']) ? implode(',', $request['product_ids']) : '',
+       
+        'status'               => $request['status'] ?? 1,
+        'updated_at'           => date('Y-m-d H:i:s')
     ];
 
     $this->db->where('id', $request['id']);
     $this->db->update('coupon_manager_master', $data);
 
     return $this->db->affected_rows();
-  }
+}
 
 
 

@@ -9,6 +9,8 @@ class Users extends CI_Controller
 		$this->load->library('session');
 		$this->load->helper('message');
 		$this->load->model('Manage_Users_Model');
+		 is_not_logged_in();
+		 
 
 	}
 

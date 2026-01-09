@@ -96,7 +96,7 @@
                                 <i class="fas fa-angle-right"></i>Refund Policy</a>
                         </li>
                         <li>
-                            <a href="<?php echo site_url('web/registartion'); ?>" class="footer-contain-2">
+                            <a href="<?php echo site_url('web/vendor_registration'); ?>" class="footer-contain-2">
                                 <i class="fas fa-angle-right"></i>Registration</a>
                         </li>
                     </ul>
