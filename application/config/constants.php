@@ -131,7 +131,7 @@ define('IMAGE_DIRECTORY', $_SERVER['DOCUMENT_ROOT'].'/assets/category_images/');
 define('BRAND_DIRECTORY', $_SERVER['DOCUMENT_ROOT'].'/assets/brand_images/');
 define('BANNER_DIRECTORY', $_SERVER['DOCUMENT_ROOT'].'/assets/banner_images/');
 define('BOY_DIRECTORY', $_SERVER['DOCUMENT_ROOT'].'/assets/banner_images/boy/');
-define('PRODUCT_DIRECTORY', $_SERVER['DOCUMENT_ROOT'].'/chenna/assets/product_images/');
+define('PRODUCT_DIRECTORY', $_SERVER['DOCUMENT_ROOT'].'/Chenna-co/assets/product_images/');
 define('EXCEL_DIRECTORY', $_SERVER['DOCUMENT_ROOT'].'/assets/uploaded_excel_file');
 define('BRAND_URL', $_SERVER['DOCUMENT_ROOT'].'/assets/brand_images/');
 define('NOTIFICATION_URL', $_SERVER['DOCUMENT_ROOT'].'/assets/notification_images/');

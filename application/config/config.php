@@ -31,7 +31,7 @@ date_default_timezone_set('Asia/Kolkata');
 */
 
 //$config['base_url'] = ($_SERVER['SERVER_NAME'] == 'localhost') ? '' : 'https://'.$base_url;
-$config['base_url'] = 'http://localhost/chenna/';
+$config['base_url'] = 'http://localhost/auctech/Chenna-co/';
 
 /*
 |--------------------------------------------------------------------------

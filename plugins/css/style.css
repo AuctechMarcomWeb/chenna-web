@@ -1,14 +1,14 @@
 .theme-color-1 {
-  --theme-color: #d80101;
+  --theme-color: #fb5808;
   --theme-color-rgb: 217, 159, 70;
 }
 .theme-color-2 {
-    --theme-color: #d80101;
-    --theme-color-rgb: #d80101;
+    --theme-color: #fb5808;
+    --theme-color-rgb: #fb5808;
 }
 .theme-color-3 {
-  --theme-color: ##d80101;
-  --theme-color-rgb: ##d80101;
+  --theme-color: #fb5808;
+  --theme-color-rgb: #fb5808;
 }
 .theme-color-4 {
   --theme-color: #6262a6;
@@ -23,7 +23,7 @@
 }
 .theme-color-7 {
   --theme-color: #7b4397;
-  --theme-color2: ##d80101;
+  --theme-color2: #fb5808;
 }
 button,
 hr,
@@ -16813,10 +16813,11 @@ span {
 }
 .offer-banner .offer-box {
   position: absolute;
-  top: calc(7px + 11 * (100vw - 320px) / 1600);
+  /* top: calc(7px + 11 * (100vw - 320px) / 1600); */
   right: calc(7px + 11 * (100vw - 320px) / 1600);
   background-color: var(--theme-color);
   border-radius: 50px;
+  bottom:10px;
 }
 .offer-banner .offer-box a {
   color: #fff;
@@ -27057,7 +27058,7 @@ body.rtl .menu-label {
   transform: translateY(-50%);
   background-color: #ff4f4f;
   position: absolute;
-  right: 3px;
+  right: 6px;
   border-radius: 3px;
   height: 91%;
   border: none;

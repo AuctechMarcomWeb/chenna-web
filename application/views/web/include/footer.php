@@ -31,10 +31,8 @@
                         <img style="height:60px; object-fit:contain"
                             src="<?php echo base_url('plugins/images/logo.png'); ?>" class="img-fluid" alt="">
                     </a>
-                    <p class="information-text" style="text-align:justify; width:80%">At Wazi Wears, we bring you the
-                        finest and trendiest styles straight from the heart of fashion. Every piece is crafted to add
-                        comfort, elegance, and a touch of confidence to your everyday look.
-
+                    <p class="information-text" style="text-align:justify; width:80%">
+                        Cenna.co is a multi-category online marketplace where you can find everything you need in one place, from daily essentials to trending products. We focus on quality, fair prices, and a smooth shopping experience you can trust every day.
                     </p>
                     <ul class="social-icon">
                         <li style=" display: inline-block;">
@@ -72,9 +70,13 @@
 
                 <div class="col-xxl-2 col-xl-2 col-sm-6">
                     <div class="footer-title">
-                        <h4>About Wazi Wears Wears</h4>
+                        <h4>Quick Links</h4>
                     </div>
                     <ul class="footer-list footer-contact mb-sm-0 mb-3">
+                        <li>
+                            <a href="<?php echo site_url('web/vendor_registration'); ?>" class="footer-contain-2">
+                                <i class="fas fa-angle-right"></i>Become Seller</a>
+                        </li>
                         <li>
                             <a href="<?php echo site_url('web/about'); ?>" class="footer-contain-2">
                                 <i class="fas fa-angle-right"></i>About Us</a>
@@ -95,10 +97,7 @@
                             <a href="<?php echo site_url('web/refund_policy'); ?>" class="footer-contain-2">
                                 <i class="fas fa-angle-right"></i>Refund Policy</a>
                         </li>
-                        <li>
-                            <a href="<?php echo site_url('web/vendor_registration'); ?>" class="footer-contain-2">
-                                <i class="fas fa-angle-right"></i>Registration</a>
-                        </li>
+                        
                     </ul>
                 </div>
 
@@ -144,7 +143,7 @@
 
                 <div class="col-xxl-4 col-xl-4 col-sm-6">
                     <div class="footer-title">
-                        <h4>Store information</h4>
+                        <h4>Contact information</h4>
                     </div>
                     <ul class="footer-address footer-contact">
                         <li>
@@ -168,10 +167,10 @@
                         </li>
 
                         <li>
-                            <a href="mailto:info@waziwear.com">
+                            <a href="mailto:info@chenna.co">
                                 <div class="inform-box">
                                     <i data-feather="mail"></i>
-                                    <p>Email Us: info@waziwear.com</p>
+                                    <p>Email Us: info@chenna.co</p>
                                 </div>
                             </a>
                         </li>
@@ -185,7 +184,7 @@
 
         <div class="sub-footer section-small-space">
             <div class="left-footer">
-                <p>2025 Copyright By Wazi Wears | Developed By <a href="https://auctech.in/" target="_blank"
+                <p>2026 Copyright By Chenna.co | Developed By <a href="https://auctech.in/" target="_blank"
                         class="fw-bold text-warning"> Auctech Marcom</a></p>
             </div>
             <div class="right-footer">
