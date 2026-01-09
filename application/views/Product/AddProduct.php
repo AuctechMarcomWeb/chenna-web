@@ -140,18 +140,21 @@ $sub_cate_data = @$this->db->get_where('sub_category_master',array('category_mas
                     <div class="<?php if(empty($tab_id)){echo'active';}else{'';}?> tab-pane" id="activity">
                         <form action="<?php echo base_url();?>admin/product/save_general_info" method="POST">
                               <div class="row" style="margin-left: 10px;">
-                              <div class="col-sm-4">
-  <label>Shop <span class="err_color">*</span></label>
-  <select class="form-control select2" name="shop_id" id="shop_id" required style="width:100%;">
-    <option value="">Select Shop</option>
-    <?php foreach ($shopList as $shop): ?>
-      <option value="<?= $shop['id']; ?>"
-        <?= ($shop['id'] == @$getBasicInfo['shop_id']) ? 'selected' : ''; ?>>
-        <?= ucfirst($shop['name']); ?>
-      </option>
-    <?php endforeach; ?>
-  </select>
-</div>
+                             <div class="col-sm-4">
+                                <label>Shop <span class="err_color">*</span></label>
+                                <select class="form-control select2" name="shop_id" id="shop_id" required style="width:100%;">
+                                  <option value="">Select Shop</option>
+                                  <?php foreach ($shopList as $shop): ?>
+                                    <option value="<?= $shop['id']; ?>"
+                                      <?= ($shop['id'] == @$getBasicInfo['shop_id']) ? 'selected' : ''; ?>>
+                                      
+                                      <?= ucfirst($shop['shop_name'] ?? $shop['name']); ?>
+
+                                    </option>
+                                  <?php endforeach; ?>
+                                </select>
+                              </div>
+
 
     
     
