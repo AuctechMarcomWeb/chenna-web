@@ -10,41 +10,65 @@ class Vendor_model extends CI_Model
 
   // Registration
   // ================= Step-7 =================
- public function check_duplicate($mobile, $aadhar, $pan)
-{
-    $q1 = $this->db->where('mobile', $mobile)
-                   ->or_where('aadhar_card', $aadhar)
-                   ->or_where('pan_card', $pan)
-                   ->get('vendors')
-                   ->row();
-
-    $q2 = $this->db->where('mobile', $mobile)
-                   ->or_where('aadhar_card', $aadhar)
-                   ->or_where('pan_card', $pan)
-                   ->get('promoters')
-                   ->row();
-
-    return ($q1 || $q2);
-}
-
-
-  public function insert_user($data, $role){
-        $table = ($role == 'vendor') ? 'vendors' : 'promoters';
-        $this->db->insert($table, $data);
-        return $this->db->insert_id();
-    }
-
-  public function approve_user($id, $role)
+  public function insert_user($data, $table)
   {
-    $this->db->where('id', $id);
+    $this->db->insert($table, $data);
+    return $this->db->insert_id();
+  }
+  public function get_all_vendors()
+  {
+    $this->db->select('*');
+    $this->db->from('vendors');
+    $this->db->order_by('add_date', 'DESC');
+    return $this->db->get()->result();
+  }
+
+  public function admin_approve_and_update_vendor_password($id, $role, $hashed_password)
+  {
     if ($role == 'vendor')
     {
-      return $this->db->update('vendors', ['status' => 1]);
-    } else
-    {
-      return $this->db->update('promoters', ['status' => 1]);
+      return $this->db->where('id', $id)->update('vendors', ['status' => 1, 'password' => $hashed_password]);
     }
   }
+
+
+  public function admin_update_vendor_status($id, $role, $status)
+  {
+    if ($role == 'vendor')
+    {
+      return $this->db->where('id', $id)->update('vendors', ['status' => $status]);
+    }
+  }
+
+  public function get_admin_vendor_by_id($id)
+  {
+    return $this->db->where('id', $id)
+      ->get('vendors')
+      ->row();
+  }
+
+  public function admin_delete_vendor($id)
+  {
+    return $this->db->where('id', $id)->delete('vendors');
+  }
+
+
+  public function check_duplicate($mobile, $aadhar, $pan)
+  {
+    $this->db->where('mobile', $mobile);
+    if (!empty($aadhar))
+    {
+      $this->db->or_where('aadhar_card', $aadhar);
+    }
+    if (!empty($pan))
+    {
+      $this->db->or_where('pan_card', $pan);
+    }
+    $query = $this->db->get('vendors');
+    return $query->num_rows() > 0;
+  }
+
+
 
   public function get_user($id, $role)
   {
@@ -57,11 +81,22 @@ class Vendor_model extends CI_Model
     }
   }
 
-// ================= GET PROMOTER BY CODE =================
-public function get_promoter_by_code($code)
-{
+  public function getSingleVendorsData($id)
+    {
+        return $this->db->get_where('vendors', ['id' => $id])->row_array();
+    }
+
+    // Update vendor
+    public function updateVendor($id, $data)
+    {
+        $this->db->where('id', $id);
+        return $this->db->update('vendors', $data);
+    }
+  // ================= GET PROMOTER BY CODE =================
+  public function get_promoter_by_code($code)
+  {
     return $this->db->get_where('promoters', ['promoter_code' => $code])->row();
-}
+  }
 
 
 

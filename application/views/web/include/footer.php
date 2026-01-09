@@ -74,7 +74,7 @@
                     </div>
                     <ul class="footer-list footer-contact mb-sm-0 mb-3">
                         <li>
-                            <a href="<?php echo site_url('web/registartion'); ?>" class="footer-contain-2">
+                            <a href="<?php echo site_url('web/vendor_registration'); ?>" class="footer-contain-2">
                                 <i class="fas fa-angle-right"></i>Become Seller</a>
                         </li>
                         <li>

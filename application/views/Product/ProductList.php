@@ -182,252 +182,131 @@
   </section>
 
   <!-- Main content -->
-  <section class="content">
-    <div class="row">
-      <div id="msg">
-        <div class="col-xs-12">
+ <section class="content">
+  <div class="row">
+    <div id="msg">
+      <div class="col-xs-12">
+        <div class="box">
+          <div class="col-md-12" id="hiddenSms">
+            <?php echo $this->session->flashdata('activate'); ?>
+          </div>
 
-          <div class="box">
+          <div class="box-body" style="overflow-x:auto;">
+            <br>
+            <!-- FILTER FORM -->
+            <div class="col-sm-12">
+              <form method="POST">
+                <div class="row" style="margin-top: -19px;">
+                  <div class="col-sm-3">
+                    <select class="form-control select2" name="shop_id">
+                      <option value="">--Select Shop--</option>
+                      <?php if (!empty($shopList)) {
+                        foreach ($shopList as $shop) { ?>
+                          <option value="<?= $shop['id'] ?>" <?= (@$_POST['shop_id'] == $shop['id']) ? 'selected' : ''; ?>>
+                            <?= ucfirst($shop['name']); ?>
+                          </option>
+                      <?php }
+                      } ?>
+                    </select>
+                  </div>
 
-
-            <?php $adminData = $this->session->userdata('adminData');
-            ?>
-            <div class="col-md-12" id="hiddenSms"><?php echo $this->session->flashdata('activate'); ?></div>
-
-            <div class="box-body" style="overflow-x:auto;"><br>
-
-
-              <div class="col-sm-12">
-
-
-                <form method="POST">
-                  <div class="row" style="margin-top: -19px;">
+                  <?php if ($adminData['Type'] != 2) { ?>
                     <div class="col-sm-3">
-                      <select class="form-control select2" name="shop_id" id="cat_master_ID"
-                        data-item="<?= @$_POST['CatId'] ? @$_POST['CatId'] : '0'; ?>">
-                        <option value="">--Select Shop--</option>
-                        <?php if (!empty($shopList))
-                        {
-                          foreach ($shopList as $shopList)
-                          { ?>
-                            <option value="<?php echo $shopList['id'] ?>" <?= (@$_POST['shop_id'] == $shopList['id']) ? 'selected' : ''; ?>><?php echo ucfirst($shopList['name']) ?></option>
-                          <?php }
+                      <select class="form-control select2" name="vendor_id">
+                        <option value="">--Select Vendor--</option>
+                        <?php if (!empty($vendorList)) {
+                          foreach ($vendorList as $vendor) { ?>
+                            <option value="<?= $vendor['id'] ?>" <?= (@$_POST['vendor_id'] == $vendor['id']) ? 'selected' : ''; ?>>
+                              <?= ucfirst($vendor['name']); ?>
+                            </option>
+                        <?php }
                         } ?>
                       </select>
                     </div>
+                  <?php } ?>
 
-                    <?php if ($adminData['Type'] == '1')
-                    { ?>
-                      <div class="col-sm-3">
-                        <select class="form-control select2" name="vendor_id" id="vendor_id"
-                          data-item="<?= @$_POST['vendor_id'] ? @$_POST['vendor_id'] : '0'; ?>">
-                          <option value="">--Select Vendor--</option>
-                          <?php if (!empty($vendorList))
-                          {
-                            foreach ($vendorList as $vendorList)
-                            { ?>
-                              <option value="<?php echo $vendorList['id'] ?>" <?= (@$_POST['vendor_id'] == $vendorList['id']) ? 'selected' : ''; ?>><?php echo ucfirst($vendorList['name']) ?></option>
-                            <?php }
-                          } ?>
-                        </select>
-                      </div>
-
-                      <div class="col-sm-3">
-                        <input type="text" class="form-control" name="keywords" placeholder="Enter Product Name"
-                          value="<?= @$_POST['keywords']; ?>">
-                      </div>
-
-                    <?php } ?>
-
-                    <div class="col-sm-1">
-                      <input type="submit" class="btn btn-info" value="GET PRODUCTS">
-                    </div>
+                  <div class="col-sm-3">
+                    <input type="text" class="form-control" name="keywords" placeholder="Enter Product Name" value="<?= @$_POST['keywords']; ?>">
                   </div>
-                </form>
-              </div><br><br><br>
 
-              <?php
-
-              foreach ($results as $key => $results_results)
-              {
-                $product_array[] = @$results_results['product_code'];
-              }
-
-              if (!empty($product_array))
-              {
-
-                $product_string = implode(",", $product_array);
-
-              } else
-              {
-
-                $product_string = '';
-              }
-
-              ?>
-
-              <?php if ($adminData['Type'] == '1')
-              { ?>
-                <?php if (!empty($shop_id) or !empty($vendor_id))
-                { ?>
-
-
-
-                <?php }
-              } ?>
-              <?php if (isset($totalResult))
-              { ?>
-                <?php echo 'Product Counting: ' . $totalResult; ?>
-              <?php } ?>
-              <table class="table table-bordered table-striped">
-                <thead>
-                  <tr>
-                    <th>Sr No.</th>
-                    <th>CATEGORY</th>
-                    <th>PRODUCTS</th>
-                    <th>RATE / MRP </th>
-                    <th>STOCK</th>
-
-                    <th>VERIFY</th>
-
-                    <th>ACTION</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-
-                  <?php
-
-                  if (!empty($pano))
-                  {
-                    if ($pano == '1')
-                    {
-                    }
-                    $counter = (20 * ($pano - 1)) + 1;
-                  } else
-                  {
-                    $counter = 1;
-                  }
-
-
-                  //echo '<pre>'; print_r($results); die();
-                  
-
-                  foreach ($results as $value)
-                  {
-                    $this->db->select('sub_category_name');
-                    $category = $this->db->get_where('sub_category_master', array('id' => $value['sub_category_id']))->row_array();
-
-                    $this->db->select('name');
-                    $shop = $this->db->get_where('shop_master', array('id' => $value['shop_id']))->row_array();
-
-                    ?>
-                    <tr>
-                      <td><?php echo $counter; ?>&nbsp;&nbsp;
-                        <?php
-                        if (!empty($shop_id) or !empty($vendor_id))
-                        { ?>
-                          <input type="checkbox" class="product_code" onclick="get_product_idss('')" name="check_ids[]"
-                            value="" style="">
-                        <?php } ?>
-                      </td>
-                      <td>
-
-                        <p style="margin-top:10px;"><?= $category['sub_category_name']; ?></p>
-                      </td>
-                      <td>
-                        <p style="margin-top:10px;"><?= $value['product_name'] ?></p>
-                        <p>
-                          Color:
-                          <?= $value['color']; ?>
-                          |
-                          Size: <?= $value['size']; ?>
-                        </p>
-
-                      </td>
-                      <td><?= $value['final_price'] ?> / <?= $value['price'] ?></td>
-                      <td><?= $value['quantity'] ?><br>
-
-                        <button class="btn btn-success" style="margin-top:10px;"
-                          onclick="change_quantity(<?= $value['id'] ?>,<?= $value['quantity'] ?>)">Change Qty</button>
-
-
-                      </td>
-                      <td>
-
-                        <?php if ($adminData['Type'] == '1')
-                        { ?>
-
-                          <label class="switch">
-                            <?php if ($value['verify_status'] == '1')
-                            { ?>
-                              <input type="checkbox" checked="" value="1"
-                                onclick="verify_product(this.value,<?php echo $value['id']; ?>);">
-                            <?php } else
-                            { ?>
-                              <input type="checkbox" value="2"
-                                onclick="verify_product(this.value,<?php echo $value['id']; ?>)">
-                            <?php } ?>
-
-                            <span class="slider round"></span>
-                          </label>
-
-                        <?php } else
-                        { ?>
-
-                          <?php if ($value['verify_status'] == '1')
-                          { ?>
-
-                            <span class="label label-success">VERIFY</span>
-
-                          <?php } else
-                          { ?>
-
-                            <span class="label label-danger"> NOT VERIFY</span>
-
-                          <?php } ?>
-
-                        <?php } ?>
-
-                      </td>
-                      <td><a href="<?php echo base_url(); ?>admin/Product/UpdateProduct/<?= $value['id']; ?>"><button
-                            class="btn btn-info">Edit</button></a>
-
-                        <a href="<?php echo base_url(); ?>admin/product/delete_product/<?= @$value['id']; ?>"><button
-                            class="btn btn-danger">Delete</button>
-                      </td>
-                    </tr>
-                    <?php $counter++;
-                  } ?>
-
-                </tbody>
-
-
-              </table>
+                  <div class="col-sm-1">
+                    <input type="submit" class="btn btn-info" value="GET PRODUCTS">
+                  </div>
+                </div>
               </form>
-
-              <ul class="pagination pull-left" style="display: inline-block;">
-                <?= @$entries; ?>
-              </ul>
-              <ul class="pagination pull-right" style="display: inline-block;">
-                <?php
-
-                foreach ($links as $link)
-                {
-                  echo "<li>" . $link . "</li>";
-                }
-                ?>
-              </ul>
-
             </div>
-            <!-- /.box-body -->
-          </div>
-          <!-- /.box -->
-        </div>
-        <!-- /.col -->
-      </div>
+            <br><br><br>
+
+            <!-- TABLE -->
+            <table class="table table-bordered table-striped">
+              <thead>
+                <tr>
+                  <th>Sr No.</th>
+                  <th>Category</th>
+                  <th>Sub-Category</th>
+                  <th>Product Name</th>
+                  <th>Shop</th>
+                  <th>Vendor</th>
+                  <th>Rate / MRP</th>
+                  <th>Stock</th>
+                  <th>Verify</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php $counter = ($pano - 1) * 20 + 1; ?>
+                <?php foreach ($results as $value): ?>
+                  <tr>
+                    <td><?= $counter; ?></td>
+                    <td><?= $value['category_name'] ?? ''; ?></td>
+                    <td><?= $value['sub_category_name'] ?? ''; ?></td>
+                    <td><?= $value['product_name']; ?><br>Color: <?= $value['color'] ?? ''; ?> | Size: <?= $value['size'] ?? ''; ?></td>
+                    <td><?= $value['shop_name'] ?? ''; ?></td>
+                    <td><?= $value['vendor_name'] ?? ''; ?></td>
+                    <td><?= $value['final_price']; ?> / <?= $value['price']; ?></td>
+                    <td><?= $value['quantity']; ?></td>
+                    <td>
+                      <?php if ($adminData['Type'] == 1) { ?>
+                        <label class="switch">
+                          <input type="checkbox" <?= ($value['verify_status'] == '1') ? 'checked' : ''; ?> onclick="verify_product(this.value, <?= $value['id']; ?>);">
+                          <span class="slider round"></span>
+                        </label>
+                      <?php } else { ?>
+                        <span class="label <?= ($value['verify_status'] == '1') ? 'label-success' : 'label-danger'; ?>">
+                          <?= ($value['verify_status'] == '1') ? 'VERIFY' : 'NOT VERIFY'; ?>
+                        </span>
+                      <?php } ?>
+                    </td>
+                    <td>
+                      <a href="<?= base_url('admin/Product/UpdateProduct/' . $value['id']); ?>" class="btn btn-info">Edit</a>
+                      <a href="<?= base_url('admin/product/delete_product/' . $value['id']); ?>" class="btn btn-danger" onclick="return confirm('Are you sure?');">Delete</a>
+                    </td>
+                  </tr>
+                  <?php $counter++; ?>
+                <?php endforeach; ?>
+              </tbody>
+            </table>
+
+            <!-- PAGINATION -->
+            <div class="row">
+              <div class="col-sm-6">
+                <?= @$entries; ?>
+              </div>
+              <div class="col-sm-6 text-right">
+                <ul class="pagination">
+                  <?php foreach ($links as $link) {
+                    echo "<li>" . $link . "</li>";
+                  } ?>
+                </ul>
+              </div>
+            </div>
+
+          </div> <!-- /.box-body -->
+        </div> <!-- /.box -->
+      </div> <!-- /.col -->
     </div> <!-- /.row -->
-  </section>
+</section>
+
   <!-- /.content -->
   <!-- Modal -->
   <div class="modal fade" id="myModal" role="dialog">

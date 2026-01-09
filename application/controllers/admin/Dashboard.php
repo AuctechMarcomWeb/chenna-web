@@ -189,18 +189,59 @@ class Dashboard extends CI_Controller
 		}
 	}
 
+	// public function index($id = '')
+	// {
+	// 	is_not_logged_in();
+	// 	$data['index'] = 'index';
+	// 	$data['index2'] = '';
+	// 	$data['title'] = 'Manage Dashboard';
+	// 	$this->load->model('Order_model');
+	// 	$data['title'] = 'Admin Dashboard';
+	// 	$data['order_summary'] = $this->Order_model->getOrderSummary();
+	// 	$this->load->view('include/header', $data);
+	// 	$this->load->view('dashboard/index');
+	// 	$this->load->view('include/footer');
+	// }
+
+
 	public function index($id = '')
 	{
+		
 		is_not_logged_in();
-		$data['index'] = 'index';
-		$data['index2'] = '';
-		$data['title'] = 'Manage Dashboard';
-		$this->load->model('Order_model');
-		$data['title'] = 'Admin Dashboard';
-		$data['order_summary'] = $this->Order_model->getOrderSummary();
-		$this->load->view('include/header', $data);
-		$this->load->view('dashboard/index');
-		$this->load->view('include/footer');
+
+	
+		$user = $this->session->userdata('adminData');
+
+		if (!$user)
+		{
+			redirect('admin/Welcome');
+		}
+		$data = [];
+
+		if ($user['Type'] == 1)
+		{
+			// ---------------- ADMIN DASHBOARD ----------------
+			$data['title'] = 'Admin Dashboard';
+			$data['index'] = 'index';
+			$this->load->model('Order_model');
+			$data['order_summary'] = $this->Order_model->getOrderSummary();
+			$this->load->view('include/header', $data);
+			$this->load->view('dashboard/index');
+			$this->load->view('include/footer');
+		} else if ($user['Type'] == 2)
+		{
+			// ---------------- VENDOR DASHBOARD ----------------
+			$data['title'] = 'Vendor Dashboard';
+			$data['index'] = 'index';
+			$this->load->model('Order_model');
+			$data['order_summary'] = $this->Order_model->getOrderSummary(); 
+			$this->load->view('include/header', $data);
+			$this->load->view('dashboard/index');
+			$this->load->view('include/footer');
+		} else
+		{
+			redirect('admin/Welcome');
+		}
 	}
 
 	public function change_password($id = '')

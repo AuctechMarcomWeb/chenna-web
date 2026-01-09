@@ -88,6 +88,7 @@ $route['seller-login']        = 'seller/login';
 $route['all-product-list']    = 'admin/Product/all_product_list';
 $route['admin/Product/all-product-list-vendor/(:any)']    = 'admin/Product/all_product_list_vendor/$1';
 
+
 $route['category-items/(:any)']      = 'web/category_list/$1';
 $route['vegetable-items']      = 'web/vegetable_item_list';
 $route['chicken-items']      = 'web/chicken_item_list';
@@ -117,3 +118,5 @@ $route['product/(:any)/(:num)'] = 'web/product/$1/$2';
 $route['admin'] = 'admin/Welcome';
 
 $route['apply-coupon'] = 'web/apply_coupon';
+
+

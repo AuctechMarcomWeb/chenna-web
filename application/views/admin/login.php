@@ -111,69 +111,43 @@
     }
   </style>
 </head>
-<?php $TypeOfLogin = $this->uri->segment('1'); ?>
+<body class="hold-transition 
+<?php 
+if ($TypeOfLogin == 'admin') echo 'login-page2';
+elseif ($TypeOfLogin == 'school') echo 'login-page1';
+elseif ($TypeOfLogin == 'vendor') echo 'login-page3';
+?>">
 
-<body class="hold-transition <?php echo $TypeOfLogin = $this->uri->segment('1'); ?>  <?php if ($TypeOfLogin == 'admin')
-       {
-         echo 'login-page2';
-       }
-       if ($TypeOfLogin == 'school')
-       {
-         echo 'login-page1';
-       }
-       if ($TypeOfLogin == 'vendor')
-       {
-         echo 'login-page3';
-       } ?> ">
-  <div class="login-box">
-    <!-- /.login-logo -->
+<div class="login-box">
     <div class="login-box-body">
-      <div class="login-logo">
-        <img src="<?php echo site_url() . 'assets/7.png' ?>" style="max-width:170px;"> <br />
-        <?php if ($TypeOfLogin == 'admin')
-        {
-          echo 'Admin Panel';
-        }
-        if ($TypeOfLogin == 'school')
-        {
-          echo 'School Panel';
-        }
-        if ($TypeOfLogin == 'vendor')
-        {
-          echo 'Vendor Panel';
-        } ?>
-      </div>
-      <p class="login-box-msg">Sign in to Wazi Wears</p>
-      <!-- <?php echo $this->session->flashdata('login_message'); ?> -->
-
-
-
-      <form method="post" action="<?php echo site_url('admin/welcome/doLogin'); ?>">
-
-        <div class="form-group">
-          <label>Login As</label>
-          <select name="loginType" class="form-control" required>
-            <option value="">-- Select Role --</option>
-            <option value="1">Admin</option>
-            <option value="2">Vendor</option>
-            <option value="3">Promoter</option>
-          </select>
+        <div class="login-logo">
+            <img src="<?php echo site_url('assets/7.png'); ?>" style="max-width:170px;"> <br>
+           
         </div>
+        <p class="login-box-msg">Sign in to Wazi Wears</p>
 
-        <div class="form-group">
-          <label>Email / Mobile</label>
-          <input type="text" name="identity" class="form-control" placeholder="Enter Email or Mobile" required>
-        </div>
+        <?php echo $this->session->flashdata('login_message'); ?>
 
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" name="password" class="form-control" placeholder="Password" required>
-        </div>
+        <form method="post" action="<?php echo site_url('admin/welcome/doLogin'); ?>">
+            <div class="form-group has-feedback">
+                <input type="text" name="email" class="form-control" placeholder="Email / Mobile" required>
+                <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+            </div>
 
-        <button type="submit" class="btn btn-primary btn-block">Login</button>
-      </form>
+            <div class="form-group has-feedback">
+                <input type="password" name="password" class="form-control" placeholder="Password" required>
+                <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+            </div>
 
-      <?php echo $this->session->flashdata('login_message'); ?>
+            <div class="row">
+                <div class="col-xs-4 col-xs-offset-8">
+                    <button type="submit" class="btn btn-primary btn-block btn-flat">Sign In</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 
 
 

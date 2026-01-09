@@ -136,15 +136,17 @@ define('EXCEL_DIRECTORY', $_SERVER['DOCUMENT_ROOT'].'/assets/uploaded_excel_file
 define('BRAND_URL', $_SERVER['DOCUMENT_ROOT'].'/assets/brand_images/');
 define('NOTIFICATION_URL', $_SERVER['DOCUMENT_ROOT'].'/assets/notification_images/');
 define('IMAGE_URL', 'https://'.$_SERVER['HTTP_HOST'].'/assets/');
-define('PROFILE_DIRECTORY', $_SERVER['DOCUMENT_ROOT'].'assets/profile_image/');
+define('PROFILE_DIRECTORY', $_SERVER['DOCUMENT_ROOT'].'/chenna/assets/profile_image/');
 define('WEBSITE_DIRECTORY', $_SERVER['DOCUMENT_ROOT'].'/assets/promotion_img/');
 
 define('INVOICE_DIRECTORY', $_SERVER['DOCUMENT_ROOT'].'/assets/invoice/');
 define('LOGO_DIRECTORY', $_SERVER['DOCUMENT_ROOT'].'/assets/Website/img/');
-define('ABOUT_DIRECTORY', $_SERVER['DOCUMENT_ROOT'].'/Chenna-co/assets/profile_image/');
-define('REVIEW_DIRECTORY', $_SERVER['DOCUMENT_ROOT'].'/Chenna-co/assets/customer_review_images/');
-define('PROMOTER_DOCUMNET_DIRECTORY', $_SERVER['DOCUMENT_ROOT'].'assets/promoter_images/');
-define('VENDOR_DOCUMNET_DIRECTORY', $_SERVER['DOCUMENT_ROOT'].'assets/vendor_images/');
+define('ABOUT_DIRECTORY', $_SERVER['DOCUMENT_ROOT'].'/chenna/assets/profile_image/');
+define('REVIEW_DIRECTORY', $_SERVER['DOCUMENT_ROOT'].'/chenna/assets/customer_review_images/');
+define('PROMOTER_DOCUMENT_DIRECTORY', $_SERVER['DOCUMENT_ROOT'].'/assets/promoter_images/');
+define('VENDOR_PROFILE_DIRECTORY', FCPATH . 'assets/vendor_profile_image/');
+define('VENDOR_DOCUMENT_DIRECTORY', FCPATH . 'assets/vendor_images/');
+
 
 
 define('API_ACCESS_KEY','AAAAmyju-Hs:APA91bHLbnq9UAh07R4YnWrlxmjy1xhyDZcj2xe3LVR4aoLK5kFnKaaVHVD5TVRYkPJ4LIeagAWopeUS3uVwwarB8E1TeHjhRwea_0FUnKnqk3VGN-YifKGwwxPHO7_0VUju1_0h4_xVG_8eC1qi6v42tfNYywizTA');

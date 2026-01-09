@@ -119,90 +119,178 @@ class Welcome extends CI_Controller
 
 
 
-  public function doLogin()
-  {
-    $loginType = $this->input->post('loginType'); // 1=Admin, 2=Vendor, 3=Promoter
-    $identity = $this->input->post('identity');  // email for admin, mobile for others
-    $password = $this->input->post('password');
+  // public function doLogin()
+  // {
+  //   $login_array = $this->input->post();
 
-    $user = $this->user_model->login($identity, $password, $loginType);
+  //   //print_r($login_array); exit;
+  //   $email = $login_array['email'];
+  //   $password = $login_array['password'];
 
-    if (!empty($user))
-    {
+  //   $check = $this->db->get_where('admin_master', array('id' => '1'))->row_array();
+  //   if ($check['email'] == $email)
+  //   {
+  //     $loginType = '1';
+  //   } else
+  //   {
+  //     $loginType = '2';
+  //   }
 
-      // ===== CHECK APPROVAL FOR VENDOR & PROMOTER =====
-      if (($loginType == 2 || $loginType == 3) && $user['status'] == 0)
-      {
+
+  //   /////////////////////////////// $oginType 1  IS FOR ADMIN LOGIN ///////////////////////////////
+
+
+  //   $admin = $this->user_model->login($email, base64_encode($password), $loginType);
+
+  //   if (!empty($admin))
+  //   {
+
+  //     $adminData = array(
+  //       'is_logged_in' => true,
+  //       'Type' => $loginType,
+  //       'Id' => $admin['id'],
+  //       'Name' => ucwords($admin['username']),
+  //       'Email' => $admin['email'],
+  //       'Picture' => $admin['profile_pic']
+  //     );
+  //     $this->session->set_userdata('adminData', $adminData);
+
+
+  //     $message = 'Welcome <strong>' . ucwords($admin['username']) . '</strong>.You have successfully logged in.';
+  //     $this->session->set_flashdata('login_message', getCustomAlert('S', $message));
+  //     //print_r($_SESSION); exit;
+  //     redirect('admin/Dashboard/index');
+
+  //   } else
+  //   {
+  //     $this->session->set_flashdata('login_message', generateAdminAlert('D', 1));
+  //     redirect('admin/Welcome');
+  //   }
+
+  // }
+
+// public function doLogin()
+// {
+//     $post = $this->input->post();
+
+//     $username = $post['email'];     // email
+//     $password = $post['password'];  // plain password
+
+//     // ---------------- ADMIN LOGIN ----------------
+//     $admin = $this->user_model->login($username, $password); // ✅ FIXED
+
+//     if (!empty($admin)) {
+//         $adminData = array(
+//             'is_logged_in' => true,
+//             'Type' => 1,
+//             'Id' => $admin['id'],
+//             'Name' => ucwords($admin['username']),
+//             'Email' => $admin['email'],
+//             'Picture' => $admin['profile_pic']
+//         );
+
+//         $this->session->set_userdata('adminData', $adminData);
+//         redirect('admin/Dashboard/index');
+//         return;
+//     }
+
+//     // ---------------- VENDOR LOGIN ----------------
+//     $vendor = $this->user_model->vendorLogin($username, $password);
+
+//     if (!empty($vendor)) {
+//         $vendorData = array(
+//             'is_logged_in' => true,
+//             'Type' => 2,
+//             'Id' => $vendor['id'],
+//             'Name' => ucwords($vendor['name']),
+//             'Email' => $vendor['email'],
+//             'Picture' => $vendor['profile_pic']
+//         );
+
+//         $this->session->set_userdata('adminData', $vendorData);
+//         redirect('admin/Dashboard/index');
+//         return;
+//     }
+
+//     // ---------------- INVALID LOGIN ----------------
+//     $this->session->set_flashdata('login_message', '<div class="alert alert-danger">Invalid Email or Password</div>');
+//     redirect('admin/Welcome');
+// }
+
+public function doLogin()
+{
+    $post = $this->input->post();
+
+    $input    = trim($post['email']);   // Email OR Mobile
+    $password = $post['password'];
+
+    /* ===============================
+       1️⃣ CHECK: EMAIL OR MOBILE
+    =============================== */
+    if (filter_var($input, FILTER_VALIDATE_EMAIL)) {
+
+        // ---------------- ADMIN LOGIN (EMAIL ONLY) ----------------
+        $admin = $this->user_model->adminLogin($input, $password);
+
+        if (!empty($admin)) {
+            $adminData = array(
+                'is_logged_in' => true,
+                'Type'   => 1,   // 1 = Admin
+                'Id'     => $admin['id'],
+                'Name'   => ucwords($admin['username']),
+                'Email'  => $admin['email'],
+                'Picture'=> $admin['profile_pic']
+            );
+
+            $this->session->set_userdata('adminData', $adminData);
+            redirect('admin/Dashboard/index');
+            return;
+        }
+
+        // Email se vendor ko login allow nahi
         $this->session->set_flashdata(
-          'login_message',
-          "<div class='alert alert-danger'>Your account is not approved by Admin yet!</div>"
+            'login_message',
+            '<div class="alert alert-danger">Admin login only allowed using Email.</div>'
         );
-        redirect('login');
-      }
+        redirect('admin/Welcome');
+        return;
 
-      // ===== SET SESSION =====
-      $sessionData = array(
-        'is_logged_in' => true,
-        'Type' => $loginType,
-        'Id' => $user['id'],
-        'Name' => ucwords($user['name'] ?? $user['username']),
-        'Email' => $user['email'],
-        'Picture' => $user['profile_pic']
-      );
-      $this->session->set_userdata('adminData', $sessionData);
+    } elseif (preg_match('/^[0-9]{10}$/', $input)) {
 
-      // ===== SUCCESS MESSAGE =====
-      $this->session->set_flashdata(
-        'login_message',
-        "<div class='alert alert-success'>Welcome <strong>{$sessionData['Name']}</strong>. Login successful.</div>"
-      );
+        // ---------------- VENDOR LOGIN (MOBILE ONLY) ----------------
+        $vendor = $this->user_model->vendorLogin($input, $password);
 
-      // ===== REDIRECT BASED ON ROLE =====
-      if ($loginType == 1)
-      {
-        redirect('admin/Dashboard/index');
-      }
-      if ($loginType == 2)
-      {
-        redirect('vendor/Dashboard');
-      }
-      if ($loginType == 3)
-      {
-        redirect('promoter/Dashboard');
-      }
+        if (!empty($vendor)) {
+            $vendorData = array(
+                'is_logged_in' => true,
+                'Type'   => 2,   // 2 = Vendor
+                'Id'     => $vendor['id'],
+                'Name'   => ucwords($vendor['name']),
+                'Email'  => $vendor['email'],
+                'Picture'=> $vendor['profile_pic']
+            );
 
-    } else
-    {
-      $this->session->set_flashdata(
-        'login_message',
-        "<div class='alert alert-danger'>Invalid Login Details</div>"
-      );
-      redirect('login');
+            $this->session->set_userdata('adminData', $vendorData);
+            redirect('admin/Dashboard/index');
+            return;
+        }
+
+        // Mobile se admin ko login allow nahi
+        $this->session->set_flashdata(
+            'login_message',
+            '<div class="alert alert-danger">Vendor login only allowed using Mobile Number.</div>'
+        );
+        redirect('admin/Welcome');
+        return;
     }
-  }
 
-
-  public function approveUser($id, $role)
-  {
-    $this->Vendor_model->approve_user($id, $role);
-    $user = $this->Vendor_model->get_user($id, $role);
-
-    $msg = "Hello {$user->name},<br><br>
-            Your account has been <b>Approved</b> by Admin.<br>
-            <b>Login ID:</b> {$user->mobile}<br>
-            <b>Password:</b> (same as registered)<br><br>
-            Team Chenna";
-
-    $this->email_send->send_email($user->email, $msg, "Account Approved");
-
-    $this->session->set_flashdata('success', 'User Approved & Mail Sent');
-    redirect('admin/Dashboard');
-  }
-
-
-
-
-
+    // ---------------- INVALID FORMAT ----------------
+    $this->session->set_flashdata(
+        'login_message',
+        '<div class="alert alert-danger">Please enter valid Email (Admin) or Mobile Number (Vendor).</div>'
+    );
+    redirect('admin/Welcome');
+}
 
   public function sellerLogin()
   {
@@ -312,7 +400,7 @@ class Welcome extends CI_Controller
 
       $this->session->unset_userdata('adminData');
       $this->session->set_flashdata('login_message', generateAdminAlert('S', 8));
-      redirect('seller-login');
+      redirect('admin/Welcome');
     }
   }
 

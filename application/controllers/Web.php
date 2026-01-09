@@ -15,13 +15,13 @@ class Web extends CI_Controller
 
   // Registration
 
-  public function registration()
+  public function vendor_registration()
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Registration | Wazi Wears';
+    $data['title'] = 'Vendor Registration | Chenna';
     $this->load->view('web/include/header', $data);
-    $this->load->view('web/registration');
+    $this->load->view('web/vendor_registration');
     $this->load->view('web/include/footer');
   }
 
