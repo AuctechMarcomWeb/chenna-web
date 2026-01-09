@@ -3,7 +3,8 @@
         $("#hiddenSms").fadeOut(5000);
     }
 </script>
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+    />
 <style type="text/css">
     .ratingpoint {
         color: red;
@@ -225,6 +226,7 @@
                                 <thead>
                                     <tr>
                                         <th>Sr No.</th>
+                                        <th>Parent Category</th>
                                         <th>Category</th>
                                         <th>Sub-Category</th>
                                         <th>Product Name</th>
@@ -232,6 +234,7 @@
                                         <th>Vendor</th>
                                         <th>Rate / MRP</th>
                                         <th>Stock</th>
+                                        <th>Date</th>
                                         <th>Verify</th>
                                         <th>Action</th>
                                     </tr>
@@ -241,6 +244,7 @@
                                     <?php foreach ($results as $value): ?>
                                         <tr>
                                             <td><?= $counter; ?></td>
+                                            <td><?= $value['name'] ?? ''; ?></td>
                                             <td><?= $value['category_name'] ?? ''; ?></td>
                                             <td><?= $value['sub_category_name'] ?? ''; ?></td>
                                             <td><?= $value['product_name']; ?><br>Color: <?= $value['color'] ?? ''; ?> |
@@ -249,6 +253,10 @@
                                             <td><?= $value['vendor_name'] ?? ''; ?></td>
                                             <td><?= $value['final_price']; ?> / <?= $value['price']; ?></td>
                                             <td><?= $value['quantity']; ?></td>
+                                            <td>
+                                                <?= date('d-m-Y | h:i:s A', strtotime($v->add_date ?? date('Y-m-d H:i:s'))); ?>
+                                            </td>
+
                                             <td>
                                                 <?php if ($adminData['Type'] == 1)
                                                 { ?>
@@ -266,10 +274,10 @@
                                             </td>
                                             <td>
                                                 <a href="<?= base_url('admin/Product/UpdateProduct/' . $value['id']); ?>"
-                                                    class="btn btn-info">Edit</a>
+                                                    class="btn btn-info"><i class="fa-solid fa-pen-to-square"></i></a>
                                                 <a href="<?= base_url('admin/product/delete_product/' . $value['id']); ?>"
-                                                    class="btn btn-danger"
-                                                    onclick="return confirm('Are you sure?');">Delete</a>
+                                                    class="btn btn-danger" onclick="return confirm('Are you sure?');"><i
+                                                        class="fa-solid fa-trash"></i></a>
                                             </td>
                                         </tr>
                                         <?php $counter++; ?>
