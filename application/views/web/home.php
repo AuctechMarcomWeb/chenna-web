@@ -66,7 +66,12 @@ header .main-nav {
 }
 
 
-
+.product-bg-image .product-box-4 {
+    border: none;
+    background-color: rgba(0, 0, 0, 0);
+    width: 100%;
+    overflow: hidden;
+}
 
 
 .home-contain .home-detail {
@@ -77,7 +82,13 @@ header .main-nav {
 .ls-expanded {
     letter-spacing: 4px !important;
 }
-
+.product-section-3 .product-title.product-warning {
+    background-color: rgb(255 229 217);
+}
+.product-bg-image .product-box-4 {
+    width: 100%;
+    overflow: hidden;
+}
 @media (max-width:500px) {
     .ls-expanded {
         letter-spacing: 2px !important;
@@ -417,7 +428,9 @@ header .main-nav {
 .ad-bottom img:hover {
     transform: scale(1.04);
 }
-
+.category-section-3 .category-box-list .category-name h4 {
+    font-size: 14px;
+}
 /* Animations */
 @keyframes fadeInUp {
     from {

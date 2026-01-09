@@ -673,7 +673,7 @@ class Dashboard extends CI_Controller
 		$data['title'] = 'Add Sub-Category';
 		$data['getCatgy'] = $this->user_model->getALLcatgy();
 		//$data['previous_site']  =  $_SERVER['HTTP_REFERER']; 
-		$data['set_gst'] = $this->user_model->chk_set_gst();
+		// $data['set_gst'] = $this->user_model->chk_set_gst();
 
 		$this->load->view('include/header', $data);
 		$this->load->view('category/Subadd');
