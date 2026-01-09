@@ -319,11 +319,11 @@
                       <td><?= $value['name'] ?? ''; ?></td>
                       <td><?= $value['category_name'] ?? ''; ?></td>
                       <td><?= $category['sub_category_name'] ?? ''; ?></td>
-                     <td class="text-center text-blue"> <img src="<?= !empty($value['vendor_logo']) ? base_url().$value['vendor_logo'] : ''; ?>" 
+                     <td class="text-center text-blue"> <img src="<?= !empty($value['vendor_logo']) ? base_url().$value['vendor_logo'] : '---'; ?>" 
                         alt="Vendor Logo"
                         height="50"
                         onerror="this.style.display='none'"><br>
-                        <span><?= $value['shop_name'] ?? ''; ?></span>
+                        <span><?= $value['shop_name'] ?? '---'; ?></span>
                     </td>
                       <td><?= $value['vendor_name'] ?? '---'; ?></td>
                       <td>

@@ -609,7 +609,9 @@ $categoryList = $this->db->query("Select* from `category_master` where (status=1
 <section class="product-section product-section-3">
     <div class="container-fluid-lg">
         <div class="title">
-            <h2>Product For You</h2>
+            <h2>
+                <?= $section['tag_name']; ?>
+            </h2>
         </div>
         <div class="row g-sm-4 g-3" style="flex-wrap: wrap-reverse;">
             <div class="col-xxl-4 col-lg-5 order-lg-2">
