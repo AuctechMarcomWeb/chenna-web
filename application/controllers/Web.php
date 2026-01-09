@@ -295,31 +295,47 @@ class Web extends CI_Controller
   public function index()
   {
     $userData = $this->session->userdata('User');
-    // Wishlist count
+
     $data['wishlist_count'] = !empty($userData) ? $this->web_model->get_total_wishlist_by_user($userData['id']) : 0;
-    // Product Data
-    //   $data['fetureProduct'] = $this->web_model->getFetureProduct();
-    //    $data['topSellProduct'] = $this->web_model->getTopSellProduct();
-    //   $data['womensAccessories'] = $this->web_model->getwomensAccessories();
-    //   $data['productForYou'] = $this->web_model->getProductForYou();
-    //   $data['mensCollection'] = $this->web_model->getmensCollection();
-    //   $data['womensCollection'] = $this->web_model->getwomensCollection();
-    //   $data['footWear'] = $this->web_model->getfootWear();
-    //   $data['kidscollection'] = $this->web_model->getkidscollection();
-    //   $data['bannerList'] = $this->web_model->getBannerList();
-    //   $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    //  $data['productForYouData'] = $this->web_model->getCollectionByTagName("Products For You");
-    // Fetch all active tags from the database
-    $data['productsCollection'] = $this->web_model->getCollectionByTagNameWithRating("Product For You");
-    $data['mensCollection'] = $this->web_model->getCollectionByTagNameWithRating("Men’s Collections");
-    $data['womensCollection'] = $this->web_model->getCollectionByTagNameWithRating("Women's Collections");
-    $data['kidsCollection'] = $this->web_model->getCollectionByTagNameWithRating("Kids Collection");
-    $data['footwearsCollection'] = $this->web_model->getCollectionByTagNameWithRating("Footwear Collections");
-    $data['accessoriesCollection'] = $this->web_model->getCollectionByTagNameWithRating("Women's Accessories Collections");
+
+    // $data['productsCollection'] = $this->web_model->getCollectionByTagNameWithRating("Product For You");
+    // $data['mensCollection'] = $this->web_model->getCollectionByTagNameWithRating("Men’s Collections");
+    // $data['womensCollection'] = $this->web_model->getCollectionByTagNameWithRating("Women's Collections");
+    // $data['kidsCollection'] = $this->web_model->getCollectionByTagNameWithRating("Kids Collection");
+    // $data['footwearsCollection'] = $this->web_model->getCollectionByTagNameWithRating("Footwear Collections");
+    // $data['accessoriesCollection'] = $this->web_model->getCollectionByTagNameWithRating("Women's Accessories Collections");
 
 
 
+    $this->load->model('web_model');
 
+    // 1️⃣ Sabhi active tags le aao
+    $tags = $this->db->where('status', 1)
+      ->order_by('id', 'ASC')
+      ->get('tag_master')
+      ->result_array();
+
+    $sections = [];
+
+    // 2️⃣ Har tag ke products automatically assign karo
+    foreach ($tags as $tag)
+    {
+      if (!empty($tag['product_ids']))
+      {
+        $product_ids = json_decode($tag['product_ids'], true);
+
+        $products = $this->web_model
+          ->getProductsByTagIdWithRating($product_ids);
+
+        $sections[] = [
+          'tag_name' => $tag['name'],
+          'products' => $products
+        ];
+      }
+    }
+
+    // 3️⃣ View me bhejo
+    $data['sections'] = $sections;
 
     // ✅ Fetch Parent & Child Categories
     $data['categories'] = $this->db

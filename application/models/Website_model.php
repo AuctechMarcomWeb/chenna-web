@@ -8,17 +8,17 @@ class Website_model extends CI_Model
         $this->load->database();
 
     }
-   public function get_coupon_by_code($code)
-{
-    $today = date('Y-m-d H:i:s');
+    public function get_coupon_by_code($code)
+    {
+        $today = date('Y-m-d H:i:s');
 
-    $this->db->where('coupon_code', $code);
-    $this->db->where('status', 1);
-    $this->db->where('start_date <=', $today);
-    $this->db->where('end_date >=', $today);
+        $this->db->where('coupon_code', $code);
+        $this->db->where('status', 1);
+        $this->db->where('start_date <=', $today);
+        $this->db->where('end_date >=', $today);
 
-    return $this->db->get('coupon_manager_master')->row_array();
-}
+        return $this->db->get('coupon_manager_master')->row_array();
+    }
 
 
     /*Feture Product*/
@@ -45,8 +45,40 @@ class Website_model extends CI_Model
 
 
     }
+    public function getProductsByTagIdWithRating($product_ids)
+    {
+        if (empty($product_ids))
+        {
+            return [];
+        }
 
-    public function getCollectionByTagNameWithRating($tag_name)
+        $this->db->select('id, sub_category_id, product_name, price, final_price, quantity, main_image');
+        $this->db->where_in('id', $product_ids);
+        $this->db->where('status', 1);
+        $this->db->group_by('sku_code');
+        $this->db->limit(12);
+        $products = $this->db->get('sub_product_master')->result_array();
+
+        foreach ($products as &$product)
+        {
+            $avgRatingRow = $this->db->select_avg('rating')
+                ->where('product_id', $product['id'])
+                ->where('status', 1)
+                ->get('customer_review')
+                ->row();
+
+            $product['average_rating'] = round($avgRatingRow->rating ?? 0, 1);
+
+            $product['total_reviews'] = $this->db->where('product_id', $product['id'])
+                ->where('status', 1)
+                ->count_all_results('customer_review');
+        }
+        unset($product);
+
+        return $products;
+    }
+
+    public function getfetchalltagidWithRating($tag_name)
     {
 
         $this->db->select('product_ids');
