@@ -1,0 +1,7 @@
+# =========================
+# CodeIgniter Sensitive Files
+# =========================
+
+config.php
+database.php
+constants.php
