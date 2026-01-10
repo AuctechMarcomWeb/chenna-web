@@ -883,7 +883,7 @@ $tagIndex++;
         <div class="row">
             <div class="col-12">
                 <div class="banner-contain-3 section-b-space section-t-space hover-effect">
-                    <img src="<?php echo base_url('plugins/images/new-img/10.jpg'); ?>" class="img-fluid bg-img" alt="">
+                    <img src="<?php echo base_url('plugins/images/new-img/6.jpg'); ?>" class="img-fluid bg-img" alt="">
                     <div class="banner-detail p-center text-dark position-relative text-center p-0">
                         <div>
                             <h4 class="ls-expanded text-uppercase theme-color fw-bold">Chenna.Co</h4>

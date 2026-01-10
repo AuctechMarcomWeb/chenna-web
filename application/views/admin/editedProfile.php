@@ -61,7 +61,7 @@
                     <div class="col-sm-4">
                        <label for="inputEmail3" class="control-label">Profile Pic</label>
                         <input type="file" id="exampleInputFile" name="uploadFile">
-                         <?php if($getData['profile_pic']!=" ") {?><img src="<?php echo base_url()."assets/Website/img/".$getData['profile_pic']; ?>" style="width: 115px;"> <?php } ?>
+                         <?php if($getData['profile_pic']!=" ") {?><img src="<?php echo base_url()."assets/profile_image/".$getData['profile_pic']; ?>" style="width: 115px;"> <?php } ?>
                       </div>
                  </div>
                 </div>

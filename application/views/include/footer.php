@@ -1,7 +1,7 @@
 
   	<footer class="main-footer">
     
-    <strong>Copyright &copy; 2025-26 <a href="<?= base_url('admin/Users/');?>">Wazi Wears</a>.</strong> All rights
+    <strong>Copyright &copy; 2025-26 <a href="<?= base_url('admin/Users/');?>">Chenna</a>.</strong> All rights
     reserved &reg.
   </footer>
 	<!-- Add the sidebar's background. This div must be placed immediately after the control sidebar -->
