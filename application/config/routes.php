@@ -124,5 +124,3 @@ $route['product/(:any)/(:num)'] = 'web/product/$1/$2';
 $route['admin'] = 'admin/Welcome';
 
 $route['apply-coupon'] = 'web/apply_coupon';
-
-

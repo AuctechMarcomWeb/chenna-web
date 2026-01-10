@@ -3304,8 +3304,92 @@ class Dashboard extends CI_Controller
 
 	}
 
+	public function advertisement()
+	{
+		$data['banners'] = $this->db
+			->order_by('id','DESC')
+			->get('advertisement')
+			->result();
 
+		$this->load->view('include/header', $data);
+		$this->load->view('admin/advertisement', $data);
+		$this->load->view('include/footer');
+	}
 
+	public function add()
+	{
+		// AJAX check (optional but safe)
+		if (!$this->input->is_ajax_request()) {
+			show_error('No direct access allowed');
+		}
+
+		$section = $this->input->post('img_section');
+
+		if(empty($section)){
+			echo json_encode(['status'=>0,'msg'=>'Image section required']);
+			exit;
+		}
+
+		/* ===== LIMIT CHECK (TABLE NAME FIXED) ===== */
+		if ($section == 'fixed') {
+			$count = $this->db
+				->where('img_section','fixed')
+				->count_all_results('advertisement');
+
+			if ($count >= 2) {
+				echo json_encode(['status'=>0,'msg'=>'Only 2 Fixed images allowed']);
+				exit;
+			}
+		}
+
+		if ($section == 'bottom') {
+			$count = $this->db
+				->where('img_section','bottom')
+				->count_all_results('advertisement');
+
+			if ($count >= 1) {
+				echo json_encode(['status'=>0,'msg'=>'Only 1 Bottom image allowed']);
+				exit;
+			}
+		}
+
+		/* ===== UPLOAD ===== */
+		if(empty($_FILES['image']['name'])){
+			echo json_encode(['status'=>0,'msg'=>'Please select image']);
+			exit;
+		}
+
+		$config['upload_path']   = FCPATH.'uploads/advertisement/';
+		$config['allowed_types'] = 'jpg|jpeg|png|webp';
+		$config['max_size']      = 2048;
+		$config['file_name']     = time().'_'.rand(1000,9999);
+
+		$this->load->library('upload');
+		$this->upload->initialize($config);
+
+		if (!$this->upload->do_upload('image')) {
+			echo json_encode([
+				'status'=>0,
+				'msg'=> strip_tags($this->upload->display_errors())
+			]);
+			exit;
+		}
+
+		$img = $this->upload->data('file_name');
+
+		/* ===== INSERT (TABLE NAME FIXED) ===== */
+		$insert = [
+			'img_section' => $section,
+			'image'       => $img,
+			'url'         => $this->input->post('url'),
+			'added_on'    => date('Y-m-d H:i:s'),
+			'status'      => 1
+		];
+
+		$this->db->insert('advertisement', $insert);
+
+		echo json_encode(['status'=>1,'msg'=>'Banner added successfully']);
+	}
 
 
 

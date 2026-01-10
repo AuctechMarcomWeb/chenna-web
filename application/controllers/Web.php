@@ -4793,5 +4793,4 @@ public function ajax_filter_subcategory_products()
     }
   }
 
-
 }
