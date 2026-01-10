@@ -206,10 +206,10 @@ class Dashboard extends CI_Controller
 
 	public function index($id = '')
 	{
-		
+
 		is_not_logged_in();
 
-	
+
 		$user = $this->session->userdata('adminData');
 
 		if (!$user)
@@ -234,7 +234,7 @@ class Dashboard extends CI_Controller
 			$data['title'] = 'Vendor Dashboard';
 			$data['index'] = 'index';
 			$this->load->model('Order_model');
-			$data['order_summary'] = $this->Order_model->getOrderSummary(); 
+			$data['order_summary'] = $this->Order_model->getOrderSummary();
 			$this->load->view('include/header', $data);
 			$this->load->view('dashboard/index');
 			$this->load->view('include/footer');
@@ -476,41 +476,85 @@ class Dashboard extends CI_Controller
 		$this->load->view('include/footer');
 	}
 
+	// public function addParentCategory()
+	// {
+	// 	is_not_logged_in();
+	// 	$data = $this->input->post();
+	// 	if (empty($data))
+	// 	{
+
+	// 		$data['index'] = 'addctgy';
+	// 		$data['index2'] = '';
+	// 		$data['title'] = 'Add Application';
+	// 		$this->load->view('include/header', $data);
+	// 		$this->load->view('category/add_parent_category');
+	// 		$this->load->view('include/footer');
+
+	// 	} else
+	// 	{
+
+
+	// 		$row = $this->db->insert('parent_category_master', $data);
+
+	// 		if ($row > 0)
+	// 		{
+	// 			$this->session->set_flashdata('activate', getCustomAlert('S', 'Category has been add Successfully.'));
+	// 			redirect('admin/Dashboard/parentCategory/');
+	// 		} else
+	// 		{
+	// 			$this->session->set_flashdata('activate', getCustomAlert('S', '!Opps Something is worng.Please try again.'));
+	// 			redirect('admin/Dashboard/parentCategory/');
+	// 		}
+
+
+	// 	}
+
+	// }
+
 	public function addParentCategory()
 	{
 		is_not_logged_in();
 		$data = $this->input->post();
+
 		if (empty($data))
 		{
-
 			$data['index'] = 'addctgy';
 			$data['index2'] = '';
 			$data['title'] = 'Add Application';
 			$this->load->view('include/header', $data);
 			$this->load->view('category/add_parent_category');
 			$this->load->view('include/footer');
-
 		} else
 		{
+			$name = $this->input->post('name');
 
+			// 🔹 SLUG GENERATE
+			$slug = strtolower($name);                     // lowercase
+			$slug = preg_replace('/[^a-z0-9\s-]/', '', $slug); // special characters remove
+			$slug = preg_replace('/\s+/', '-', $slug);    // spaces to hyphen
+			$slug = trim($slug, '-');                     // extra - remove
 
-			$row = $this->db->insert('parent_category_master', $data);
+			// 🔹 DATA ARRAY
+			$insertData = [
+				'name' => $name,
+				'slug' => $slug,
+				'status' => 1,
+				'add_date' => date('Y-m-d H:i:s')
+			];
 
-			if ($row > 0)
+			$row = $this->db->insert('parent_category_master', $insertData);
+
+			if ($row)
 			{
-				$this->session->set_flashdata('activate', getCustomAlert('S', 'Category has been add Successfully.'));
+				$this->session->set_flashdata('activate', getCustomAlert('S', 'Category has been added Successfully.'));
 				redirect('admin/Dashboard/parentCategory/');
 			} else
 			{
-				$this->session->set_flashdata('activate', getCustomAlert('S', '!Opps Something is worng.Please try again.'));
+				$this->session->set_flashdata('activate', getCustomAlert('E', 'Oops! Something went wrong. Please try again.'));
 				redirect('admin/Dashboard/parentCategory/');
 			}
-
-
 		}
-
 	}
-
 
 
 
@@ -561,10 +605,48 @@ class Dashboard extends CI_Controller
 
 	}
 
+	// public function UpdateParenrCategory($id)
+	// {
+	// 	$data = $this->input->post();
+	// 	is_not_logged_in();
+	// 	$id = $this->uri->segment(4);
+
+	// 	if (empty($data))
+	// 	{
+	// 		$data['index'] = 'UpdCatgy';
+	// 		$data['index2'] = '';
+	// 		$data['title'] = 'Update Parent Category';
+	// 		$data['getData'] = $this->db->get_where('parent_category_master', array('id' => $id))->row_array();
+	// 		// print_r($data['getData']); exit;
+	// 		$this->load->view('include/header', $data);
+	// 		$this->load->view('category/edit_parent_category');
+	// 		$this->load->view('include/footer');
+
+	// 	} else
+	// 	{
+	// 		$this->db->where('id', $id);
+	// 		$row = $this->db->update('parent_category_master', $data);
+	// 		if ($row > 0)
+	// 		{
+	// 			$this->session->set_flashdata('activate', getCustomAlert('S', 'Category has been update Successfully.'));
+	// 			redirect('admin/Dashboard/parentCategory/');
+	// 		} else
+	// 		{
+	// 			$this->session->set_flashdata('activate', getCustomAlert('S', '!Opps Something is worng.Please try again.'));
+	// 			redirect('admin/Dashboard/parentCategory/');
+	// 		}
+
+
+	// 	}
+
+
+	// }
+
+
 	public function UpdateParenrCategory($id)
 	{
-		$data = $this->input->post();
 		is_not_logged_in();
+		$data = $this->input->post();
 		$id = $this->uri->segment(4);
 
 		if (empty($data))
@@ -573,31 +655,41 @@ class Dashboard extends CI_Controller
 			$data['index2'] = '';
 			$data['title'] = 'Update Parent Category';
 			$data['getData'] = $this->db->get_where('parent_category_master', array('id' => $id))->row_array();
-			// print_r($data['getData']); exit;
+
 			$this->load->view('include/header', $data);
 			$this->load->view('category/edit_parent_category');
 			$this->load->view('include/footer');
-
 		} else
 		{
+			$name = $this->input->post('name');
+
+			// 🔹 SLUG GENERATE
+			$slug = strtolower($name);
+			$slug = preg_replace('/[^a-z0-9\s-]/', '', $slug); // special characters remove
+			$slug = preg_replace('/\s+/', '-', $slug);
+			$slug = trim($slug, '-');
+
+			// 🔹 UPDATE DATA
+			$updateData = [
+				'name' => $name,
+				'slug' => $slug,
+				'modify_date' => date('Y-m-d H:i:s')
+			];
+
 			$this->db->where('id', $id);
-			$row = $this->db->update('parent_category_master', $data);
-			if ($row > 0)
+			$row = $this->db->update('parent_category_master', $updateData);
+
+			if ($row)
 			{
-				$this->session->set_flashdata('activate', getCustomAlert('S', 'Category has been update Successfully.'));
+				$this->session->set_flashdata('activate', getCustomAlert('S', 'Category has been updated successfully.'));
 				redirect('admin/Dashboard/parentCategory/');
 			} else
 			{
-				$this->session->set_flashdata('activate', getCustomAlert('S', '!Opps Something is worng.Please try again.'));
+				$this->session->set_flashdata('activate', getCustomAlert('E', 'Oops! Something went wrong. Please try again.'));
 				redirect('admin/Dashboard/parentCategory/');
 			}
-
-
 		}
-
-
 	}
-
 
 	public function UpdateCategoryPost($id)
 	{

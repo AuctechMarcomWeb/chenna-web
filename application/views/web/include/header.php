@@ -629,10 +629,9 @@
                                                                             <?php if (!empty($subCategories)): ?>
                                                                                 <?php foreach ($subCategories as $sub): ?>
                                                                                     <a class="dropdown-item"
-                                                                                        href="<?= base_url(slugify($parent['name']) . '/' . slugify($cat['category_name']) . '/' . slugify($sub['sub_category_name'])); ?>">
+                                                                                        href="<?= base_url(slugify($parent['slug']) . '/' . slugify($cat['slug']) . '/' . slugify($sub['slug'])); ?>">
                                                                                         <?= $sub['sub_category_name']; ?>
                                                                                     </a>
-
                                                                                 <?php endforeach; ?>
                                                                             <?php else: ?>
                                                                                 <span class="dropdown-item text-muted">Coming Soon</span>
@@ -672,15 +671,15 @@
 
                         <div class="right-nav">
                             <div class="nav-number">
-                                <a href="tel:+91 98380 75493" class="d-flex align-items-center">
+                                <a href="tel:89320 50110" class="d-flex align-items-center">
                                     <div>
                                         <i style="height: 28px; width: 28px; margin-right: 4px; color: #333;"
                                             data-feather="phone-call"></i>
                                     </div>
                                     <div>
                                         <span style="font-size: 13px;">24/7 Support</span>
-                                        <span style="font-size: 16px; font-weight: 500; color: #333;">+91 98380
-                                            75493</span>
+                                        <span style="font-size: 16px; font-weight: 500; color: #333;">+91 89320
+                                            50110</span>
                                     </div>
                                 </a>
                             </div>
