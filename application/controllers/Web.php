@@ -306,36 +306,13 @@ class Web extends CI_Controller
     // $data['accessoriesCollection'] = $this->web_model->getCollectionByTagNameWithRating("Women's Accessories Collections");
 
 
+    $data['sections'] = $this->web_model->getAllTagSections();
+    $data['tagIndex'] = 0;
 
-    $this->load->model('web_model');
 
-    // 1️⃣ Sabhi active tags le aao
-    $tags = $this->db->where('status', 1)
-      ->order_by('id', 'ASC')
-      ->get('tag_master')
-      ->result_array();
 
-    $sections = [];
 
-    // 2️⃣ Har tag ke products automatically assign karo
-    foreach ($tags as $tag)
-    {
-      if (!empty($tag['product_ids']))
-      {
-        $product_ids = json_decode($tag['product_ids'], true);
 
-        $products = $this->web_model
-          ->getProductsByTagIdWithRating($product_ids);
-
-        $sections[] = [
-          'tag_name' => $tag['name'],
-          'products' => $products
-        ];
-      }
-    }
-
-    // 3️⃣ View me bhejo
-    $data['sections'] = $sections;
 
     // ✅ Fetch Parent & Child Categories
     $data['categories'] = $this->db

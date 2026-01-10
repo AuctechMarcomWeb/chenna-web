@@ -94,25 +94,28 @@ $route['vegetable-items']      = 'web/vegetable_item_list';
 $route['chicken-items']      = 'web/chicken_item_list';
 $route['grocery-items']      = 'web/grocery_item_list';
 
-if ($main == 'topwear' OR $main == 'bottomwear' OR $main == 'footwear' OR $main == 'men'
-    OR $main == 'women' OR $main == 'western-wear' OR $main == 'women-footwear' 
-    OR $main == 'indian-and-festive-wear' OR $main == 'boys-clothing'  
-    OR $main == 'girls-clothing' OR $main == 'kid' OR $main == 'kids-infants'
-    OR $main == 'women-accessories' OR $main == 'Jewelry') {
+// if ($main == 'fashion-clothing' OR $main == 'bottomwear' OR $main == 'footwear' OR $main == 'men'
+//     OR $main == 'women' OR $main == 'western-wear' OR $main == 'women-footwear' 
+//     OR $main == 'indian-and-festive-wear' OR $main == 'boys-clothing'  
+//     OR $main == 'girls-clothing' OR $main == 'kid' OR $main == 'kids-infants'
+//     OR $main == 'women-accessories' OR $main == 'Jewelry') {
 
- $route[$main.'/'.$category] = 'web/category_product_list/'.$main.'/'.$category;
+//  $route[$main.'/'.$category] = 'web/category_product_list/'.$main.'/'.$category;
  
- $route['(:any)/(:any)/(:any)'] = 'web/sub_category_product_list/$1/$2/$3';
+//  $route['(:any)/(:any)/(:any)'] = 'web/sub_category_product_list/$1/$2/$3';
  
-} 
+// } 
 
-if($numeric=='1'){
-   if(!empty($main) AND !empty($category)  AND $main!=='admin' AND $main!=='web' AND $main!=='api'){
-      $route[$main.'/'.$category] = 'web/product_detail/'.$main.'/'.$category;
-   }  
-}
+// if($numeric=='1'){
+//    if(!empty($main) AND !empty($category)  AND $main!=='admin' AND $main!=='web' AND $main!=='api'){
+//       $route[$main.'/'.$category] = 'web/product_detail/'.$main.'/'.$category;
+//    }  
+// }
 
+$route['(:any)/(:any)'] = 'web/category_product_list/$1/$2';
 
+// Subcategory under main + category
+$route['(:any)/(:any)/(:any)'] = 'web/sub_category_product_list/$1/$2/$3';
 
 $route['product/(:any)/(:num)'] = 'web/product/$1/$2';
 $route['admin'] = 'admin/Welcome';
