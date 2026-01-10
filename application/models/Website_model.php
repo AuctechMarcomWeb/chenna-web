@@ -78,44 +78,57 @@ class Website_model extends CI_Model
         return $products;
     }
 
-    public function getfetchalltagidWithRating($tag_name)
+    public function getAllTagSections()
     {
+        $sections = [];
 
-        $this->db->select('product_ids');
-        $tag = $this->db->get_where('tag_master', ['name' => $tag_name, 'status' => 1])->row_array();
-        if (empty($tag) || empty($tag['product_ids']))
-            return [];
+        $tags = $this->db->where('status', 1)
+            ->order_by('id', 'ASC')
+            ->get('tag_master')
+            ->result_array();
 
-        $product_ids = json_decode($tag['product_ids'], true);
-        if (empty($product_ids))
-            return [];
-
-        // Fetch products
-        $this->db->select('id, sub_category_id, product_name, price, final_price, quantity, main_image');
-        $this->db->where_in('id', $product_ids);
-        $this->db->where('status', 1);
-        $this->db->group_by('sku_code');
-        $this->db->limit(12);
-        $products = $this->db->get('sub_product_master')->result_array();
-
-
-        foreach ($products as &$product)
+        foreach ($tags as $tag)
         {
-            $avgRatingRow = $this->db->select_avg('rating')
-                ->where('product_id', $product['id'])
-                ->where('status', 1)
-                ->get('customer_review')
-                ->row();
-            $product['average_rating'] = round($avgRatingRow->rating ?? 0, 1);
+            if (empty($tag['product_ids']))
+                continue;
 
-            $product['total_reviews'] = $this->db->where('product_id', $product['id'])
-                ->where('status', 1)
-                ->count_all_results('customer_review');
+            $product_ids = json_decode($tag['product_ids'], true);
+            if (empty($product_ids))
+                continue;
+
+            // Fetch products
+            $this->db->select('id, product_name, price, final_price, main_image');
+            $this->db->where_in('id', $product_ids);
+            $this->db->where('status', 1);
+            $this->db->limit(12);
+            $products = $this->db->get('sub_product_master')->result_array();
+
+            if (empty($products))
+                continue;
+
+            // Rating
+            foreach ($products as &$product)
+            {
+                $avg = $this->db->select_avg('rating')
+                    ->where('product_id', $product['id'])
+                    ->where('status', 1)
+                    ->get('customer_review')
+                    ->row();
+
+                $product['average_rating'] = round($avg->rating ?? 0, 1);
+            }
+
+            $sections[] = [
+                'tag_id' => $tag['id'],
+                'tag_name' => $tag['name'],
+                'products' => $products
+            ];
         }
-        unset($product);
 
-        return $products;
+        return $sections;
     }
+
+
 
     public function getCollectionByTagName($tag_name)
     {
