@@ -177,7 +177,7 @@
                                                                 </a>
                                                             </li>
                                                             <li class="text-content"><span class="text-title">Sold By:</span>
-                                                                Wazi Wearrrs</li>
+                                                                Chenna</li>
                                                             <li class="text-content"><span class="text-title">Color &
                                                                     Size:</span> <?= $value['color']; ?> |
                                                                 <?= $value['size']; ?>

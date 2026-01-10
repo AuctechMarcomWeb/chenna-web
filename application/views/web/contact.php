@@ -52,8 +52,8 @@
                                             </div>
 
                                             <div class="contact-detail-contain">
-                                                <a href="tel:89320 50110">
-                                                    <p>+91 89320 50110</p>
+                                                <a href="tel:+91 98380 75493">
+                                                    <p>+91 98380 75493</p>
                                                 </a>
                                             </div>
                                         </div>
@@ -69,8 +69,8 @@
                                             </div>
 
                                             <div class="contact-detail-contain">
-                                                <a href="mailto:info@waziwear.com">
-                                                    <p>info@waziwear.com</p>
+                                                <a href="mailto:info@auctech.in">
+                                                    <p>info@auctech.in</p>
                                                 </a>
                                             </div>
                                         </div>

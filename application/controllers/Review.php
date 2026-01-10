@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-define('REVIEW_DIRECTORY', $_SERVER['DOCUMENT_ROOT'] . '/waziwears-7-11-25/assets/customer_review/');
+define('REVIEW_DIRECTORY', $_SERVER['DOCUMENT_ROOT'] . '/assets/customer_review/');
 
 class Review extends CI_Controller
 {

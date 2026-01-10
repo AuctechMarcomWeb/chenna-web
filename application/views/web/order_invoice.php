@@ -96,16 +96,16 @@
         <table>
             <tr>
                 <td rowspan="6" colspan="2">
-                    <strong>Wazi Wears</strong><br>Lucknow, Uttar Pradesh, India-226003
+                    <strong>Chenna</strong><br>Lucknow, Uttar Pradesh, India-226003
                     <br>
                     <hr>
                     <b>GSTIN/UIN:</b> 09AAJCD8922C1ZL<br>
                     <hr>
                     <b>PAN:</b> AAJCD8922C
                     <hr>
-                    <b>Contact:</b> +91 89320 50110<br>
+                    <b>Contact:</b> +91 98380 75493<br>
                     <hr>
-                    <b>Email:</b> info@waziwear.com
+                    <b>Email:</b> info@auctech.in
                 </td>
                 <td><strong>Invoice No.</strong></td>
                 <td><?= $order['order_number']; ?></td>
@@ -332,7 +332,7 @@
                             style="width: 80px; height: 100; margin-bottom: 5px;">
 
                         <!-- Text Below Image -->
-                        <div style="margin-top: 10px;font-size:10px;">For-Wazi Wears Real Time Private Limited</div>
+                        <div style="margin-top: 10px;font-size:10px;">For- Chenna Private Limited</div>
 
                     </div>
                 </td>

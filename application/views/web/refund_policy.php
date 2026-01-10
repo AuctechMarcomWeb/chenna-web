@@ -122,7 +122,7 @@
         </div>
         <div class="terms-intro">
             <p>
-                At Wazi Wears, we value your trust and satisfaction. Every product you receive goes through careful
+                At Chenna, we value your trust and satisfaction. Every product you receive goes through careful
                 quality checks before dispatch. However, if you receive a wrong, damaged, or defective item, our return
                 and refund policy ensures a fair and transparent process.
             </p>
@@ -222,9 +222,9 @@
                     <div class="terms-detail">
                         <h5>Contact Us</h5>
                         <p>If you have questions or concerns about this Privacy Policy, please contact us:</p>
-                        <p><b>Email</b>: info@waziwear.com</p>
-                        <p><b>Phone</b>: +91 89320 50110</p>
-                        <p><b>Address</b>:  Lucknow, Uttar Pradesh, India-226003
+                        <p><b>Email</b>: info@auctech.in</p>
+                        <p><b>Phone</b>: +91 98380 75493</p>
+                        <p><b>Address</b>:  New Jiamau, 1090 Chauraha, 167/101, Shaligram Building, Hazratganj, Lucknow, Uttar Pradesh 226001
 </p>
                     </div>
                 </div>
