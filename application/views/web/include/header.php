@@ -35,339 +35,341 @@
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css" />
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,200..800;1,200..800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,200..800;1,200..800&display=swap');
 
-    body,
-    input,
-    a,
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6,
-    p,
-    span,
-    ul,
-    li,
-    button {
-        font-family: "Karla", sans-serif;
-    }
-
-    header .top-nav .navbar-top .web-logo img {
-        width: calc(95px + 25 * (100vw - 320px) / 1600);
-    }
-
-    .no-dropdown::before {
-        content: none !important;
-    }
-
-    header {
-        position: relative;
-        z-index: 99;
-    }
-
-    header .main-nav {
-        padding: 8px 0
-    }
-
-    .btn-view-more {
-        padding: 6px 12px;
-        margin-top: 10px;
-        font-size: 14px;
-        background-color: #0baf9a;
-        color: #fff;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
-
-    .btn-view-more:hover {
-        background-color: #00927f;
-        color: #fff;
-    }
-
-    .product-box-4 {
-        padding: 6px;
-    }
-
-
-
-    header .navbar-nav .dropdown-menu-2::after {
-        background-image: none;
-    }
-
-    .bg-effect {
-        background-image: none;
-    }
-
-
-    header .navbar-light .navbar-nav .nav-link {
-        color: #da6228;
-        font-weight: 500 !important;
-    }
-
-    .owl-theme .owl-dots .owl-dot span {
-
-        background: #ff727278;
-
-    }
-
-    .owl-theme .owl-dots .owl-dot.active span,
-    .owl-theme .owl-dots .owl-dot:hover span {
-        background: #fb5808;
-    }
-
-    .header-icon .badge-theme {
-        position: absolute;
-        top: -11px;
-        right: 2px;
-        font-size: 9px;
-        padding: 5px 8px;
-    }
-
-    .product-box-5 .product-detail a h5.name {
-        text-align: left;
-    }
-
-    .header-2 .top-nav {
-        padding: 15px 0;
-        border-bottom: 1px solid #f7ad899e;
-    }
-
-    .product-product-box-5 .wow .fadeInUp-5 {
-        border: 1px solid #fb5808;
-    }
-
-    .header-2 .rightside-menu .option-list>ul>li .header-icon {
-        width: calc(30px + 11 * (100vw - 320px) / 1600);
-        height: calc(30px + 11 * (100vw - 320px) / 1600);
-    }
-
-    header .onhover-dropdown:hover .onhover-div {
-        border: 1px solid #fa6223;
-        padding: 17px;
-        border-radius: 6px;
-    }
-
-    header .onhover-dropdown .onhover-div-login .user-box-name li {
-        font-size: 15px;
-        border-left: 2px solid #fa6223;
-        padding-left: 7px;
-        transition: transform 0.4s ease;
-    }
-
-    header .onhover-dropdown .onhover-div-login .user-box-name li:hover {
-        transform: scale(1.1);
-        background: #ecebebff;
-    }
-
-    .header-2 .top-nav .middle-box .searchbar-box .search-button {
-        height: 99%;
-        background: #fb5808;
-        color: #fff;
-        border-radius: 0px 4px 4px 0px;
-        border: none;
-    }
-
-    .header-2 .top-nav .middle-box .searchbar-box .search-button .iconly-Search {
-        color: #fff;
-    }
-
-    .header-2 .right-nav .nav-number span {
-        font-size: calc(10px + 9 * (100vw - 320px) / 1600);
-        width: 100%;
-        color: #3e3e3e;
-    }
-
-    .start-100 {
-        left: 65% !important;
-    }
-
-    .product-box-4 .product-image img {
-        object-fit: cover;
-        margin: 0px;
-    }
-
-    .top-selling-box .top-selling-contain .top-selling-image img {
-        object-fit: cover;
-    }
-
-    .fa-chevron-down::before {
-        content: "";
-        font-size: 9px;
-    }
-    .header-2 .top-nav span {
-        color: #ffffff;
-        background: #d80101;
-    }
-    @media (max-width: 480px) {
-        .product-box-4 .product-image img {
-            width: 100%;
+        body,
+        input,
+        a,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p,
+        span,
+        ul,
+        li,
+        button {
+            font-family: "Karla", sans-serif;
         }
-    }
 
-    @media (max-width:800px) {
-        .modal {
-            top: 35%;
-            height: auto;
+        header .top-nav .navbar-top .web-logo img {
+            width: calc(95px + 25 * (100vw - 320px) / 1600);
         }
-    }
 
-    @media (max-width: 767px) {
+        .no-dropdown::before {
+            content: none !important;
+        }
+
+        header {
+            position: relative;
+            z-index: 99;
+        }
+
         header .main-nav {
-            padding: 5px 0px !important;
-        }
-    }
-
-    /* ratna */
-    @media (max-width: 800px) {
-        .modal {
-            top: 0%;
-            height: auto;
-        }
-    }
-
-    @media (max-width: 800px) {
-        #login-popup {
-            top: 35%;
-            height: auto;
-        }
-    }
-
-    @media (max-width: 800px) {
-        #otp-popup {
-            top: 35%;
-            height: auto;
-        }
-    }
-
-    @media (max-width: 767px) {
-
-
-        .modal-content {
-            max-height: 90vh;
-            overflow: hidden;
+            padding: 8px 0
         }
 
-        .modal-body {
-            overflow-y: auto;
-            max-height: calc(90vh - 120px);
-
-        }
-    }
-
-    /* header shifting code */
-
-    @media (min-width: 1900px) {
-        header .navbar-nav .dropdown-menu-2 {
-            left: 494px !important;
-        }
-    }
-
-
-    @media (min-width: 1650px) and (max-width: 1899px) {
-        header .navbar-nav .dropdown-menu-2 {
-            left: 500px !important;
-        }
-    }
-
-
-    @media (min-width: 1550px) and (max-width: 1649px) {
-        header .navbar-nav .dropdown-menu-2 {
-            left: 475px !important;
-        }
-    }
-
-
-    @media (min-width: 1400px) and (max-width: 1549px) {
-        header .navbar-nav .dropdown-menu-2 {
-            left: 450px !important;
-        }
-    }
-
-
-    @media (min-width: 1360px) and (max-width: 1399px) {
-        header .navbar-nav .dropdown-menu-2 {
-            left: 420px !important;
-        }
-    }
-
-    @media (min-width: 1320px) and (max-width: 1359px) {
-        header .navbar-nav .dropdown-menu-2 {
-            left: 400px !important;
-        }
-    }
-
-
-    @media (min-width: 1250px) and (max-width: 1319px) and (min-height: 1000px) {
-        header .navbar-nav .dropdown-menu-2 {
-            left: 380px !important;
-        }
-    }
-
-
-    @media (min-width: 1250px) and (max-width: 1319px) and (max-height: 999px) {
-        header .navbar-nav .dropdown-menu-2 {
-            left: 360px !important;
-        }
-    }
-
-
-    @media (min-width: 1200px) and (max-width: 1249px) {
-        header .navbar-nav .dropdown-menu-2 {
-            left: 340px !important;
-        }
-    }
-
-
-    @media (min-width: 1100px) and (max-width: 1199px) {
-        header .navbar-nav .dropdown-menu-2 {
-            left: 320px !important;
-        }
-    }
-
-
-    @media (max-width: 767px) {
-        #cart_items .mobile-badge {
-            width: 14px;
-            height: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: absolute;
-            top: -5px;
-            left: 37px;
-            background-color: #dc3545;
-            font-weight: 600;
+        .btn-view-more {
+            padding: 6px 12px;
+            margin-top: 10px;
+            font-size: 14px;
+            background-color: #0baf9a;
             color: #fff;
-            border-radius: 50%;
-            font-size: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
         }
 
-        .d-inline {
-            display: block !important;
+        .btn-view-more:hover {
+            background-color: #00927f;
+            color: #fff;
         }
-    }
 
-
-
-    @media (min-width: 769px) {
-        header .onhover-dropdown .onhover-div-login .user-box-name li a:hover::after {
-            width: 40%;
-            /* or 100%, pick one */
+        .product-box-4 {
+            padding: 6px;
         }
-    }
 
-    /* Tap/focus effect on mobile */
-    @media (max-width: 768px) {
 
-        header .onhover-dropdown .onhover-div-login .user-box-name li a:active::after,
-        header .onhover-dropdown .onhover-div-login .user-box-name li a:focus::after {
+
+        header .navbar-nav .dropdown-menu-2::after {
+            background-image: none;
+        }
+
+        .bg-effect {
+            background-image: none;
+        }
+
+
+        header .navbar-light .navbar-nav .nav-link {
+            color: #fb5808;
+            font-weight: 500 !important;
+        }
+
+        .owl-theme .owl-dots .owl-dot span {
+
+            background: #ff727278;
+
+        }
+
+        .owl-theme .owl-dots .owl-dot.active span,
+        .owl-theme .owl-dots .owl-dot:hover span {
+            background: #fb5808;
+        }
+
+        .header-icon .badge-theme {
+            position: absolute;
+            top: -11px;
+            right: 2px;
+            font-size: 9px;
+            padding: 5px 8px;
+        }
+
+        .product-box-5 .product-detail a h5.name {
+            text-align: left;
+        }
+
+        .header-2 .top-nav {
+            padding: 15px 0;
+            border-bottom: 1px solid #f7ad899e;
+        }
+
+        .product-product-box-5 .wow .fadeInUp-5 {
+            border: 1px solid #fb5808;
+        }
+
+        .header-2 .rightside-menu .option-list>ul>li .header-icon {
+            width: calc(30px + 11 * (100vw - 320px) / 1600);
+            height: calc(30px + 11 * (100vw - 320px) / 1600);
+        }
+
+        header .onhover-dropdown:hover .onhover-div {
+            border: 1px solid #fa6223;
+            padding: 17px;
+            border-radius: 6px;
+        }
+
+        header .onhover-dropdown .onhover-div-login .user-box-name li {
+            font-size: 15px;
+            border-left: 2px solid #fa6223;
+            padding-left: 7px;
+            transition: transform 0.4s ease;
+        }
+
+        header .onhover-dropdown .onhover-div-login .user-box-name li:hover {
+            transform: scale(1.1);
+            background: #ecebebff;
+        }
+
+        .header-2 .top-nav .middle-box .searchbar-box .search-button {
+            height: 99%;
+            background: #fb5808;
+            color: #fff;
+            border-radius: 0px 4px 4px 0px;
+            border: none;
+        }
+
+        .header-2 .top-nav .middle-box .searchbar-box .search-button .iconly-Search {
+            color: #fff;
+        }
+
+        .header-2 .right-nav .nav-number span {
+            font-size: calc(10px + 9 * (100vw - 320px) / 1600);
             width: 100%;
+            color: #3e3e3e;
         }
-    }
+
+        .start-100 {
+            left: 65% !important;
+        }
+
+        .product-box-4 .product-image img {
+            object-fit: cover;
+            margin: 0px;
+        }
+
+        .top-selling-box .top-selling-contain .top-selling-image img {
+            object-fit: cover;
+        }
+
+        .fa-chevron-down::before {
+            content: "";
+            font-size: 9px;
+        }
+
+        .header-2 .top-nav span {
+            color: #ffffff;
+            background: #d80101;
+        }
+
+        @media (max-width: 480px) {
+            .product-box-4 .product-image img {
+                width: 100%;
+            }
+        }
+
+        @media (max-width:800px) {
+            .modal {
+                top: 35%;
+                height: auto;
+            }
+        }
+
+        @media (max-width: 767px) {
+            header .main-nav {
+                padding: 5px 0px !important;
+            }
+        }
+
+        /* ratna */
+        @media (max-width: 800px) {
+            .modal {
+                top: 0%;
+                height: auto;
+            }
+        }
+
+        @media (max-width: 800px) {
+            #login-popup {
+                top: 35%;
+                height: auto;
+            }
+        }
+
+        @media (max-width: 800px) {
+            #otp-popup {
+                top: 35%;
+                height: auto;
+            }
+        }
+
+        @media (max-width: 767px) {
+
+
+            .modal-content {
+                max-height: 90vh;
+                overflow: hidden;
+            }
+
+            .modal-body {
+                overflow-y: auto;
+                max-height: calc(90vh - 120px);
+
+            }
+        }
+
+        /* header shifting code */
+
+        @media (min-width: 1900px) {
+            header .navbar-nav .dropdown-menu-2 {
+                left: 494px !important;
+            }
+        }
+
+
+        @media (min-width: 1650px) and (max-width: 1899px) {
+            header .navbar-nav .dropdown-menu-2 {
+                left: 500px !important;
+            }
+        }
+
+
+        @media (min-width: 1550px) and (max-width: 1649px) {
+            header .navbar-nav .dropdown-menu-2 {
+                left: 475px !important;
+            }
+        }
+
+
+        @media (min-width: 1400px) and (max-width: 1549px) {
+            header .navbar-nav .dropdown-menu-2 {
+                left: 450px !important;
+            }
+        }
+
+
+        @media (min-width: 1360px) and (max-width: 1399px) {
+            header .navbar-nav .dropdown-menu-2 {
+                left: 420px !important;
+            }
+        }
+
+        @media (min-width: 1320px) and (max-width: 1359px) {
+            header .navbar-nav .dropdown-menu-2 {
+                left: 400px !important;
+            }
+        }
+
+
+        @media (min-width: 1250px) and (max-width: 1319px) and (min-height: 1000px) {
+            header .navbar-nav .dropdown-menu-2 {
+                left: 380px !important;
+            }
+        }
+
+
+        @media (min-width: 1250px) and (max-width: 1319px) and (max-height: 999px) {
+            header .navbar-nav .dropdown-menu-2 {
+                left: 360px !important;
+            }
+        }
+
+
+        @media (min-width: 1200px) and (max-width: 1249px) {
+            header .navbar-nav .dropdown-menu-2 {
+                left: 340px !important;
+            }
+        }
+
+
+        @media (min-width: 1100px) and (max-width: 1199px) {
+            header .navbar-nav .dropdown-menu-2 {
+                left: 320px !important;
+            }
+        }
+
+
+        @media (max-width: 767px) {
+            #cart_items .mobile-badge {
+                width: 14px;
+                height: 14px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: absolute;
+                top: -5px;
+                left: 37px;
+                background-color: #dc3545;
+                font-weight: 600;
+                color: #fff;
+                border-radius: 50%;
+                font-size: 10px;
+            }
+
+            .d-inline {
+                display: block !important;
+            }
+        }
+
+
+
+        @media (min-width: 769px) {
+            header .onhover-dropdown .onhover-div-login .user-box-name li a:hover::after {
+                width: 40%;
+                /* or 100%, pick one */
+            }
+        }
+
+        /* Tap/focus effect on mobile */
+        @media (max-width: 768px) {
+
+            header .onhover-dropdown .onhover-div-login .user-box-name li a:active::after,
+            header .onhover-dropdown .onhover-div-login .user-box-name li a:focus::after {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 
@@ -432,25 +434,25 @@
                                     <ul>
                                         <?php if (empty($userData))
                                         { ?>
-                                        <li class="onhover-dropdown" style="margin-right:10px">
-                                            <a class="header-icon swap-icon" data-bs-toggle="modal"
-                                                data-bs-target="#login-popup">
-                                                <i class="iconly-Heart icli"></i>
-                                                <span class="badge rounded-pill badge-theme"
-                                                    id="no_of_wishlist_item">0</span>
-                                            </a>
-                                        </li>
+                                            <li class="onhover-dropdown" style="margin-right:10px">
+                                                <a class="header-icon swap-icon" data-bs-toggle="modal"
+                                                    data-bs-target="#login-popup">
+                                                    <i class="iconly-Heart icli"></i>
+                                                    <span class="badge rounded-pill badge-theme"
+                                                        id="no_of_wishlist_item">0</span>
+                                                </a>
+                                            </li>
                                         <?php } else
                                         { ?>
-                                        <li class="onhover-dropdown" style="margin-right:10px">
-                                            <a href="<?php echo base_url('web/wishlist'); ?>"
-                                                class="header-icon swap-icon">
-                                                <i class="iconly-Heart icli"></i>
-                                                <span class="badge rounded-pill badge-theme" id="no_of_wishlist_item">
-                                                    <?= $wishlist_count; ?>
-                                                </span>
-                                            </a>
-                                        </li>
+                                            <li class="onhover-dropdown" style="margin-right:10px">
+                                                <a href="<?php echo base_url('web/wishlist'); ?>"
+                                                    class="header-icon swap-icon">
+                                                    <i class="iconly-Heart icli"></i>
+                                                    <span class="badge rounded-pill badge-theme" id="no_of_wishlist_item">
+                                                        <?= $wishlist_count; ?>
+                                                    </span>
+                                                </a>
+                                            </li>
                                         <?php } ?>
 
 
@@ -466,83 +468,83 @@
 
                                         <?php if (empty($userData))
                                         { ?>
-                                        <li class="right-side d-flex align-items-center justify-content-center"
-                                            style="cursor:pointer">
-                                            <div class="delivery-login-box">
-                                                <div class="delivery-icon" href="javascript:void(0)"
-                                                    data-bs-toggle="modal" data-bs-target="#login-popup">
-                                                    <i data-feather="user"></i>
-                                                    <span class="bg-white text-black">Login & Signup</span>
+                                            <li class="right-side d-flex align-items-center justify-content-center"
+                                                style="cursor:pointer">
+                                                <div class="delivery-login-box">
+                                                    <div class="delivery-icon" href="javascript:void(0)"
+                                                        data-bs-toggle="modal" data-bs-target="#login-popup">
+                                                        <i data-feather="user"></i>
+                                                        <span class="bg-white text-black">Login & Signup</span>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </li>
+                                            </li>
                                         <?php } else if ($userData['username'] === "")
                                         { ?>
-                                        <li class="right-side onhover-dropdown d-flex align-items-center justify-content-center"
-                                            style="cursor:pointer">
+                                                <li class="right-side onhover-dropdown d-flex align-items-center justify-content-center"
+                                                    style="cursor:pointer">
 
-                                            <div class="delivery-login-box d-flex align-items-center" style="gap:10px">
-                                                <div class="delivery-icon">
-                                                    <i data-feather="user" style="height:30px; width:30px"></i>
-                                                </div>
-                                                <div class="delivery-detail onhover-dropdown ">
-                                                    <h6>Hello,</h6>
-                                                    <h5 class="fw-bold">My Account <i
-                                                            class="fa-solid fa-chevron-down"></i></h5>
-                                                </div>
-                                            </div>
-                                            <div class="onhover-div onhover-div-login">
-                                                <ul class="user-box-name">
+                                                    <div class="delivery-login-box d-flex align-items-center" style="gap:10px">
+                                                        <div class="delivery-icon">
+                                                            <i data-feather="user" style="height:30px; width:30px"></i>
+                                                        </div>
+                                                        <div class="delivery-detail onhover-dropdown ">
+                                                            <h6>Hello,</h6>
+                                                            <h5 class="fw-bold">My Account <i
+                                                                    class="fa-solid fa-chevron-down"></i></h5>
+                                                        </div>
+                                                    </div>
+                                                    <div class="onhover-div onhover-div-login">
+                                                        <ul class="user-box-name">
 
-                                                    <li class="product-box-contain">
-                                                        <a href="<?php echo base_url('web/account_profile'); ?>">My
-                                                            Account</a>
-                                                    </li>
-                                                    <li class="product-box-contain">
-                                                        <a href="<?php echo base_url('web/logout'); ?>">Logout</a>
-                                                    </li>
+                                                            <li class="product-box-contain">
+                                                                <a href="<?php echo base_url('web/account_profile'); ?>">My
+                                                                    Account</a>
+                                                            </li>
+                                                            <li class="product-box-contain">
+                                                                <a href="<?php echo base_url('web/logout'); ?>">Logout</a>
+                                                            </li>
 
 
 
-                                                </ul>
-                                            </div>
-                                        </li>
+                                                        </ul>
+                                                    </div>
+                                                </li>
 
                                         <?php } else
                                         { ?>
-                                        <li class="right-side onhover-dropdown d-flex align-items-center justify-content-center"
-                                            style="cursor:pointer">
+                                                <li class="right-side onhover-dropdown d-flex align-items-center justify-content-center"
+                                                    style="cursor:pointer">
 
-                                            <div class="delivery-login-box">
-                                                <div class="delivery-icon">
-                                                    <i data-feather="user"></i>
-                                                    <span style="background:white !important;color: black !important;">
-                                                        <?= $userData['username'] ?>
-                                                        <i class="ms-2 fa fa-chevron-down"></i>
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <div class="onhover-div onhover-div-login">
-                                                <ul class="user-box-name">
+                                                    <div class="delivery-login-box">
+                                                        <div class="delivery-icon">
+                                                            <i data-feather="user"></i>
+                                                            <span style="background:white !important;color: black !important;">
+                                                            <?= $userData['username'] ?>
+                                                                <i class="ms-2 fa fa-chevron-down"></i>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="onhover-div onhover-div-login">
+                                                        <ul class="user-box-name">
 
-                                                    <li class="product-box-contain">
-                                                        <a href="<?php echo base_url('web/account_profile'); ?>">My
-                                                            Account</a>
-                                                    </li>
-                                                    <li class="product-box-contain">
-                                                        <a href="<?= base_url('web/account_profile?tab=order'); ?>">My
-                                                            Orders
-                                                        </a>
-                                                    </li>
-                                                    <li class="product-box-contain">
-                                                        <a href="<?php echo base_url('web/logout'); ?>">Logout</a>
-                                                    </li>
+                                                            <li class="product-box-contain">
+                                                                <a href="<?php echo base_url('web/account_profile'); ?>">My
+                                                                    Account</a>
+                                                            </li>
+                                                            <li class="product-box-contain">
+                                                                <a href="<?= base_url('web/account_profile?tab=order'); ?>">My
+                                                                    Orders
+                                                                </a>
+                                                            </li>
+                                                            <li class="product-box-contain">
+                                                                <a href="<?php echo base_url('web/logout'); ?>">Logout</a>
+                                                            </li>
 
 
 
-                                                </ul>
-                                            </div>
-                                        </li>
+                                                        </ul>
+                                                    </div>
+                                                </li>
                                         <?php } ?>
                                     </ul>
                                 </div>
@@ -569,14 +571,14 @@
 
                                 <div class="offcanvas-body">
                                     <?php
-$parentCategories = $this->db
-    ->where('status', 1)
-    ->order_by('id', 'ASC')
-    ->get('parent_category_master')
-    ->result_array();
-?>
+                                    $parentCategories = $this->db
+                                        ->where('status', 1)
+                                        ->order_by('id', 'ASC')
+                                        ->get('parent_category_master')
+                                        ->result_array();
+                                    ?>
                                     <script>
-                                    console.log("Parent Categories:", <?= json_encode($parentCategories); ?>);
+                                        console.log("Parent Categories:", <?= json_encode($parentCategories); ?>);
                                     </script>
 
                                     <ul class="navbar-nav">
@@ -587,65 +589,66 @@ $parentCategories = $this->db
                                         </li>
 
                                         <?php if (!empty($parentCategories)): ?>
-                                        <?php foreach ($parentCategories as $parent): ?>
+                                            <?php foreach ($parentCategories as $parent): ?>
 
-                                        <?php
-            // Categories
-            $categories = $this->db
-                ->where('status', 1)
-                ->where('mai_id', $parent['id'])
-                ->get('category_master')
-                ->result_array();
-            ?>
+                                                <?php
+                                                // Categories
+                                                $categories = $this->db
+                                                    ->where('status', 1)
+                                                    ->where('mai_id', $parent['id'])
+                                                    ->get('category_master')
+                                                    ->result_array();
+                                                ?>
 
-                                        <li class="nav-item dropdown">
-                                            <a class="nav-link dropdown-toggle" href="javascript:void(0)"
-                                                data-bs-toggle="dropdown">
-                                                <?= $parent['name']; ?>
-                                            </a>
+                                                <li class="nav-item dropdown">
+                                                    <a class="nav-link dropdown-toggle" href="javascript:void(0)"
+                                                        data-bs-toggle="dropdown">
+                                                        <?= $parent['name']; ?>
+                                                    </a>
 
-                                            <?php if (!empty($categories)): ?>
-                                            <div class="dropdown-menu dropdown-menu-3 dropdown-menu-2">
-                                                <div class="row">
+                                                    <?php if (!empty($categories)): ?>
+                                                        <div class="dropdown-menu dropdown-menu-3 dropdown-menu-2">
+                                                            <div class="row">
 
-                                                    <?php foreach ($categories as $cat): ?>
+                                                                <?php foreach ($categories as $cat): ?>
 
-                                                    <?php
-                            $subCategories = $this->db
-                                ->where('status', 1)
-                                ->where('category_master_id', $cat['id'])
-                                ->get('sub_category_master')
-                                ->result_array();
-                            ?>
+                                                                    <?php
+                                                                    $subCategories = $this->db
+                                                                        ->where('status', 1)
+                                                                        ->where('category_master_id', $cat['id'])
+                                                                        ->get('sub_category_master')
+                                                                        ->result_array();
+                                                                    ?>
 
-                                                    <div class="col-xl-3">
-                                                        <div class="dropdown-column m-0">
-                                                            <h5 class="dropdown-header">
-                                                                <?= $cat['category_name']; ?>
-                                                            </h5>
+                                                                    <div class="col-xl-3">
+                                                                        <div class="dropdown-column m-0">
+                                                                            <h5 class="dropdown-header">
+                                                                                <?= $cat['category_name']; ?>
+                                                                            </h5>
 
-                                                            <?php if (!empty($subCategories)): ?>
-                                                            <?php foreach ($subCategories as $sub): ?>
-                                                            <a class="dropdown-item"
-                                                                href="<?= base_url(slugify($parent['name']) . '/' . slugify($cat['category_name']) . '/' . slugify($sub['sub_category_name'])); ?>">
-                                                                <?= $sub['sub_category_name']; ?>
-                                                            </a>
-                                                            <?php endforeach; ?>
-                                                            <?php else: ?>
-                                                            <span class="dropdown-item text-muted">Coming Soon</span>
-                                                            <?php endif; ?>
+                                                                            <?php if (!empty($subCategories)): ?>
+                                                                                <?php foreach ($subCategories as $sub): ?>
+                                                                                    <a class="dropdown-item"
+                                                                                        href="<?= base_url(slugify($parent['name']) . '/' . slugify($cat['category_name']) . '/' . slugify($sub['sub_category_name'])); ?>">
+                                                                                        <?= $sub['sub_category_name']; ?>
+                                                                                    </a>
 
+                                                                                <?php endforeach; ?>
+                                                                            <?php else: ?>
+                                                                                <span class="dropdown-item text-muted">Coming Soon</span>
+                                                                            <?php endif; ?>
+
+                                                                        </div>
+                                                                    </div>
+
+                                                                <?php endforeach; ?>
+
+                                                            </div>
                                                         </div>
-                                                    </div>
+                                                    <?php endif; ?>
+                                                </li>
 
-                                                    <?php endforeach; ?>
-
-                                                </div>
-                                            </div>
-                                            <?php endif; ?>
-                                        </li>
-
-                                        <?php endforeach; ?>
+                                            <?php endforeach; ?>
                                         <?php endif; ?>
 
                                         <!-- Static Pages
@@ -676,7 +679,8 @@ $parentCategories = $this->db
                                     </div>
                                     <div>
                                         <span style="font-size: 13px;">24/7 Support</span>
-                                        <span style="font-size: 16px; font-weight: 500; color: #333;">+91 98380 75493</span>
+                                        <span style="font-size: 16px; font-weight: 500; color: #333;">+91 98380
+                                            75493</span>
                                     </div>
                                 </a>
                             </div>
@@ -714,28 +718,28 @@ $parentCategories = $this->db
             </li>
             <?php if (empty($userData))
             { ?>
-            <li class="onhover-dropdown" style="margin-right:10px; position: relative;">
-                <a class="header-icon swap-icon position-relative" data-bs-toggle="modal" data-bs-target="#login-popup">
-                    <i class="iconly-Heart icli"></i>
-                    <!-- Count Badge -->
-                    <span class="badge rounded-pill bg-danger position-absolute top-0 start-100 translate-middle p-1"
-                        id="no_of_wishlist_item">0</span>
-                    <span>My Wishlist</span>
-                </a>
-            </li>
+                <li class="onhover-dropdown" style="margin-right:10px; position: relative;">
+                    <a class="header-icon swap-icon position-relative" data-bs-toggle="modal" data-bs-target="#login-popup">
+                        <i class="iconly-Heart icli"></i>
+                        <!-- Count Badge -->
+                        <span class="badge rounded-pill bg-danger position-absolute top-0 start-100 translate-middle p-1"
+                            id="no_of_wishlist_item">0</span>
+                        <span>My Wishlist</span>
+                    </a>
+                </li>
             <?php } else
             { ?>
-            <li class="onhover-dropdown" style="margin-right:10px; position: relative;">
-                <a href="<?php echo base_url('web/wishlist'); ?>" class="header-icon swap-icon position-relative">
-                    <i class="iconly-Heart icli"></i>
-                    <!-- Count Badge -->
-                    <span class="badge rounded-pill bg-danger position-absolute top-0 start-100 translate-middle p-1"
-                        id="no_of_wishlist_item">
-                        <?= $wishlist_count ?? 0; ?>
-                    </span>
-                    <span>My Wishlist</span>
-                </a>
-            </li>
+                <li class="onhover-dropdown" style="margin-right:10px; position: relative;">
+                    <a href="<?php echo base_url('web/wishlist'); ?>" class="header-icon swap-icon position-relative">
+                        <i class="iconly-Heart icli"></i>
+                        <!-- Count Badge -->
+                        <span class="badge rounded-pill bg-danger position-absolute top-0 start-100 translate-middle p-1"
+                            id="no_of_wishlist_item">
+                            <?= $wishlist_count ?? 0; ?>
+                        </span>
+                        <span>My Wishlist</span>
+                    </a>
+                </li>
             <?php } ?>
             <li class="onhover-dropdown" style="margin-right:10px; position: relative;" id="cart_items">
                 <a href="<?php echo base_url(); ?>web/cart" class="header-icon swap-icon position-relative">
@@ -749,7 +753,7 @@ $parentCategories = $this->db
             </li>
 
             <style>
-            /* Mobile-specific cart badge */
+                /* Mobile-specific cart badge */
             </style>
 
 
@@ -856,44 +860,44 @@ $parentCategories = $this->db
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const inputs = document.querySelectorAll("#otp input");
+        document.addEventListener("DOMContentLoaded", function () {
+            const inputs = document.querySelectorAll("#otp input");
 
-        inputs.forEach((input, index) => {
-            // Auto move to next input
-            input.addEventListener("input", (e) => {
-                if (e.target.value.length === 1 && index < inputs.length - 1) {
-                    inputs[index + 1].focus();
-                }
+            inputs.forEach((input, index) => {
+                // Auto move to next input
+                input.addEventListener("input", (e) => {
+                    if (e.target.value.length === 1 && index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
+                });
+
+                // Backspace moves to previous input
+                input.addEventListener("keydown", (e) => {
+                    if (e.key === "Backspace" && e.target.value === "" && index > 0) {
+                        inputs[index - 1].focus();
+                    }
+                });
+
+                // Mobile numeric keyboard
+                input.setAttribute("inputmode", "numeric");
+                input.setAttribute("pattern", "[0-9]*");
             });
-
-            // Backspace moves to previous input
-            input.addEventListener("keydown", (e) => {
-                if (e.key === "Backspace" && e.target.value === "" && index > 0) {
-                    inputs[index - 1].focus();
-                }
-            });
-
-            // Mobile numeric keyboard
-            input.setAttribute("inputmode", "numeric");
-            input.setAttribute("pattern", "[0-9]*");
         });
-    });
     </script>
 
     <!--=====LOGIN POPUP END======-->
 
 
     <script>
-    var SENT_OTP = 0;
-    var mobileNumber = "";
+        var SENT_OTP = 0;
+        var mobileNumber = "";
 
-    function generateRandomNumber() {
-        return Math.floor(1000 + Math.random() * 9000); // 4-digit OTP
-    }
+        function generateRandomNumber() {
+            return Math.floor(1000 + Math.random() * 9000); // 4-digit OTP
+        }
 
-    function sendQueryData(mobile, otp) {
-        fetch("<?= base_url('web/send_otp') ?>", {
+        function sendQueryData(mobile, otp) {
+            fetch("<?= base_url('web/send_otp') ?>", {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json'
@@ -903,40 +907,40 @@ $parentCategories = $this->db
                     otp: otp
                 })
             })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === "success") {
-                    const last4Digits = mobile.slice(-4);
-                    document.getElementById('show-otp-here').textContent = otp;
-                    document.getElementById('otp-mobile-display').textContent = "*******" + last4Digits;
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        const last4Digits = mobile.slice(-4);
+                        document.getElementById('show-otp-here').textContent = otp;
+                        document.getElementById('otp-mobile-display').textContent = "*******" + last4Digits;
 
-                    var otpModal = new bootstrap.Modal(document.getElementById('otp-popup'));
-                    otpModal.show();
+                        var otpModal = new bootstrap.Modal(document.getElementById('otp-popup'));
+                        otpModal.show();
 
-                    startResendTimer();
-                } else {
-                    alert(data.message || "Something went wrong.");
-                }
-            });
-    }
-
-    document.getElementById('reg-send-otp').addEventListener('click', function() {
-        mobileNumber = document.getElementById('reg-mobile').value;
-        if (!isNaN(mobileNumber) && mobileNumber.length === 10) {
-            SENT_OTP = generateRandomNumber();
-            sendQueryData(mobileNumber, SENT_OTP);
-        } else {
-            alert('Please enter a valid 10-digit mobile number.');
+                        startResendTimer();
+                    } else {
+                        alert(data.message || "Something went wrong.");
+                    }
+                });
         }
-    });
 
-    document.getElementById('validate-otp-btn').addEventListener('click', function() {
-        let enteredOtp = document.getElementById('first').value +
-            document.getElementById('second').value +
-            document.getElementById('third').value +
-            document.getElementById('fourth').value;
+        document.getElementById('reg-send-otp').addEventListener('click', function () {
+            mobileNumber = document.getElementById('reg-mobile').value;
+            if (!isNaN(mobileNumber) && mobileNumber.length === 10) {
+                SENT_OTP = generateRandomNumber();
+                sendQueryData(mobileNumber, SENT_OTP);
+            } else {
+                alert('Please enter a valid 10-digit mobile number.');
+            }
+        });
 
-        fetch("<?= base_url('web/verify_otp') ?>", {
+        document.getElementById('validate-otp-btn').addEventListener('click', function () {
+            let enteredOtp = document.getElementById('first').value +
+                document.getElementById('second').value +
+                document.getElementById('third').value +
+                document.getElementById('fourth').value;
+
+            fetch("<?= base_url('web/verify_otp') ?>", {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json'
@@ -946,159 +950,159 @@ $parentCategories = $this->db
                     otp: enteredOtp
                 })
             })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === "Success") {
-                    toastr.success('You have login successfully.', 'Success', {
-                        closeButton: true,
-                        progressBar: true,
-                        timeOut: 2500,
-                        positionClass: 'toast-top-right',
-                        tapToDismiss: true,
-                        extendedTimeOut: 1000,
-                        onHidden: function() {
-                            window.location.reload();
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "Success") {
+                        toastr.success('You have login successfully.', 'Success', {
+                            closeButton: true,
+                            progressBar: true,
+                            timeOut: 2500,
+                            positionClass: 'toast-top-right',
+                            tapToDismiss: true,
+                            extendedTimeOut: 1000,
+                            onHidden: function () {
+                                window.location.reload();
+                            }
+                        });
+                    } else {
+                        toastr.error('Please try again.', 'Invalid OTP', {
+                            closeButton: true,
+                            progressBar: true,
+                            timeOut: 2500,
+                            positionClass: 'toast-top-right',
+                            tapToDismiss: true,
+                            extendedTimeOut: 1000
+                        });
+                    }
+                });
+        });
+
+        document.getElementById('resend-otp').addEventListener('click', function () {
+            if (mobileNumber && mobileNumber.length === 10) {
+                SENT_OTP = generateRandomNumber();
+
+                sendQueryData(mobileNumber, SENT_OTP);
+            }
+        });
+
+        function startResendTimer() {
+            const resendLink = document.getElementById('resend-otp');
+            const timerDisplay = document.getElementById('resend-timer');
+            let timeLeft = 30;
+
+            resendLink.style.pointerEvents = "none";
+            resendLink.style.opacity = "0.5";
+            timerDisplay.textContent = `(00:${timeLeft})`;
+
+            const countdown = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = `(00:${timeLeft < 10 ? '0' + timeLeft : timeLeft})`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    resendLink.style.pointerEvents = "auto";
+                    resendLink.style.opacity = "1";
+                    timerDisplay.textContent = "";
+                }
+            }, 1000);
+        }
+    </script>
+
+    <script>
+        $(document).ready(function () {
+
+            $('#mainSearchBox').hide();
+
+            function toggleSearchBox() {
+                const searchBox = $('#mainSearchBox');
+                if (searchBox.is(':visible')) {
+                    searchBox.hide();
+                    $('#suggestions').hide();
+                } else {
+                    searchBox.css('display', 'flex');
+                    $('#gsearch').focus();
+                }
+            }
+
+
+            $('#toggleSearchText').on('click', toggleSearchBox);
+            $('#toggleSearchIcon').on('click', toggleSearchBox);
+
+
+            $(document).click(function (e) {
+                if (!$(e.target).closest(
+                    '#gsearch, #suggestions, #mainSearchBox, #toggleSearchText, #toggleSearchIcon')
+                    .length) {
+                    $('#suggestions').hide();
+                    $('#mainSearchBox').hide();
+                }
+            });
+
+
+            $('#gsearch').keyup(function () {
+                var query = $(this).val();
+                if (query.length > 1) {
+                    $.ajax({
+                        url: '<?= base_url('Web/ get_product_suggestions'); ?>',
+                        type: 'POST',
+                        data: {
+                            search: query
+                        },
+                        success: function (data) {
+                            $('#suggestions').html(data).show();
                         }
                     });
                 } else {
-                    toastr.error('Please try again.', 'Invalid OTP', {
-                        closeButton: true,
-                        progressBar: true,
-                        timeOut: 2500,
-                        positionClass: 'toast-top-right',
-                        tapToDismiss: true,
-                        extendedTimeOut: 1000
-                    });
+                    $('#suggestions').hide();
                 }
             });
-    });
 
-    document.getElementById('resend-otp').addEventListener('click', function() {
-        if (mobileNumber && mobileNumber.length === 10) {
-            SENT_OTP = generateRandomNumber();
 
-            sendQueryData(mobileNumber, SENT_OTP);
-        }
-    });
-
-    function startResendTimer() {
-        const resendLink = document.getElementById('resend-otp');
-        const timerDisplay = document.getElementById('resend-timer');
-        let timeLeft = 30;
-
-        resendLink.style.pointerEvents = "none";
-        resendLink.style.opacity = "0.5";
-        timerDisplay.textContent = `(00:${timeLeft})`;
-
-        const countdown = setInterval(() => {
-            timeLeft--;
-            timerDisplay.textContent = `(00:${timeLeft < 10 ? '0' + timeLeft : timeLeft})`;
-
-            if (timeLeft <= 0) {
-                clearInterval(countdown);
-                resendLink.style.pointerEvents = "auto";
-                resendLink.style.opacity = "1";
-                timerDisplay.textContent = "";
-            }
-        }, 1000);
-    }
-    </script>
-
-    <script>
-    $(document).ready(function() {
-
-        $('#mainSearchBox').hide();
-
-        function toggleSearchBox() {
-            const searchBox = $('#mainSearchBox');
-            if (searchBox.is(':visible')) {
-                searchBox.hide();
+            $(document).on('click', '.suggestion-item', function () {
+                var selected = $(this).text();
+                $('#gsearch').val(selected);
                 $('#suggestions').hide();
-            } else {
-                searchBox.css('display', 'flex');
-                $('#gsearch').focus();
-            }
-        }
-
-
-        $('#toggleSearchText').on('click', toggleSearchBox);
-        $('#toggleSearchIcon').on('click', toggleSearchBox);
-
-
-        $(document).click(function(e) {
-            if (!$(e.target).closest(
-                    '#gsearch, #suggestions, #mainSearchBox, #toggleSearchText, #toggleSearchIcon')
-                .length) {
-                $('#suggestions').hide();
-                $('#mainSearchBox').hide();
-            }
+                $('#searchForm').submit();
+            });
         });
-
-
-        $('#gsearch').keyup(function() {
-            var query = $(this).val();
-            if (query.length > 1) {
-                $.ajax({
-                    url: '<?= base_url('Web/ get_product_suggestions'); ?>',
-                    type: 'POST',
-                    data: {
-                        search: query
-                    },
-                    success: function(data) {
-                        $('#suggestions').html(data).show();
-                    }
-                });
-            } else {
-                $('#suggestions').hide();
-            }
-        });
-
-
-        $(document).on('click', '.suggestion-item', function() {
-            var selected = $(this).text();
-            $('#gsearch').val(selected);
-            $('#suggestions').hide();
-            $('#searchForm').submit();
-        });
-    });
     </script>
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const dropdown = document.querySelector('.right-side.onhover-dropdown');
-        const toggle = dropdown.querySelector('.delivery-icon');
-        const menu = dropdown.querySelector('.onhover-div-login');
+        document.addEventListener('DOMContentLoaded', function () {
+            const dropdown = document.querySelector('.right-side.onhover-dropdown');
+            const toggle = dropdown.querySelector('.delivery-icon');
+            const menu = dropdown.querySelector('.onhover-div-login');
 
 
-        toggle.addEventListener('click', function(e) {
-            e.stopPropagation();
-            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-        });
-
-
-        document.addEventListener('click', function() {
-            menu.style.display = 'none';
-        });
-    });
-    </script>
-
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const toggleSearch = document.getElementById('toggleSearchText');
-        const searchInput = document.getElementById('gsearch');
-
-        toggleSearch.addEventListener('click', function(e) {
-            e.preventDefault();
-
-
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
+            toggle.addEventListener('click', function (e) {
+                e.stopPropagation();
+                menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
             });
 
 
-            setTimeout(function() {
-                searchInput.focus();
-            }, 300);
+            document.addEventListener('click', function () {
+                menu.style.display = 'none';
+            });
         });
-    });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleSearch = document.getElementById('toggleSearchText');
+            const searchInput = document.getElementById('gsearch');
+
+            toggleSearch.addEventListener('click', function (e) {
+                e.preventDefault();
+
+
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+
+
+                setTimeout(function () {
+                    searchInput.focus();
+                }, 300);
+            });
+        });
     </script>

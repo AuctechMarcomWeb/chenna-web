@@ -94,7 +94,7 @@ $route['vegetable-items']      = 'web/vegetable_item_list';
 $route['chicken-items']      = 'web/chicken_item_list';
 $route['grocery-items']      = 'web/grocery_item_list';
 
-if ($main == 'topwear' OR $main == 'bottomwear' OR $main == 'footwear' OR $main == 'men'
+if ($main == 'fashion-clothing' OR $main == 'bottomwear' OR $main == 'footwear' OR $main == 'men'
     OR $main == 'women' OR $main == 'western-wear' OR $main == 'women-footwear' 
     OR $main == 'indian-and-festive-wear' OR $main == 'boys-clothing'  
     OR $main == 'girls-clothing' OR $main == 'kid' OR $main == 'kids-infants'
