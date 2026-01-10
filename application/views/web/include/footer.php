@@ -150,27 +150,26 @@
                             <a href="javascript:void(0)">
                                 <div class="inform-box flex-start-box">
                                     <i data-feather="map-pin"></i>
-                                    <p> Lucknow, Uttar Pradesh, India-226003
-
+                                    <p> New Jiamau, 1090 Chauraha, 167/101, Shaligram Building, Hazratganj, Lucknow, Uttar Pradesh 226001
                                     </p>
                                 </div>
                             </a>
                         </li>
 
                         <li>
-                            <a href="tel:89320 50110">
+                            <a href="tel:+91 98380 75493">
                                 <div class="inform-box">
                                     <i data-feather="phone"></i>
-                                    <p>Call us: +91 89320 50110</p>
+                                    <p>Call us: +91 98380 75493</p>
                                 </div>
                             </a>
                         </li>
 
                         <li>
-                            <a href="mailto:info@chenna.co">
+                            <a href="mailto:info@auctech.in">
                                 <div class="inform-box">
                                     <i data-feather="mail"></i>
-                                    <p>Email Us: info@chenna.co</p>
+                                    <p>Email Us: info@auctech.in</p>
                                 </div>
                             </a>
                         </li>

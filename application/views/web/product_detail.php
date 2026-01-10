@@ -1132,13 +1132,13 @@ if (!empty($getData['image5']))
                             </div>
 
                             <div class="vendor-name">
-                                <h5 class="fw-500">Wazi Wears</h5>
+                                <h5 class="fw-500">Chenna</h5>
 
                             </div>
                         </div>
 
                         <p class="vendor-detail" style="text-align:justify;">
-                            At Wazi Wears, we bring you the finest and trendiest styles straight from the heart of
+                            At Chenna, we bring you the finest and trendiest styles straight from the heart of
                             fashion. Every piece is crafted to add comfort, elegance, and a touch of confidence to your
                             everyday look.
 
@@ -1149,7 +1149,7 @@ if (!empty($getData['image5']))
                                 <li>
                                     <div class="address-contact">
                                         <i data-feather="headphones"></i>
-                                        <h5>Contact Us: <span class="text-content"> +91 89320 50110</span></h5>
+                                        <h5>Contact Us: <span class="text-content"> +91 98380 75493</span></h5>
                                     </div>
                                 </li>
                             </ul>
@@ -2314,7 +2314,7 @@ if (!empty($getData['image5']))
         let title = $(this).data("title");
         let randomCode = Math.floor(1000000000 + Math.random() * 9000000000);
 
-        let emailSubject = encodeURIComponent("I ♥ this product on WaziWears!");
+        let emailSubject = encodeURIComponent("I ♥ this product on Chenna!");
         let emailBody = encodeURIComponent(title + " - " + pageUrl + " (" + randomCode + ")");
 
         let emailUrl = "mailto:?subject=" + emailSubject + "&body=" + emailBody;

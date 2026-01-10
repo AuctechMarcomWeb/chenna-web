@@ -121,7 +121,7 @@ li {
         </div>
         <div class="terms-intro">
             <p>
-                At Wazi Wears, we respect your privacy and are committed to protecting your personal information.
+                At Chenna, we respect your privacy and are committed to protecting your personal information.
                 This Privacy Policy explains how we collect, use, store, and protect your data when you visit our
                 website or purchase our products.
                 By using our website, you agree to the practices described below. Please read this policy carefully.
@@ -211,7 +211,7 @@ li {
                             <li>Ask us to delete your data (subject to legal or business obligations).</li>
                             <li>Opt out of marketing emails at any time.</li>
                         </ul>
-                        <p>To request any of these, please contact us at: <b>info@waziwear.com</b></p>
+                        <p>To request any of these, please contact us at: <b>info@auctech.in</b></p>
                     </div>
                 </div>
             </li>
@@ -245,9 +245,9 @@ li {
                     <div class="terms-detail">
                         <h5>Contact Us</h5>
                         <p>If you have questions or concerns about this Privacy Policy, please contact us:</p>
-                        <p><b>Email</b>:  info@waziwear.com</p>
-                        <p><b>Phone</b>:   +91 89320 50110</p>
-                        <p><b>Address</b>: Wazi Wears,Lucknow, Uttar Pradesh, India-226003</p>
+                        <p><b>Email</b>:  info@auctech.in</p>
+                        <p><b>Phone</b>:   +91 98380 75493</p>
+                        <p><b>Address</b>: New Jiamau, 1090 Chauraha, 167/101, Shaligram Building, Hazratganj, Lucknow, Uttar Pradesh 226001</p>
                     </div>
                 </div>
             </li>

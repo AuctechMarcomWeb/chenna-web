@@ -131,7 +131,7 @@
       <p>
         These Terms & Conditions (“Terms”) outline the rules and guidelines for using our website, purchasing our
         products, and accessing our services. By visiting, browsing, or placing an order on our site, you agree to
-        follow these Terms and accept them fully. They are designed to protect both you and Wazi Wears, ensuring a safe,
+        follow these Terms and accept them fully. They are designed to protect both you and Chenna, ensuring a safe,
         transparent, and fair experience. Please read these Terms carefully before using our website or making any
         purchases, as they form a binding agreement between you and us.
       </p>
@@ -142,7 +142,7 @@
           <span class="terms-number">1.</span>
           <div class="terms-detail">
             <h5>Introduction</h5>
-            <p>Wazi Wears brings you premium, stylish, and authentic clothing that blends tradition with modern fashion.
+            <p>Chenna brings you premium, stylish, and authentic clothing that blends tradition with modern fashion.
               By accessing our website or purchasing our products, you agree to our Terms & Conditions. We are committed
               to providing high-quality apparel with complete transparency and trust in every product and service we
               offer to our valued customers.</p>
@@ -224,7 +224,7 @@
           <div class="terms-detail">
             <h5>Intellectual Property</h5>
             <p>All content on our website — including logos, text, images, product designs, and graphics — is the
-              property of Wazi Wears and protected by copyright and trademark laws. You may not reproduce, modify, or
+              property of Chenna and protected by copyright and trademark laws. You may not reproduce, modify, or
               distribute any content without our written permission.</p>
           </div>
         </div>
@@ -249,7 +249,7 @@
           <span class="terms-number">9.</span>
           <div class="terms-detail">
             <h5>Limitation of Liability</h5>
-            <p>Wazi Wears is not liable for any indirect, incidental, special, or consequential damages that may arise
+            <p>Chenna is not liable for any indirect, incidental, special, or consequential damages that may arise
               from the use, misuse, or inability to use our website, services, or products. This includes, without
               limitation, loss of data, business interruption, or any financial or commercial losses.</p>
           </div>
@@ -288,8 +288,8 @@
             <p>For any questions, feedback, or concerns regarding these Terms & Conditions, our products, or your
               experience on our website, please feel free to reach out to us. We value your input and are here to help.
             </p>
-            <p class="mt-1"><b>Email</b>:  info@waziwear.com</p>
-            <p class="mt-1"><b>Phone</b>:  +91 89320 50110</p>
+            <p class="mt-1"><b>Email</b>:  info@auctech.in</p>
+            <p class="mt-1"><b>Phone</b>:  +91 98380 75493</p>
           </div>
         </div>
       </li>
