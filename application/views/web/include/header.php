@@ -677,15 +677,15 @@
 
                         <div class="right-nav">
                             <div class="nav-number">
-                                <a href="tel:+91 98380 75493" class="d-flex align-items-center">
+                                <a href="tel:89320 50110" class="d-flex align-items-center">
                                     <div>
                                         <i style="height: 28px; width: 28px; margin-right: 4px; color: #333;"
                                             data-feather="phone-call"></i>
                                     </div>
                                     <div>
                                         <span style="font-size: 13px;">24/7 Support</span>
-                                        <span style="font-size: 16px; font-weight: 500; color: #333;">+91 98380
-                                            75493</span>
+                                        <span style="font-size: 16px; font-weight: 500; color: #333;">+91 89320
+                                            50110</span>
                                     </div>
                                 </a>
                             </div>

@@ -11,6 +11,7 @@ class Web extends CI_Controller
     $this->load->model('User_master_model');
     $this->load->model('Review_model');
     $this->load->library('pagination');
+     $this->load->helper(['url', 'text']);
   }
 
   // Registration
@@ -56,7 +57,7 @@ class Web extends CI_Controller
     if (preg_match('/^\d{10}$/', $mobile_num) && !empty($mobile_otp))
     {
 
-      $text = 'Dear Customer, Your Mobile Verification OTP is: ' . $mobile_otp . '. Please enter this OTP to verify your mobile number. From www.Chenna.in Regards, Chenna Real Time Private Limited';
+      $text = 'Dear Customer, Your Mobile Verification OTP is: ' . $mobile_otp . '. Please enter this OTP to verify your mobile number. From www.Wazi Wears.in Regards, Wazi Wears Real Time Private Limited';
 
       sendSMS($mobile_num, $text, '1007086055987083292');
 
@@ -107,7 +108,7 @@ class Web extends CI_Controller
       // Insert data into ORDER_QUERY table
       // $this->ORDER_QUERY->insert($data);
       $this->db->insert('ORDER_QUERY', $data);
-      $text = 'Dear Customer Your Mobile Verification OTP is: ' . $mobile_otp . ' Please enter this OTP to verify your mobile number. From www.Chenna.inRegardsChenna Real Time Private Limited';
+      $text = 'Dear Customer Your Mobile Verification OTP is: ' . $mobile_otp . ' Please enter this OTP to verify your mobile number. From www.Wazi Wears.inRegardsWazi Wears Real Time Private Limited';
       sendSMS($mobile_num, $text, '1007086055987083292');
       $this->output
         ->set_status_header(200)
@@ -287,7 +288,7 @@ class Web extends CI_Controller
     }
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Category | Chenna';
+    $data['title'] = 'Category | Wazi Wears';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/category_items');
     $this->load->view('web/include/footer');
@@ -325,7 +326,7 @@ class Web extends CI_Controller
       ->order_by('c.id', 'ASC')
       ->get()
       ->result_array();
-    $data['title'] = 'Welcome to Chenna | Shop Online with Best Offers‎';
+    $data['title'] = 'Welcome to Wazi Wears | Shop Online with Best Offers‎';
     // Load views
     $this->load->view('web/include/header', $data);
     $this->load->view('web/home');
@@ -342,7 +343,7 @@ class Web extends CI_Controller
     $data['getData'] = $result;
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = "Vegetables | Chenna";
+    $data['title'] = "Vegetables | Wazi Wears";
     $this->load->view('web/include/header', $data);
     $this->load->view('web/category_product_list');
     $this->load->view('web/include/cart_footer');
@@ -358,7 +359,7 @@ class Web extends CI_Controller
     $data['getData'] = $result;
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = "Vegetables | Chenna";
+    $data['title'] = "Vegetables | Wazi Wears";
     $this->load->view('web/include/header', $data);
     $this->load->view('web/category_product_list');
     $this->load->view('web/include/cart_footer');
@@ -374,7 +375,7 @@ class Web extends CI_Controller
     $data['getData'] = $result;
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = "Vegetables | Chenna";
+    $data['title'] = "Vegetables | Wazi Wears";
     $this->load->view('web/include/header', $data);
     $this->load->view('web/category_product_list');
     $this->load->view('web/include/cart_footer');
@@ -589,7 +590,7 @@ class Web extends CI_Controller
         'index2' => '',
         'bannerList' => $bannerList,
         'MainCategoryList' => $MainCategoryList,
-        'title' => $main . ' | ' . $categoryArray['0'] . ' | Chenna',
+        'title' => $main . ' | ' . $categoryArray['0'] . ' | Wazi Wears',
         'index2' => ''
       )
     );
@@ -856,220 +857,151 @@ class Web extends CI_Controller
 
 
   // Sub-category product list page
-  public function sub_category_product_list($main, $category, $sub)
-  {
-    $userData = $this->session->userdata('User');
-    $user_id = !empty($userData) ? $userData['id'] : null;
-
-    // Convert slug to words
-    $mainSlug = str_replace('-', ' ', strtolower($main));
-    $categorySlug = str_replace('-', ' ', strtolower($category));
-    $subSlug = str_replace('-', ' ', strtolower($sub));
-
-    // Fetch category IDs
-    $mainCategory = $this->db->select('id')->from('parent_category_master')
-      ->where('status', 1)->like('LOWER(name)', $mainSlug)->get()->row_array();
-
-    $categoryRow = $this->db->select('id')->from('category_master')
-      ->where('mai_id', $mainCategory['id'] ?? 0)
-      ->where('status', 1)
-      ->like('LOWER(category_name)', $categorySlug)->get()->row_array();
-
-    $subCategoryRow = $this->db->select('id')->from('sub_category_master')
-      ->where('category_master_id', $categoryRow['id'] ?? 0)
-      ->where('status', 1)
-      ->like('LOWER(sub_category_name)', $subSlug)->get()->row_array();
-
-    $mainCategoryId = $mainCategory['id'] ?? 0;
-    $categoryId = $categoryRow['id'] ?? 0;
-    $subCategoryId = $subCategoryRow['id'] ?? 0;
-
-    if (!$mainCategoryId || !$categoryId || !$subCategoryId)
-      show_404();
-
-    // Price Range
-    $priceRange = $this->db->select('MIN(final_price) as min_price, MAX(final_price) as max_price')
-      ->from('sub_product_master')
-      ->where('status', 1)
-      ->where('parent_category_id', $mainCategoryId)
-      ->where('category_id', $categoryId)
-      ->where('sub_category_id', $subCategoryId)
-      ->get()->row_array();
-
-    // Categories + Subcategories
-    $categories = $this->db->select('id, category_name')
-      ->from('category_master')
-      ->where('status', 1)
-      ->where('mai_id', $mainCategoryId)
-      ->get()->result_array();
-
-    foreach ($categories as &$cat)
+public function sub_category_product_list($mainSlug, $categorySlug, $subSlug)
     {
-      $cat['subcategories'] = $this->db->select('id, sub_category_name')
-        ->from('sub_category_master')
-        ->where('status', 1)
-        ->where('category_master_id', $cat['id'])
-        ->get()->result_array();
+        $userData = $this->session->userdata('User');
+        $user_id = !empty($userData) ? $userData['id'] : null;
+
+        // Fetch IDs by slug
+        $mainCategory = $this->db->get_where('parent_category_master', ['slug' => $mainSlug, 'status' => 1])->row_array();
+        $categoryRow = $this->db->get_where('category_master', ['slug' => $categorySlug, 'mai_id' => $mainCategory['id'] ?? 0, 'status' => 1])->row_array();
+        $subCategoryRow = $this->db->get_where('sub_category_master', ['slug' => $subSlug, 'category_master_id' => $categoryRow['id'] ?? 0, 'status' => 1])->row_array();
+
+        if (!$mainCategory || !$categoryRow || !$subCategoryRow)
+            show_404();
+
+        $mainCategoryId = $mainCategory['id'];
+        $categoryId = $categoryRow['id'];
+        $subCategoryId = $subCategoryRow['id'];
+
+        // Price range
+        $priceRange = $this->db->select('MIN(final_price) as min_price, MAX(final_price) as max_price')
+            ->from('sub_product_master')
+            ->where('status', 1)
+            ->where('parent_category_id', $mainCategoryId)
+            ->where('category_id', $categoryId)
+            ->where('sub_category_id', $subCategoryId)
+            ->get()->row_array();
+
+        // Categories + Subcategories
+        $categories = $this->db->select('id, category_name, slug')
+            ->from('category_master')
+            ->where('status', 1)
+            ->where('mai_id', $mainCategoryId)
+            ->get()->result_array();
+
+        foreach ($categories as &$cat)
+        {
+            $cat['subcategories'] = $this->db->select('id, sub_category_name, slug')
+                ->from('sub_category_master')
+                ->where('status', 1)
+                ->where('category_master_id', $cat['id'])
+                ->get()->result_array();
+        }
+
+        $data = [
+            'user_id' => $user_id,
+            'mainCategoryId' => $mainCategoryId,
+            'categoryId' => $categoryId,
+            'subCategoryId' => $subCategoryId,
+            'categories' => $categories,
+            'min_price_range' => $priceRange['min_price'] ?? 0,
+            'max_price_range' => $priceRange['max_price'] ?? 0,
+            'title' => ucfirst($mainSlug) . ' | ' . ucfirst($categorySlug) . ' | ' . ucfirst($subSlug)
+        ];
+
+        $this->load->view('web/include/header', $data);
+        $this->load->view('web/sub_category_product_list', $data);
+        $this->load->view('web/include/footer');
     }
-
-    // Send to view
-    $data = [
-      'user_id' => $user_id,
-      'mainCategoryId' => $mainCategoryId,
-      'categoryId' => $categoryId,
-      'subCategoryId' => $subCategoryId,
-      'categories' => $categories,
-      'min_price_range' => $priceRange['min_price'] ?? 0,
-      'max_price_range' => $priceRange['max_price'] ?? 0,
-      'title' => ucfirst($main) . ' | ' . ucfirst($category) . ' | ' . ucfirst($sub)
-    ];
-
-    $this->load->view('web/include/header', $data);
-    $this->load->view('web/sub_category_product_list', $data);
-    $this->load->view('web/include/footer');
-  }
 
 
   // AJAX filter
-  public function ajax_filter_subcategory_products()
-  {
+public function ajax_filter_subcategory_products()
+{
     $user_id = $this->session->userdata('User')['id'] ?? 0;
 
     $mainCategoryId = $this->input->post('mainCategoryId');
     $categoryId = $this->input->post('categoryId');
     $subCategoryId = $this->input->post('subCategoryId');
-    $min_price = (float) $this->input->post('min_price');
-    $max_price = (float) $this->input->post('max_price');
+    $min_price = (float)$this->input->post('min_price');
+    $max_price = (float)$this->input->post('max_price');
     $size = $this->input->post('size');
     $rating = $this->input->post('rating');
-    $page = (int) $this->input->post('page') ?: 1;
-    $perPage = (int) $this->input->post('perPage') ?: 12;
+    $page = (int)$this->input->post('page') ?: 1;
+    $perPage = (int)$this->input->post('perPage') ?: 12;
 
-    // Build WHERE conditions for price range & products
     $this->db->from('sub_product_master')->where('status', 1);
-    if ($mainCategoryId)
-      $this->db->where('parent_category_id', $mainCategoryId);
-    if ($categoryId)
-      $this->db->where_in('category_id', explode(',', $categoryId));
-    if ($subCategoryId)
-      $this->db->where_in('sub_category_id', explode(',', $subCategoryId));
-    if ($size)
-      $this->db->where_in('size', explode(',', $size));
-    if ($min_price !== 0)
-      $this->db->where('final_price >=', $min_price);
-    if ($max_price !== 0)
-      $this->db->where('final_price <=', $max_price);
 
-    // Dynamic Min/Max Price
-    $priceRange = $this->db->select('MIN(final_price) AS min_price, MAX(final_price) AS max_price')
-      ->get()->row_array();
-    $minPriceDB = (int) ($priceRange['min_price'] ?? 0);
-    $maxPriceDB = (int) ($priceRange['max_price'] ?? 0);
+    if ($mainCategoryId) $this->db->where('parent_category_id', $mainCategoryId);
+    if ($categoryId) $this->db->where_in('category_id', explode(',', $categoryId));
+    if ($subCategoryId) $this->db->where_in('sub_category_id', explode(',', $subCategoryId));
+    if ($size) $this->db->where_in('size', explode(',', $size));
+    if ($min_price) $this->db->where('final_price >=', $min_price);
+    if ($max_price) $this->db->where('final_price <=', $max_price);
 
-    // Latest product per SKU
-    $subQuery = $this->db->select('sku_code, MAX(id) as max_id')
-      ->from('sub_product_master')
-      ->where('status', 1);
-
-    if ($mainCategoryId)
-      $subQuery->where('parent_category_id', $mainCategoryId);
-    if ($categoryId)
-      $subQuery->where_in('category_id', explode(',', $categoryId));
-    if ($subCategoryId)
-      $subQuery->where_in('sub_category_id', explode(',', $subCategoryId));
-    if ($size)
-      $subQuery->where_in('size', explode(',', $size));
-    if ($min_price)
-      $subQuery->where('final_price >=', $min_price);
-    if ($max_price)
-      $subQuery->where('final_price <=', $max_price);
-
-    $subQuery->group_by('sku_code');
-    $subQueryStr = $subQuery->get_compiled_select();
-
-    $this->db->reset_query();
-
-    $this->db->from("sub_product_master sp")
-      ->join("($subQueryStr) latest", 'sp.id = latest.max_id', 'inner')
-      ->order_by('sp.id', 'DESC');
-
-    $allProducts = $this->db->get()->result_array();
+    $allProducts = $this->db->order_by('id', 'DESC')->get()->result_array();
     $totalProducts = count($allProducts);
 
-    // Average rating & wishlist
+    // Add average rating
     $product_ids = array_column($allProducts, 'id');
     $product_avg = [];
-    if (!empty($product_ids))
-    {
-      $ratings = $this->db->select('product_id, AVG(rating) as avg_rating')
-        ->from('customer_review')
-        ->where_in('product_id', $product_ids)
-        ->where('status', 1)
-        ->group_by('product_id')
-        ->get()->result_array();
-
-      foreach ($ratings as $row)
-      {
-        $product_avg[$row['product_id']] = round($row['avg_rating'], 1);
-      }
+    if ($product_ids) {
+        $ratings = $this->db->select('product_id, AVG(rating) as avg_rating')
+            ->from('customer_review')
+            ->where_in('product_id', $product_ids)
+            ->where('status', 1)
+            ->group_by('product_id')
+            ->get()->result_array();
+        foreach ($ratings as $r) $product_avg[$r['product_id']] = round($r['avg_rating'], 1);
     }
 
-    foreach ($allProducts as &$p)
-    {
-      $p['avg'] = $product_avg[$p['id']] ?? 0;
-      $p['is_in_wishlist'] = $user_id ? $this->db->where('user_id', $user_id)
-        ->where('product_id', $p['id'])
-        ->count_all_results('wish_list_master') > 0 : 0;
+    foreach ($allProducts as &$p) {
+        $p['avg'] = $product_avg[$p['id']] ?? 0;
+        $p['is_in_wishlist'] = $user_id
+            ? $this->db->where('user_id', $user_id)->where('product_id', $p['id'])->count_all_results('wish_list_master') > 0
+            : 0;
     }
 
-    // Rating filter
-    if ($rating)
-    {
-      $ratingsArr = explode(',', $rating);
-      $allProducts = array_filter($allProducts, function ($p) use ($ratingsArr) {
-        foreach ($ratingsArr as $r)
-        {
-          $r = (float) $r;
-          if ($r < 5 && $p['avg'] >= $r && $p['avg'] < $r + 1)
-            return true;
-          if ($r == 5 && $p['avg'] == 5)
-            return true;
-        }
-        return false;
-      });
-      $allProducts = array_values($allProducts);
+    // Filter by rating after calculating avg
+    if ($rating) {
+        $ratingsArr = explode(',', $rating);
+        $allProducts = array_filter($allProducts, function ($p) use ($ratingsArr) {
+            foreach ($ratingsArr as $r) {
+                $r = (float)$r;
+                if ($r < 5 && $p['avg'] >= $r && $p['avg'] < $r + 1) return true;
+                if ($r == 5 && $p['avg'] == 5) return true;
+            }
+            return false;
+        });
+        $allProducts = array_values($allProducts);
     }
 
-    // Slice products for pagination
     $totalProducts = count($allProducts);
+
+    // Pagination slice
     $offset = ($page - 1) * $perPage;
     $products = array_slice($allProducts, $offset, $perPage);
 
-    // Sizes
-    $this->db->reset_query();
+    // Sizes for sidebar
     $sizeQuery = $this->db->distinct()->select('size')
-      ->from('sub_product_master')->where('status', 1);
-    if ($mainCategoryId)
-      $sizeQuery->where('parent_category_id', $mainCategoryId);
-    if ($categoryId)
-      $sizeQuery->where_in('category_id', explode(',', $categoryId));
-    if ($subCategoryId)
-      $sizeQuery->where_in('sub_category_id', explode(',', $subCategoryId));
+        ->from('sub_product_master')->where('status', 1);
+    if ($mainCategoryId) $sizeQuery->where('parent_category_id', $mainCategoryId);
+    if ($categoryId) $sizeQuery->where_in('category_id', explode(',', $categoryId));
+    if ($subCategoryId) $sizeQuery->where_in('sub_category_id', explode(',', $subCategoryId));
     $sizesArr = array_column($sizeQuery->get()->result_array(), 'size');
 
-    // Total pages
-    $totalPages = ceil($totalProducts / $perPage);
-
     echo json_encode([
-      'products' => $products,
-      'total' => $totalProducts,
-      'totalPages' => $totalPages,
-      'limit' => $perPage,
-      'sizes' => $sizesArr,
-      'min_price' => $minPriceDB,
-      'max_price' => $maxPriceDB
+        'products' => $products,
+        'total' => $totalProducts,
+        'totalPages' => ceil($totalProducts / $perPage),
+        'limit' => $perPage,
+        'sizes' => $sizesArr,
+        'min_price' => $min_price ?? 0,
+        'max_price' => $max_price ?? 10000
     ]);
-  }
+}
+
 
 
 
@@ -1084,7 +1016,7 @@ class Web extends CI_Controller
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
     $data['getData'] = $this->web_model->getDataByTag($tag, $id);
-    $data['title'] = $tag . ' products | Chenna';
+    $data['title'] = $tag . ' products | Wazi Wears';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/tag_product_list');
     $this->load->view('web/include/footer');
@@ -1100,7 +1032,7 @@ class Web extends CI_Controller
       ->get_where('order_master', array('id' => $order_id))
       ->row()
       ->pdf_link;
-    $data['title'] = 'Order Details | Chenna ';
+    $data['title'] = 'Order Details | Wazi Wears ';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/order_details');
     $this->load->view('web/include/footer');
@@ -1393,7 +1325,7 @@ class Web extends CI_Controller
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
     $data['getData'] = $this->db->get_where('wish_list_master', array('user_id' => $userData['id']))->result_array();
-    $data['title'] = 'Wish List Details | Chenna';
+    $data['title'] = 'Wish List Details | Wazi Wears';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/account_wishlist');
     $this->load->view('web/include/footer');
@@ -1406,7 +1338,7 @@ class Web extends CI_Controller
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
     $this->db->order_by('id', 'DESC');
     $data['getData'] = $this->db->get_where('order_master', array('user_master_id' => $userData['id'], 'action_payment' => "Yes"))->result_array();
-    $data['title'] = 'Order List | Chenna';
+    $data['title'] = 'Order List | Wazi Wears';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/account_order');
     $this->load->view('web/include/footer');
@@ -1457,7 +1389,7 @@ class Web extends CI_Controller
     // $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
     $data['getWalletData'] = $this->db->get_where('wallet_master', array('user_master_id' => $userData['id']))->row_array();
-    $data['title'] = 'Wallet Details | Chenna';
+    $data['title'] = 'Wallet Details | Wazi Wears';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/account_wallet', $data);
     $this->load->view('web/include/footer');
@@ -1487,7 +1419,7 @@ class Web extends CI_Controller
     $dataa['billing_country'] = 'India';
     $dataa['billing_tel'] = $userData['mobile'];
     $dataa['billing_email'] = $userData['email_id'];
-    $dataa['merchant_param1'] = 'Chenna add money';
+    $dataa['merchant_param1'] = 'Wazi Wears add money';
     $this->load->view('paymentGateway/instomojo', $dataa);
   }
   public function become_a_vendor()
@@ -1497,7 +1429,7 @@ class Web extends CI_Controller
     {
       $data['bannerList'] = $this->web_model->getBannerList();
       $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-      $data['title'] = 'Become a vendor | Chenna ';
+      $data['title'] = 'Become a vendor | Wazi Wears ';
       $this->load->view('web/include/header', $data);
       $this->load->view('web/seller');
       $this->load->view('web/include/footer');
@@ -1524,7 +1456,7 @@ class Web extends CI_Controller
         $row = $this->db->insert('staff_master', $data);
         $insert_id = $this->db->insert_id();
         //New TEXT*****
-        $text = "Your seller account has been successfully registered with Chenna. Kindly visit https://Chenna.in/seller to start uploading your products on Chenna and start earning Regards Chenna Real Time Private Limited";
+        $text = "Your seller account has been successfully registered with Wazi Wears. Kindly visit https://Wazi Wears.in/seller to start uploading your products on Wazi Wears and start earning Regards Wazi Wears Real Time Private Limited";
         //$text="Seller registration Test";
         // ***OLD TEXT*****
         //$text="Congratulations! You have successfully registered your seller account with us.\r\nUser name : ".$data['name'];
@@ -1532,10 +1464,10 @@ class Web extends CI_Controller
         sendSMS($data['mobile'], $text, '1007050631475099664');
         $email_message = 'Dear ' . $data['name'] . ',
           Congratulations and welcome to a whole new world of online marketplace
-          You have provisionally created your Chenna seller account.
+          You have provisionally created your Wazi Wears seller account.
           Kindly complete your seller profile and connect with us to expand your business.
           Your Login id is ' . $data['mobile'] . '';
-        sentCommonEmail($data['email'], $email_message, 'Chenna Registration Successfully.');
+        sentCommonEmail($data['email'], $email_message, 'Wazi Wearse Registration Successfully.');
         $message = '<div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button><strong><h3>Success!</h3></strong>Thanks for registering with us. Now you have to complete your profile and KYC after that you can start listing your product.</div>';
         $this->session->set_flashdata('message', $message);
         redirect(site_url('web/success/' . $insert_id), 'refresh');
@@ -1634,7 +1566,7 @@ class Web extends CI_Controller
       $data['getData'] = $this->db->get()->result_array();
       $data['address_data'] = $this->db->get_where('user_address_master', array('user_master_id' => $userData['id']))->result_array();
       $data['wishListData'] = $this->db->get_where('wish_list_master', array('user_id' => $userData['id']))->result_array();
-      $data['title'] = 'Account Profile | Chenna';
+      $data['title'] = 'Account Profile | Wazi Wears';
       $this->load->view('web/include/header', $data);
       $this->load->view('web/account_profile');
       $this->load->view('web/include/footer');
@@ -1689,7 +1621,7 @@ class Web extends CI_Controller
       $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
       $data['getData'] = $this->web_model->getAllUserAddress($userData['id']);
       $data['address_data'] = $this->db->get_where('user_address_master', array('user_master_id' => $userData['id']))->result_array();
-      $data['title'] = 'Account Address List | Chenna';
+      $data['title'] = 'Account Address List | Wazi Wears';
       $this->load->view('web/include/header', $data);
       $this->load->view('web/account_address');
       $this->load->view('web/include/footer');
@@ -1746,7 +1678,7 @@ class Web extends CI_Controller
       $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
       $data['getData'] = $this->web_model->getAllUserAddress($userData['id']);
       $data['address_data'] = $this->db->get_where('user_address_master', array('user_master_id' => $userData['id']))->row_array();
-      $data['title'] = 'Add Address | Chenna';
+      $data['title'] = 'Add Address | Wazi Wears';
       $this->load->view('web/include/header', $data);
       $this->load->view('web/add_address');
       $this->load->view('web/include/footer');
@@ -1790,7 +1722,7 @@ class Web extends CI_Controller
       $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
       $data['getData'] = $this->web_model->getAllUserAddress($userData['id']);
       $data['address_data'] = $this->db->get_where('user_address_master', array('id' => $id))->row_array();
-      $data['title'] = 'Update Address | Chenna';
+      $data['title'] = 'Update Address | Wazi Wears';
       $this->load->view('web/include/header', $data);
       $this->load->view('web/update_address');
       $this->load->view('web/include/footer');
@@ -1864,12 +1796,12 @@ class Web extends CI_Controller
       $user = $result->username;
       $emailid = $result->email_id;
       $mobile = $result->mobile;
-      $message = "Dear customer, Your Order no. -" . $order_number . ", has been cancelled and please contact with our Support team.Thanks .Regards , Chenna Real Time Private Limited , www.Chenna.in ";
+      $message = "Dear customer, Your Order no. -" . $order_number . ", has been cancelled and please contact with our Support team.Thanks .Regards , Wazi Wears Real Time Private Limited , www.Wazi Wears.in ";
       $tempID = '1007492296258821177';
       $this->load->helper('/email/temp5');
       $status = "Order Cancelled";
-      $email_text = "Your order no. " . $order_number . " has been cancelled and please contact with our Support team.Thanks .Regards , Chenna Real Time Private Limited , www.Chenna.in ";
-      $email_body = temp5($status, $user, $email_text, "https://Chenna.in");
+      $email_text = "Your order no. " . $order_number . " has been cancelled and please contact with our Support team.Thanks .Regards , Wazi Wears Real Time Private Limited , www.Wazi Wears.in ";
+      $email_body = temp5($status, $user, $email_text, "https://Wazi Wears.in");
       $subject = "Your order no " . $order_number . " has been delivered";
       sentCommonEmail($emailid, $email_body, $subject);
       sendSMS($mobile, $message, $tempID);
@@ -2069,7 +2001,7 @@ class Web extends CI_Controller
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Account Payment | Chenna';
+    $data['title'] = 'Account Payment | Wazi Wears';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/account_payment');
     $this->load->view('web/include/footer');
@@ -2078,7 +2010,7 @@ class Web extends CI_Controller
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Blog | Chenna';
+    $data['title'] = 'Blog | Wazi Wears';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/blog');
     $this->load->view('web/include/footer');
@@ -2093,7 +2025,7 @@ class Web extends CI_Controller
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Blog List | Chenna';
+    $data['title'] = 'Blog List | Wazi Wears';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/blog_list');
     $this->load->view('web/include/footer');
@@ -2102,7 +2034,7 @@ class Web extends CI_Controller
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Forgot Password | Chenna';
+    $data['title'] = 'Forgot Password | Wazi Wears';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/forgot_password');
     $this->load->view('web/include/footer');
@@ -2111,7 +2043,7 @@ class Web extends CI_Controller
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Login Registration | Chenna';
+    $data['title'] = 'Login Registration | Wazi Wears';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/login_registration');
     $this->load->view('web/include/footer');
@@ -2255,7 +2187,7 @@ class Web extends CI_Controller
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
     $data['getData'] = $this->db->get_where('user_address_master', ['user_master_id' => $user_id])->result_array();
     $data['address_data'] = $this->db->get_where('user_address_master', ['user_master_id' => $user_id])->row_array();
-    $data['title'] = 'Checkout | Chenna';
+    $data['title'] = 'Checkout | Wazi Wears';
 
     // ---------------------------
     // 2) Checkout items
@@ -2456,7 +2388,7 @@ class Web extends CI_Controller
     $data['gst_total'] = $gst_total;
     $data['shipping'] = $shipping;
     $data['grand_total'] = $grand_total;
-    $data['title'] = 'Payment | Chenna';
+    $data['title'] = 'Payment | Wazi Wears';
     $data['paymentType'] = $paymentType;
     $data['tid'] = $tid;
 
@@ -2487,14 +2419,14 @@ class Web extends CI_Controller
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'About-Us | Chenna';
+    $data['title'] = 'About-Us | Wazi Wears';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/about');
     $this->load->view('web/include/footer');
   }
   public function tersms_conditions()
   {
-    $data['title'] = 'Terms & Conditions | Chenna';
+    $data['title'] = 'Terms & Conditions | Wazi Wears';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/tersms_conditions');
     $this->load->view('web/include/footer');
@@ -2506,7 +2438,7 @@ class Web extends CI_Controller
     {
       $data['bannerList'] = $this->web_model->getBannerList();
       $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-      $data['title'] = 'Contact-Us | Chenna';
+      $data['title'] = 'Contact-Us | Wazi Wears';
       $this->load->view('web/include/header', $data);
       $this->load->view('web/contact');
       $this->load->view('web/include/footer');
@@ -2515,7 +2447,7 @@ class Web extends CI_Controller
       $row = $this->db->insert('enquiry_master', $data);
       if ($row > 0)
       {
-        $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button>Thanks! For contacting Chenna.
+        $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button>Thanks! For contacting Wazi Wears.
           We will contact you soon</div></div>');
         redirect('web/contact');
       }
@@ -2525,7 +2457,7 @@ class Web extends CI_Controller
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'FAQ | Chenna';
+    $data['title'] = 'FAQ | Wazi Wears';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/faq');
     $this->load->view('web/include/footer');
@@ -2534,7 +2466,7 @@ class Web extends CI_Controller
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Help | Chenna';
+    $data['title'] = 'Help | Wazi Wears';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/help');
     $this->load->view('web/include/footer');
@@ -2543,7 +2475,7 @@ class Web extends CI_Controller
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'FAQ Help Request | Chenna';
+    $data['title'] = 'FAQ Help Request | Wazi Wears';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/faq_help_request');
     $this->load->view('web/include/footer');
@@ -2552,7 +2484,7 @@ class Web extends CI_Controller
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Term Conditions | Chenna';
+    $data['title'] = 'Term Conditions | Wazi Wears';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/terms&condition');
     $this->load->view('web/include/footer');
@@ -2561,7 +2493,7 @@ class Web extends CI_Controller
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Privacy Policy | Chenna';
+    $data['title'] = 'Privacy Policy | Wazi Wears';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/terms_conditions');
     $this->load->view('web/include/footer');
@@ -2570,7 +2502,7 @@ class Web extends CI_Controller
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Privacy Policy | Chenna';
+    $data['title'] = 'Privacy Policy | Wazi Wears';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/privacy_policy');
     $this->load->view('web/include/footer');
@@ -2579,7 +2511,7 @@ class Web extends CI_Controller
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Refund Policy | Chenna';
+    $data['title'] = 'Refund Policy | Wazi Wears';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/refund_policy');
     $this->load->view('web/include/footer');
@@ -2588,7 +2520,7 @@ class Web extends CI_Controller
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Privacy Policy | Chenna';
+    $data['title'] = 'Privacy Policy | Wazi Wears';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/cancellation_policy');
     $this->load->view('web/include/footer');
@@ -2613,7 +2545,7 @@ class Web extends CI_Controller
     $data['getData'] = $this->db->get_where('staff_master', array('id' => $id))->row_array();
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Order Success | Chenna';
+    $data['title'] = 'Order Success | Wazi Wears';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/registration_success');
     $this->load->view('web/include/footer');
@@ -2645,11 +2577,11 @@ class Web extends CI_Controller
     $this->db->where('id', $serller_id);
     $this->db->update('staff_master', array('mobile_otp' => $mobile_otp, 'email_otp' => $email_otp));
 
-    $text = 'Dear ' . $staff['name'] . ' Your Mobile Verification OTP is: ' . $mobile_otp . ' Please enter this OTP to verify your mobile number. From www.Chenna.inRegardsChenna Real Time Private Limited';
+    $text = 'Dear ' . $staff['name'] . ' Your Mobile Verification OTP is: ' . $mobile_otp . ' Please enter this OTP to verify your mobile number. From www.Wazi Wears.inRegardsWazi Wears Real Time Private Limited';
     $this->load->helper('/email/temp9');
     $status = 'Email Verification';
     $user = $staff['name'];
-    $email_text = $email_otp . ' is your email verification OTP. Please use this otp for the verification of your email id with Chenna.';
+    $email_text = $email_otp . ' is your email verification OTP. Please use this otp for the verification of your email id with Wazi Wears.';
     $email_body = temp9($status, $user, $email_text);
     $subject = 'Email Verification OTP';
     sendSMS($staff['mobile'], $text, '1007086055987083292');
@@ -2986,7 +2918,7 @@ class Web extends CI_Controller
         'billing_country' => 'India',
         'billing_tel' => $address_data['mobile_number'] ?? '',
         'billing_email' => $userData['email'] ?? '',
-        'merchant_param1' => 'Chenna REAL TIME PRIVATE LIMITED'
+        'merchant_param1' => 'Wazi Wears REAL TIME PRIVATE LIMITED'
       ];
       $this->load->view('paymentGateway/ccavRequestHandler', $gatewayData);
       return;
@@ -3041,7 +2973,7 @@ class Web extends CI_Controller
     $html .= '<div style="float:left;width:100%; margin-top:20px;">
                     <div style="float:left;width:70%">
                         <div class="image">
-                            <h3>Chenna Real Time Pvt.Ltd.</h3>
+                            <h3>Wazi Wears Real Time Pvt.Ltd.</h3>
                         </div>
                         <div style="margin-left: 30px; top: -60px" >
                             <div style="margin-left: 140px !important;"></div>
@@ -3085,15 +3017,15 @@ class Web extends CI_Controller
     $html .= '<div style="float:left;width:100%; margin-top:25px;"><div style="float:left;width:60%"></div><div style="float:right;width:40%"><table><tr><td><p style="font-size:14px;"><b>Total</b></p></td><td>' . $total . '/-</td></tr> <tr><td><p style="font-size:14px;">GST :</p></td><td>' . $gst . '/-</td></tr><tr><td><p style="font-size:14px;">Shipping & Delivery Charge </p></td><td>' . $shippingAmount . '/-</td></tr><tr><td><p style="font-size:14px;">Grand Total </p></td><td><b>' . $TotalValue . '/-</b></td></tr></table>
         <p style="color:red">Note: Including Shipping Charges and taxes.</p></div></div>';
     $html .= '<center> <div>
-        <center><span style="font-weight: 600;font-size: 18px;">Thank you..... <br> <span style="font-size: 15px;font-weight: 700;color: #005512;"> Order By Chenna Real Time Pvt.Ltd.</span>
+        <center><span style="font-weight: 600;font-size: 18px;">Thank you..... <br> <span style="font-size: 15px;font-weight: 700;color: #005512;"> Order By Wazi Wears Real Time Pvt.Ltd.</span>
         <br>
         <span style="font-size: 15px;font-weight: 600;">+91 7460833766</span>
         <br>
-        <span style="font-size: 15px;font-weight: 600;">Chenna110@gmail.com</span>
+        <span style="font-size: 15px;font-weight: 600;">Wazi Wears110@gmail.com</span>
         </span>
         </center>
         </div> </center>';
-    // $html .= '<div style="float:left;width:80%;margin-left:30%"><table><tr><td><p style="font-size:16px;">Thank you...</p>Order By - </td><td><div class="image" style="margin-top:4px;"><br><h4><i>Chenna Pvt. Ltd.</i></h4></div><div style="top: -60px">
+    // $html .= '<div style="float:left;width:80%;margin-left:30%"><table><tr><td><p style="font-size:16px;">Thank you...</p>Order By - </td><td><div class="image" style="margin-top:4px;"><br><h4><i>Wazi Wears Pvt. Ltd.</i></h4></div><div style="top: -60px">
     // </div></td></tr></table></div>
     // ';
     $html .= '<br><p style="text-align:center;">(This is a system generated invoice and does not require a signature.)</p>';
@@ -3126,7 +3058,7 @@ class Web extends CI_Controller
     $status = "Order Placed";
     $order_no = $OrderDetail['order_number'];
     $user = $user_info['username'];
-    // $email_text = "Thank You for shopping with Chenna. We would like to let you know that your order has been placed and we are waiting for your order confirmation by the seller. If you would like to view the status of order please visit YOUR ORDERS on Chenna.in";
+    // $email_text = "Thank You for shopping with Wazi Wears. We would like to let you know that your order has been placed and we are waiting for your order confirmation by the seller. If you would like to view the status of order please visit YOUR ORDERS on Wazi Wears.in";
     // $img_link = $img_url;
     // $product_title = $product['product_name'];
     // $size = $purchase['size'];
@@ -3151,7 +3083,7 @@ class Web extends CI_Controller
     //************************ End order placed ********************************************
     $html = '';
     $html .= '<div class="container" style="margin: 0 70px;background-color: white;margin-top:20px;border:4px solid rgb(239,126,45);height: auto;padding: 20px;border-radius: 10px;font-size: 15px;">
-    <img class="img-fluid" src="https://Chenna.in/My-Img/INCONS/SO-logo.png" alt="Chenna" style="position: absolute;top: 0;height: 42px;width: 200px;">
+    <img class="img-fluid" src="https://Wazi Wears.in/My-Img/INCONS/SO-logo.png" alt="Wazi Wears" style="position: absolute;top: 0;height: 42px;width: 200px;">
     <div class="billing-head" style="margin: 0px;float: right;font-size: 15px;font-weight: 500;">
       <div class="row" >
         <div class="col-12"><p style="margin: 0px;float: right;font-size: 15px;font-weight: 500;">Order Placed</p></div>
@@ -3211,7 +3143,7 @@ class Web extends CI_Controller
         </table>
         <table style="width:100%; padding: 0px 10% 0 11%; margin: 5px 0px 10px;border: 1.5px solid rgb(239,126,45); padding-bottom: 17px;background: #f5f5f5;">
           <tr>
-            <td><img src="https://Chenna.in/assets/flow.png" alt="Request Flow" style="height: 65px;width:55%;margin-bottom: 10px;"></td>
+            <td><img src="https://Wazi Wears.in/assets/flow.png" alt="Request Flow" style="height: 65px;width:55%;margin-bottom: 10px;"></td>
             <td><span style="padding-top:1em;font-size:15px;font-weight: 500;">Delivery Details</span></td>
           </tr>
           <tr>
@@ -3234,11 +3166,11 @@ class Web extends CI_Controller
        <table style="width:100%;padding: 0px 10% 0 13%; margin: 5px 0px 10px;">
          
           <tr>
-            <td><img src="https://Chenna.in/My-Img/INCONS/SO-logo.png" alt="Chenna" style="height: 38px;width: 100px;"></td>
-            <td><img src="https://Chenna.in/assets/google_play.png" alt="Chenna" style="width:100px;margin-top:-12px;"></td>
-            <td><a href="https://www.facebook.com/infoChenna"><img src="https://Chenna.in/assets/facebook.png" alt="Chenna" style="height: 36px;width: 42px;background: transparent;margin-right: 16px;"></a>
-              <a href="https://www.instagram.com/Chenna_official"><img src="https://Chenna.in/assets/instagram.png" alt="Chenna" style="height: 36px;width: 42px;background: transparent;margin-right: 16px;"></a>
-              <a href="https://twitter.com/infoChenna"><img src="https://Chenna.in/assets/twitter.jpg" alt="Chenna" style="height: 36px;width: 42px;background: transparent;margin-right: 16px;"></a></td>
+            <td><img src="https://Wazi Wears.in/My-Img/INCONS/SO-logo.png" alt="Wazi Wears" style="height: 38px;width: 100px;"></td>
+            <td><img src="https://Wazi Wears.in/assets/google_play.png" alt="Wazi Wears" style="width:100px;margin-top:-12px;"></td>
+            <td><a href="https://www.facebook.com/infoWazi Wears"><img src="https://Wazi Wears.in/assets/facebook.png" alt="Wazi Wears" style="height: 36px;width: 42px;background: transparent;margin-right: 16px;"></a>
+              <a href="https://www.instagram.com/Wazi Wears_official"><img src="https://Wazi Wears.in/assets/instagram.png" alt="Wazi Wears" style="height: 36px;width: 42px;background: transparent;margin-right: 16px;"></a>
+              <a href="https://twitter.com/infoWazi Wears"><img src="https://Wazi Wears.in/assets/twitter.jpg" alt="Wazi Wears" style="height: 36px;width: 42px;background: transparent;margin-right: 16px;"></a></td>
           </tr>
         </table>
       </div>';
@@ -3250,7 +3182,7 @@ class Web extends CI_Controller
     $to = $email;
     $subject = $sub;
     $message .= "Note - This is a System Generated Mail, please do not reply.\r\n";
-    $headers = "From:" . "support@Chenna.in" . "\r\n";
+    $headers = "From:" . "support@Wazi Wears.in" . "\r\n";
     $headers .= "MIME-Version: 1.0\r\n";
     $headers .= "Content-type: text/html; charset=utf-8\r\n";
     mail($to, $subject, $smsmessage, $headers);
@@ -3325,7 +3257,7 @@ class Web extends CI_Controller
     $paymentTypeName = $paymentTypeMap[$payment_type] ?? 'Unknown';
 
     $data = [
-      'title' => 'Order Success | Chenna',
+      'title' => 'Order Success | Wazi Wears',
       'order_data' => $order,
       'address_data' => $address_data,
       'purchase_items' => $purchase_items,
@@ -3370,7 +3302,7 @@ class Web extends CI_Controller
     $paymentTypeName = $paymentTypeMap[(int) ($order['payment_type'] ?? 0)] ?? 'Unknown';
 
     $data = [
-      'title' => 'Order Success | Chenna',
+      'title' => 'Order Success | Wazi Wears',
       'order_data' => $order,
       'address_data' => $address,
       'purchase_items' => $items,
@@ -3401,7 +3333,7 @@ class Web extends CI_Controller
   text-align: left;
   padding: 8px;
 } </style><h1 style="text-align:center;font-size:34px"><u>Invoice</u></h1>';
-    $html .= '<div style="float:left;width:100%; margin-top:20px;"><div style="float:left;width:70%"><div class="image"><h3>Chenna Real Time Pvt.Ltd.</h3></div><div style="margin-left: 30px; top: -60px" >
+    $html .= '<div style="float:left;width:100%; margin-top:20px;"><div style="float:left;width:70%"><div class="image"><h3>Wazi Wears Real Time Pvt.Ltd.</h3></div><div style="margin-left: 30px; top: -60px" >
                 <div style="margin-left: 140px !important;"></div></div></div><div style="float:left;width:30%;"><div><b style="font-size:15px;"> Order No &nbsp;:</b></b>&nbsp;' . $OrderDetail['order_number'] . '</div><br><b style="font-size:15px;"> Order Date :</b>&nbsp;' . date('d-m-Y', $OrderDetail['add_date']) . ' </div>
          </div></div>';
     $total1 = 0;
@@ -3432,16 +3364,16 @@ class Web extends CI_Controller
     $html .= '<div style="float:left;width:100%; margin-top:25px;"><div style="float:left;width:60%"></div><div style="float:right;width:40%"><table><tr><td><p style="font-size:14px;"><b>Total</b></p></td><td>' . $total . '/-</td></tr> <tr><td><p style="font-size:14px;">GST :</p></td><td>' . $gst . '/-</td></tr><tr><td><p style="font-size:14px;">Shipping & Delivery Charge </p></td><td>' . $shippingAmount . '/-</td></tr><tr><td><p style="font-size:14px;">Grand Total </p></td><td><b>' . $TotalValue . '/-</b></td></tr></table>
         <p style="color:red">Note: Including Shipping Charges and taxes.</p></div></div>';
     $html .= '<center> <div>
-        <center><span style="font-weight: 600;font-size: 18px;">Thank you..... <br> <span style="font-size: 15px;font-weight: 700;color: #005512;"> Order By Chenna Real Time Pvt.Ltd.</span>
+        <center><span style="font-weight: 600;font-size: 18px;">Thank you..... <br> <span style="font-size: 15px;font-weight: 700;color: #005512;"> Order By Wazi Wears Real Time Pvt.Ltd.</span>
         <br>
         <span style="font-size: 15px;font-weight: 600;">+91 7460833766</span>
         <br>
-        <span style="font-size: 15px;font-weight: 600;">Chenna110@gmail.com</span>
+        <span style="font-size: 15px;font-weight: 600;">Wazi Wears110@gmail.com</span>
         </span>
        
         </center>
  </div> </center>';
-    // $html .= '<div style="float:left;width:80%;margin-left:30%"><table><tr><td><p style="font-size:16px;">Thank you...</p>Order By - </td><td><div class="image" style="margin-top:4px;"><br><h4><i>Chenna Pvt. Ltd.</i></h4></div><div style="top: -60px">
+    // $html .= '<div style="float:left;width:80%;margin-left:30%"><table><tr><td><p style="font-size:16px;">Thank you...</p>Order By - </td><td><div class="image" style="margin-top:4px;"><br><h4><i>Wazi Wears Pvt. Ltd.</i></h4></div><div style="top: -60px">
     // </div></td></tr></table></div>
     // ';
     $html .= '<br><p style="text-align:center;">(This is a system generated invoice and does not require a signature.)</p>';
