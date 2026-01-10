@@ -81,6 +81,11 @@
           <i class="fa fa-user-plus"></i> <span>All Vendor List</span>
         </a>
       </li>
+      <li class="<?php echo (($index == 'Setting') ? 'active' : ''); ?>">
+        <a href="<?php echo site_url('admin/Dashboard/advertisement'); ?>">
+          <i class="fa fa-bullhorn"></i> <span>Manage Ad</span>
+        </a>
+      </li>
 
       <li class="<?php echo (($index2 == 'ReviewList') ? 'active' : ''); ?>">
         <a href="<?php echo site_url('admin/Users/all_review_list'); ?>">
