@@ -3,7 +3,7 @@
   --theme-color-rgb: 217, 159, 70;
 }
 .theme-color-2 {
-    --theme-color: #fb5808;
+    --theme-color: #d54f0de3;
     --theme-color-rgb: #fb5808;
 }
 .theme-color-3 {
@@ -26827,12 +26827,18 @@ body.rtl .menu-label {
   height: 100%;
   top: 0;
   left: 0;
-  background-image: url("../images/new-img/1.webp");
+  background-image: url("../images/new-img/5.jpg");
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
   display: block;
   z-index: -1;
+}
+.newsletter-detail{
+  background: linear-gradient(45deg, #a45050, #ceaa66a8);
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #edc17094;
 }
 [dir="rtl"] .newsletter-section .newsletter-box-2:after {
   -webkit-transform: scaleX(-1);
@@ -26867,7 +26873,7 @@ body.rtl .menu-label {
 }
 .newsletter-section .newsletter-box .newsletter-contain .newsletter-detail h5 {
   font-weight: 600;
-  color: #ffbc5d;
+  color: #ffffff;
   margin-bottom: calc(14px + 6 * (100vw - 320px) / 1600);
   font-size: calc(16px + 2 * (100vw - 320px) / 1600);
 }

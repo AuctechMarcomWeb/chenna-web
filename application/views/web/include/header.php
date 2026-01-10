@@ -104,7 +104,7 @@
 
 
     header .navbar-light .navbar-nav .nav-link {
-        color: #fb5808;
+        color: #da6228;
         font-weight: 500 !important;
     }
 

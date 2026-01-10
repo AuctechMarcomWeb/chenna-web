@@ -56,9 +56,9 @@ defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 	?>
 
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title> Wazi Wears | <?php echo $title; ?></title>
+	<title> Chenna | <?php echo $title; ?></title>
 	<link rel="icon" type="image/png" href="<?= base_url('assets/Website/img/' . $favicon); ?>">
-	<link rel="icon" href="<?php echo base_url('assets/7.png'); ?>" type="image/x-icon">
+	<link rel="icon" href="<?php echo site_url('/plugins/images/logo.png'); ?>" type="image/x-icon">
 	<!-- Tell the browser to be responsive to screen width -->
 	<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
 	<!-- Bootstrap 3.3.5 -->
@@ -209,11 +209,10 @@ defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 					$userCheck = $this->db->get_where('admin_master', ['id' => $adminData['Id']])->row_array();
 
 					$profilePic = !empty($userCheck['profile_pic'])
-						? 'assets/Website/img/' . $userCheck['profile_pic']
+						? 'assets/profile_image/' . $userCheck['profile_pic']
 						: 'assets/school1.png';
 
-					$logoImage = 'assets/7.png'; // Default admin logo
-				
+					$logoImage = '/plugins/images/logo.png'; // Default admin logo
 				} else
 				{
 					// VENDOR (IMPORTANT: table name lowercase 'vendors')
@@ -227,7 +226,7 @@ defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 					// Vendor logo
 					$logoImage = !empty($userCheck['vendor_logo'])
 						? $userCheck['vendor_logo']
-						: 'assets/7.png';
+						: '/plugins/images/logo.png';
 				}
 
 				// Safe name & email
@@ -237,7 +236,7 @@ defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 
 				<!-- Mini Logo -->
 				<span class="logo-mini">
-					<img src="<?= base_url('assets/mini_logo.png'); ?>" width="45" height="40">
+					<img src="<?php echo site_url('/plugins/images/logo.png'); ?>" width="45" >
 				</span>
 
 				<!-- Full Logo -->
