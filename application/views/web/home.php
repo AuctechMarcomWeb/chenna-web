@@ -595,42 +595,55 @@ $categoryList = $this->db->query("Select* from `category_master` where (status=1
             <div class="col-12">
                 <div class="category-slider-1 arrow-slider wow fadeInUp">
 
-                    <?php $parentList = $this->db->select('id, name')->where('status', 1)->get('parent_category_master')->result_array();
+                    <?php
+                    $parentList = $this->db
+                        ->select('id, name, slug')
+                        ->where('status', 1)
+                        ->get('parent_category_master')
+                        ->result_array();
 
                     foreach ($parentList as $parent)
                     {
-                        $cateList = $this->db->select('id, category_name, app_icon')->where(['mai_id' => $parent['id'], 'status' => 1])
+                        $cateList = $this->db
+                            ->select('id, category_name, slug, app_icon')
+                            ->where([
+                                'mai_id' => $parent['id'],
+                                'status' => 1
+                            ])
                             ->get('category_master')
                             ->result_array();
 
                         foreach ($cateList as $cate)
                         {
+                            // product count
+                            $itemCount = $this->db
+                                ->where('category_id', $cate['id'])
+                                ->where('status', 1)
+                                ->count_all_results('sub_product_master');
+
+                            $categoryUrl = base_url(
+                                $parent['slug'] . '/' . $cate['slug']
+                            );
                             ?>
                             <div>
                                 <div class="category-box-list">
 
-                                    <a href="<?= base_url(slugify($parent['name']) . '/' . slugify($cate['category_name'])) ?>"
-                                        class="category-name">
+                                    <a href="<?= $categoryUrl ?>" class="category-name">
                                         <h4><?= $cate['category_name']; ?></h4>
-                                        <?php
-
-                                        $itemCount = $this->db->where('category_id', $cate['id'])
-                                            ->from('sub_product_master')
-                                            ->count_all_results();
-                                        ?>
                                         <h6><?= $itemCount ?> items</h6>
                                     </a>
 
                                     <div class="category-box-view">
-                                        <a
-                                           href="<?= base_url(slugify($parent['name']) . '/' . slugify($cate['category_name'])) ?>">
-                                            <img style="height:130px; width:100%; object-fit:contain"
+                                        <a href="<?= $categoryUrl ?>">
+                                            <img
+                                                style="height:130px; width:100%; object-fit:contain"
                                                 src="<?= base_url('assets/category_images/' . $cate['app_icon']); ?>"
-                                                class="img-fluid blur-up lazyload" alt="<?= $cate['category_name']; ?>">
+                                                class="img-fluid blur-up lazyload"
+                                                alt="<?= $cate['category_name']; ?>">
                                         </a>
 
                                         <button
-                                            onclick="location.href='<?= base_url(slugify($parent['name']) . '/' . slugify($cate['category_name'])) ?>';"
+                                            onclick="location.href='<?= $categoryUrl ?>';"
                                             class="btn shop-button">
                                             <span>Shop Now</span>
                                             <i class="fas fa-angle-right"></i>
@@ -649,6 +662,7 @@ $categoryList = $this->db->query("Select* from `category_master` where (status=1
         </div>
     </div>
 </section>
+
 
 <!-- Category Section End -->
 

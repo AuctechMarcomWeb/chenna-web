@@ -81,7 +81,7 @@
         display: block !important;
         opacity: 1 !important;
         visibility: visible !important;
-        z-index:1;
+        z-index: 1;
     }
 
     .btn-warning {
@@ -194,7 +194,7 @@
 
         .product-box-4 .product-image img {
             object-fit: contain;
-            height:150px !important;
+            height: 150px !important;
             margin: 0px;
         }
 
@@ -501,7 +501,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ion-rangeslider@2.3.1/css/ion.rangeSlider.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    $(document).ready(function () {
+    $(document).ready(function() {
         const ajaxUrl = "<?= base_url('web/ajax_filter_subcategory_products') ?>";
         const baseProductImagePath = "<?= base_url('assets/product_images/') ?>";
         const userId = '<?= $user_id ?? "" ?>';
@@ -512,12 +512,17 @@
         let currentSubCategory = [originalSubCategory];
         let currentSizes = [];
         let currentRatings = [];
-        let currentPrice = { min: 0, max: 10000 };
+        let currentPrice = {
+            min: 0,
+            max: 10000
+        };
         let priceSlider = null;
         let currentPage = 1;
         const perPage = 12;
 
-        function toCsv(arr) { return arr.length ? arr.join(',') : ""; }
+        function toCsv(arr) {
+            return arr.length ? arr.join(',') : "";
+        }
 
         function buildProductsHtml(products) {
             if (!products.length) {
@@ -544,7 +549,7 @@
                             ${userId ? `<button class="btn p-0 wishlist btn-wishlist" onclick="add_wishlist('${p.id}', '${userId}')">
                                 <i class="iconly-Heart icli ${heartClass}" id="wish_heart${p.id}" style="background: white; padding: 4px;border-radius: 20px;"></i>
                             </button>` : `<button class="btn p-0 wishlist btn-wishlist" data-bs-toggle="modal" data-bs-target="#login-popup">
-                                <i class="iconly-Heart icli text-muted" style="background: white; padding: 4px;border-radius: 20px;"></i>
+                                <i class="iconly-Heart icli" style="background: white; padding: 4px;border-radius: 20px;"></i>
                             </button>`}
                         </div>
                         <a href="<?= base_url() ?>product/${p.id}">
@@ -618,8 +623,13 @@
                 from: from || min,
                 to: to || max,
                 grid: true,
-                prefix: "₹",
-                onFinish: function (data) {
+
+                prefix: "₹ ", // ₹ show hoga
+                prettify: function(num) { // yaha add karein
+                    return num.toLocaleString('en-IN'); // Indian format: 5,00,000
+                },
+
+                onFinish: function(data) {
                     currentPrice.min = data.from;
                     currentPrice.max = data.to;
                     currentPage = 1;
@@ -627,28 +637,44 @@
                 }
             });
 
+
+
             priceSlider = $("#price_range").data("ionRangeSlider");
 
             $("#minPriceDropdown, #maxPriceDropdown").empty();
-            let step = Math.ceil((max - min) / 10) || 50;
+
+            let step = Math.ceil((max - min) / 10);
+            if (step <= 0) step = 50;
+
             for (let i = min; i <= max; i += step) {
                 $("#minPriceDropdown").append(`<option value="${i}">₹${i}</option>`);
                 $("#maxPriceDropdown").append(`<option value="${i}">₹${i}</option>`);
             }
+
+            // default select
             $("#minPriceDropdown").val(from || min);
             $("#maxPriceDropdown").val(to || max);
+
         }
 
-        $("#minPriceDropdown, #maxPriceDropdown").change(function () {
-            let min = parseInt($("#minPriceDropdown").val());
-            let max = parseInt($("#maxPriceDropdown").val());
-            if (min > max) max = min;
-            currentPrice.min = min;
-            currentPrice.max = max;
+        $("#minPriceDropdown, #maxPriceDropdown").off('change').on('change', function() {
+            let minVal = parseInt($("#minPriceDropdown").val());
+            let maxVal = parseInt($("#maxPriceDropdown").val());
+
+            if (minVal > maxVal) maxVal = minVal;
+
+            currentPrice.min = minVal;
+            currentPrice.max = maxVal;
+
+            priceSlider.update({
+                from: minVal,
+                to: maxVal
+            });
+
             currentPage = 1;
-            priceSlider.update({ from: min, to: max });
             applyFilters();
         });
+
 
         function applyFilters() {
             $("#productGrid").html('<div class="col-12 text-center py-5"><div class="spinner-border"></div></div>');
@@ -663,7 +689,7 @@
                 rating: toCsv(currentRatings),
                 page: currentPage,
                 perPage: perPage
-            }, function (res) {
+            }, function(res) {
                 $("#productGrid").html(buildProductsHtml(res.products || []));
 
                 let sizeHtml = (res.sizes || []).map(s => {
@@ -685,7 +711,7 @@
             }, 'json');
         }
 
-        $(document).on("change", ".category-filter", function () {
+        $(document).on("change", ".category-filter", function() {
             $(".category-filter").not(this).prop("checked", false);
             currentCategory = $(this).val() || null;
             $(".subcategory-box").hide();
@@ -695,26 +721,26 @@
             applyFilters();
         });
 
-        $(document).on("change", ".sub-category-filter", function () {
+        $(document).on("change", ".sub-category-filter", function() {
             const parent = $(this).data("parent");
             currentSubCategory = $(`.sub-category-filter[data-parent='${parent}']:checked`).map((i, v) => v.value).get();
             currentPage = 1;
             applyFilters();
         });
 
-        $(document).on("change", ".size-filter, .rating-filter", function () {
+        $(document).on("change", ".size-filter, .rating-filter", function() {
             currentSizes = $(".size-filter:checked").map((i, v) => v.value).get();
             currentRatings = $(".rating-filter:checked").map((i, v) => v.value).get();
             currentPage = 1;
             applyFilters();
         });
 
-        $(document).on("click", ".page-number", function () {
+        $(document).on("click", ".page-number", function() {
             currentPage = parseInt($(this).data("page"));
             applyFilters();
         });
         // Previous click
-        $(document).on("click", ".prev-page", function () {
+        $(document).on("click", ".prev-page", function() {
             let page = parseInt($(this).data("page"));
             if (page >= 1) {
                 currentPage = page;
@@ -723,7 +749,7 @@
         });
 
         // Next click
-        $(document).on("click", ".next-page", function () {
+        $(document).on("click", ".next-page", function() {
             let page = parseInt($(this).data("page"));
             if (page >= 1) {
                 currentPage = page;
@@ -732,14 +758,18 @@
         });
 
 
-        $("#clearFilters").click(function () {
+        $("#clearFilters").click(function() {
             $(":checkbox").prop("checked", false);
             currentCategory = originalCategory;
             currentSubCategory = [originalSubCategory];
-            currentSizes = []; currentRatings = [];
+            currentSizes = [];
+            currentRatings = [];
             $(".subcategory-box").hide();
             if (originalCategory) $(`.subcategory-box[data-parent='${originalCategory}']`).show();
-            currentPrice = { min: 0, max: 10000 };
+            currentPrice = {
+                min: 0,
+                max: 10000
+            };
             currentPage = 1;
             applyFilters();
         });
@@ -752,31 +782,55 @@
         $.ajax({
             url: '<?= base_url('web/add_to_cart') ?>',
             type: 'POST',
-            data: { pro_id: product },
+            data: {
+                pro_id: productId
+            }, 
             dataType: 'json',
-            success: function () {
-                refreshCartIcon();
+            success: function(response) {
+                
+                if (response.status === 'success') {
+                    refreshCartIcon();
+                    Swal.fire({
+                        title: 'Added to Cart!',
+                        text: 'Your product has been added successfully.',
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false,
+                        timerProgressBar: true,
+                        position: 'top-end',
+                        toast: true
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Oops!',
+                        text: 'Something went wrong. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            },
+            error: function() {
                 Swal.fire({
-                    icon: 'success',
-                    title: 'Added!',
-                    timer: 1200,
-                    showConfirmButton: false
+                    title: 'Error!',
+                    text: 'Unable to add product. Try again later.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
                 });
             }
         });
     }
 
+
     function refreshCartIcon() {
         $.ajax({
             url: '<?= base_url('web/cart_icon_partial') ?>',
-            success: function (data) {
+            success: function(data) {
                 $('#cart_items').html(data);
             }
         });
     }
-    $(document).on('click', '.filter-toggle-icon', function () {
+    $(document).on('click', '.filter-toggle-icon', function() {
         $('#filterSidebar .accordion').slideToggle();
         $(this).toggleClass('rotate');
     });
-
 </script>

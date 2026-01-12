@@ -62,25 +62,21 @@
   <section class="content-header">
     <h1>
       <?php
-      if ($adminData['Type'] == 1)
-      {
+      if ($adminData['Type'] == 1) {
         echo "Admin Dashboard";
-      } elseif ($adminData['Type'] == 2)
-      {
+      } elseif ($adminData['Type'] == 2) {
         echo "Vendor Dashboard";
-      } else
-      {
+      } else {
         echo "Dashboard";
       }
       ?>
-     
+
     </h1>
   </section>
 
 
   <!-- ======================== ADMIN DASHBOARD ======================== -->
-   <?php if ($adminData['Type'] == 1)
-  { ?>
+  <?php if ($adminData['Type'] == 1) { ?>
     <section class="content">
       <div class="row">
 
@@ -98,6 +94,21 @@
                 class="fa fa-arrow-circle-right"></i></a>
           </div>
         </div>
+        <div class="col-lg-3 col-xs-6">
+          <div class="small-box bg-purple">
+            <div class="inner">
+              <h3><?php echo $total_vendors; ?></h3>
+              <p>Total Vendors</p>
+            </div>
+            <div class="icon">
+              <i class="ion ion-android-people"></i>
+            </div>
+            <a href="<?php echo site_url('admin/Vendor/vendor_list/'); ?>" class="small-box-footer">
+              View Vendors <i class="fa fa-arrow-circle-right"></i>
+            </a>
+          </div>
+        </div>
+
 
 
         <div class="col-lg-3 col-xs-6">
@@ -133,7 +144,7 @@
 
 
         <div class="col-lg-3 col-xs-6">
-          <div class="small-box bg-blue">
+          <div class="small-box bg-navy">
             <div class="inner">
               <h3><?php echo $this->user_model->TotalGetCategorie() ?></h3>
               <p>Total Categories</p>
@@ -209,8 +220,8 @@
 
 
   <!-- ======================== VENDOR DASHBOARD ======================== -->
-  <?php if ($adminData['Type'] == 2)
-  {
+  <?php if ($adminData['Type'] == 2) {
+
 
     $per = 10;
 
@@ -223,36 +234,31 @@
     $shop = $this->db->get_where('shop_master', ['vendor_id' => $adminData['Id']])->result_array();
     $shop_id = array_column($shop, 'id');
 
-    if (!empty($shop_id))
-    {
+    if (!empty($shop_id)) {
       $this->db->select('id');
       $this->db->where_in('shop_id', $shop_id);
       $product = $this->db->get('sub_product_master')->result();
-      if (!empty($product))
-      {
+      if (!empty($product)) {
         $per += 15;
       }
     }
 
     // MOBILE VERIFY
-    if (!empty($staff['mobile_verify']) && $staff['mobile_verify'] == '1')
-    {
+    if (!empty($staff['mobile_verify']) && $staff['mobile_verify'] == '1') {
       $per += 15;
     }
 
     // EMAIL VERIFY
-    if (!empty($staff['email_verify']) && $staff['email_verify'] == '1')
-    {
+    if (!empty($staff['email_verify']) && $staff['email_verify'] == '1') {
       $per += 15;
     }
 
     // PROFILE PIC
-    if (!empty($staff['profile_pic']))
-    {
+    if (!empty($staff['profile_pic'])) {
       $per += 5;
     }
 
-    ?>
+  ?>
 
     <section class="content">
       <div class="admin-card">
@@ -274,68 +280,98 @@
         <div class="col-md-12">
           <!-- <h3><?= $adminData['Name']; ?> Your seller profile is
             <b><?= $per; ?>%</b> Completed
-            <?php if ($per < 99)
-            { ?>, please complete your profile to start selling.<?php } ?>
+            <?php if ($per < 99) { ?>, please complete your profile to start selling.<?php } ?>
           </h3> -->
         </div>
       </div>
 
       <div class="row">
-
+        <!-- Total Products -->
         <div class="col-lg-3 col-xs-6">
           <div class="small-box bg-aqua">
             <div class="inner">
-              <h3><?php echo $this->user_model->TotalGetProducts(); ?></h3>
-              <p>Total Product</p>
+              <h3><?= $total_products ?? 0; ?></h3>
+              <p>Total Products</p>
             </div>
-            <div class="icon"><i class="ion ion-bag"></i></div>
-            <a href="<?php echo site_url('admin/Product/VendorProductList'); ?>" class="small-box-footer">
+            <a href="<?= site_url('admin/Product/VendorProductList'); ?>" class="small-box-footer">
               View Products <i class="fa fa-arrow-circle-right"></i>
             </a>
           </div>
         </div>
 
-        <!-- <div class="col-lg-3 col-xs-6">
+        <!-- Total Orders -->
+        <div class="col-lg-3 col-xs-6">
           <div class="small-box bg-blue">
             <div class="inner">
-              <h3><?php echo $this->user_model->getTotalShop(); ?></h3>
-              <p>Total Shops</p>
+              <h3><?= $order_summary['total_orders'] ?? 0; ?></h3>
+              <p>Total Orders</p>
             </div>
-            <div class="icon"><i class="ion ion-bag"></i></div>
-            <a href="<?php echo site_url('admin/Shop'); ?>" class="small-box-footer">
-              View Shops <i class="fa fa-arrow-circle-right"></i>
+            <a href="<?= site_url('admin/Vendor/VendorOrderList'); ?>" class="small-box-footer">
+              View Orders <i class="fa fa-arrow-circle-right"></i>
             </a>
           </div>
-        </div> -->
+        </div>
 
-        <!-- <div class="col-lg-3 col-xs-6">
+        <!-- Completed Orders -->
+        <div class="col-lg-3 col-xs-6">
           <div class="small-box bg-green">
             <div class="inner">
-              <h3>Account</h3>
-              <p>My Account</p>
+              <h3><?= $order_summary['completed_orders'] ?? 0; ?></h3>
+              <p>Shipped Orders</p>
             </div>
-            <div class="icon"><i class="ion ion-android-people"></i></div>
-            <a href="<?php echo site_url('admin/Users/myAccount'); ?>" class="small-box-footer">
-              View My Account <i class="fa fa-arrow-circle-right"></i>
+            <a href="<?= site_url('admin/Vendor/VendorOrderList'); ?>" class="small-box-footer">
+              View Shipped Orders <i class="fa fa-arrow-circle-right"></i>
             </a>
           </div>
-        </div> -->
-
-        <!-- <div class="col-lg-3 col-xs-6">
-          <div class="small-box bg-aqua">
+        </div>
+        <div class="col-lg-3 col-xs-6">
+          <div class="small-box bg-green">
             <div class="inner">
-              <h3>Bulk</h3>
-              <p>Add Bulk Product</p>
+              <h3><?= $order_summary['accepted_orders']; ?></h3>
+              <p>Delivered Orders</p>
             </div>
-            <div class="icon"><i class="ion ion-bag"></i></div>
-            <a href="<?php echo site_url('admin/Product/AddBulkProduct'); ?>" class="small-box-footer">
-              Add Bulk Product <i class="fa fa-arrow-circle-right"></i>
+            <a href="<?= site_url('admin/Vendor/VendorOrderList'); ?>" class="small-box-footer">
+              View Delivered Orders <i class="fa fa-arrow-circle-right"></i>
             </a>
           </div>
-        </div> -->
+        </div>
+        <div class="col-lg-3 col-xs-6">
+          <div class="small-box bg-green">
+            <div class="inner">
+              <h3><?= $order_summary['accepted_orders']; ?></h3>
+              <p>Accept Orders</p>
+            </div>
+            <a href="<?= site_url('admin/Vendor/VendorOrderList'); ?>" class="small-box-footer">
+              View Accept Orders <i class="fa fa-arrow-circle-right"></i>
+            </a>
+          </div>
+        </div>
+        <!-- Cancelled Orders -->
+        <div class="col-lg-3 col-xs-6">
+          <div class="small-box bg-red">
+            <div class="inner">
+              <h3><?= $order_summary['cancelled_orders'] ?? 0; ?></h3>
+              <p>Cancelled Orders</p>
+            </div>
+            <a href="<?= site_url('admin/Vendor/VendorOrderList'); ?>" class="small-box-footer">
+              View Cancelled Orders<i class="fa fa-arrow-circle-right"></i>
+            </a>
+          </div>
+        </div>
 
+        <!-- Pending Orders -->
+        <div class="col-lg-3 col-xs-6">
+          <div class="small-box bg-yellow">
+            <div class="inner">
+              <h3><?= $order_summary['pending_orders'] ?? 0; ?></h3>
+              <p>Pending Orders</p>
+            </div>
+            <a href="<?= site_url('admin/Vendor/VendorOrderList'); ?>" class="small-box-footer">
+              View Pending Orders<i class="fa fa-arrow-circle-right"></i>
+            </a>
+          </div>
+        </div>
       </div>
-
     </section>
   <?php } ?>
 
@@ -348,7 +384,7 @@
 <script>
   $.widget.bridge('uibutton', $.ui.button);
 
-  $(document).ready(function () {
+  $(document).ready(function() {
     var flag = $('#login_success').val();
     if (flag == '1') {
       $('#vendor_login_succ_modal').modal('show');

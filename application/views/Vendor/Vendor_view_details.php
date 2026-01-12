@@ -41,30 +41,48 @@
                     <tr>
                         <th>Aadhaar Card</th>
                         <td>
-                            <?php if (!empty($vendor->aadhar_card))
-                            { ?>
-                                <img src="<?= base_url( $vendor->aadhar_card); ?>" width="150"
-                                    class="img-thumbnail">
-                            <?php } else
-                            { ?>
+                            <?php if (!empty($vendor->aadhar_card)) {
+
+                                $ext = pathinfo($vendor->aadhar_card, PATHINFO_EXTENSION);
+
+                                if ($ext === 'pdf') { ?>
+                                    <a href="<?= base_url($vendor->aadhar_card); ?>" target="_blank"
+                                        class="btn btn-sm btn-primary">
+                                        📄 View Aadhaar PDF
+                                    </a>
+                                <?php } else { ?>
+                                    <img src="<?= base_url($vendor->aadhar_card); ?>"
+                                        width="150" class="img-thumbnail">
+                                <?php }
+                            } else { ?>
                                 <span class="text-danger">Not Uploaded</span>
                             <?php } ?>
                         </td>
                     </tr>
 
+
                     <tr>
                         <th>PAN Card</th>
                         <td>
-                            <?php if (!empty($vendor->pan_card))
-                            { ?>
-                                <img src="<?= base_url( $vendor->pan_card); ?>" width="150"
-                                    class="img-thumbnail">
-                            <?php } else
-                            { ?>
+                            <?php if (!empty($vendor->pan_card)) {
+
+                                $ext = pathinfo($vendor->pan_card, PATHINFO_EXTENSION);
+
+                                if ($ext === 'pdf') { ?>
+                                    <a href="<?= base_url($vendor->pan_card); ?>" target="_blank"
+                                        class="btn btn-sm btn-primary">
+                                        📄 View PAN PDF
+                                    </a>
+                                <?php } else { ?>
+                                    <img src="<?= base_url($vendor->pan_card); ?>"
+                                        width="150" class="img-thumbnail">
+                                <?php }
+                            } else { ?>
                                 <span class="text-danger">Not Uploaded</span>
                             <?php } ?>
                         </td>
                     </tr>
+
 
                     <tr>
                         <th>GST Number</th>
@@ -93,12 +111,8 @@
                     </tr>
 
                     <tr>
-                        <th>Promoter ID</th>
-                        <td><?= $vendor->promoter_id; ?></td>
-                    </tr>
-                    <tr>
                         <th>Promoter Code Used</th>
-                        <td><?= $vendor->promoter_code_used; ?></td>
+                        <td><?= $vendor->promoter_code_used ?: '-----'; ?></td>
                     </tr>
 
                     <tr>
@@ -129,11 +143,9 @@
                     <tr>
                         <th>Profile Picture</th>
                         <td>
-                            <?php if (!empty($vendor->profile_pic))
-                            { ?>
+                            <?php if (!empty($vendor->profile_pic)) { ?>
                                 <img src="<?= base_url($vendor->profile_pic); ?>" width="120">
-                            <?php } else
-                            {
+                            <?php } else {
                                 echo 'Not Uploaded';
                             } ?>
                         </td>
@@ -143,11 +155,9 @@
                     <tr>
                         <th>Vendor Logo</th>
                         <td>
-                            <?php if (!empty($vendor->vendor_logo))
-                            { ?>
+                            <?php if (!empty($vendor->vendor_logo)) { ?>
                                 <img src="<?= base_url($vendor->vendor_logo); ?>" width="120">
-                            <?php } else
-                            {
+                            <?php } else {
                                 echo 'Not Uploaded';
                             } ?>
                         </td>

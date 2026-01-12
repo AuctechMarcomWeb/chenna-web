@@ -133,12 +133,11 @@
     </style>
 </head>
 
-<body class="hold-transition
-<?php 
+<body class="hold-transition <?php 
 if ($TypeOfLogin == 'admin') echo 'login-page2';
 elseif ($TypeOfLogin == 'school') echo 'login-page1';
 elseif ($TypeOfLogin == 'vendor') echo 'login-page3';
-?>">
+?> ">
 
     <div class="login-box">
         <div class="login-box-body">

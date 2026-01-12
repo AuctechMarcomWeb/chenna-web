@@ -10,6 +10,7 @@ class Vendor_model extends CI_Model
 
   // Registration
   // ================= Step-7 =================
+
   public function insert_user($data, $table)
   {
     $this->db->insert($table, $data);
@@ -25,8 +26,7 @@ class Vendor_model extends CI_Model
 
   public function admin_approve_and_update_vendor_password($id, $role, $hashed_password)
   {
-    if ($role == 'vendor')
-    {
+    if ($role == 'vendor') {
       return $this->db->where('id', $id)->update('vendors', ['status' => 1, 'password' => $hashed_password]);
     }
   }
@@ -34,8 +34,7 @@ class Vendor_model extends CI_Model
 
   public function admin_update_vendor_status($id, $role, $status)
   {
-    if ($role == 'vendor')
-    {
+    if ($role == 'vendor') {
       return $this->db->where('id', $id)->update('vendors', ['status' => $status]);
     }
   }
@@ -56,12 +55,10 @@ class Vendor_model extends CI_Model
   public function check_duplicate($mobile, $aadhar, $pan)
   {
     $this->db->where('mobile', $mobile);
-    if (!empty($aadhar))
-    {
+    if (!empty($aadhar)) {
       $this->db->or_where('aadhar_card', $aadhar);
     }
-    if (!empty($pan))
-    {
+    if (!empty($pan)) {
       $this->db->or_where('pan_card', $pan);
     }
     $query = $this->db->get('vendors');
@@ -72,35 +69,74 @@ class Vendor_model extends CI_Model
 
   public function get_user($id, $role)
   {
-    if ($role == 'vendor')
-    {
+    if ($role == 'vendor') {
       return $this->db->get_where('vendors', ['id' => $id])->row();
-    } else
-    {
+    } else {
       return $this->db->get_where('promoters', ['id' => $id])->row();
     }
   }
 
   public function getSingleVendorsData($id)
-    {
-        return $this->db->get_where('vendors', ['id' => $id])->row_array();
-    }
+  {
+    return $this->db->get_where('vendors', ['id' => $id])->row_array();
+  }
 
-    // Update vendor
-    public function updateVendor($id, $data)
-    {
-        $this->db->where('id', $id);
-        return $this->db->update('vendors', $data);
-    }
+  // Update vendor
+  public function updateVendor($id, $data)
+  {
+    $this->db->where('id', $id);
+    return $this->db->update('vendors', $data);
+  }
   // ================= GET PROMOTER BY CODE =================
   public function get_promoter_by_code($code)
   {
     return $this->db->get_where('promoters', ['promoter_code' => $code])->row();
   }
 
+  public function getOrderMaster($order_id)
+  {
+    return $this->db->where('id', $order_id)
+      ->get('order_master')
+      ->row_array();
+  }
 
+  public function getVendorPurchase($order_id, $vendor_id)
+  {
+    return $this->db->select('pm.*, sp.product_name, sp.main_image')
+      ->from('purchase_master pm')
+      ->join('sub_product_master sp', 'sp.id = pm.product_master_id', 'left')
+      ->where('pm.order_master_id', $order_id)
+      ->where('pm.vendor_id', $vendor_id)
+      ->get()
+      ->result_array();
+  }
 
+  public function checkVendorReturn($order_id, $vendor_id)
+  {
+    return $this->db->where([
+      'order_master_id' => $order_id,
+      'vendor_id' => $vendor_id,
+      'status' => 8
+    ])->get('purchase_master')->num_rows();
+  }
 
+ public function getPurchaseSummary($vendor_id = '') {
+    $this->db->select("
+        COUNT(id) AS total_orders,
+        SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) AS pending_orders,
+        SUM(CASE WHEN status = 2 THEN 1 ELSE 0 END) AS cancelled_orders,
+        SUM(CASE WHEN status = 4 THEN 1 ELSE 0 END) AS shipped_orders,
+        SUM(CASE WHEN status = 5 THEN 1 ELSE 0 END) AS delivered_orders
+    ");
+    $this->db->from('purchase_master');
+
+    if ($vendor_id != '') {
+        $this->db->where('vendor_id', $vendor_id);
+    }
+
+    $query = $this->db->get();
+    return $query->row_array(); // returns a single row
+}
 
 
 
@@ -110,10 +146,10 @@ class Vendor_model extends CI_Model
 
 
   // End Registration
-  public function getVendotList()
-  {
-    return $this->db->query('SELECT * FROM `admin_master` WHERE id != "1" order by id desc ')->result_array();
-  }
+  // public function getVendotList()
+  // {
+  //   return $this->db->query('SELECT * FROM `admin_master` WHERE id != "1" order by id desc ')->result_array();
+  // }
 
   public function AddVendorData($request)
   {
@@ -137,8 +173,7 @@ class Vendor_model extends CI_Model
     $arrayName['company_pan_no'] = $request['CompanyPan'];
     $arrayName['company_tin_no'] = $request['CompanyTin'];
 
-    if (!empty($request['profile_pic']))
-    {
+    if (!empty($request['profile_pic'])) {
       $arrayName['profile_pic'] = $request['profile_pic'];
     }
     $arrayName['add_date'] = time();
@@ -146,8 +181,7 @@ class Vendor_model extends CI_Model
     $arrayName['status'] = '1';
     /*print_r($arrayName); exit;*/
     $insert = $this->db->insert('admin_master', $arrayName);
-    if ($insert > 0)
-    {
+    if ($insert > 0) {
       $message = urlencode("Hi  " . $arrayName['name'] . " , Your Account has been successfully registered. Now you can Login your Login-Id : " . $request['VendorEmail'] . " and Password : " . base64_decode($arrayName['password']) . ". Click For Login " . $link . "");
       /* echo $message; exit;*/
       $mobile = urlencode($arrayName['phone_no']);
@@ -182,8 +216,7 @@ class Vendor_model extends CI_Model
     $alphabet = '1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     $pass = array(); //remember to declare $pass as an array
     $alphaLength = strlen($alphabet) - 1; //put the length -1 in cache
-    for ($i = 0; $i < 10; $i++)
-    {
+    for ($i = 0; $i < 10; $i++) {
       $n = rand(0, $alphaLength);
       $pass[] = $alphabet[$n];
     }
@@ -212,8 +245,7 @@ class Vendor_model extends CI_Model
     $arrayName['company_pan_no'] = $request['CompanyPan'];
     $arrayName['company_tin_no'] = $request['CompanyTin'];
 
-    if (!empty($request['profile_pic']))
-    {
+    if (!empty($request['profile_pic'])) {
       $arrayName['profile_pic'] = $request['profile_pic'];
     }
 
@@ -239,6 +271,4 @@ class Vendor_model extends CI_Model
   {
     return $this->db->get_where('purchase_master', array('vendor_master_id' => $v_id))->num_rows();
   }
-
-
 }

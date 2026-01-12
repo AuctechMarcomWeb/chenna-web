@@ -432,8 +432,7 @@
                             <div class="rightside-menu">
                                 <div class="option-list">
                                     <ul>
-                                        <?php if (empty($userData))
-                                        { ?>
+                                        <?php if (empty($userData)) { ?>
                                             <li class="onhover-dropdown" style="margin-right:10px">
                                                 <a class="header-icon swap-icon" data-bs-toggle="modal"
                                                     data-bs-target="#login-popup">
@@ -442,8 +441,7 @@
                                                         id="no_of_wishlist_item">0</span>
                                                 </a>
                                             </li>
-                                        <?php } else
-                                        { ?>
+                                        <?php } else { ?>
                                             <li class="onhover-dropdown" style="margin-right:10px">
                                                 <a href="<?php echo base_url('web/wishlist'); ?>"
                                                     class="header-icon swap-icon">
@@ -466,8 +464,7 @@
                                             <?php $this->load->view('web/cart_icon'); ?>
                                         </li>
 
-                                        <?php if (empty($userData))
-                                        { ?>
+                                        <?php if (empty($userData)) { ?>
                                             <li class="right-side d-flex align-items-center justify-content-center"
                                                 style="cursor:pointer">
                                                 <div class="delivery-login-box">
@@ -478,73 +475,76 @@
                                                     </div>
                                                 </div>
                                             </li>
-                                        <?php } else if ($userData['username'] === "")
-                                        { ?>
-                                                <li class="right-side onhover-dropdown d-flex align-items-center justify-content-center"
-                                                    style="cursor:pointer">
+                                        <?php } else if ($userData['username'] === "") { ?>
+                                            <li class="right-side onhover-dropdown d-flex align-items-center justify-content-center"
+                                                style="cursor:pointer">
 
-                                                    <div class="delivery-login-box d-flex align-items-center" style="gap:10px">
-                                                        <div class="delivery-icon">
-                                                            <i data-feather="user" style="height:30px; width:30px"></i>
-                                                        </div>
-                                                        <div class="delivery-detail onhover-dropdown ">
-                                                            <h6>Hello,</h6>
-                                                            <h5 class="fw-bold">My Account <i
-                                                                    class="fa-solid fa-chevron-down"></i></h5>
-                                                        </div>
+                                                <div class="delivery-login-box d-flex align-items-center" style="gap:10px">
+                                                    <div class="delivery-icon">
+                                                        <i data-feather="user" style="height:30px; width:30px"></i>
                                                     </div>
-                                                    <div class="onhover-div onhover-div-login">
-                                                        <ul class="user-box-name">
-
-                                                            <li class="product-box-contain">
-                                                                <a href="<?php echo base_url('web/account_profile'); ?>">My
-                                                                    Account</a>
-                                                            </li>
-                                                            <li class="product-box-contain">
-                                                                <a href="<?php echo base_url('web/logout'); ?>">Logout</a>
-                                                            </li>
-
-
-
-                                                        </ul>
+                                                    <div class="delivery-detail onhover-dropdown ">
+                                                        <h6>Hello,</h6>
+                                                        <h5 class="fw-bold">My Account <i
+                                                                class="fa-solid fa-chevron-down"></i></h5>
                                                     </div>
-                                                </li>
+                                                </div>
+                                                <div class="onhover-div onhover-div-login">
+                                                    <ul class="user-box-name">
 
-                                        <?php } else
-                                        { ?>
-                                                <li class="right-side onhover-dropdown d-flex align-items-center justify-content-center"
-                                                    style="cursor:pointer">
+                                                        <li class="product-box-contain">
+                                                            <a href="<?php echo base_url('web/account_profile'); ?>">My
+                                                                Account</a>
+                                                        </li>
+                                                        <li class="product-box-contain">
+                                                            <a href="<?php echo base_url('web/logout'); ?>">Logout</a>
+                                                        </li>
 
-                                                    <div class="delivery-login-box">
-                                                        <div class="delivery-icon">
-                                                            <i data-feather="user"></i>
-                                                            <span style="background:white !important;color: black !important;">
-                                                            <?= $userData['username'] ?>
-                                                                <i class="ms-2 fa fa-chevron-down"></i>
-                                                            </span>
-                                                        </div>
+
+
+                                                    </ul>
+                                                </div>
+                                            </li>
+
+                                        <?php } else { ?>
+                                            <li class="right-side onhover-dropdown d-flex align-items-center justify-content-center"
+                                                style="cursor:pointer">
+
+                                                <div class="delivery-login-box d-flex align-items-center" style="gap:10px">
+                                                    <div class="delivery-icon">
+                                                        <i data-feather="user" style="height:30px; width:30px"></i>
                                                     </div>
-                                                    <div class="onhover-div onhover-div-login">
-                                                        <ul class="user-box-name">
+                                                    <div class="delivery-detail onhover-dropdown delivery-icon">
+                                                        <h6>Hello, <span
+                                                                style="background:white !important;color: black !important;">
+                                                                <?= $userData['username'] ?>
 
-                                                            <li class="product-box-contain">
-                                                                <a href="<?php echo base_url('web/account_profile'); ?>">My
-                                                                    Account</a>
-                                                            </li>
-                                                            <li class="product-box-contain">
-                                                                <a href="<?= base_url('web/account_profile?tab=order'); ?>">My
-                                                                    Orders
-                                                                </a>
-                                                            </li>
-                                                            <li class="product-box-contain">
-                                                                <a href="<?php echo base_url('web/logout'); ?>">Logout</a>
-                                                            </li>
-
-
-
-                                                        </ul>
+                                                            </span></h6>
+                                                        <h5 class="fw-bold">Account & Orders <i
+                                                                class="fa-solid fa-chevron-down"></i></h5>
                                                     </div>
-                                                </li>
+                                                </div>
+                                                <div class="onhover-div onhover-div-login">
+                                                    <ul class="user-box-name">
+
+                                                        <li class="product-box-contain">
+                                                            <a href="<?php echo base_url('web/account_profile'); ?>">My
+                                                                Account</a>
+                                                        </li>
+                                                        <li class="product-box-contain">
+                                                            <a href="<?= base_url('web/account_profile?tab=order'); ?>">
+                                                                Orders List
+                                                            </a>
+                                                        </li>
+                                                        <li class="product-box-contain">
+                                                            <a href="<?php echo base_url('web/logout'); ?>">Logout</a>
+                                                        </li>
+
+
+
+                                                    </ul>
+                                                </div>
+                                            </li>
                                         <?php } ?>
                                     </ul>
                                 </div>
@@ -628,10 +628,14 @@
 
                                                                             <?php if (!empty($subCategories)): ?>
                                                                                 <?php foreach ($subCategories as $sub): ?>
-                                                                                    <a class="dropdown-item"
-                                                                                        href="<?= base_url(slugify($parent['slug']) . '/' . slugify($cat['slug']) . '/' . slugify($sub['slug'])); ?>">
+                                                                                    <!-- <a class="dropdown-item"
+                                                                                        href="<?= base_url(slugify($parent['name']) . '/' . slugify($cat['category_name']) . '/' . slugify($sub['sub_category_name'])); ?>">
+                                                                                        <?= $sub['sub_category_name']; ?> -->
+                                                                                    </a><a class="dropdown-item"
+                                                                                        href="<?= base_url($parent['slug'] . '/' . $cat['slug'] . '/' . $sub['slug']); ?>">
                                                                                         <?= $sub['sub_category_name']; ?>
                                                                                     </a>
+
                                                                                 <?php endforeach; ?>
                                                                             <?php else: ?>
                                                                                 <span class="dropdown-item text-muted">Coming Soon</span>
@@ -715,8 +719,7 @@
                     <span>Search</span>
                 </a>
             </li>
-            <?php if (empty($userData))
-            { ?>
+            <?php if (empty($userData)) { ?>
                 <li class="onhover-dropdown" style="margin-right:10px; position: relative;">
                     <a class="header-icon swap-icon position-relative" data-bs-toggle="modal" data-bs-target="#login-popup">
                         <i class="iconly-Heart icli"></i>
@@ -726,8 +729,7 @@
                         <span>My Wishlist</span>
                     </a>
                 </li>
-            <?php } else
-            { ?>
+            <?php } else { ?>
                 <li class="onhover-dropdown" style="margin-right:10px; position: relative;">
                     <a href="<?php echo base_url('web/wishlist'); ?>" class="header-icon swap-icon position-relative">
                         <i class="iconly-Heart icli"></i>
@@ -859,7 +861,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function() {
             const inputs = document.querySelectorAll("#otp input");
 
             inputs.forEach((input, index) => {
@@ -897,15 +899,15 @@
 
         function sendQueryData(mobile, otp) {
             fetch("<?= base_url('web/send_otp') ?>", {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    mobile: mobile,
-                    otp: otp
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        mobile: mobile,
+                        otp: otp
+                    })
                 })
-            })
                 .then(res => res.json())
                 .then(data => {
                     if (data.status === "success") {
@@ -923,7 +925,7 @@
                 });
         }
 
-        document.getElementById('reg-send-otp').addEventListener('click', function () {
+        document.getElementById('reg-send-otp').addEventListener('click', function() {
             mobileNumber = document.getElementById('reg-mobile').value;
             if (!isNaN(mobileNumber) && mobileNumber.length === 10) {
                 SENT_OTP = generateRandomNumber();
@@ -933,22 +935,22 @@
             }
         });
 
-        document.getElementById('validate-otp-btn').addEventListener('click', function () {
+        document.getElementById('validate-otp-btn').addEventListener('click', function() {
             let enteredOtp = document.getElementById('first').value +
                 document.getElementById('second').value +
                 document.getElementById('third').value +
                 document.getElementById('fourth').value;
 
             fetch("<?= base_url('web/verify_otp') ?>", {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    mobile: mobileNumber,
-                    otp: enteredOtp
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        mobile: mobileNumber,
+                        otp: enteredOtp
+                    })
                 })
-            })
                 .then(res => res.json())
                 .then(data => {
                     if (data.status === "Success") {
@@ -959,7 +961,7 @@
                             positionClass: 'toast-top-right',
                             tapToDismiss: true,
                             extendedTimeOut: 1000,
-                            onHidden: function () {
+                            onHidden: function() {
                                 window.location.reload();
                             }
                         });
@@ -976,7 +978,7 @@
                 });
         });
 
-        document.getElementById('resend-otp').addEventListener('click', function () {
+        document.getElementById('resend-otp').addEventListener('click', function() {
             if (mobileNumber && mobileNumber.length === 10) {
                 SENT_OTP = generateRandomNumber();
 
@@ -1008,7 +1010,7 @@
     </script>
 
     <script>
-        $(document).ready(function () {
+        $(document).ready(function() {
 
             $('#mainSearchBox').hide();
 
@@ -1028,9 +1030,9 @@
             $('#toggleSearchIcon').on('click', toggleSearchBox);
 
 
-            $(document).click(function (e) {
+            $(document).click(function(e) {
                 if (!$(e.target).closest(
-                    '#gsearch, #suggestions, #mainSearchBox, #toggleSearchText, #toggleSearchIcon')
+                        '#gsearch, #suggestions, #mainSearchBox, #toggleSearchText, #toggleSearchIcon')
                     .length) {
                     $('#suggestions').hide();
                     $('#mainSearchBox').hide();
@@ -1038,7 +1040,7 @@
             });
 
 
-            $('#gsearch').keyup(function () {
+            $('#gsearch').keyup(function() {
                 var query = $(this).val();
                 if (query.length > 1) {
                     $.ajax({
@@ -1047,7 +1049,7 @@
                         data: {
                             search: query
                         },
-                        success: function (data) {
+                        success: function(data) {
                             $('#suggestions').html(data).show();
                         }
                     });
@@ -1057,7 +1059,7 @@
             });
 
 
-            $(document).on('click', '.suggestion-item', function () {
+            $(document).on('click', '.suggestion-item', function() {
                 var selected = $(this).text();
                 $('#gsearch').val(selected);
                 $('#suggestions').hide();
@@ -1066,30 +1068,30 @@
         });
     </script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const dropdown = document.querySelector('.right-side.onhover-dropdown');
             const toggle = dropdown.querySelector('.delivery-icon');
             const menu = dropdown.querySelector('.onhover-div-login');
 
 
-            toggle.addEventListener('click', function (e) {
+            toggle.addEventListener('click', function(e) {
                 e.stopPropagation();
                 menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
             });
 
 
-            document.addEventListener('click', function () {
+            document.addEventListener('click', function() {
                 menu.style.display = 'none';
             });
         });
     </script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const toggleSearch = document.getElementById('toggleSearchText');
             const searchInput = document.getElementById('gsearch');
 
-            toggleSearch.addEventListener('click', function (e) {
+            toggleSearch.addEventListener('click', function(e) {
                 e.preventDefault();
 
 
@@ -1099,7 +1101,7 @@
                 });
 
 
-                setTimeout(function () {
+                setTimeout(function() {
                     searchInput.focus();
                 }, 300);
             });

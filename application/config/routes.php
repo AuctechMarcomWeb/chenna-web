@@ -94,21 +94,58 @@ $route['vegetable-items']      = 'web/vegetable_item_list';
 $route['chicken-items']      = 'web/chicken_item_list';
 $route['grocery-items']      = 'web/grocery_item_list';
 
-// if ($main == 'fashion-clothing' OR $main == 'bottomwear' OR $main == 'footwear' OR $main == 'men'
-//     OR $main == 'women' OR $main == 'western-wear' OR $main == 'women-footwear' 
-//     OR $main == 'indian-and-festive-wear' OR $main == 'boys-clothing'  
-//     OR $main == 'girls-clothing' OR $main == 'kid' OR $main == 'kids-infants'
-//     OR $main == 'women-accessories' OR $main == 'Jewelry') {
+$main = strtolower(trim($main));
 
-//  $route[$main.'/'.$category] = 'web/category_product_list/'.$main.'/'.$category;
- 
-//  $route['(:any)/(:any)/(:any)'] = 'web/sub_category_product_list/$1/$2/$3';
- 
-// } 
-$route['(:any)/(:any)'] = 'web/category_product_list/$1/$2';
-$route['(:any)/(:any)/(:any)'] = 'web/sub_category_product_list/$1/$2/$3';
+if (
+    // Fashion & Clothing
+    $main == 'fashion-clothing' ||
+    $main == 'bottomwear' ||
+    $main == 'footwear' ||
+    $main == 'men' ||
+    $main == 'women' ||
+    $main == 'western-wear' ||
+    $main == 'women-footwear' ||
+    $main == 'indian-and-festive-wear' ||
+    $main == 'boys-clothing' ||
+    $main == 'girls-clothing' ||
+    $main == 'kid' ||
+    $main == 'kids-infants' ||
+    $main == 'women-accessories' ||
+    $main == 'jewelry' ||
 
-$route['ajax-filter-subcategory-products'] = 'web/ajax_filter_subcategory_products';
+    // Electronics
+    $main == 'electronics' ||
+    $main == 'mobiles-tablets' ||
+    $main == 'computers-laptops' ||
+    $main == 'audio-devices' ||
+    $main == 'smart-electronics' ||
+
+    // Beauty & Personal Care
+    $main == 'beauty-personal-care' ||
+    $main == 'makeup' ||
+    $main == 'skin-care' ||
+    $main == 'hair-care' ||
+    $main == 'personal-care' ||
+
+    // Other Parents
+    $main == 'appliances' ||
+    $main == 'stationery' ||
+    $main == 'automotive-accessories'
+) {
+
+    // Parent → Category
+    $route[$main.'/'.$category] =
+        'web/category_product_list/'.$main.'/'.$category;
+
+    // Parent → Category → Sub Category
+    $route['(:any)/(:any)/(:any)'] =
+        'web/sub_category_product_list/$1/$2/$3';
+}
+
+// $route['(:any)/(:any)'] = 'web/category_product_list/$1/$2';
+// $route['(:any)/(:any)/(:any)'] = 'web/sub_category_product_list/$1/$2/$3';
+
+
 
 
 
@@ -118,11 +155,7 @@ if($numeric=='1'){
    }  
 }
 
-
-
 $route['product/(:any)/(:num)'] = 'web/product/$1/$2';
 $route['admin'] = 'admin/Welcome';
 
 $route['apply-coupon'] = 'web/apply_coupon';
-
-

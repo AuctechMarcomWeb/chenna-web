@@ -7,90 +7,68 @@ $main_img_url = parse_url($getData['main_image']);
 
 
 
-if (empty($main_img_url['host']))
-{
+if (empty($main_img_url['host'])) {
     $main_image = base_url() . '/assets/product_images/' . $getData['main_image'];
-} else
-{
+} else {
     $main_image = 'https://' . $main_img_url['host'] . '' . $main_img_url['path'] . '?raw=1';
 }
 
-if (!empty($getData['image1']))
-{
+if (!empty($getData['image1'])) {
     $img1_url = parse_url($getData['image1']);
-    if (empty($img1_url['host']))
-    {
+    if (empty($img1_url['host'])) {
         $img1 = base_url() . '/assets/product_images/' . $getData['image1'];
-    } else
-    {
+    } else {
         $img1 = 'https://' . $img1_url['host'] . '' . $img1_url['path'] . '?raw=1';
     }
-} else
-{
+} else {
     $img1 = '';
 }
 
-if (!empty($getData['image2']))
-{
+if (!empty($getData['image2'])) {
     $img2_url = parse_url($getData['image2']);
 
-    if (empty($img2_url['host']))
-    {
+    if (empty($img2_url['host'])) {
         $img2 = base_url() . '/assets/product_images/' . $getData['image2'];
-    } else
-    {
+    } else {
         $img2 = 'https://' . $img2_url['host'] . '' . $img2_url['path'] . '?raw=1';
     }
-} else
-{
+} else {
     $img2 = '';
 }
 
-if (!empty($getData['image3']))
-{
+if (!empty($getData['image3'])) {
     $img3_url = parse_url($getData['image3']);
-    if (empty($img3_url['host']))
-    {
+    if (empty($img3_url['host'])) {
         $img3 = base_url() . '/assets/product_images/' . $getData['image3'];
-    } else
-    {
+    } else {
         $img3 = 'https://' . $img3_url['host'] . '' . $img3_url['path'] . '?raw=1';
     }
-} else
-{
+} else {
     $img3 = '';
 }
 
 
 
 
-if (!empty($getData['image4']))
-{
+if (!empty($getData['image4'])) {
     $img4_url = parse_url($getData['image4']);
-    if (empty($img4_url['host']))
-    {
+    if (empty($img4_url['host'])) {
         $img4 = base_url() . '/assets/product_images/' . $getData['image4'];
-    } else
-    {
+    } else {
         $img4 = 'https://' . $img4_url['host'] . '' . $img4_url['path'] . '?raw=1';
     }
-} else
-{
+} else {
     $img4 = '';
 }
 
-if (!empty($getData['image5']))
-{
+if (!empty($getData['image5'])) {
     $img5_url = parse_url($getData['image5']);
-    if (empty($img5_url['host']))
-    {
+    if (empty($img5_url['host'])) {
         $img5 = base_url() . '/assets/product_images/' . $getData['image5'];
-    } else
-    {
+    } else {
         $img5 = 'https://' . $img5_url['host'] . '' . $img5_url['path'] . '?raw=1';
     }
-} else
-{
+} else {
     $img5 = '';
 }
 
@@ -881,8 +859,7 @@ if (!empty($getData['image5']))
                             <div class="row g-sm-4 g-2">
                                 <?php
                                 $colorGroups = [];
-                                foreach ($variations as $v)
-                                {
+                                foreach ($variations as $v) {
                                     $color = $v['color'];
                                     $images = array_filter([
                                         $v['main_image'] ?? null,
@@ -893,11 +870,9 @@ if (!empty($getData['image5']))
                                         $v['image5'] ?? null
                                     ]);
 
-                                    if (!isset($colorGroups[$color]))
-                                    {
+                                    if (!isset($colorGroups[$color])) {
                                         $colorGroups[$color] = $images;
-                                    } else
-                                    {
+                                    } else {
                                         $colorGroups[$color] = array_merge($colorGroups[$color], $images);
                                     }
 
@@ -1025,8 +1000,7 @@ if (!empty($getData['image5']))
                             </div>
 
                             <div>
-                                <?php if (!empty($getData['product_description']))
-                                { ?>
+                                <?php if (!empty($getData['product_description'])) { ?>
 
                                     <div class="pickup-box">
                                         <div class="product-title">
@@ -1054,7 +1028,7 @@ if (!empty($getData['image5']))
                                         <?php
                                         $colors = array_unique(array_column($variations, 'color'));
                                         foreach ($colors as $color):
-                                            ?>
+                                        ?>
                                             <option value="<?= $color ?>"><?= ucfirst($color) ?></option>
                                         <?php endforeach; ?>
                                     </select>
@@ -1070,7 +1044,7 @@ if (!empty($getData['image5']))
                                         <?php
                                         $sizes = array_unique(array_column($variations, 'size'));
                                         foreach ($sizes as $size):
-                                            ?>
+                                        ?>
                                             <option value="<?= $size ?>"><?= strtoupper($size) ?></option>
                                         <?php endforeach; ?>
                                     </select>
@@ -1125,37 +1099,93 @@ if (!empty($getData['image5']))
 
             <div class="col-xxl-3 col-xl-4 col-lg-5 d-none d-lg-block wow fadeInUp">
                 <div class="right-sidebar-box">
-                    <div class="vendor-box">
-                        <div class="vendor-contain">
-                            <div class="vendor-image">
-                                <img src="../plugins/images/logo.png" class="blur-up lazyload" alt="">
+
+                    <?php if (!empty($vendorData)): ?>
+
+                        <!-- ✅ DYNAMIC VENDOR -->
+                        <div class="vendor-box">
+                            <div class="vendor-contain">
+
+                                <div class="vendor-image">
+                                    <img src="<?= !empty($vendorData['vendor_logo'])
+                                                    ? base_url($vendorData['vendor_logo'])
+                                                    : base_url('assets/images/no-image.png'); ?>"
+                                        class="blur-up lazyload"
+                                        alt="<?= $vendorData['name'] ?? 'Vendor'; ?>">
+                                </div>
+
+                                <div class="vendor-name">
+                                    <h5 class="fw-500"><?= ucfirst($vendorData['name']); ?></h5>
+                                    <?php if (!empty($vendorData['shop_name'])): ?>
+                                        <p class="text-content"><?= ucfirst($vendorData['shop_name']); ?></p>
+                                    <?php endif; ?>
+                                </div>
                             </div>
 
-                            <div class="vendor-name">
-                                <h5 class="fw-500">Chenna</h5>
+                            <?php if (!empty($vendorData['description'])): ?>
+                                <p class="vendor-detail" style="text-align:justify;">
+                                    <?= $vendorData['description']; ?>
+                                </p>
+                            <?php endif; ?>
 
+                            <div class="vendor-list">
+                                <ul>
+                                    <li>
+                                        <div class="address-contact">
+                                            <i data-feather="headphones"></i>
+                                            <h5>
+                                                Contact Us:
+                                                <span class="text-content">
+                                                    <?= !empty($vendorData['mobile']) ? '+91 ' . $vendorData['mobile'] : 'N/A'; ?>
+                                                </span>
+                                            </h5>
+                                        </div>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
 
-                        <p class="vendor-detail" style="text-align:justify;">
-                            At Chenna, we bring you the finest and trendiest styles straight from the heart of
-                            fashion. Every piece is crafted to add comfort, elegance, and a touch of confidence to your
-                            everyday look.
+                    <?php else: ?>
 
-                        </p>
+                        <!-- ✅ STATIC DEFAULT VENDOR -->
+                        <div class="vendor-box">
+                            <div class="vendor-contain">
 
-                        <div class="vendor-list">
-                            <ul>
-                                <li>
-                                    <div class="address-contact">
-                                        <i data-feather="headphones"></i>
-                                        <h5>Contact Us: <span class="text-content"> +91 98380 75493</span></h5>
-                                    </div>
-                                </li>
-                            </ul>
+                                <div class="vendor-image">
+                                    <img src="<?= base_url('plugins/images/logo.png'); ?>"
+                                        class="blur-up lazyload"
+                                        alt="Default Vendor">
+                                </div>
+
+                                <div class="vendor-name">
+                                    <h5 class="fw-500">Chenna</h5>
+                                </div>
+                            </div>
+
+                            <p class="vendor-detail" style="text-align:justify;">
+                                At Chenna, we bring you the finest and trendiest styles straight from the heart of fashion.
+                                Every piece is crafted to add comfort, elegance, and confidence to your everyday look.
+                            </p>
+
+                            <div class="vendor-list">
+                                <ul>
+                                    <li>
+                                        <div class="address-contact">
+                                            <i data-feather="headphones"></i>
+                                            <h5>
+                                                Contact Us:
+                                                <span class="text-content">+91 98380 75493</span>
+                                            </h5>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
-                    </div>
 
+                    <?php endif; ?>
+
+
+                    <!-- 🔹 SOCIAL MEDIA (COMMON FOR BOTH) -->
                     <div class="pt-25">
                         <div class="hot-line-number">
                             <div class="share-option">
@@ -1163,31 +1193,17 @@ if (!empty($getData['image5']))
                                     <h4>Social Media</h4>
                                 </div>
                                 <ul class="social-share-list">
-                                    <li>
-                                        <a href="javascript:void(0)">
-                                            <i class="fa-brands fa-facebook-f"></i>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="javascript:void(0)">
-                                            <i class="fa-brands fa-linkedin-in"></i>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="javascript:void(0)">
-                                            <i class="fa-brands fa-whatsapp"></i>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="javascript:void(0)">
-                                            <i class="fa-solid fa-envelope"></i>
-                                        </a>
-                                    </li>
+                                    <li><a href="#"><i class="fa-brands fa-facebook-f"></i></a></li>
+                                    <li><a href="#"><i class="fa-brands fa-linkedin-in"></i></a></li>
+                                    <li><a href="#"><i class="fa-brands fa-whatsapp"></i></a></li>
+                                    <li><a href="#"><i class="fa-solid fa-envelope"></i></a></li>
                                 </ul>
                             </div>
                         </div>
                     </div>
+
                 </div>
+
             </div>
         </div>
     </div>
@@ -1255,11 +1271,9 @@ if (!empty($getData['image5']))
                                                 $uniqueSizes = array_unique(array_filter($sizes));
 
 
-                                                if (!empty($uniqueSizes))
-                                                {
+                                                if (!empty($uniqueSizes)) {
                                                     echo implode(', ', $uniqueSizes);
-                                                } else
-                                                {
+                                                } else {
                                                     echo 'No size available';
                                                 }
                                                 ?>
@@ -1297,18 +1311,16 @@ if (!empty($getData['image5']))
                                                 $starCount = [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
                                                 $totalReviews = count($reviews);
 
-                                                foreach ($reviews as $rev)
-                                                {
+                                                foreach ($reviews as $rev) {
                                                     $rating = (int) $rev->rating;
-                                                    if (isset($starCount[$rating]))
-                                                    {
+                                                    if (isset($starCount[$rating])) {
                                                         $starCount[$rating]++;
                                                     }
                                                 }
 
                                                 foreach ($starCount as $star => $count):
                                                     $percent = $totalReviews > 0 ? round(($count / $totalReviews) * 100) : 0;
-                                                    ?>
+                                                ?>
                                                     <li>
                                                         <div class="rating-product">
                                                             <h5>
@@ -1354,13 +1366,10 @@ if (!empty($getData['image5']))
 
                                                     <?php
                                                     $allReviewSlides = [];
-                                                    foreach ($reviews as $r)
-                                                    {
-                                                        if (!empty($r->image))
-                                                        {
+                                                    foreach ($reviews as $r) {
+                                                        if (!empty($r->image)) {
                                                             $imgs = explode(',', $r->image);
-                                                            foreach ($imgs as $img)
-                                                            {
+                                                            foreach ($imgs as $img) {
                                                                 $allReviewSlides[] = [
                                                                     'image' => base_url('assets/customer_review_images/' . trim($img)),
                                                                     'review_text' => $r->review_text,
@@ -1410,10 +1419,8 @@ if (!empty($getData['image5']))
                                                                                     <?php
 
                                                                                     $slideIndex = 0;
-                                                                                    foreach ($allReviewSlides as $i => $s)
-                                                                                    {
-                                                                                        if (strpos($s['image'], trim($img)) !== false)
-                                                                                        {
+                                                                                    foreach ($allReviewSlides as $i => $s) {
+                                                                                        if (strpos($s['image'], trim($img)) !== false) {
                                                                                             $slideIndex = $i;
                                                                                             break;
                                                                                         }
@@ -1519,7 +1526,7 @@ if (!empty($getData['image5']))
                         ? $value['main_image']
                         : base_url('assets/product_images/' . $value['main_image']);
                     $rating = $value['average_rating'] ?? 0;
-                    ?>
+                ?>
                     <div>
                         <div class="product-box-4 wow fadeInUp shadow-sm mb-2"
                             style="border:1px solid #ffe6e6;margin-left:20px;">
@@ -1767,19 +1774,19 @@ if (!empty($getData['image5']))
 
 
 <script>
-    $(document).ready(function () {
-        $('.star').click(function () {
+    $(document).ready(function() {
+        $('.star').click(function() {
             var rating = $(this).data('value');
             $('#rating-value').val(rating);
             $('.star i').removeClass('fa-solid').addClass('fa-regular');
-            $('.star').each(function () {
+            $('.star').each(function() {
                 if ($(this).data('value') <= rating) {
                     $(this).find('i').removeClass('fa-regular').addClass('fa-solid');
                 }
             });
         });
 
-        $('#submitReview').click(function () {
+        $('#submitReview').click(function() {
 
             if ($('#rating-value').val() == 0) {
                 Swal.fire('Rating required', 'Please select a rating', 'warning');
@@ -1795,7 +1802,7 @@ if (!empty($getData['image5']))
                 data: formData,
                 contentType: false,
                 processData: false,
-                success: function (response) {
+                success: function(response) {
                     var res = JSON.parse(response);
                     if (res.status === 'success') {
                         Swal.fire('Thank you!', res.message, 'success').then(() => {
@@ -1810,7 +1817,7 @@ if (!empty($getData['image5']))
                         Swal.fire('Oops!', res.message, 'warning');
                     }
                 },
-                error: function () {
+                error: function() {
                     Swal.fire('Error!', 'Something went wrong!', 'error');
                 }
             });
@@ -1819,7 +1826,7 @@ if (!empty($getData['image5']))
     });
 </script>
 <script>
-    $('#writeReviewBtn').on('click', function () {
+    $('#writeReviewBtn').on('click', function() {
 
         let isLoggedIn = <?= $this->session->userdata('User') ? 'true' : 'false' ?>;
 
@@ -1830,10 +1837,9 @@ if (!empty($getData['image5']))
             $('#writereview').modal('show');
         }
     });
-
 </script>
 <script>
-    $('.review-like, .review-dislike').on('click', function (e) {
+    $('.review-like, .review-dislike').on('click', function(e) {
         e.preventDefault();
 
         let review_id = $(this).data('review');
@@ -1849,15 +1855,13 @@ if (!empty($getData['image5']))
                 product_id: product_id,
                 action: action
             },
-            success: function (res) {
+            success: function(res) {
 
                 if (res.status === 'login') {
                     $('#login-popup').modal('show');
-                }
-                else if (res.status === 'not_purchased') {
+                } else if (res.status === 'not_purchased') {
                     alert('Only buyers can like or dislike reviews');
-                }
-                else if (res.status === 'success') {
+                } else if (res.status === 'success') {
                     $('#like_' + review_id).text(res.like);
                     $('#dislike_' + review_id).text(res.dislike);
                 }
@@ -1869,7 +1873,6 @@ if (!empty($getData['image5']))
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-
     function buy_now(pro_id) {
         const quantity = document.querySelector('.qty-input').value || 1;
 
@@ -1893,13 +1896,12 @@ if (!empty($getData['image5']))
                 quantity: quantity
             },
             dataType: 'JSON',
-            success: function (response) {
+            success: function(response) {
                 $('#no_of_cart_item').html(response.cart_val);
                 window.location = '/checkout';
             }
         });
     }
-
 </script>
 <script>
     const variations = <?= json_encode($variations) ?>;
@@ -1908,7 +1910,7 @@ if (!empty($getData['image5']))
     let selectedSize = null;
     let selectedVariationId = null;
 
-    $(document).ready(function () {
+    $(document).ready(function() {
         if (variations.length === 0) return;
 
         // ================= DEFAULT SELECTION =================
@@ -1928,7 +1930,7 @@ if (!empty($getData['image5']))
         gotoCorrectSliderImage(defaultVar);
 
         // ================= COLOR CHANGE =================
-        $('#colorList').on('change', function () {
+        $('#colorList').on('change', function() {
             selectedColor = $(this).val();
 
             // Filter sizes for this color
@@ -1947,7 +1949,7 @@ if (!empty($getData['image5']))
         });
 
         // ================= SIZE CHANGE =================
-        $('#sizeList').on('change', function () {
+        $('#sizeList').on('change', function() {
             selectedSize = $(this).val();
 
             const variation = variations.find(v => v.color === selectedColor && v.size === selectedSize);
@@ -1963,7 +1965,7 @@ if (!empty($getData['image5']))
         });
 
         // ================= SIDEBAR IMAGE CLICK =================
-        $(document).on('click', '.sidebar-image', function () {
+        $(document).on('click', '.sidebar-image', function() {
             const color = $(this).data('color');
             const variation = variations.find(v => v.color === color);
             if (!variation) return;
@@ -1981,7 +1983,7 @@ if (!empty($getData['image5']))
         });
 
         // ================= MAIN SLIDER CHANGE =================
-        $('.product-main.no-arrow').on('afterChange', function (event, slick, index) {
+        $('.product-main.no-arrow').on('afterChange', function(event, slick, index) {
             const color = $('.product-main.no-arrow .slider-image').eq(index).data('color');
             const variation = variations.find(v => v.color === color);
             if (!variation) return;
@@ -2079,10 +2081,24 @@ if (!empty($getData['image5']))
             asNavFor: '.product-main.no-arrow',
             arrows: true,
             infinite: true,
-            responsive: [
-                { breakpoint: 992, settings: { slidesToShow: 4 } },
-                { breakpoint: 768, settings: { slidesToShow: 4 } },
-                { breakpoint: 576, settings: { slidesToShow: 3 } }
+            responsive: [{
+                    breakpoint: 992,
+                    settings: {
+                        slidesToShow: 4
+                    }
+                },
+                {
+                    breakpoint: 768,
+                    settings: {
+                        slidesToShow: 4
+                    }
+                },
+                {
+                    breakpoint: 576,
+                    settings: {
+                        slidesToShow: 3
+                    }
+                }
             ]
         });
     }
@@ -2091,7 +2107,7 @@ if (!empty($getData['image5']))
 
     // Add to cart
     let isAdding = false;
-    $('#addcart-btn').click(function () {
+    $('#addcart-btn').click(function() {
         if (isAdding) return;
 
         const qty = parseInt($('.qty-input').val()) || 1;
@@ -2113,9 +2129,12 @@ if (!empty($getData['image5']))
         $.ajax({
             url: '<?= base_url("web/add_to_cart") ?>',
             type: 'POST',
-            data: { pro_id: selectedVariationId, quantity: qty },
+            data: {
+                pro_id: selectedVariationId,
+                quantity: qty
+            },
             dataType: 'json',
-            success: function (res) {
+            success: function(res) {
                 if (res.status === 'error') {
                     Swal.fire({
                         toast: true,
@@ -2139,7 +2158,7 @@ if (!empty($getData['image5']))
                     });
                 }
             },
-            error: function () {
+            error: function() {
                 Swal.fire({
                     toast: true,
                     position: 'top-end',
@@ -2149,7 +2168,7 @@ if (!empty($getData['image5']))
                     timer: 1500
                 });
             },
-            complete: function () {
+            complete: function() {
                 isAdding = false;
                 $('#addcart-btn').prop('disabled', false).text('Add to Cart');
             }
@@ -2160,8 +2179,8 @@ if (!empty($getData['image5']))
     function refreshCartIcon() {
         $.ajax({
             url: '<?php echo base_url('web/cart_icon_partial'); ?>',
-            success: function (data) {
-                $('[id="cart_items"]').each(function () {
+            success: function(data) {
+                $('[id="cart_items"]').each(function() {
                     $(this).html(data);
                 });
             }
@@ -2171,27 +2190,33 @@ if (!empty($getData['image5']))
     function refreshRightCartIcon() {
         $.ajax({
             url: '<?php echo base_url('web/right_cart_icon_partial'); ?>',
-            success: function (data) {
+            success: function(data) {
                 $('#right_cart_items').html(data);
             }
         });
     }
 
     // Buy Now
-    $('#buy-now-btn').click(function () {
-        <?php if (!empty($user_id))
-        { ?>
+    $('#buy-now-btn').click(function() {
+        <?php if (!empty($user_id)) { ?>
             const qty = parseInt($('.qty-input').val()) || 1;
             if (!selectedVariationId) {
-                Swal.fire({ icon: 'warning', title: 'Select color and size', timer: 1500, showConfirmButton: false });
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Select color and size',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
                 return;
             }
 
-            $.post('<?= base_url("web/buy_now_session") ?>', { pro_id: selectedVariationId, quantity: qty }, function () {
+            $.post('<?= base_url("web/buy_now_session") ?>', {
+                pro_id: selectedVariationId,
+                quantity: qty
+            }, function() {
                 window.location.href = '<?= base_url("web/checkout") ?>';
             }, 'json');
-        <?php } else
-        { ?>
+        <?php } else { ?>
             $('#login-popup').modal('show');
             sessionStorage.setItem('redirectAfterLogin', '<?= base_url("web/checkout") ?>');
         <?php } ?>
@@ -2200,9 +2225,9 @@ if (!empty($getData['image5']))
 
 
 <script>
-    $(document).ready(function () {
+    $(document).ready(function() {
         const $zoomResult = $("#zoom-result");
-        $(".zoom-image").on("mouseenter", function () {
+        $(".zoom-image").on("mouseenter", function() {
             if ($(window).width() <= 768) return;
             const imgSrc = $(this).attr("src");
             $zoomResult.css({
@@ -2211,7 +2236,7 @@ if (!empty($getData['image5']))
             });
         });
 
-        $(".zoom-image").on("mousemove", function (e) {
+        $(".zoom-image").on("mousemove", function(e) {
             if ($(window).width() <= 768) return;
             const rect = this.getBoundingClientRect();
             const x = ((e.clientX - rect.left) / rect.width) * 100;
@@ -2219,12 +2244,12 @@ if (!empty($getData['image5']))
             $zoomResult.css("background-position", `${x}% ${y}%`);
         });
 
-        $(".zoom-image").on("mouseleave", function () {
+        $(".zoom-image").on("mouseleave", function() {
             $zoomResult.hide();
         });
 
 
-        $(".zoom-image").on("click", function () {
+        $(".zoom-image").on("click", function() {
             if ($(window).width() > 768) return;
 
             const src = $(this).attr("src");
@@ -2249,15 +2274,16 @@ if (!empty($getData['image5']))
                 cursor: "zoom-out"
             });
 
-            let scale = 1, startDist = 0;
+            let scale = 1,
+                startDist = 0;
 
-            $img.on("touchstart", function (e) {
+            $img.on("touchstart", function(e) {
                 if (e.originalEvent.touches.length === 2) {
                     startDist = getDistance(e.originalEvent.touches);
                 }
             });
 
-            $img.on("touchmove", function (e) {
+            $img.on("touchmove", function(e) {
                 if (e.originalEvent.touches.length === 2) {
                     const newDist = getDistance(e.originalEvent.touches);
                     const zoom = newDist / startDist;
@@ -2272,7 +2298,7 @@ if (!empty($getData['image5']))
             }
 
             $overlay.append($img);
-            $overlay.on("click", function () {
+            $overlay.on("click", function() {
                 $overlay.remove();
             });
 
@@ -2282,11 +2308,11 @@ if (!empty($getData['image5']))
     });
 </script>
 <script>
-
-    document.querySelector('.share-toggle').addEventListener('click', function () {
+    document.querySelector('.share-toggle').addEventListener('click', function() {
         const box = document.getElementById('shareBox');
         box.style.display = box.style.display === 'none' ? 'block' : 'none';
     });
+
     function openSharePopup(url) {
         window.open(
             url,
@@ -2294,20 +2320,20 @@ if (!empty($getData['image5']))
             "width=550,height=450,left=100,top=100"
         );
     }
-    $(".share-facebook").on("click", function (e) {
+    $(".share-facebook").on("click", function(e) {
         e.preventDefault();
         let url = $(this).data("url");
         openSharePopup("https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(url));
     });
 
-    $(".share-twitter").on("click", function (e) {
+    $(".share-twitter").on("click", function(e) {
         e.preventDefault();
         let url = $(this).data("url");
         let title = $(this).data("title");
         openSharePopup("https://twitter.com/intent/tweet?text=" + encodeURIComponent(title) + "&url=" + encodeURIComponent(url));
     });
 
-    $(".share-email").on("click", function (e) {
+    $(".share-email").on("click", function(e) {
         e.preventDefault();
 
         let pageUrl = $(this).data("url");

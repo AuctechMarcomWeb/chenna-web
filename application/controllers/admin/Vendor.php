@@ -1,4 +1,4 @@
-<?php defined('BASEPATH') OR exit('No direct script access allowed');
+<?php defined('BASEPATH') or exit('No direct script access allowed');
 class Vendor extends CI_Controller
 {
 
@@ -15,6 +15,8 @@ class Vendor extends CI_Controller
 		$this->load->model('User_model');
 		$this->load->library('form_validation');
 		$this->load->library('email_send');
+		$this->load->library('pagination');
+		$this->load->model('Order_model');
 		//$this->load->library('m_pdf');
 
 	}
@@ -23,8 +25,7 @@ class Vendor extends CI_Controller
 	// Registration
 	public function vendor_registration()
 	{
-		if (!$this->input->is_ajax_request())
-		{
+		if (!$this->input->is_ajax_request()) {
 			show_404();
 		}
 
@@ -32,7 +33,7 @@ class Vendor extends CI_Controller
 		$this->form_validation->set_rules('name', 'Full Name', 'required');
 		$this->form_validation->set_rules('email', 'Email', 'required|valid_email');
 		$this->form_validation->set_rules('mobile', 'Mobile', 'required|regex_match[/^[0-9]{10}$/]');
-		$this->form_validation->set_rules('pincode', 'Mobile', 'required|regex_match[/^[0-9]{6}$/]');
+		$this->form_validation->set_rules('pincode', 'Pincode', 'required|regex_match[/^[0-9]{6}$/]');
 
 		$this->form_validation->set_rules('shop_name', 'Shop Name', 'required');
 		$this->form_validation->set_rules(
@@ -42,8 +43,7 @@ class Vendor extends CI_Controller
 			['regex_match' => 'Please enter a valid GST number.']
 		);
 
-		if ($this->form_validation->run() == false)
-		{
+		if ($this->form_validation->run() == false) {
 			echo json_encode([
 				'status' => 'error',
 				'msg' => strip_tags(validation_errors())
@@ -56,8 +56,7 @@ class Vendor extends CI_Controller
 		$aadhar = $_FILES['aadhar_card']['name'] ?? '';
 		$pan = $_FILES['pan_card']['name'] ?? '';
 
-		if ($this->Vendor_model->check_duplicate($mobile, $aadhar, $pan))
-		{
+		if ($this->Vendor_model->check_duplicate($mobile, $aadhar, $pan)) {
 			echo json_encode(['status' => 'error', 'msg' => 'Already Registered! Approval Pending.']);
 			return;
 		}
@@ -99,8 +98,7 @@ class Vendor extends CI_Controller
 		// ================= INSERT =================
 		$id = $this->Vendor_model->insert_user($data, 'vendors');
 
-		if ($id)
-		{
+		if ($id) {
 			// ================= EMAIL DATA (PASSWORD NOT INCLUDED) =================
 			$mail_data = [
 				'name' => $data['name'],
@@ -132,8 +130,7 @@ class Vendor extends CI_Controller
 				'status' => 'success',
 				'msg' => 'Registered successfully! Please check your email. Waiting for admin approval.'
 			]);
-		} else
-		{
+		} else {
 			echo json_encode(['status' => 'error', 'msg' => 'Something went wrong!']);
 		}
 	}
@@ -142,37 +139,37 @@ class Vendor extends CI_Controller
 	// ================= UPLOAD FUNCTION =================
 	private function _upload_file($field_name, $upload_dir)
 	{
-		if (!empty($_FILES[$field_name]['name']))
-		{
-			if (!is_dir($upload_dir))
-			{
+		if (!empty($_FILES[$field_name]['name'])) {
+
+			if (!is_dir($upload_dir)) {
 				mkdir($upload_dir, 0777, true);
 			}
 
-			$config = [];
-			$config['upload_path'] = $upload_dir;
+			$config['upload_path']   = $upload_dir;
 			$config['allowed_types'] = 'jpg|jpeg|png|pdf';
-			$config['max_size'] = 2048; // 2MB
-			$config['encrypt_name'] = TRUE;
+			$config['max_size']      = 2048;
+			$config['encrypt_name']  = TRUE;
 
-			// IMPORTANT: re-initialize upload library
 			$this->load->library('upload');
 			$this->upload->initialize($config);
 
-			if ($this->upload->do_upload($field_name))
-			{
+			if ($this->upload->do_upload($field_name)) {
+
 				$file = $this->upload->data();
-				return 'assets/vendor_images/' . $file['file_name'];
-			} else
-			{
-				// DEBUG ERROR
+
+				// ✅ Convert absolute path → relative path
+				$relative_path = str_replace(FCPATH, '', $upload_dir);
+
+				return $relative_path . $file['file_name'];
+			} else {
 				echo json_encode([
 					'status' => 'error',
-					'msg' => $this->upload->display_errors()
+					'msg' => strip_tags($this->upload->display_errors())
 				]);
 				exit;
 			}
 		}
+
 		return null;
 	}
 
@@ -194,13 +191,11 @@ class Vendor extends CI_Controller
 		$role = $this->input->post('role');
 		$status = $this->input->post('status');
 
-		if (!$id || !$role)
-		{
+		if (!$id || !$role) {
 			echo json_encode(['status' => 'error', 'msg' => 'Invalid request']);
 			return;
 		}
-		if ($status == 1)
-		{
+		if ($status == 1) {
 
 			$plain_password = str_pad(rand(0, 99999999), 8, '0', STR_PAD_LEFT);
 			$hashed_password = password_hash($plain_password, PASSWORD_BCRYPT);
@@ -219,8 +214,7 @@ class Vendor extends CI_Controller
 			);
 
 			echo json_encode(['status' => 'success', 'msg' => 'Vendor approved and credentials sent']);
-		} else
-		{
+		} else {
 
 			$this->Vendor_model->admin_update_vendor_status($id, $role, 0);
 
@@ -232,8 +226,7 @@ class Vendor extends CI_Controller
 	{
 		$data['vendor'] = $this->Vendor_model->get_admin_vendor_by_id($id);
 
-		if (empty($data['vendor']))
-		{
+		if (empty($data['vendor'])) {
 			show_404();
 		}
 
@@ -249,10 +242,160 @@ class Vendor extends CI_Controller
 	}
 
 
+	public function VendorOrderList()
+	{
+		is_not_logged_in();
+		$this->load->library('pagination');
+
+		$limit  = 10;
+		$pageNo = $this->input->get('per_page');
+		$pageNo = (!empty($pageNo) && $pageNo > 0) ? $pageNo : 1;
+		$offset = ($pageNo - 1) * $limit;
+
+		// ================= FILTERS =================
+		$keywords      = $this->input->post('keywords');
+		$fromDate      = $this->input->post('fromDate');
+		$toDate        = $this->input->post('toDate');
+		$order_status  = $this->input->post('order_status');
+		$delete_status = $this->input->post('delete_status');
+		$customer_name = $this->input->post('customer_name');
+
+		$vendor_id = $this->session->userdata('adminData')['Id'];
+
+		// ================= BASE QUERY =================
+		$this->db->select('o.*, u.username, u.mobile');
+		$this->db->from('order_master o');
+		$this->db->join('purchase_master p', 'p.order_master_id = o.id', 'inner');
+		$this->db->join('user_master u', 'u.id = o.user_master_id', 'left');
+		$this->db->where('p.vendor_id', $vendor_id);
+		$this->db->group_by('o.id');
+
+		// ================= APPLY FILTERS =================
+
+		// 1️⃣ Keywords (Order Number)
+		if (!empty($keywords)) {
+			$this->db->like('o.order_number', $keywords);
+		}
+		// 2️⃣ Customer Name
+		elseif (!empty($customer_name)) {
+			$this->db->like('u.username', $customer_name);
+		}
+		// 3️⃣ Order Status
+		elseif (!empty($order_status)) {
+			$this->db->where('o.status', $order_status);
+		}
+		// 4️⃣ Delete Status
+		elseif (!empty($delete_status) && $delete_status == 'delete') {
+			$this->db->where('o.action_payment', 'delete');
+		}
+		// 5️⃣ Date Range (apply only if BOTH dates are selected)
+		elseif (!empty($fromDate) && !empty($toDate)) {
+			$this->db->where("DATE(FROM_UNIXTIME(o.add_date)) >=", $fromDate);
+			$this->db->where("DATE(FROM_UNIXTIME(o.add_date)) <=", $toDate);
+		} else {
+			// Default: only active orders
+			$this->db->where('o.action_payment', 'Yes');
+		}
+
+		// ================= TOTAL RECORDS =================
+		$clone = clone $this->db;
+		$totalRecords = $clone->count_all_results();
+
+		// ================= FETCH DATA =================
+		$this->db->order_by('o.id', 'DESC');
+		$this->db->limit($limit, $offset);
+		$AllRecord = $this->db->get()->result_array();
+
+		// ================= PAGINATION =================
+		$config['base_url'] = base_url('admin/Vendor/VendorOrderList');
+		$config['total_rows'] = $totalRecords;
+		$config['per_page'] = $limit;
+		$config['use_page_numbers'] = TRUE;
+		$config['page_query_string'] = TRUE;
+		$config['num_links'] = 3;
+		$this->pagination->initialize($config);
+
+		$entries = 'Showing ' . ($offset + 1) . ' to ' . ($offset + count($AllRecord)) . ' of ' . $totalRecords . ' entries';
+
+		$data = [
+			'results' => $AllRecord,
+			'links'   => $this->pagination->create_links(),
+			'entries' => $entries,
+			'index'   => 'VendorOrder',
+			'title'   => 'Sales Report'
+		];
+
+		$this->load->view('include/header', $data);
+		$this->load->view('Vendor/VendorOrderList', $data);
+		$this->load->view('include/footer');
+	}
 
 
 
 
+
+
+	public function VendorViewOrderDetails($order_id)
+	{
+		is_not_logged_in();
+
+		// ✅ CORRECT vendor id
+		$vendorData = $this->session->userdata('adminData');
+		$vendor_id  = $vendorData['Id'];
+
+		// ✅ ORDER MASTER
+		$data['getData'] = $this->Vendor_model->getOrderMaster($order_id);
+
+		// ✅ VENDOR WISE PRODUCTS
+		$data['purchaseData'] = $this->Vendor_model
+			->getVendorPurchase($order_id, $vendor_id);
+
+		// ✅ RETURN CHECK
+		$data['check_return'] = $this->Vendor_model
+			->checkVendorReturn($order_id, $vendor_id);
+
+		$this->load->view('include/header', $data);
+		$this->load->view('Vendor/VendorViewOrderDetails', $data);
+		$this->load->view('include/footer');
+	}
+	public function accept($purchase_id)
+	{
+		$vendor_id = $this->session->userdata('adminData')['Id'];
+
+		$this->db->where([
+			'id' => $purchase_id,
+			'vendor_id' => $vendor_id,
+			'status' => 1
+		])->update('purchase_master', ['status' => 3]);
+
+		redirect($_SERVER['HTTP_REFERER']);
+	}
+
+	public function cancel($purchase_id)
+	{
+		$vendor_id = $this->session->userdata('adminData')['Id'];
+
+		$this->db->where([
+			'id' => $purchase_id,
+			'vendor_id' => $vendor_id,
+			'status' => 1
+		])->update('purchase_master', ['status' => 2]);
+
+		redirect($_SERVER['HTTP_REFERER']);
+	}
+
+	public function ship($purchase_id)
+	{
+		$vendor_id = $this->session->userdata('adminData')['Id'];
+
+		$this->db->where([
+			'id' => $purchase_id,
+			'vendor_id' => $vendor_id,
+			'status' => 3
+		])->update('purchase_master', ['status' => 4]);
+
+		redirect($_SERVER['HTTP_REFERER']);
+	}
 
 
 
@@ -265,17 +408,17 @@ class Vendor extends CI_Controller
 
 
 	// End Registration
-	public function index()
-	{
-		$data['index'] = 'Vendor';
-		$data['index2'] = '';
-		$data['title'] = 'Manage Vendor';
-		$data['getData'] = $this->user_model->getVendotList();
+	// public function index()
+	// {
+	// 	$data['index'] = 'Vendor';
+	// 	$data['index2'] = '';
+	// 	$data['title'] = 'Manage Vendor';
+	// 	$data['getData'] = $this->Vendor_model->getVendotList();
 
-		$this->load->view('include/header', $data);
-		$this->load->view('Vendor/VendorList');
-		$this->load->view('include/footer');
-	}
+	// 	$this->load->view('include/header', $data);
+	// 	$this->load->view('Vendor/VendorList');
+	// 	$this->load->view('include/footer');
+	// }
 
 	public function AddVendor()
 	{
@@ -296,25 +439,20 @@ class Vendor extends CI_Controller
 		$data = $this->input->post();
 		$email = $this->input->post('email');
 		$checkEmail = $this->db->get_where('staff_master', array('email' => $email))->num_rows();
-		if ($checkEmail > 0)
-		{
+		if ($checkEmail > 0) {
 			$this->session->set_flashdata('activate', getCustomAlert('D', '!Opps Email Id Already Exists.Please try again.'));
 			redirect('admin/Vendor/AddVendor/');
-		} else
-		{
+		} else {
 
 			$row = $this->db->insert('staff_master', $data);
-			if ($row > 0)
-			{
+			if ($row > 0) {
 				$this->session->set_flashdata('activate', getCustomAlert('S', 'Seller has been add Successfully.'));
 				redirect('admin/Vendor/index/');
-			} else
-			{
+			} else {
 				$this->session->set_flashdata('activate', getCustomAlert('S', '!Opps Something is worng.Please try again.'));
 				redirect('admin/Vendor/AddVendor/');
 			}
 		}
-
 	}
 
 
@@ -333,23 +471,18 @@ class Vendor extends CI_Controller
 		$tmp_name = $_FILES['uploadFileVendor']['tmp_name'];
 		$targetlocation = BOY_DIRECTORY . $uniqueName;
 
-		if (!empty($fileName))
-		{
+		if (!empty($fileName)) {
 			move_uploaded_file($tmp_name, $targetlocation);
 			$data['profile_pic'] = utf8_encode(trim($uniqueName));
 		}
 		$check = $this->db->get_where('admin_master', array('email' => $data['VendorEmail']))->num_rows();
-		if ($check == '0')
-		{
+		if ($check == '0') {
 			$row = $this->Vendor_model->AddVendorData($data);
-			if ($row > 0)
-			{
+			if ($row > 0) {
 				$this->session->set_flashdata('activate', getCustomAlert('S', ' Vendor has been add Successfully.'));
 				redirect('admin/Vendor/');
 			}
-
-		} else
-		{
+		} else {
 			$this->session->set_flashdata('activate', getCustomAlert('D', '!Opps Email Id Already Exists.Please try again.'));
 			redirect('admin/Vendor/');
 		}
@@ -362,7 +495,6 @@ class Vendor extends CI_Controller
 		$query = $this->db->query("SELECT * FROM `admin_master` where phone_no = '" . $num . "'")->num_rows();
 		/*echo $this->db->last_query();exit;*/
 		echo ($query > 0) ? '1' : '';
-
 	}
 
 	public function VendorStatus($id)
@@ -375,7 +507,6 @@ class Vendor extends CI_Controller
 		$this->db->where('id', $id);
 		$this->db->update('staff_master', $arrayName);
 		echo $arrayName['status'];
-
 	}
 
 
@@ -401,28 +532,22 @@ class Vendor extends CI_Controller
 		$data['id'] = $this->uri->segment(4);
 
 		$check = $this->db->get_where('staff_master', array('email' => $data['email'], 'id !=' => $data['id']))->num_rows();
-		if ($check == '0')
-		{
+		if ($check == '0') {
 			$this->db->select('password');
 			$vendor = $this->db->get_where('staff_master', array('id' => $id))->row_array();
-			if (!empty($data['password']))
-			{
+			if (!empty($data['password'])) {
 				$data['password'] = $data['password'];
-			} else
-			{
+			} else {
 				$data['password'] = $vendor['password'];
 			}
 
 			$this->db->where('id', $id);
 			$row = $this->db->update('staff_master', $data);
-			if ($row > 0)
-			{
+			if ($row > 0) {
 				$this->session->set_flashdata('activate', getCustomAlert('S', ' Vendor has been Updated Successfully.'));
 				redirect('admin/Vendor/');
 			}
-
-		} else
-		{
+		} else {
 			$this->session->set_flashdata('activate', getCustomAlert('D', '!Opps Email Id Already Exists.Please try again.'));
 			redirect('admin/Vendor/');
 		}
@@ -461,13 +586,11 @@ class Vendor extends CI_Controller
 			'regex_match[/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[A-Z0-9]{3}$/]'
 		);
 
-		if (!empty($post['password']))
-		{
+		if (!empty($post['password'])) {
 			$this->form_validation->set_rules('password', 'Password', 'min_length[8]');
 		}
 
-		if ($this->form_validation->run() == FALSE)
-		{
+		if ($this->form_validation->run() == FALSE) {
 			$this->session->set_flashdata(
 				'activate',
 				'<div class="alert alert-danger">' . validation_errors() . '</div>'
@@ -481,14 +604,11 @@ class Vendor extends CI_Controller
 		============================*/
 		$promoter_id = $post['promoter_id'];
 
-		if (empty($promoter_id))
-		{
+		if (empty($promoter_id)) {
 			$promoter_id = NULL;
-		} else
-		{
+		} else {
 			$check = $this->db->get_where('promoters', ['id' => $promoter_id])->row();
-			if (!$check)
-			{
+			if (!$check) {
 				$this->session->set_flashdata(
 					'activate',
 					'<div class="alert alert-danger">Invalid Promoter ID. This promoter does not exist.</div>'
@@ -523,8 +643,7 @@ class Vendor extends CI_Controller
 		/* ===========================
 		   4️⃣ PASSWORD HASHING
 		============================*/
-		if (!empty($post['password']))
-		{
+		if (!empty($post['password'])) {
 			$updateData['password'] = password_hash($post['password'], PASSWORD_BCRYPT);
 		}
 
@@ -547,22 +666,18 @@ class Vendor extends CI_Controller
 			'pan_card' => $docPath
 		];
 
-		foreach ($files as $field => $dir)
-		{
+		foreach ($files as $field => $dir) {
 
-			if (!empty($_FILES[$field]['name']))
-			{
+			if (!empty($_FILES[$field]['name'])) {
 
 				/* 🔎 File Type Validation */
 				$allowed_types = ['jpg', 'jpeg', 'png'];
-				if (in_array($field, ['aadhar_card', 'pan_card']))
-				{
+				if (in_array($field, ['aadhar_card', 'pan_card'])) {
 					$allowed_types[] = 'pdf';
 				}
 
 				$file_ext = pathinfo($_FILES[$field]['name'], PATHINFO_EXTENSION);
-				if (!in_array(strtolower($file_ext), $allowed_types))
-				{
+				if (!in_array(strtolower($file_ext), $allowed_types)) {
 					$this->session->set_flashdata(
 						'activate',
 						'<div class="alert alert-danger">Invalid file type for ' . ucfirst(str_replace('_', ' ', $field)) . '.</div>'
@@ -580,21 +695,16 @@ class Vendor extends CI_Controller
 				$this->load->library('upload', $config);
 				$this->upload->initialize($config);
 
-				if ($this->upload->do_upload($field))
-				{
+				if ($this->upload->do_upload($field)) {
 
 					$fileData = $this->upload->data();
 
-					if ($field == 'profile_pic')
-					{
+					if ($field == 'profile_pic') {
 						$updateData[$field] = 'assets/vendor_profile_image/' . $fileData['file_name'];
-					} else
-					{
+					} else {
 						$updateData[$field] = 'assets/vendor_images/' . $fileData['file_name'];
 					}
-
-				} else
-				{
+				} else {
 					$this->session->set_flashdata(
 						'activate',
 						'<div class="alert alert-danger">' . $this->upload->display_errors() . '</div>'
@@ -665,8 +775,7 @@ class Vendor extends CI_Controller
 	public function ForgetPassword()
 	{
 		$sql = $this->db->query(" SELECT * FROM `admin_master` where email ='" . $_POST['email'] . "'")->row_array();
-		if ($sql > 0)
-		{
+		if ($sql > 0) {
 			$smsmessage = "Your Password Is  :" . base64_decode($sql['password']);
 			$sendmail = $this->sentEmailInfo($sql['email'], $smsmessage);
 
@@ -675,8 +784,7 @@ class Vendor extends CI_Controller
 			//print_r($sendmail);
 			// exit;
 			echo 1;
-		} else
-		{
+		} else {
 			echo 0;
 		}
 	}
@@ -696,9 +804,5 @@ class Vendor extends CI_Controller
 		$headers .= "MIME-Version: 1.0\r\n";
 		$headers .= "Content-type: text/html; charset=utf-8\r\n";
 		mail($to, $subject, '<pre style="font-size:14px;">' . $message . '</pre>', $headers);
-
-
 	}
-
-
 }

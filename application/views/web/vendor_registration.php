@@ -53,19 +53,19 @@
 
                         <!-- Full Name -->
                         <div class="col-md-6">
-                            <label class="form-label">Full Name / Owner Name *</label>
+                            <label class="form-label">Full Name / Owner Name <span class="text-dager">*</span></label>
                             <input type="text" class="form-control" name="name" placeholder="Full Name" required>
                         </div>
 
                         <!-- Email -->
                         <div class="col-md-6">
-                            <label class="form-label">Email *</label>
+                            <label class="form-label">Email <span class="text-dager">*</span></label>
                             <input type="email" class="form-control" name="email" placeholder="Email Address" required>
                         </div>
 
                         <!-- Mobile -->
                         <div class="col-md-6">
-                            <label class="form-label">Mobile *</label>
+                            <label class="form-label">Mobile <span class="text-dager">*</span></label>
                             <input type="text" class="form-control" name="mobile" placeholder="Mobile Number"
                                 maxlength="10" minlength="10" required>
                         </div>
@@ -74,45 +74,45 @@
 
                         <!-- Shop Name -->
                         <div class="col-md-6">
-                            <label class="form-label">Shop / Company Name *</label>
+                            <label class="form-label">Shop / Company Name <span class="text-dager">*</span></label>
                             <input type="text" class="form-control" name="shop_name" placeholder="Shop Name" required>
                         </div>
 
                         <!-- GST -->
                         <div class="col-md-6">
-                            <label class="form-label">GST Number</label>
+                            <label class="form-label">GST Number <span class="text-dager">*</span></label>
                             <input type="text" class="form-control" name="gst_number" placeholder="GST Number">
                         </div>
 
                         <!-- Profile Pic -->
                         <div class="col-md-6">
-                            <label class="form-label">Profile Picture</label>
+                            <label class="form-label">Profile Picture <span class="text-dager">*</span></label>
                             <input type="file" class="form-control" name="profile_pic" accept="image/*">
                         </div>
 
                         <!-- Vendor Logo -->
                         <div class="col-md-6">
-                            <label class="form-label">Vendor Logo</label>
+                            <label class="form-label">Vendor Logo <span class="text-dager">*</span></label>
                             <input type="file" class="form-control" name="vendor_logo" accept="image/*">
                         </div>
 
                         <!-- Aadhaar -->
                         <div class="col-md-6">
-                            <label class="form-label">Aadhaar Card *</label>
+                            <label class="form-label">Aadhaar Card <span class="text-dager">*</span></label>
                             <input type="file" class="form-control" name="aadhar_card" accept="image/*,application/pdf"
                                 required>
                         </div>
 
                         <!-- PAN -->
                         <div class="col-md-6">
-                            <label class="form-label">PAN Card *</label>
+                            <label class="form-label">PAN Card <span class="text-dager">*</span></label>
                             <input type="file" class="form-control" name="pan_card" accept="image/*,application/pdf"
                                 required>
                         </div>
 
                         <!-- Address -->
                         <div class="col-md-6">
-                            <label class="form-label">Address</label>
+                            <label class="form-label">Address <span class="text-dager">*</span></label>
                             <input type="text" class="form-control" name="address" placeholder="Full Address">
                         </div>
 
@@ -136,7 +136,7 @@
 
                         <!-- Pincode -->
                         <div class="col-md-6">
-                            <label class="form-label">Pincode</label>
+                            <label class="form-label">Pincode <span class="text-dager">*</span></label>
                             <input type="number" class="form-control" name="pincode" maxlength="6" minlength="6"
                                 placeholder="Pincode">
                         </div>
