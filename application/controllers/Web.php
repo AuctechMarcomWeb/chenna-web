@@ -11,7 +11,7 @@ class Web extends CI_Controller
     $this->load->model('User_master_model');
     $this->load->model('Review_model');
     $this->load->library('pagination');
-     $this->load->helper(['url', 'text']);
+    $this->load->helper(['url', 'text']);
   }
 
   // Registration
@@ -57,7 +57,7 @@ class Web extends CI_Controller
     if (preg_match('/^\d{10}$/', $mobile_num) && !empty($mobile_otp))
     {
 
-      $text = 'Dear Customer, Your Mobile Verification OTP is: ' . $mobile_otp . '. Please enter this OTP to verify your mobile number. From www.Wazi Wears.in Regards, Wazi Wears Real Time Private Limited';
+      $text = 'Dear Customer, Your Mobile Verification OTP is: ' . $mobile_otp . '. Please enter this OTP to verify your mobile number. From www.Chenna.in Regards, Chenna Real Time Private Limited';
 
       sendSMS($mobile_num, $text, '1007086055987083292');
 
@@ -108,7 +108,7 @@ class Web extends CI_Controller
       // Insert data into ORDER_QUERY table
       // $this->ORDER_QUERY->insert($data);
       $this->db->insert('ORDER_QUERY', $data);
-      $text = 'Dear Customer Your Mobile Verification OTP is: ' . $mobile_otp . ' Please enter this OTP to verify your mobile number. From www.Wazi Wears.inRegardsWazi Wears Real Time Private Limited';
+      $text = 'Dear Customer Your Mobile Verification OTP is: ' . $mobile_otp . ' Please enter this OTP to verify your mobile number. From www.Chenna.inRegardsChenna Real Time Private Limited';
       sendSMS($mobile_num, $text, '1007086055987083292');
       $this->output
         ->set_status_header(200)
@@ -150,14 +150,23 @@ class Web extends CI_Controller
   {
     $pro_id = (int) $this->input->post('pro_id');
     $qty = (int) $this->input->post('quantity');
+
     if ($qty < 1)
       $qty = 1;
+
+    // Fetch product info
     $product_info = $this->db->get_where('sub_product_master', ['id' => $pro_id])->row_array();
+
     if (!$product_info)
     {
-      echo json_encode(['cart_val' => $this->cart->total_items(), 'qty' => 'false']);
+      echo json_encode([
+        'cart_val' => $this->cart->total_items(),
+        'qty' => 'false'
+      ]);
       return;
     }
+
+    // Check if product already in cart to get existing qty
     $total_item = $this->cart->contents();
     $pro_qty = 0;
     foreach ($total_item as $value)
@@ -167,14 +176,19 @@ class Web extends CI_Controller
         $pro_qty = $value['qty'];
       }
     }
+
+    // Check stock
     if ($product_info['quantity'] >= ($pro_qty + $qty))
     {
+      // Clean product name
       $name_clean = str_replace(
         ['"', "'", "(", ")", "#", "&", "|", "/", "-", "_", "@", "$", "*", "!", "?", "%", "+", "=", "~", "`", "^", "<", ">", "{", "}", "[", "]", ";", ":", ",", ".", "\\"],
         '',
         $product_info['product_name']
       );
-      $data = array(
+
+      // Prepare cart data
+      $data = [
         'id' => $product_info['id'],
         'qty' => $qty,
         'size' => $product_info['size'],
@@ -184,9 +198,16 @@ class Web extends CI_Controller
         'final_price' => $product_info['final_price'],
         'gst' => $product_info['gst'],
         'name' => $name_clean,
-        'image' => $product_info['main_image']
-      );
+        'image' => $product_info['main_image'],
+
+        // 🔹 Add vendor_id & promoter_id
+        'vendor_id' => $product_info['vendor_id'],
+        'promoter_id' => $product_info['promoter_id']
+      ];
+
+      // Insert into cart
       $this->cart->insert($data);
+
       echo json_encode([
         'cart_val' => $this->cart->total_items(),
         'qty' => 'true'
@@ -199,6 +220,7 @@ class Web extends CI_Controller
       ]);
     }
   }
+
 
   public function add_to_cart_old()
   {
@@ -288,7 +310,7 @@ class Web extends CI_Controller
     }
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Category | Wazi Wears';
+    $data['title'] = 'Category | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/category_items');
     $this->load->view('web/include/footer');
@@ -299,23 +321,11 @@ class Web extends CI_Controller
 
     $data['wishlist_count'] = !empty($userData) ? $this->web_model->get_total_wishlist_by_user($userData['id']) : 0;
 
-    // $data['productsCollection'] = $this->web_model->getCollectionByTagNameWithRating("Product For You");
-    // $data['mensCollection'] = $this->web_model->getCollectionByTagNameWithRating("Men’s Collections");
-    // $data['womensCollection'] = $this->web_model->getCollectionByTagNameWithRating("Women's Collections");
-    // $data['kidsCollection'] = $this->web_model->getCollectionByTagNameWithRating("Kids Collection");
-    // $data['footwearsCollection'] = $this->web_model->getCollectionByTagNameWithRating("Footwear Collections");
-    // $data['accessoriesCollection'] = $this->web_model->getCollectionByTagNameWithRating("Women's Accessories Collections");
-
-
+    // Tags
     $data['sections'] = $this->web_model->getAllTagSections();
     $data['tagIndex'] = 0;
 
-
-
-
-
-
-    // ✅ Fetch Parent & Child Categories
+    // Categories
     $data['categories'] = $this->db
       ->select('p.id as parent_id, p.name as parent_name, c.id as category_id, c.category_name, c.app_icon')
       ->from('parent_category_master p')
@@ -326,12 +336,28 @@ class Web extends CI_Controller
       ->order_by('c.id', 'ASC')
       ->get()
       ->result_array();
-    $data['title'] = 'Welcome to Wazi Wears | Shop Online with Best Offers‎';
+
+    // === Fetch Ads ===
+    $ads = $this->db
+      ->where('status', 1)
+      ->where_in('img_section', ['fixed', 'bottom'])
+      ->order_by('add_date', 'ASC')
+      ->get('advertisement')
+      ->result_array();
+
+
+    $data['fixedAds'] = array_filter($ads, fn($ad) => $ad['img_section'] === 'fixed');
+    $data['bottomAds'] = array_filter($ads, fn($ad) => $ad['img_section'] === 'bottom');
+
+    // Page title
+    $data['title'] = 'Welcome to Chenna | Shop Online with Best Offers‎';
+
     // Load views
     $this->load->view('web/include/header', $data);
-    $this->load->view('web/home');
-    $this->load->view('web/include/footer');
+    $this->load->view('web/home', $data);
+    $this->load->view('web/include/footer', $data);
   }
+
   public function vegetable_item_list()
   {
     $parent_category_id = 3;
@@ -343,7 +369,7 @@ class Web extends CI_Controller
     $data['getData'] = $result;
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = "Vegetables | Wazi Wears";
+    $data['title'] = "Vegetables | Chenna";
     $this->load->view('web/include/header', $data);
     $this->load->view('web/category_product_list');
     $this->load->view('web/include/cart_footer');
@@ -359,7 +385,7 @@ class Web extends CI_Controller
     $data['getData'] = $result;
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = "Vegetables | Wazi Wears";
+    $data['title'] = "Vegetables | Chenna";
     $this->load->view('web/include/header', $data);
     $this->load->view('web/category_product_list');
     $this->load->view('web/include/cart_footer');
@@ -375,7 +401,7 @@ class Web extends CI_Controller
     $data['getData'] = $result;
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = "Vegetables | Wazi Wears";
+    $data['title'] = "Vegetables | Chenna";
     $this->load->view('web/include/header', $data);
     $this->load->view('web/category_product_list');
     $this->load->view('web/include/cart_footer');
@@ -453,7 +479,6 @@ class Web extends CI_Controller
 
       $product['average_rating'] = round($ratingData['avg_rating'] ?? 0, 1);
       $product['total_reviews'] = $ratingData['total_reviews'] ?? 0;
-
     }
 
 
@@ -590,7 +615,7 @@ class Web extends CI_Controller
         'index2' => '',
         'bannerList' => $bannerList,
         'MainCategoryList' => $MainCategoryList,
-        'title' => $main . ' | ' . $categoryArray['0'] . ' | Wazi Wears',
+        'title' => $main . ' | ' . $categoryArray['0'] . ' | Chenna',
         'index2' => ''
       )
     );
@@ -599,156 +624,67 @@ class Web extends CI_Controller
   }
 
 
-  public function category_product_list($main, $category)
+  // Category Products List Page
+  public function category_product_list($mainSlug, $categorySlug)
   {
-    $userData = $this->session->userdata('User');
-    $user_id = !empty($userData) ? $userData['id'] : null;
-
+    $user_id = $this->session->userdata('User')['id'] ?? null;
     $wishlist_count = !empty($userData)
       ? $this->web_model->get_total_wishlist_by_user($userData['id'])
       : 0;
-
-    $mainName = str_replace('-', ' ', strtolower($main));
-    $cateName = str_replace('-', ' ', strtolower(explode("-", $category)[0]));
-
     // Get main category
-    $mainCategory = $this->db->select('id')
-      ->where('status', 1)
-      ->like('LOWER(name)', $mainName)
-      ->get('parent_category_master')->row_array();
+    $mainCategory = $this->db->get_where('parent_category_master', [
+      'slug' => $mainSlug,
+      'status' => 1
+    ])->row_array();
+    if (!$mainCategory)
+      show_404();
 
-    $categoryRow = $this->db->select('id')
-      ->where('mai_id', $mainCategory['id'] ?? 0)
-      ->where('status', 1)
-      ->like('LOWER(category_name)', $cateName)
-      ->get('category_master')->row_array();
+    // Get category under main
+    $categoryRow = $this->db->get_where('category_master', [
+      'mai_id' => $mainCategory['id'],
+      'slug' => $categorySlug,
+      'status' => 1
+    ])->row_array();
+    if (!$categoryRow)
+      show_404();
 
-    $mainCategoryId = $mainCategory['id'] ?? 0;
-    $categoryId = $categoryRow['id'] ?? 0;
-
-    // Fetch categories with subcategories
-    $categories = $this->db->select('id, category_name')
+    // Get all sibling categories + subcategories
+    $categories = $this->db->select('id, category_name, slug')
+      ->where('mai_id', $mainCategory['id'])
       ->where('status', 1)
-      ->where('mai_id', $mainCategoryId)
+      ->order_by('id', 'ASC')
       ->get('category_master')
       ->result_array();
 
     foreach ($categories as &$cat)
     {
-      $cat['subcategories'] = $this->db->select('id, sub_category_name')
-        ->where('status', 1)
+      $cat['subcategories'] = $this->db->select('id, sub_category_name, slug')
         ->where('category_master_id', $cat['id'])
+        ->where('status', 1)
         ->get('sub_category_master')
         ->result_array();
     }
-    unset($cat);
 
-    $min_price = $this->input->get('min_price');
-    $max_price = $this->input->get('max_price');
-    $size = $this->input->get('size');
-    $rating = $this->input->get('rating');
-    $subCategoryId = $this->input->get('subCategoryId');
-
+    // Price range for this category
     $priceRange = $this->db->select('MIN(final_price) as min_price, MAX(final_price) as max_price')
       ->from('sub_product_master')
       ->where('status', 1)
-      ->where('parent_category_id', $mainCategoryId)
-      ->where('category_id', $categoryId)
-      ->get()
-      ->row_array();
-
-    $min_price_range = $priceRange['min_price'] ?? 0;
-    $max_price_range = $priceRange['max_price'] ?? 1000;
-
-    $limit = 8;
-    $pageNo = $this->input->get('per_page') ?: 1;
-    $offset = ($pageNo - 1) * $limit;
-
-    // Subquery for latest product per SKU
-    $subQuery = $this->db->select('sku_code, MAX(id) as max_id')
-      ->from('sub_product_master')
-      ->where('status', 1)
-      ->where('category_id', $categoryId)
-      ->where('parent_category_id', $mainCategoryId);
-
-    if ($min_price)
-      $subQuery->where('final_price >=', $min_price);
-    if ($max_price)
-      $subQuery->where('final_price <=', $max_price);
-    if ($size)
-      $subQuery->where_in('size', explode(',', $size));
-
-    $subQuery->group_by('sku_code');
-    $subQueryStr = $subQuery->get_compiled_select();
-
-    $this->db->select('sp.*')
-      ->from('sub_product_master sp')
-      ->join("($subQueryStr) latest", 'sp.id = latest.max_id', 'inner')
-      ->order_by('sp.id', 'DESC')
-      ->limit($limit, $offset);
-
-    $AllRecord = $this->db->get()->result_array();
-
-    foreach ($AllRecord as &$product)
-    {
-      $product['variations'] = $this->db->select('id, size, color, final_price, quantity')
-        ->where('sku_code', $product['sku_code'])
-        ->where('status', 1)
-        ->get('sub_product_master')
-        ->result_array();
-
-      $ratingData = $this->db->select('AVG(rating) as avg_rating')
-        ->where('product_id', $product['id'])
-        ->where('status', 1)
-        ->get('customer_review')
-        ->row_array();
-      $product['average_rating'] = round($ratingData['avg_rating'] ?? 0, 1);
-    }
-
-    if ($rating)
-    {
-      $AllRecord = array_filter($AllRecord, fn($p) => $p['average_rating'] >= $rating);
-      $AllRecord = array_values($AllRecord);
-    }
-
-    $totalRecords = $this->db->select('COUNT(*) as total')
-      ->from("($subQueryStr) as temp")->get()->row_array()['total'] ?? 0;
-
-    $config = [
-      'base_url' => current_url() . '?' . http_build_query(array_diff_key($_GET, ['per_page' => ''])),
-      'total_rows' => $totalRecords,
-      'per_page' => $limit,
-      'page_query_string' => TRUE,
-      'use_page_numbers' => TRUE,
-      'query_string_segment' => 'per_page',
-      'reuse_query_string' => TRUE,
-      'num_links' => 2,
-      'cur_tag_open' => '<li class="page-item active"><a class="page-link">',
-      'cur_tag_close' => '</a></li>',
-      'full_tag_open' => '<ul class="pagination">',
-      'full_tag_close' => '</ul>',
-      'first_link' => 'First',
-      'last_link' => 'Last',
-      'next_link' => 'Next',
-      'prev_link' => 'Prev'
-    ];
-    $this->pagination->initialize($config);
+      ->where('parent_category_id', $mainCategory['id'])
+      ->where('category_id', $categoryRow['id'])
+      ->get()->row_array();
 
     $data = [
-      'wishlist_count' => $wishlist_count,
       'user_id' => $user_id,
-      'getData' => $AllRecord,
-      'categories' => $categories, // <- Added categories
-      'mainCategoryId' => $mainCategoryId,
-      'categoryId' => $categoryId,
-      'subCategoryId' => $subCategoryId,
-      'min_price_range' => $min_price_range,
-      'max_price_range' => $max_price_range,
-      'min_price' => $min_price,
-      'max_price' => $max_price,
-      'size' => $size,
-      'rating' => $rating,
-      'title' => ucfirst($main) . ' | ' . ucfirst(explode("-", $category)[0]) . ' | Dukekart'
+      'wishlist_count' => $wishlist_count,
+      'mainCategory' => $mainCategory,
+      'categoryRow' => $categoryRow,
+      'mainCategoryId' => $mainCategory['id'],
+      'categoryId' => $categoryRow['id'],
+      'categories' => $categories,
+      'min_price_range' => $priceRange['min_price'] ?? 0,
+      'max_price_range' => $priceRange['max_price'] ?? 100000,
+      'user_id' => $user_id,
+      'title' => $categoryRow['category_name'] . ' - ' . $mainCategory['name']
     ];
 
     $this->load->view('web/include/header', $data);
@@ -756,7 +692,7 @@ class Web extends CI_Controller
     $this->load->view('web/include/footer');
   }
 
-
+  // AJAX - Filter products
   public function ajax_filter_products()
   {
     $user_id = $this->session->userdata('User')['id'] ?? null;
@@ -794,7 +730,12 @@ class Web extends CI_Controller
     $this->db->from("sub_product_master sp");
     $this->db->join("($subQueryStr) latest", "sp.id=latest.max_id", "inner");
     $this->db->join("customer_review cr", "sp.id=cr.product_id AND cr.status=1", "left");
+
+    $this->db->where('sp.status', 1);
+    $this->db->where('sp.verify_status', 1);
+
     $this->db->group_by('sp.id');
+
 
     if (!empty($rating))
       $this->db->having('avg_rating >=', $rating);
@@ -856,151 +797,221 @@ class Web extends CI_Controller
 
 
 
+
   // Sub-category product list page
-public function sub_category_product_list($mainSlug, $categorySlug, $subSlug)
+  public function sub_category_product_list($mainSlug, $categorySlug, $subSlug)
+  {
+    $userData = $this->session->userdata('User');
+    $user_id = !empty($userData) ? $userData['id'] : null;
+    $wishlist_count = !empty($userData)
+      ? $this->web_model->get_total_wishlist_by_user($userData['id'])
+      : 0;
+
+    // Fetch IDs by slug
+    $mainCategory = $this->db->get_where('parent_category_master', ['slug' => $mainSlug, 'status' => 1])->row_array();
+    $categoryRow = $this->db->get_where('category_master', ['slug' => $categorySlug, 'mai_id' => $mainCategory['id'] ?? 0, 'status' => 1])->row_array();
+    $subCategoryRow = $this->db->get_where('sub_category_master', ['slug' => $subSlug, 'category_master_id' => $categoryRow['id'] ?? 0, 'status' => 1])->row_array();
+
+    if (!$mainCategory || !$categoryRow || !$subCategoryRow)
+      show_404();
+
+    $mainCategoryId = $mainCategory['id'];
+    $categoryId = $categoryRow['id'];
+    $subCategoryId = $subCategoryRow['id'];
+
+    // Price range
+    $priceRange = $this->db->select('MIN(final_price) as min_price, MAX(final_price) as max_price')
+      ->from('sub_product_master')
+      ->where('status', 1)
+      ->where('parent_category_id', $mainCategoryId)
+      ->where('category_id', $categoryId)
+      ->where('sub_category_id', $subCategoryId)
+      ->get()->row_array();
+
+    // Categories + Subcategories
+    $categories = $this->db->select('id, category_name, slug')
+      ->from('category_master')
+      ->where('status', 1)
+      ->where('mai_id', $mainCategoryId)
+      ->get()->result_array();
+
+    foreach ($categories as &$cat)
     {
-        $userData = $this->session->userdata('User');
-        $user_id = !empty($userData) ? $userData['id'] : null;
-
-        // Fetch IDs by slug
-        $mainCategory = $this->db->get_where('parent_category_master', ['slug' => $mainSlug, 'status' => 1])->row_array();
-        $categoryRow = $this->db->get_where('category_master', ['slug' => $categorySlug, 'mai_id' => $mainCategory['id'] ?? 0, 'status' => 1])->row_array();
-        $subCategoryRow = $this->db->get_where('sub_category_master', ['slug' => $subSlug, 'category_master_id' => $categoryRow['id'] ?? 0, 'status' => 1])->row_array();
-
-        if (!$mainCategory || !$categoryRow || !$subCategoryRow)
-            show_404();
-
-        $mainCategoryId = $mainCategory['id'];
-        $categoryId = $categoryRow['id'];
-        $subCategoryId = $subCategoryRow['id'];
-
-        // Price range
-        $priceRange = $this->db->select('MIN(final_price) as min_price, MAX(final_price) as max_price')
-            ->from('sub_product_master')
-            ->where('status', 1)
-            ->where('parent_category_id', $mainCategoryId)
-            ->where('category_id', $categoryId)
-            ->where('sub_category_id', $subCategoryId)
-            ->get()->row_array();
-
-        // Categories + Subcategories
-        $categories = $this->db->select('id, category_name, slug')
-            ->from('category_master')
-            ->where('status', 1)
-            ->where('mai_id', $mainCategoryId)
-            ->get()->result_array();
-
-        foreach ($categories as &$cat)
-        {
-            $cat['subcategories'] = $this->db->select('id, sub_category_name, slug')
-                ->from('sub_category_master')
-                ->where('status', 1)
-                ->where('category_master_id', $cat['id'])
-                ->get()->result_array();
-        }
-
-        $data = [
-            'user_id' => $user_id,
-            'mainCategoryId' => $mainCategoryId,
-            'categoryId' => $categoryId,
-            'subCategoryId' => $subCategoryId,
-            'categories' => $categories,
-            'min_price_range' => $priceRange['min_price'] ?? 0,
-            'max_price_range' => $priceRange['max_price'] ?? 0,
-            'title' => ucfirst($mainSlug) . ' | ' . ucfirst($categorySlug) . ' | ' . ucfirst($subSlug)
-        ];
-
-        $this->load->view('web/include/header', $data);
-        $this->load->view('web/sub_category_product_list', $data);
-        $this->load->view('web/include/footer');
+      $cat['subcategories'] = $this->db->select('id, sub_category_name, slug')
+        ->from('sub_category_master')
+        ->where('status', 1)
+        ->where('category_master_id', $cat['id'])
+        ->get()->result_array();
     }
+
+    $data = [
+      'user_id' => $user_id,
+      'wishlist_count' => $wishlist_count,
+      'mainCategoryId' => $mainCategoryId,
+      'categoryId' => $categoryId,
+      'subCategoryId' => $subCategoryId,
+      'categories' => $categories,
+      'min_price_range' => $priceRange['min_price'] ?? 0,
+      'max_price_range' => $priceRange['max_price'] ?? 0,
+      'title' => ucfirst($mainSlug) . ' | ' . ucfirst($categorySlug) . ' | ' . ucfirst($subSlug)
+    ];
+
+    $this->load->view('web/include/header', $data);
+    $this->load->view('web/sub_category_product_list', $data);
+    $this->load->view('web/include/footer');
+  }
 
 
   // AJAX filter
-public function ajax_filter_subcategory_products()
-{
+  public function ajax_filter_subcategory_products()
+  {
     $user_id = $this->session->userdata('User')['id'] ?? 0;
 
     $mainCategoryId = $this->input->post('mainCategoryId');
     $categoryId = $this->input->post('categoryId');
     $subCategoryId = $this->input->post('subCategoryId');
-    $min_price = (float)$this->input->post('min_price');
-    $max_price = (float)$this->input->post('max_price');
+    $min_price = (float) $this->input->post('min_price');
+    $max_price = (float) $this->input->post('max_price');
     $size = $this->input->post('size');
     $rating = $this->input->post('rating');
-    $page = (int)$this->input->post('page') ?: 1;
-    $perPage = (int)$this->input->post('perPage') ?: 12;
+    $page = (int) $this->input->post('page') ?: 1;
+    $perPage = (int) $this->input->post('perPage') ?: 12;
 
-    $this->db->from('sub_product_master')->where('status', 1);
+    /* =====================================================
+       MAIN PRODUCT QUERY (SKU GROUPED)
+    ====================================================== */
+    $this->db->select('*')
+      ->from('sub_product_master')
+      ->where('status', 1)
+      ->where('verify_status', 1)
+      ->group_by('sku_code');
 
-    if ($mainCategoryId) $this->db->where('parent_category_id', $mainCategoryId);
-    if ($categoryId) $this->db->where_in('category_id', explode(',', $categoryId));
-    if ($subCategoryId) $this->db->where_in('sub_category_id', explode(',', $subCategoryId));
-    if ($size) $this->db->where_in('size', explode(',', $size));
-    if ($min_price) $this->db->where('final_price >=', $min_price);
-    if ($max_price) $this->db->where('final_price <=', $max_price);
+
+    if ($mainCategoryId)
+      $this->db->where('parent_category_id', $mainCategoryId);
+    if ($categoryId)
+      $this->db->where_in('category_id', explode(',', $categoryId));
+    if ($subCategoryId)
+      $this->db->where_in('sub_category_id', explode(',', $subCategoryId));
+    if ($size)
+      $this->db->where_in('size', explode(',', $size));
+    if ($min_price)
+      $this->db->where('final_price >=', $min_price);
+    if ($max_price)
+      $this->db->where('final_price <=', $max_price);
 
     $allProducts = $this->db->order_by('id', 'DESC')->get()->result_array();
     $totalProducts = count($allProducts);
 
-    // Add average rating
+    /* =====================================================
+       AVG RATING
+    ====================================================== */
     $product_ids = array_column($allProducts, 'id');
     $product_avg = [];
-    if ($product_ids) {
-        $ratings = $this->db->select('product_id, AVG(rating) as avg_rating')
-            ->from('customer_review')
-            ->where_in('product_id', $product_ids)
-            ->where('status', 1)
-            ->group_by('product_id')
-            ->get()->result_array();
-        foreach ($ratings as $r) $product_avg[$r['product_id']] = round($r['avg_rating'], 1);
+
+    if (!empty($product_ids))
+    {
+      $ratings = $this->db->select('product_id, AVG(rating) as avg_rating')
+        ->from('customer_review')
+        ->where_in('product_id', $product_ids)
+        ->where('status', 1)
+        ->group_by('product_id')
+        ->get()->result_array();
+
+      foreach ($ratings as $r)
+      {
+        $product_avg[$r['product_id']] = round($r['avg_rating'], 1);
+      }
     }
 
-    foreach ($allProducts as &$p) {
-        $p['avg'] = $product_avg[$p['id']] ?? 0;
-        $p['is_in_wishlist'] = $user_id
-            ? $this->db->where('user_id', $user_id)->where('product_id', $p['id'])->count_all_results('wish_list_master') > 0
-            : 0;
+    foreach ($allProducts as &$p)
+    {
+      $p['avg'] = $product_avg[$p['id']] ?? 0;
+      $p['is_in_wishlist'] = $user_id
+        ? $this->db->where('user_id', $user_id)
+          ->where('product_id', $p['id'])
+          ->count_all_results('wish_list_master') > 0
+        : 0;
     }
+    unset($p);
 
-    // Filter by rating after calculating avg
-    if ($rating) {
-        $ratingsArr = explode(',', $rating);
-        $allProducts = array_filter($allProducts, function ($p) use ($ratingsArr) {
-            foreach ($ratingsArr as $r) {
-                $r = (float)$r;
-                if ($r < 5 && $p['avg'] >= $r && $p['avg'] < $r + 1) return true;
-                if ($r == 5 && $p['avg'] == 5) return true;
-            }
-            return false;
-        });
-        $allProducts = array_values($allProducts);
+    /* =====================================================
+       RATING FILTER (POST PROCESS)
+    ====================================================== */
+    if ($rating)
+    {
+      $ratingsArr = explode(',', $rating);
+      $allProducts = array_filter($allProducts, function ($p) use ($ratingsArr) {
+        foreach ($ratingsArr as $r)
+        {
+          $r = (float) $r;
+          if ($r < 5 && $p['avg'] >= $r && $p['avg'] < ($r + 1))
+            return true;
+          if ($r == 5 && $p['avg'] == 5)
+            return true;
+        }
+        return false;
+      });
+      $allProducts = array_values($allProducts);
     }
 
     $totalProducts = count($allProducts);
 
-    // Pagination slice
+    /* =====================================================
+       PAGINATION
+    ====================================================== */
     $offset = ($page - 1) * $perPage;
     $products = array_slice($allProducts, $offset, $perPage);
 
-    // Sizes for sidebar
+    /* =====================================================
+       SIZE FILTER DATA
+    ====================================================== */
     $sizeQuery = $this->db->distinct()->select('size')
-        ->from('sub_product_master')->where('status', 1);
-    if ($mainCategoryId) $sizeQuery->where('parent_category_id', $mainCategoryId);
-    if ($categoryId) $sizeQuery->where_in('category_id', explode(',', $categoryId));
-    if ($subCategoryId) $sizeQuery->where_in('sub_category_id', explode(',', $subCategoryId));
+      ->from('sub_product_master')
+      ->where('status', 1);
+
+    if ($mainCategoryId)
+      $sizeQuery->where('parent_category_id', $mainCategoryId);
+    if ($categoryId)
+      $sizeQuery->where_in('category_id', explode(',', $categoryId));
+    if ($subCategoryId)
+      $sizeQuery->where_in('sub_category_id', explode(',', $subCategoryId));
+
     $sizesArr = array_column($sizeQuery->get()->result_array(), 'size');
 
+    /* =====================================================
+       🔥 DYNAMIC MIN & MAX PRICE (STATIC ISSUE FIX)
+    ====================================================== */
+    $priceQuery = $this->db->select('MIN(final_price) as min_price, MAX(final_price) as max_price')
+      ->from('sub_product_master')
+      ->where('status', 1);
+
+    if ($mainCategoryId)
+      $priceQuery->where('parent_category_id', $mainCategoryId);
+    if ($categoryId)
+      $priceQuery->where_in('category_id', explode(',', $categoryId));
+    if ($subCategoryId)
+      $priceQuery->where_in('sub_category_id', explode(',', $subCategoryId));
+
+    $priceRow = $priceQuery->get()->row_array();
+
+    $dynamicMin = (int) ($priceRow['min_price'] ?? 0);
+    $dynamicMax = (int) ($priceRow['max_price'] ?? 10000);
+
+    /* =====================================================
+       RESPONSE
+    ====================================================== */
     echo json_encode([
-        'products' => $products,
-        'total' => $totalProducts,
-        'totalPages' => ceil($totalProducts / $perPage),
-        'limit' => $perPage,
-        'sizes' => $sizesArr,
-        'min_price' => $min_price ?? 0,
-        'max_price' => $max_price ?? 10000
+      'products' => $products,
+      'total' => $totalProducts,
+      'totalPages' => ceil($totalProducts / $perPage),
+      'limit' => $perPage,
+      'sizes' => $sizesArr,
+      'min_price' => $dynamicMin,
+      'max_price' => $dynamicMax
     ]);
-}
+  }
+
 
 
 
@@ -1016,7 +1027,7 @@ public function ajax_filter_subcategory_products()
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
     $data['getData'] = $this->web_model->getDataByTag($tag, $id);
-    $data['title'] = $tag . ' products | Wazi Wears';
+    $data['title'] = $tag . ' products | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/tag_product_list');
     $this->load->view('web/include/footer');
@@ -1032,7 +1043,7 @@ public function ajax_filter_subcategory_products()
       ->get_where('order_master', array('id' => $order_id))
       ->row()
       ->pdf_link;
-    $data['title'] = 'Order Details | Wazi Wears ';
+    $data['title'] = 'Order Details | Chenna ';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/order_details');
     $this->load->view('web/include/footer');
@@ -1123,9 +1134,8 @@ public function ajax_filter_subcategory_products()
     $this->load->view('web/order_details', $data);
     $this->load->view('web/include/footer');
   }
-  public function product_detail($id = "")
+  public function product_detail()
   {
-
     $userData = $this->session->userdata('User');
     $user_id = !empty($userData) ? $userData['id'] : null;
 
@@ -1133,52 +1143,83 @@ public function ajax_filter_subcategory_products()
       ? $this->web_model->get_total_wishlist_by_user($user_id)
       : 0;
 
-
+    // product id from URLYYYYYYYY
     $product_id = $this->uri->segment(2);
+
+    // 🔹 PRODUCT DATA
     $data['getData'] = $this->web_model->productDetails($product_id);
 
     if (empty($data['getData']))
+    {
       show_404();
+    }
 
     $data['product'] = $data['getData'];
 
-
+    // 🔹 BRAND NAME
     if (!empty($data['getData']['brand_id']))
     {
-      $brand = $this->db->get_where('brand_master', ['id' => $data['getData']['brand_id']])->row_array();
-      $data['product']['brand_name'] = $brand ? $brand['brand_name'] : 'N/A';
+      $brand = $this->db
+        ->get_where('brand_master', ['id' => $data['getData']['brand_id']])
+        ->row_array();
+
+      $data['product']['brand_name'] = $brand['brand_name'] ?? 'N/A';
     } else
     {
       $data['product']['brand_name'] = 'N/A';
     }
 
-
+    // 🔹 VARIATIONS
     $data['variations'] = $this->db
-      ->select('id, size, color, quantity, price, final_price, main_image, product_code, image1, image2, image3, image4, image5')
+      ->select('id, vendor_id,promoter_id, size, color, quantity, price, final_price,
+                  main_image, product_code, image1, image2, image3, image4, image5')
       ->where('product_code', $data['getData']['product_code'])
-      ->where('status', '1')
+      ->where('status', 1)
       ->get('sub_product_master')
       ->result_array();
 
     $data['colorData'] = array_values(array_unique(array_column($data['variations'], 'color')));
     $data['sizeData'] = array_values(array_unique(array_column($data['variations'], 'size')));
+    $data['extra_fields'] = $this->web_model->getProductExtraFields($product_id);
 
 
-    $data['bannerList'] = $this->web_model->getBannerList();
-    $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['wishlist_count'] = $wishlist_count;
-    $data['title'] = str_replace(' ', '-', strtolower($data['getData']['product_name']));
+    // =====================================================
+    // 🔥 VENDOR + SHOP DATA (MAIN REQUIREMENT)
+    // =====================================================
+    $vendorData = [];
 
+    if (!empty($data['getData']['vendor_id']))
+    {
 
-    $current_product_code = $data['getData']['product_code'] ?? null;
-    $sub_category_id = $data['getData']['sub_category_id'] ?? null;
+      $vendorData = $this->db
+        ->select('
+                v.id AS vendor_id,
+                v.vendor_logo AS vendor_logo,
+                v.shop_name,
+                v.state,
+                v.city
+            ')
+        ->from('vendors v')
+        ->join('shop_master sm', 'sm.id = v.id', 'left')
+        ->where('v.id', $data['getData']['vendor_id'])
+        ->get()
+        ->row_array();
+    }
+
+    $data['vendorData'] = $vendorData;
+
+    // 🔹 RELATED PRODUCTS
+    $current_product_code = $data['getData']['product_code'];
+    $sub_category_id = $data['getData']['sub_category_id'];
 
     $relatedProducts = [];
 
     if ($sub_category_id && $current_product_code)
     {
-      $related = $this->db->select('id, product_name, product_code, main_image, final_price, price, quantity')
-        ->where('status', '1')
+
+      $related = $this->db
+        ->select('id, product_name, product_code, main_image, final_price, price, quantity')
+        ->where('status', 1)
         ->where('sub_category_id', $sub_category_id)
         ->where('product_code !=', $current_product_code)
         ->order_by('id', 'DESC')
@@ -1186,68 +1227,68 @@ public function ajax_filter_subcategory_products()
         ->get('sub_product_master')
         ->result_array();
 
-      $uniqueProducts = [];
+      $unique = [];
+
       foreach ($related as $prod)
       {
-        if (!isset($uniqueProducts[$prod['product_code']]))
+        if (!isset($unique[$prod['product_code']]))
         {
-          $maxQty = $this->db->select_max('quantity')
+
+          $prod['total_qty'] = $this->db
+            ->select_max('quantity')
             ->where('product_code', $prod['product_code'])
-            ->where('status', '1')
+            ->where('status', 1)
             ->get('sub_product_master')
-            ->row()->quantity;
+            ->row()->quantity ?? 0;
 
-          $prod['total_qty'] = $maxQty;
+          $prod['average_rating'] = round(
+            $this->db->select_avg('rating')
+              ->where('product_id', $prod['id'])
+              ->get('customer_review')
+              ->row()->rating ?? 0,
+            1
+          );
 
-
-          $avgRating = $this->db->select_avg('rating')
-            ->where('product_id', $prod['id'])
-            ->get('customer_review')
-            ->row()->rating ?? 0;
-
-          $prod['average_rating'] = round($avgRating, 1);
-
-          $uniqueProducts[$prod['product_code']] = $prod;
+          $unique[$prod['product_code']] = $prod;
         }
       }
 
-      $relatedProducts = array_values($uniqueProducts);
+      $relatedProducts = array_values($unique);
     }
 
     $data['relatedProducts'] = $relatedProducts;
 
+    // 🔹 REVIEWS
     $data['reviews'] = $this->db->query("
-    SELECT 
-        cr.id,
-        cr.product_id,
-        cr.user_name,
-        cr.rating,
-        cr.review_text,
-        cr.image,
-        cr.created_at,
+        SELECT cr.*, 
+            SUM(CASE WHEN rld.action='like' THEN 1 ELSE 0 END) AS like_count,
+            SUM(CASE WHEN rld.action='dislike' THEN 1 ELSE 0 END) AS dislike_count
+        FROM customer_review cr
+        LEFT JOIN review_like_dislike rld ON rld.review_id = cr.id
+        WHERE cr.product_id = ?
+        AND cr.status = 1
+        GROUP BY cr.id
+        ORDER BY cr.created_at DESC
+    ", [$product_id])->result();
 
-        SUM(CASE WHEN rld.action = 'like' THEN 1 ELSE 0 END) AS like_count,
-        SUM(CASE WHEN rld.action = 'dislike' THEN 1 ELSE 0 END) AS dislike_count
-
-    FROM customer_review cr
-    LEFT JOIN review_like_dislike rld ON rld.review_id = cr.id
-    WHERE cr.product_id = ?
-    AND cr.status = 1
-    GROUP BY cr.id
-    ORDER BY cr.created_at DESC
-", [$product_id])->result();
-
-
-    $data['average_rating'] = $this->db->select_avg('rating')
+    $data['average_rating'] = $this->db
+      ->select_avg('rating')
       ->where('product_id', $product_id)
       ->get('customer_review')
       ->row()->rating ?? 0;
 
+    // 🔹 COMMON DATA
+    $data['bannerList'] = $this->web_model->getBannerList();
+    $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
+    $data['wishlist_count'] = $wishlist_count;
+    $data['title'] = url_title($data['getData']['product_name'], '-', true);
 
+    // 🔹 LOAD VIEW
     $this->load->view('web/include/header', $data);
     $this->load->view('web/product_detail', $data);
     $this->load->view('web/include/footer');
   }
+
   public function get_sub_product_ajax()
   {
     $id = $this->input->post('id');
@@ -1325,7 +1366,7 @@ public function ajax_filter_subcategory_products()
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
     $data['getData'] = $this->db->get_where('wish_list_master', array('user_id' => $userData['id']))->result_array();
-    $data['title'] = 'Wish List Details | Wazi Wears';
+    $data['title'] = 'Wish List Details | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/account_wishlist');
     $this->load->view('web/include/footer');
@@ -1338,7 +1379,7 @@ public function ajax_filter_subcategory_products()
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
     $this->db->order_by('id', 'DESC');
     $data['getData'] = $this->db->get_where('order_master', array('user_master_id' => $userData['id'], 'action_payment' => "Yes"))->result_array();
-    $data['title'] = 'Order List | Wazi Wears';
+    $data['title'] = 'Order List | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/account_order');
     $this->load->view('web/include/footer');
@@ -1389,7 +1430,7 @@ public function ajax_filter_subcategory_products()
     // $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
     $data['getWalletData'] = $this->db->get_where('wallet_master', array('user_master_id' => $userData['id']))->row_array();
-    $data['title'] = 'Wallet Details | Wazi Wears';
+    $data['title'] = 'Wallet Details | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/account_wallet', $data);
     $this->load->view('web/include/footer');
@@ -1419,7 +1460,7 @@ public function ajax_filter_subcategory_products()
     $dataa['billing_country'] = 'India';
     $dataa['billing_tel'] = $userData['mobile'];
     $dataa['billing_email'] = $userData['email_id'];
-    $dataa['merchant_param1'] = 'Wazi Wears add money';
+    $dataa['merchant_param1'] = 'Chenna add money';
     $this->load->view('paymentGateway/instomojo', $dataa);
   }
   public function become_a_vendor()
@@ -1429,7 +1470,7 @@ public function ajax_filter_subcategory_products()
     {
       $data['bannerList'] = $this->web_model->getBannerList();
       $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-      $data['title'] = 'Become a vendor | Wazi Wears ';
+      $data['title'] = 'Become a vendor | Chenna ';
       $this->load->view('web/include/header', $data);
       $this->load->view('web/seller');
       $this->load->view('web/include/footer');
@@ -1456,7 +1497,7 @@ public function ajax_filter_subcategory_products()
         $row = $this->db->insert('staff_master', $data);
         $insert_id = $this->db->insert_id();
         //New TEXT*****
-        $text = "Your seller account has been successfully registered with Wazi Wears. Kindly visit https://Wazi Wears.in/seller to start uploading your products on Wazi Wears and start earning Regards Wazi Wears Real Time Private Limited";
+        $text = "Your seller account has been successfully registered with Chenna. Kindly visit https://Chenna.in/seller to start uploading your products on Chenna and start earning Regards Chenna Real Time Private Limited";
         //$text="Seller registration Test";
         // ***OLD TEXT*****
         //$text="Congratulations! You have successfully registered your seller account with us.\r\nUser name : ".$data['name'];
@@ -1464,10 +1505,10 @@ public function ajax_filter_subcategory_products()
         sendSMS($data['mobile'], $text, '1007050631475099664');
         $email_message = 'Dear ' . $data['name'] . ',
           Congratulations and welcome to a whole new world of online marketplace
-          You have provisionally created your Wazi Wears seller account.
+          You have provisionally created your Chenna seller account.
           Kindly complete your seller profile and connect with us to expand your business.
           Your Login id is ' . $data['mobile'] . '';
-        sentCommonEmail($data['email'], $email_message, 'Wazi Wearse Registration Successfully.');
+        sentCommonEmail($data['email'], $email_message, 'Chennae Registration Successfully.');
         $message = '<div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button><strong><h3>Success!</h3></strong>Thanks for registering with us. Now you have to complete your profile and KYC after that you can start listing your product.</div>';
         $this->session->set_flashdata('message', $message);
         redirect(site_url('web/success/' . $insert_id), 'refresh');
@@ -1555,7 +1596,9 @@ public function ajax_filter_subcategory_products()
       $data['bannerList'] = $this->web_model->getBannerList();
       $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
       $data['get_total_orders'] = $this->web_model->get_total_orders_by_user($userData['id']);
-      $data['get_total_wishlist'] = $this->web_model->get_total_wishlist_by_user($userData['id']);
+      $this->db->where('user_id', $userData['id']);
+      $wishlist_count = $this->db->get('wish_list_master')->num_rows();
+      $data['wishlist_count'] = $wishlist_count;
       //$data['getData'] = $this->db->get_where('order_master', array('user_master_id' => $userData['id'], 'action_payment' => "Yes"))->result_array();
       $this->db->from('order_master');
       $this->db->where(array(
@@ -1565,8 +1608,11 @@ public function ajax_filter_subcategory_products()
       $this->db->order_by('id', 'DESC');
       $data['getData'] = $this->db->get()->result_array();
       $data['address_data'] = $this->db->get_where('user_address_master', array('user_master_id' => $userData['id']))->result_array();
-      $data['wishListData'] = $this->db->get_where('wish_list_master', array('user_id' => $userData['id']))->result_array();
-      $data['title'] = 'Account Profile | Wazi Wears';
+      $data['wishListData'] = $this->db->get_where(
+        'wish_list_master',
+        array('user_id' => $userData['id'])
+      )->result_array();
+      $data['title'] = 'Account Profile | Chenna';
       $this->load->view('web/include/header', $data);
       $this->load->view('web/account_profile');
       $this->load->view('web/include/footer');
@@ -1621,7 +1667,7 @@ public function ajax_filter_subcategory_products()
       $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
       $data['getData'] = $this->web_model->getAllUserAddress($userData['id']);
       $data['address_data'] = $this->db->get_where('user_address_master', array('user_master_id' => $userData['id']))->result_array();
-      $data['title'] = 'Account Address List | Wazi Wears';
+      $data['title'] = 'Account Address List | Chenna';
       $this->load->view('web/include/header', $data);
       $this->load->view('web/account_address');
       $this->load->view('web/include/footer');
@@ -1678,7 +1724,7 @@ public function ajax_filter_subcategory_products()
       $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
       $data['getData'] = $this->web_model->getAllUserAddress($userData['id']);
       $data['address_data'] = $this->db->get_where('user_address_master', array('user_master_id' => $userData['id']))->row_array();
-      $data['title'] = 'Add Address | Wazi Wears';
+      $data['title'] = 'Add Address | Chenna';
       $this->load->view('web/include/header', $data);
       $this->load->view('web/add_address');
       $this->load->view('web/include/footer');
@@ -1722,7 +1768,7 @@ public function ajax_filter_subcategory_products()
       $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
       $data['getData'] = $this->web_model->getAllUserAddress($userData['id']);
       $data['address_data'] = $this->db->get_where('user_address_master', array('id' => $id))->row_array();
-      $data['title'] = 'Update Address | Wazi Wears';
+      $data['title'] = 'Update Address | Chenna';
       $this->load->view('web/include/header', $data);
       $this->load->view('web/update_address');
       $this->load->view('web/include/footer');
@@ -1796,12 +1842,12 @@ public function ajax_filter_subcategory_products()
       $user = $result->username;
       $emailid = $result->email_id;
       $mobile = $result->mobile;
-      $message = "Dear customer, Your Order no. -" . $order_number . ", has been cancelled and please contact with our Support team.Thanks .Regards , Wazi Wears Real Time Private Limited , www.Wazi Wears.in ";
+      $message = "Dear customer, Your Order no. -" . $order_number . ", has been cancelled and please contact with our Support team.Thanks .Regards , Chenna Real Time Private Limited , www.Chenna.in ";
       $tempID = '1007492296258821177';
       $this->load->helper('/email/temp5');
       $status = "Order Cancelled";
-      $email_text = "Your order no. " . $order_number . " has been cancelled and please contact with our Support team.Thanks .Regards , Wazi Wears Real Time Private Limited , www.Wazi Wears.in ";
-      $email_body = temp5($status, $user, $email_text, "https://Wazi Wears.in");
+      $email_text = "Your order no. " . $order_number . " has been cancelled and please contact with our Support team.Thanks .Regards , Chenna Real Time Private Limited , www.Chenna.in ";
+      $email_body = temp5($status, $user, $email_text, "https://Chenna.in");
       $subject = "Your order no " . $order_number . " has been delivered";
       sentCommonEmail($emailid, $email_body, $subject);
       sendSMS($mobile, $message, $tempID);
@@ -2001,7 +2047,7 @@ public function ajax_filter_subcategory_products()
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Account Payment | Wazi Wears';
+    $data['title'] = 'Account Payment | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/account_payment');
     $this->load->view('web/include/footer');
@@ -2010,7 +2056,7 @@ public function ajax_filter_subcategory_products()
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Blog | Wazi Wears';
+    $data['title'] = 'Blog | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/blog');
     $this->load->view('web/include/footer');
@@ -2019,13 +2065,12 @@ public function ajax_filter_subcategory_products()
   {
 
     $this->load->view('web/delete_acc_req');
-
   }
   public function blog_list()
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Blog List | Wazi Wears';
+    $data['title'] = 'Blog List | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/blog_list');
     $this->load->view('web/include/footer');
@@ -2034,7 +2079,7 @@ public function ajax_filter_subcategory_products()
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Forgot Password | Wazi Wears';
+    $data['title'] = 'Forgot Password | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/forgot_password');
     $this->load->view('web/include/footer');
@@ -2043,7 +2088,7 @@ public function ajax_filter_subcategory_products()
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Login Registration | Wazi Wears';
+    $data['title'] = 'Login Registration | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/login_registration');
     $this->load->view('web/include/footer');
@@ -2187,7 +2232,7 @@ public function ajax_filter_subcategory_products()
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
     $data['getData'] = $this->db->get_where('user_address_master', ['user_master_id' => $user_id])->result_array();
     $data['address_data'] = $this->db->get_where('user_address_master', ['user_master_id' => $user_id])->row_array();
-    $data['title'] = 'Checkout | Wazi Wears';
+    $data['title'] = 'Checkout | Chenna';
 
     // ---------------------------
     // 2) Checkout items
@@ -2207,6 +2252,8 @@ public function ajax_filter_subcategory_products()
         'size' => $product['size'],
         'qty' => $buyNow['qty'],
         'gst' => $gst_percent,
+        'vendor_id' => $product['vendor_id'] ?? null,
+        'promoter_id' => $product['promoter_id'] ?? null
       ];
     } else
     {
@@ -2222,6 +2269,8 @@ public function ajax_filter_subcategory_products()
           'size' => $item['size'] ?? '',
           'qty' => $item['qty'],
           'gst' => $gst_percent,
+          'vendor_id' => $product['vendor_id'] ?? null,
+          'promoter_id' => $product['promoter_id'] ?? null
         ];
       }
     }
@@ -2294,6 +2343,7 @@ public function ajax_filter_subcategory_products()
   }
 
 
+
   public function buy_now_session()
   {
     $pro_id = $this->input->post('pro_id');
@@ -2310,8 +2360,8 @@ public function ajax_filter_subcategory_products()
     $userData = $this->session->userdata('User');
     if (empty($userData))
       redirect('web/login');
-    $user_id = $userData['id'];
 
+    $user_id = $userData['id'];
     $address_id = $this->input->post('address_id');
     $paymentType = $this->input->post('paymentType') ?? 1;
     $tid = $this->input->post('tid');
@@ -2330,6 +2380,14 @@ public function ajax_filter_subcategory_products()
 
     // Get checkout items from session
     $checkout_items = $this->session->userdata('checkout_items') ?? [];
+
+    // Ensure each item has vendor_id and promoter_id
+    foreach ($checkout_items as $key => $item)
+    {
+      $product = $this->db->get_where('sub_product_master', ['id' => $item['id']])->row_array();
+      $checkout_items[$key]['vendor_id'] = $product['vendor_id'] ?? null;
+      $checkout_items[$key]['promoter_id'] = $product['promoter_id'] ?? null;
+    }
 
     // Fetch applied coupon from session
     $applied_coupon = $this->session->userdata('applied_coupon');
@@ -2388,7 +2446,7 @@ public function ajax_filter_subcategory_products()
     $data['gst_total'] = $gst_total;
     $data['shipping'] = $shipping;
     $data['grand_total'] = $grand_total;
-    $data['title'] = 'Payment | Wazi Wears';
+    $data['title'] = 'Payment | Chenna';
     $data['paymentType'] = $paymentType;
     $data['tid'] = $tid;
 
@@ -2396,6 +2454,7 @@ public function ajax_filter_subcategory_products()
     $this->load->view('web/checkout_payment', $data);
     $this->load->view('web/include/footer');
   }
+
 
   public function get_wishlist_count()
   {
@@ -2419,14 +2478,14 @@ public function ajax_filter_subcategory_products()
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'About-Us | Wazi Wears';
+    $data['title'] = 'About-Us | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/about');
     $this->load->view('web/include/footer');
   }
   public function tersms_conditions()
   {
-    $data['title'] = 'Terms & Conditions | Wazi Wears';
+    $data['title'] = 'Terms & Conditions | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/tersms_conditions');
     $this->load->view('web/include/footer');
@@ -2438,7 +2497,7 @@ public function ajax_filter_subcategory_products()
     {
       $data['bannerList'] = $this->web_model->getBannerList();
       $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-      $data['title'] = 'Contact-Us | Wazi Wears';
+      $data['title'] = 'Contact-Us | Chenna';
       $this->load->view('web/include/header', $data);
       $this->load->view('web/contact');
       $this->load->view('web/include/footer');
@@ -2447,7 +2506,7 @@ public function ajax_filter_subcategory_products()
       $row = $this->db->insert('enquiry_master', $data);
       if ($row > 0)
       {
-        $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button>Thanks! For contacting Wazi Wears.
+        $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button>Thanks! For contacting Chenna.
           We will contact you soon</div></div>');
         redirect('web/contact');
       }
@@ -2457,7 +2516,7 @@ public function ajax_filter_subcategory_products()
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'FAQ | Wazi Wears';
+    $data['title'] = 'FAQ | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/faq');
     $this->load->view('web/include/footer');
@@ -2466,7 +2525,7 @@ public function ajax_filter_subcategory_products()
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Help | Wazi Wears';
+    $data['title'] = 'Help | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/help');
     $this->load->view('web/include/footer');
@@ -2475,7 +2534,7 @@ public function ajax_filter_subcategory_products()
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'FAQ Help Request | Wazi Wears';
+    $data['title'] = 'FAQ Help Request | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/faq_help_request');
     $this->load->view('web/include/footer');
@@ -2484,7 +2543,7 @@ public function ajax_filter_subcategory_products()
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Term Conditions | Wazi Wears';
+    $data['title'] = 'Term Conditions | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/terms&condition');
     $this->load->view('web/include/footer');
@@ -2493,7 +2552,7 @@ public function ajax_filter_subcategory_products()
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Privacy Policy | Wazi Wears';
+    $data['title'] = 'Privacy Policy | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/terms_conditions');
     $this->load->view('web/include/footer');
@@ -2502,7 +2561,7 @@ public function ajax_filter_subcategory_products()
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Privacy Policy | Wazi Wears';
+    $data['title'] = 'Privacy Policy | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/privacy_policy');
     $this->load->view('web/include/footer');
@@ -2511,7 +2570,7 @@ public function ajax_filter_subcategory_products()
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Refund Policy | Wazi Wears';
+    $data['title'] = 'Refund Policy | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/refund_policy');
     $this->load->view('web/include/footer');
@@ -2520,7 +2579,7 @@ public function ajax_filter_subcategory_products()
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Privacy Policy | Wazi Wears';
+    $data['title'] = 'Privacy Policy | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/cancellation_policy');
     $this->load->view('web/include/footer');
@@ -2545,7 +2604,7 @@ public function ajax_filter_subcategory_products()
     $data['getData'] = $this->db->get_where('staff_master', array('id' => $id))->row_array();
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Order Success | Wazi Wears';
+    $data['title'] = 'Order Success | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/registration_success');
     $this->load->view('web/include/footer');
@@ -2577,11 +2636,11 @@ public function ajax_filter_subcategory_products()
     $this->db->where('id', $serller_id);
     $this->db->update('staff_master', array('mobile_otp' => $mobile_otp, 'email_otp' => $email_otp));
 
-    $text = 'Dear ' . $staff['name'] . ' Your Mobile Verification OTP is: ' . $mobile_otp . ' Please enter this OTP to verify your mobile number. From www.Wazi Wears.inRegardsWazi Wears Real Time Private Limited';
+    $text = 'Dear ' . $staff['name'] . ' Your Mobile Verification OTP is: ' . $mobile_otp . ' Please enter this OTP to verify your mobile number. From www.Chenna.inRegardsChenna Real Time Private Limited';
     $this->load->helper('/email/temp9');
     $status = 'Email Verification';
     $user = $staff['name'];
-    $email_text = $email_otp . ' is your email verification OTP. Please use this otp for the verification of your email id with Wazi Wears.';
+    $email_text = $email_otp . ' is your email verification OTP. Please use this otp for the verification of your email id with Chenna.';
     $email_body = temp9($status, $user, $email_text);
     $subject = 'Email Verification OTP';
     sendSMS($staff['mobile'], $text, '1007086055987083292');
@@ -2705,7 +2764,9 @@ public function ajax_filter_subcategory_products()
           'qty' => (int) $buyNow['qty'],
           'size' => $prod['size'] ?? '',
           'color' => $prod['color'] ?? '',
-          'image' => $prod['main_image'] ?? ''
+          'image' => $prod['main_image'] ?? '',
+          'vendor_id' => $prod['vendor_id'] ?? null,
+          'promoter_id' => $prod['promoter_id'] ?? null
         ]
       ];
       $is_buy_now = true;
@@ -2721,6 +2782,7 @@ public function ajax_filter_subcategory_products()
       $total_items = [];
       foreach ($cart_contents as $c)
       {
+        $prod = $this->db->get_where('sub_product_master', ['id' => $c['id']])->row_array();
         $total_items[] = [
           'id' => $c['id'],
           'name' => $c['name'],
@@ -2730,7 +2792,9 @@ public function ajax_filter_subcategory_products()
           'qty' => $c['qty'],
           'size' => $c['size'] ?? '',
           'color' => $c['color'] ?? '',
-          'image' => $c['image'] ?? ''
+          'image' => $c['image'] ?? '',
+          'vendor_id' => $prod['vendor_id'] ?? null,
+          'promoter_id' => $prod['promoter_id'] ?? null
         ];
       }
       $is_buy_now = false;
@@ -2773,12 +2837,11 @@ public function ajax_filter_subcategory_products()
       $gst_rate = !empty($prodInfo['gst']) ? (float) $prodInfo['gst'] : 0;
       $gst_total += ($item_total_after_discount * $gst_rate / 100);
 
-
       $itm['item_discount'] = $item_discount;
       $itm['item_total_after_discount'] = $item_total_after_discount;
     }
 
-
+    // Shipping charge
     $OrderSettings = $this->db->get_where('settings', ['id' => '1'])->row_array();
     $shipping = 0;
     if (!empty($OrderSettings))
@@ -2790,7 +2853,7 @@ public function ajax_filter_subcategory_products()
 
     $grand_total = $subtotal_after_coupon + $gst_total + $shipping;
 
-
+    // Payment Type
     $validPaymentTypes = [1, 2];
     $paymentType = in_array((int) ($data['paymentType'] ?? 1), $validPaymentTypes) ? (int) $data['paymentType'] : 1;
 
@@ -2807,6 +2870,7 @@ public function ajax_filter_subcategory_products()
       'order_number' => $order_number,
       'transaction_id' => $transaction_id,
       'user_master_id' => $userId,
+
       'pdf_link' => base_url('assets/invoice/' . $order_number . '-invoice.pdf'),
       'total_price' => $grand_total,
       'final_price' => $grand_total,
@@ -2827,7 +2891,6 @@ public function ajax_filter_subcategory_products()
     $lastId = $this->db->insert_id();
 
     // Save coupon usage
-
     if (!empty($applied_coupon))
     {
       $coupon_data = [
@@ -2846,16 +2909,15 @@ public function ajax_filter_subcategory_products()
     {
       $this->db->query("UPDATE sub_product_master SET quantity = quantity - " . (int) $itm['qty'] . " WHERE id = " . (int) $itm['id']);
 
-      $product = $this->db->select('product_name, shop_id, main_image, product_hsn, sku_code, gst')
+      $product = $this->db->select('product_name, shop_id, main_image, product_hsn, sku_code, gst, vendor_id, promoter_id')
         ->get_where('sub_product_master', ['id' => $itm['id']])
         ->row_array();
-
-      $shop = $this->db->select('vendor_id')->get_where('shop_master', ['id' => $product['shop_id'] ?? 0])->row_array();
 
       $purchase = [
         'order_master_id' => $lastId,
         'shop_id' => $product['shop_id'] ?? null,
-        'vendor_master_id' => $shop['vendor_id'] ?? null,
+        'vendor_id' => $product['vendor_id'] ?? null,
+        'promoter_id' => $product['promoter_id'] ?? null, // Added promoter_id
         'product_master_id' => $itm['id'],
         'product_name' => $itm['name'],
         'price' => $itm['price'],
@@ -2918,7 +2980,7 @@ public function ajax_filter_subcategory_products()
         'billing_country' => 'India',
         'billing_tel' => $address_data['mobile_number'] ?? '',
         'billing_email' => $userData['email'] ?? '',
-        'merchant_param1' => 'Wazi Wears REAL TIME PRIVATE LIMITED'
+        'merchant_param1' => 'Chenna REAL TIME PRIVATE LIMITED'
       ];
       $this->load->view('paymentGateway/ccavRequestHandler', $gatewayData);
       return;
@@ -2929,6 +2991,7 @@ public function ajax_filter_subcategory_products()
     $this->session->unset_userdata(['buy_now', 'checkout_items']);
     redirect('web/order_success/' . base64_encode($lastId));
   }
+
 
 
   public function cancel_order()
@@ -2973,7 +3036,7 @@ public function ajax_filter_subcategory_products()
     $html .= '<div style="float:left;width:100%; margin-top:20px;">
                     <div style="float:left;width:70%">
                         <div class="image">
-                            <h3>Wazi Wears Real Time Pvt.Ltd.</h3>
+                            <h3>Chenna Real Time Pvt.Ltd.</h3>
                         </div>
                         <div style="margin-left: 30px; top: -60px" >
                             <div style="margin-left: 140px !important;"></div>
@@ -3017,15 +3080,15 @@ public function ajax_filter_subcategory_products()
     $html .= '<div style="float:left;width:100%; margin-top:25px;"><div style="float:left;width:60%"></div><div style="float:right;width:40%"><table><tr><td><p style="font-size:14px;"><b>Total</b></p></td><td>' . $total . '/-</td></tr> <tr><td><p style="font-size:14px;">GST :</p></td><td>' . $gst . '/-</td></tr><tr><td><p style="font-size:14px;">Shipping & Delivery Charge </p></td><td>' . $shippingAmount . '/-</td></tr><tr><td><p style="font-size:14px;">Grand Total </p></td><td><b>' . $TotalValue . '/-</b></td></tr></table>
         <p style="color:red">Note: Including Shipping Charges and taxes.</p></div></div>';
     $html .= '<center> <div>
-        <center><span style="font-weight: 600;font-size: 18px;">Thank you..... <br> <span style="font-size: 15px;font-weight: 700;color: #005512;"> Order By Wazi Wears Real Time Pvt.Ltd.</span>
+        <center><span style="font-weight: 600;font-size: 18px;">Thank you..... <br> <span style="font-size: 15px;font-weight: 700;color: #005512;"> Order By Chenna Real Time Pvt.Ltd.</span>
         <br>
         <span style="font-size: 15px;font-weight: 600;">+91 7460833766</span>
         <br>
-        <span style="font-size: 15px;font-weight: 600;">Wazi Wears110@gmail.com</span>
+        <span style="font-size: 15px;font-weight: 600;">Chenna110@gmail.com</span>
         </span>
         </center>
         </div> </center>';
-    // $html .= '<div style="float:left;width:80%;margin-left:30%"><table><tr><td><p style="font-size:16px;">Thank you...</p>Order By - </td><td><div class="image" style="margin-top:4px;"><br><h4><i>Wazi Wears Pvt. Ltd.</i></h4></div><div style="top: -60px">
+    // $html .= '<div style="float:left;width:80%;margin-left:30%"><table><tr><td><p style="font-size:16px;">Thank you...</p>Order By - </td><td><div class="image" style="margin-top:4px;"><br><h4><i>Chenna Pvt. Ltd.</i></h4></div><div style="top: -60px">
     // </div></td></tr></table></div>
     // ';
     $html .= '<br><p style="text-align:center;">(This is a system generated invoice and does not require a signature.)</p>';
@@ -3058,7 +3121,7 @@ public function ajax_filter_subcategory_products()
     $status = "Order Placed";
     $order_no = $OrderDetail['order_number'];
     $user = $user_info['username'];
-    // $email_text = "Thank You for shopping with Wazi Wears. We would like to let you know that your order has been placed and we are waiting for your order confirmation by the seller. If you would like to view the status of order please visit YOUR ORDERS on Wazi Wears.in";
+    // $email_text = "Thank You for shopping with Chenna. We would like to let you know that your order has been placed and we are waiting for your order confirmation by the seller. If you would like to view the status of order please visit YOUR ORDERS on Chenna.in";
     // $img_link = $img_url;
     // $product_title = $product['product_name'];
     // $size = $purchase['size'];
@@ -3071,10 +3134,10 @@ public function ajax_filter_subcategory_products()
     // $c_name = $user;
     // $c_address = $address_info['address'];
     //$address_info['city']
-//$address_info['state']
+    //$address_info['state']
     $emailid = $user_info['email_id'];
     //Value passing through array
-//$order_details= [];
+    //$order_details= [];
     $this->load->helper('/email/temp1');
     // $email_body = temp1($status, $order_no, $user, $email_text, $img_link, $product_title, $size, $color, $qty, $price, $shipping, $discount, $total, $c_name, $c_address);
     $subject = "Your order no " . $order_no . " placed successful";
@@ -3083,7 +3146,7 @@ public function ajax_filter_subcategory_products()
     //************************ End order placed ********************************************
     $html = '';
     $html .= '<div class="container" style="margin: 0 70px;background-color: white;margin-top:20px;border:4px solid rgb(239,126,45);height: auto;padding: 20px;border-radius: 10px;font-size: 15px;">
-    <img class="img-fluid" src="https://Wazi Wears.in/My-Img/INCONS/SO-logo.png" alt="Wazi Wears" style="position: absolute;top: 0;height: 42px;width: 200px;">
+    <img class="img-fluid" src="https://Chenna.in/My-Img/INCONS/SO-logo.png" alt="Chenna" style="position: absolute;top: 0;height: 42px;width: 200px;">
     <div class="billing-head" style="margin: 0px;float: right;font-size: 15px;font-weight: 500;">
       <div class="row" >
         <div class="col-12"><p style="margin: 0px;float: right;font-size: 15px;font-weight: 500;">Order Placed</p></div>
@@ -3143,7 +3206,7 @@ public function ajax_filter_subcategory_products()
         </table>
         <table style="width:100%; padding: 0px 10% 0 11%; margin: 5px 0px 10px;border: 1.5px solid rgb(239,126,45); padding-bottom: 17px;background: #f5f5f5;">
           <tr>
-            <td><img src="https://Wazi Wears.in/assets/flow.png" alt="Request Flow" style="height: 65px;width:55%;margin-bottom: 10px;"></td>
+            <td><img src="https://Chenna.in/assets/flow.png" alt="Request Flow" style="height: 65px;width:55%;margin-bottom: 10px;"></td>
             <td><span style="padding-top:1em;font-size:15px;font-weight: 500;">Delivery Details</span></td>
           </tr>
           <tr>
@@ -3166,11 +3229,11 @@ public function ajax_filter_subcategory_products()
        <table style="width:100%;padding: 0px 10% 0 13%; margin: 5px 0px 10px;">
          
           <tr>
-            <td><img src="https://Wazi Wears.in/My-Img/INCONS/SO-logo.png" alt="Wazi Wears" style="height: 38px;width: 100px;"></td>
-            <td><img src="https://Wazi Wears.in/assets/google_play.png" alt="Wazi Wears" style="width:100px;margin-top:-12px;"></td>
-            <td><a href="https://www.facebook.com/infoWazi Wears"><img src="https://Wazi Wears.in/assets/facebook.png" alt="Wazi Wears" style="height: 36px;width: 42px;background: transparent;margin-right: 16px;"></a>
-              <a href="https://www.instagram.com/Wazi Wears_official"><img src="https://Wazi Wears.in/assets/instagram.png" alt="Wazi Wears" style="height: 36px;width: 42px;background: transparent;margin-right: 16px;"></a>
-              <a href="https://twitter.com/infoWazi Wears"><img src="https://Wazi Wears.in/assets/twitter.jpg" alt="Wazi Wears" style="height: 36px;width: 42px;background: transparent;margin-right: 16px;"></a></td>
+            <td><img src="https://Chenna.in/My-Img/INCONS/SO-logo.png" alt="Chenna" style="height: 38px;width: 100px;"></td>
+            <td><img src="https://Chenna.in/assets/google_play.png" alt="Chenna" style="width:100px;margin-top:-12px;"></td>
+            <td><a href="https://www.facebook.com/infoChenna"><img src="https://Chenna.in/assets/facebook.png" alt="Chenna" style="height: 36px;width: 42px;background: transparent;margin-right: 16px;"></a>
+              <a href="https://www.instagram.com/Chenna_official"><img src="https://Chenna.in/assets/instagram.png" alt="Chenna" style="height: 36px;width: 42px;background: transparent;margin-right: 16px;"></a>
+              <a href="https://twitter.com/infoChenna"><img src="https://Chenna.in/assets/twitter.jpg" alt="Chenna" style="height: 36px;width: 42px;background: transparent;margin-right: 16px;"></a></td>
           </tr>
         </table>
       </div>';
@@ -3182,7 +3245,7 @@ public function ajax_filter_subcategory_products()
     $to = $email;
     $subject = $sub;
     $message .= "Note - This is a System Generated Mail, please do not reply.\r\n";
-    $headers = "From:" . "support@Wazi Wears.in" . "\r\n";
+    $headers = "From:" . "support@Chenna.in" . "\r\n";
     $headers .= "MIME-Version: 1.0\r\n";
     $headers .= "Content-type: text/html; charset=utf-8\r\n";
     mail($to, $subject, $smsmessage, $headers);
@@ -3257,7 +3320,7 @@ public function ajax_filter_subcategory_products()
     $paymentTypeName = $paymentTypeMap[$payment_type] ?? 'Unknown';
 
     $data = [
-      'title' => 'Order Success | Wazi Wears',
+      'title' => 'Order Success | Chenna',
       'order_data' => $order,
       'address_data' => $address_data,
       'purchase_items' => $purchase_items,
@@ -3302,7 +3365,7 @@ public function ajax_filter_subcategory_products()
     $paymentTypeName = $paymentTypeMap[(int) ($order['payment_type'] ?? 0)] ?? 'Unknown';
 
     $data = [
-      'title' => 'Order Success | Wazi Wears',
+      'title' => 'Order Success | Chenna',
       'order_data' => $order,
       'address_data' => $address,
       'purchase_items' => $items,
@@ -3333,7 +3396,7 @@ public function ajax_filter_subcategory_products()
   text-align: left;
   padding: 8px;
 } </style><h1 style="text-align:center;font-size:34px"><u>Invoice</u></h1>';
-    $html .= '<div style="float:left;width:100%; margin-top:20px;"><div style="float:left;width:70%"><div class="image"><h3>Wazi Wears Real Time Pvt.Ltd.</h3></div><div style="margin-left: 30px; top: -60px" >
+    $html .= '<div style="float:left;width:100%; margin-top:20px;"><div style="float:left;width:70%"><div class="image"><h3>Chenna Real Time Pvt.Ltd.</h3></div><div style="margin-left: 30px; top: -60px" >
                 <div style="margin-left: 140px !important;"></div></div></div><div style="float:left;width:30%;"><div><b style="font-size:15px;"> Order No &nbsp;:</b></b>&nbsp;' . $OrderDetail['order_number'] . '</div><br><b style="font-size:15px;"> Order Date :</b>&nbsp;' . date('d-m-Y', $OrderDetail['add_date']) . ' </div>
          </div></div>';
     $total1 = 0;
@@ -3364,16 +3427,16 @@ public function ajax_filter_subcategory_products()
     $html .= '<div style="float:left;width:100%; margin-top:25px;"><div style="float:left;width:60%"></div><div style="float:right;width:40%"><table><tr><td><p style="font-size:14px;"><b>Total</b></p></td><td>' . $total . '/-</td></tr> <tr><td><p style="font-size:14px;">GST :</p></td><td>' . $gst . '/-</td></tr><tr><td><p style="font-size:14px;">Shipping & Delivery Charge </p></td><td>' . $shippingAmount . '/-</td></tr><tr><td><p style="font-size:14px;">Grand Total </p></td><td><b>' . $TotalValue . '/-</b></td></tr></table>
         <p style="color:red">Note: Including Shipping Charges and taxes.</p></div></div>';
     $html .= '<center> <div>
-        <center><span style="font-weight: 600;font-size: 18px;">Thank you..... <br> <span style="font-size: 15px;font-weight: 700;color: #005512;"> Order By Wazi Wears Real Time Pvt.Ltd.</span>
+        <center><span style="font-weight: 600;font-size: 18px;">Thank you..... <br> <span style="font-size: 15px;font-weight: 700;color: #005512;"> Order By Chenna Real Time Pvt.Ltd.</span>
         <br>
         <span style="font-size: 15px;font-weight: 600;">+91 7460833766</span>
         <br>
-        <span style="font-size: 15px;font-weight: 600;">Wazi Wears110@gmail.com</span>
+        <span style="font-size: 15px;font-weight: 600;">Chenna110@gmail.com</span>
         </span>
        
         </center>
  </div> </center>';
-    // $html .= '<div style="float:left;width:80%;margin-left:30%"><table><tr><td><p style="font-size:16px;">Thank you...</p>Order By - </td><td><div class="image" style="margin-top:4px;"><br><h4><i>Wazi Wears Pvt. Ltd.</i></h4></div><div style="top: -60px">
+    // $html .= '<div style="float:left;width:80%;margin-left:30%"><table><tr><td><p style="font-size:16px;">Thank you...</p>Order By - </td><td><div class="image" style="margin-top:4px;"><br><h4><i>Chenna Pvt. Ltd.</i></h4></div><div style="top: -60px">
     // </div></td></tr></table></div>
     // ';
     $html .= '<br><p style="text-align:center;">(This is a system generated invoice and does not require a signature.)</p>';
@@ -4792,5 +4855,4 @@ public function ajax_filter_subcategory_products()
       ]);
     }
   }
-
 }

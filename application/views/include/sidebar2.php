@@ -13,8 +13,7 @@
     </li>
 
     <!-- ======================== ADMIN MENU ======================== -->
-    <?php if ($adminData['Type'] == 1)
-    { ?>
+    <?php if ($adminData['Type'] == 1) { ?>
 
       <li class="<?php echo (($index == 'Users') ? 'active' : ''); ?>">
         <a href="<?php echo site_url('admin/Users'); ?>">
@@ -103,22 +102,12 @@
 
 
     <!-- ======================== VENDOR MENU ======================== -->
-    <?php if ($adminData['Type'] == 2)
-    { ?>
+    <?php if ($adminData['Type'] == 2) { ?>
 
-      <!-- <li class="<?php echo (($index == 'Vendor') ? 'active' : ''); ?>">
-        <a href="<?php echo site_url('admin/Users/myAccount'); ?>">
-          <i class="fa fa-user"></i> <span>My Account</span>
-        </a>
-      </li>
+      
 
-      <li class="<?php echo (($index == 'shop') ? 'active' : ''); ?>">
-        <a href="<?php echo site_url('admin/Shop'); ?>">
-          <i class="fa fa-building"></i> <span>Manage Shop</span>
-        </a>
-      </li> -->
-
-      <li class="treeview <?php echo (($index == 'Product' || $index == 'bulk') ? 'active' : ''); ?>">
+      <!-- PRODUCTS -->
+      <li class="treeview <?php echo (($index == 'Product') ? 'active' : ''); ?>">
         <a href="#">
           <i class="fa fa-filter"></i> <span>Products Management</span>
           <span class="pull-right-container">
@@ -127,40 +116,36 @@
         </a>
 
         <ul class="treeview-menu">
-          <li class="<?php echo (($index == 'Product') ? 'active' : ''); ?>">
-            <a href="<?php echo site_url('admin/Product/VendorProductList' ); ?>">
+          <li class="<?php echo (($index == 'VendorProduct') ? 'active' : ''); ?>">
+            <a href="<?php echo site_url('admin/Product/VendorProductList'); ?>">
               <i class="fa fa-circle-o"></i> Manage Products
             </a>
           </li>
 
-          <li class="<?php echo (($index == 'product_list') ? 'active' : ''); ?>">
+          <li class="<?php echo (($index == 'ProductList') ? 'active' : ''); ?>">
             <a href="<?php echo site_url('admin/Product/all-product-list-vendor/' . $adminData['Id']); ?>">
               <i class="fa fa-circle-o"></i> Product List
             </a>
           </li>
-
-          <!-- <li class="<?php echo (($index == 'bulk') ? 'active' : ''); ?>">
-            <a href="<?php echo site_url('admin/Product/AddBulkProduct'); ?>">
-              <i class="fa fa-circle-o"></i> Add Bulk Products
-            </a>
-          </li> -->
         </ul>
       </li>
 
-      <li>
-        <a href="#">
-          <i class="fa fa-reorder"></i> <span>Sales Report</span>
+      <!-- SALES / ORDERS -->
+      <li class="<?php echo (($index == 'VendorOrder') ? 'active' : ''); ?>">
+        <a href="<?php echo site_url('admin/Vendor/VendorOrderList'); ?>">
+          <i class="fa fa-cart-plus"></i> <span>Manage Orders</span>
         </a>
       </li>
 
-      <li>
+      <!-- SETTINGS -->
+      <li class="<?php echo (($index == 'VendorSetting') ? 'active' : ''); ?>">
         <a href="<?php echo site_url('admin/Vendor/UpdateVendorProfile/' . $adminData['Id']); ?>">
           <i class="fa fa-gears"></i> <span>Manage Settings</span>
         </a>
       </li>
 
-
     <?php } ?>
+
 
   </ul>
 </section>

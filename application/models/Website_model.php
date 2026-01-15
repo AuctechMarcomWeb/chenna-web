@@ -483,6 +483,13 @@ class Website_model extends CI_Model
         ])->row_array();
     }
 
+    public function getProductExtraFields($product_id)
+    {
+        return $this->db
+            ->where('product_id', $product_id)
+            ->get('product_extra_fields')
+            ->result_array();
+    }
 
 
 }

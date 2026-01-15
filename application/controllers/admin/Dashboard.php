@@ -12,6 +12,7 @@ class Dashboard extends CI_Controller
 		$this->load->helper('api');
 		$this->load->model('user_model');
 		$this->load->library('form_validation');
+		$this->load->model('Vendor_model');
 		// $this->load->library('GlobalClass');
 		// $this->load->library('pagination');
 		is_not_logged_in();
@@ -40,7 +41,6 @@ class Dashboard extends CI_Controller
 		$this->db->where('id', $id);
 		$this->db->update('offer_master', $arrayName);
 		echo $arrayName['status'];
-
 	}
 	public function pincode()
 	{
@@ -175,7 +175,6 @@ class Dashboard extends CI_Controller
 			);
 			$update_data = $this->db->where('id', $row_id)->update($table_name, $data);
 			return 2;
-
 		} else if ($qry['status'] == '2')
 		{
 
@@ -185,7 +184,6 @@ class Dashboard extends CI_Controller
 			);
 			$update_data = $this->db->where('id', $row_id)->update($table_name, $data);
 			return 1;
-
 		}
 	}
 
@@ -206,9 +204,7 @@ class Dashboard extends CI_Controller
 
 	public function index($id = '')
 	{
-
 		is_not_logged_in();
-
 
 		$user = $this->session->userdata('adminData');
 
@@ -216,33 +212,38 @@ class Dashboard extends CI_Controller
 		{
 			redirect('admin/Welcome');
 		}
+
 		$data = [];
+		$this->load->model('Order_model');
 
 		if ($user['Type'] == 1)
 		{
-			// ---------------- ADMIN DASHBOARD ----------------
+			// Admin dashboard
 			$data['title'] = 'Admin Dashboard';
 			$data['index'] = 'index';
-			$this->load->model('Order_model');
 			$data['order_summary'] = $this->Order_model->getOrderSummary();
-			$this->load->view('include/header', $data);
-			$this->load->view('dashboard/index');
-			$this->load->view('include/footer');
+			$data['total_vendors'] = count($this->Vendor_model->get_all_vendors());
 		} else if ($user['Type'] == 2)
 		{
-			// ---------------- VENDOR DASHBOARD ----------------
+			// Vendor dashboard
 			$data['title'] = 'Vendor Dashboard';
 			$data['index'] = 'index';
-			$this->load->model('Order_model');
-			$data['order_summary'] = $this->Order_model->getOrderSummary();
-			$this->load->view('include/header', $data);
-			$this->load->view('dashboard/index');
-			$this->load->view('include/footer');
+
+			// Fetch order summary from purchase_master
+			$data['order_summary'] = $this->Order_model->getPurchaseSummary($user['Id']);
+
+			// Fetch total products for vendor
+			$data['total_products'] = $this->Order_model->TotalGetProducts($user['Id']);
 		} else
 		{
 			redirect('admin/Welcome');
 		}
+
+		$this->load->view('include/header', $data);
+		$this->load->view('dashboard/index');
+		$this->load->view('include/footer');
 	}
+
 
 	public function change_password($id = '')
 	{
@@ -385,7 +386,6 @@ class Dashboard extends CI_Controller
 		$this->db->where('id', $id);
 		$this->db->update('deliver_boy_master', $arrayName);
 		echo $arrayName['status'];
-
 	}
 	public function AddBoyData()
 	{
@@ -514,47 +514,78 @@ class Dashboard extends CI_Controller
 	public function addParentCategory()
 	{
 		is_not_logged_in();
-		$data = $this->input->post();
 
-		if (empty($data))
+		// ---------- SHOW FORM ----------
+		if ($this->input->method() !== 'post')
 		{
-			$data['index'] = 'addctgy';
-			$data['index2'] = '';
-			$data['title'] = 'Add Application';
-			$this->load->view('include/header', $data);
+			$viewData['index'] = 'addctgy';
+			$viewData['index2'] = '';
+			$viewData['title'] = 'Add Application';
+
+			$this->load->view('include/header', $viewData);
 			$this->load->view('category/add_parent_category');
 			$this->load->view('include/footer');
+			return;
+		}
+
+		// ---------- HANDLE POST ----------
+		$name = trim($this->input->post('name'));
+
+		if (empty($name))
+		{
+			$this->session->set_flashdata(
+				'activate',
+				getCustomAlert('E', 'Category name is required.')
+			);
+			redirect('admin/Dashboard/parentCategory/');
+		}
+
+		// 🔹 SLUG GENERATE
+		$slug = strtolower($name);
+		$slug = preg_replace('/[^a-z0-9\s-]/', '', $slug);
+		$slug = preg_replace('/\s+/', '-', $slug);
+		$slug = trim($slug, '-');
+
+		// 🔹 CHECK DUPLICATE SLUG
+		$exists = $this->db
+			->where('slug', $slug)
+			->get('parent_category_master')
+			->row();
+
+		if ($exists)
+		{
+			$this->session->set_flashdata(
+				'activate',
+				getCustomAlert('E', 'Category already exists.')
+			);
+			redirect('admin/Dashboard/parentCategory/');
+		}
+
+		// 🔹 INSERT DATA
+		$insertData = [
+			'name' => $name,
+			'slug' => $slug,
+			'status' => 1,
+			'add_date' => date('Y-m-d H:i:s')
+		];
+
+		if ($this->db->insert('parent_category_master', $insertData))
+		{
+			$this->session->set_flashdata(
+				'activate',
+				getCustomAlert('S', 'Category added successfully.')
+			);
 		} else
 		{
-			$name = $this->input->post('name');
-
-			// 🔹 SLUG GENERATE
-			$slug = strtolower($name);                     // lowercase
-			$slug = preg_replace('/[^a-z0-9\s-]/', '', $slug); // special characters remove
-			$slug = preg_replace('/\s+/', '-', $slug);    // spaces to hyphen
-			$slug = trim($slug, '-');                     // extra - remove
-
-			// 🔹 DATA ARRAY
-			$insertData = [
-				'name' => $name,
-				'slug' => $slug,
-				'status' => 1,
-				'add_date' => date('Y-m-d H:i:s')
-			];
-
-			$row = $this->db->insert('parent_category_master', $insertData);
-
-			if ($row)
-			{
-				$this->session->set_flashdata('activate', getCustomAlert('S', 'Category has been added Successfully.'));
-				redirect('admin/Dashboard/parentCategory/');
-			} else
-			{
-				$this->session->set_flashdata('activate', getCustomAlert('E', 'Oops! Something went wrong. Please try again.'));
-				redirect('admin/Dashboard/parentCategory/');
-			}
+			$this->session->set_flashdata(
+				'activate',
+				getCustomAlert('E', 'Database error. Please try again.')
+			);
 		}
+
+		redirect('admin/Dashboard/parentCategory/');
 	}
+
 
 
 
@@ -562,48 +593,164 @@ class Dashboard extends CI_Controller
 	{
 		$data = $this->input->post();
 
-		$fileName = $_FILES["uploadFileApp"]["name"];
-		$extension = explode('.', $fileName);
-		$extension = strtolower(end($extension));
-		$uniqueName = uniqid() . '.' . $extension;
-		$type = $_FILES["uploadFileApp"]["type"];
-		$size = $_FILES["uploadFileApp"]["size"];
-		$tmp_name = $_FILES['uploadFileApp']['tmp_name'];
-		$targetlocation = IMAGE_DIRECTORY . $uniqueName;
-		if (!empty($fileName))
+		/* ---------- CATEGORY NAME REQUIRED ---------- */
+		if (empty($data['name']))
 		{
-			move_uploaded_file($tmp_name, $targetlocation);
-			$data['app_icon'] = utf8_encode(trim($uniqueName));
+			$this->session->set_flashdata(
+				'activate',
+				getCustomAlert('E', 'Category name is required.')
+			);
+			redirect('admin/Dashboard/Category/' . $data['mai_id']);
 		}
 
+		/* ---------- SLUG GENERATE ---------- */
+		$slug = strtolower(trim($data['name']));
+		$slug = preg_replace('/[^a-z0-9\s-]/', '', $slug);
+		$slug = preg_replace('/\s+/', '-', $slug);
+		$slug = trim($slug, '-');
 
-		$row = $this->user_model->addCategoryData($data);
-		if ($row > 0)
+		/* ---------- DUPLICATE SLUG CHECK ---------- */
+		$exists = $this->db
+			->where('slug', $slug)
+			->where('mai_id', $data['mai_id'])
+			->get('category_master')
+			->row();
+
+		if ($exists)
 		{
-			$this->session->set_flashdata('activate', getCustomAlert('S', 'Category has been add Successfully.'));
+			$this->session->set_flashdata(
+				'activate',
+				getCustomAlert('E', 'Category already exists.')
+			);
 			redirect('admin/Dashboard/Category/' . $data['mai_id']);
+		}
+
+		$data['slug'] = $slug;
+
+		/* ---------- IMAGE UPLOAD ---------- */
+		if (!empty($_FILES["uploadFileApp"]["name"]))
+		{
+			$fileName = $_FILES["uploadFileApp"]["name"];
+			$extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+			$uniqueName = uniqid() . '.' . $extension;
+			$targetlocation = IMAGE_DIRECTORY . $uniqueName;
+
+			move_uploaded_file($_FILES['uploadFileApp']['tmp_name'], $targetlocation);
+			$data['app_icon'] = $uniqueName;
+		}
+
+		/* ---------- INSERT ---------- */
+		$row = $this->user_model->addCategoryData($data);
+
+		if ($row)
+		{
+			$this->session->set_flashdata(
+				'activate',
+				getCustomAlert('S', 'Category added successfully.')
+			);
 		} else
 		{
-			$this->session->set_flashdata('activate', getCustomAlert('S', '!Opps Something is worng.Please try again.'));
-			redirect('admin/Dashboard/Category/' . $data['mai_id']);
+			$this->session->set_flashdata(
+				'activate',
+				getCustomAlert('E', 'Oops! Something went wrong.')
+			);
 		}
+
+		redirect('admin/Dashboard/Category/' . $data['mai_id']);
 	}
+
 
 	public function UpdateCategory()
 	{
 		is_not_logged_in();
 		$id = $this->uri->segment(4);
-		$data['index'] = 'UpdCatgy';
-		$data['index2'] = '';
-		$data['title'] = 'Update Category';
-		$data['getData'] = $this->user_model->getCatgy_Data($id);
-		// print_r($data['getData']); exit;
-		$this->load->view('include/header', $data);
-		$this->load->view('category/edit');
-		$this->load->view('include/footer');
 
+		/* ---------- SHOW EDIT FORM ---------- */
+		if ($this->input->method() !== 'post')
+		{
+			$data['index'] = 'UpdCatgy';
+			$data['index2'] = '';
+			$data['title'] = 'Update Category';
+			$data['getData'] = $this->user_model->getCatgy_Data($id);
 
+			$this->load->view('include/header', $data);
+			$this->load->view('category/edit');
+			$this->load->view('include/footer');
+			return;
+		}
+
+		/* ---------- HANDLE UPDATE ---------- */
+		$post = $this->input->post();
+
+		if (empty($post['name']))
+		{
+			$this->session->set_flashdata(
+				'activate',
+				getCustomAlert('E', 'Category name is required.')
+			);
+			redirect('admin/Dashboard/UpdateCategory/' . $id);
+		}
+
+		/* ---------- SLUG GENERATE ---------- */
+		$slug = strtolower(trim($post['name']));
+		$slug = preg_replace('/[^a-z0-9\s-]/', '', $slug);
+		$slug = preg_replace('/\s+/', '-', $slug);
+		$slug = trim($slug, '-');
+
+		/* ---------- DUPLICATE SLUG CHECK ---------- */
+		$exists = $this->db
+			->where('slug', $slug)
+			->where('mai_id', $post['mai_id'])
+			->where('id !=', $id)
+			->get('category_master')
+			->row();
+
+		if ($exists)
+		{
+			$this->session->set_flashdata(
+				'activate',
+				getCustomAlert('E', 'Category already exists.')
+			);
+			redirect('admin/Dashboard/UpdateCategory/' . $id);
+		}
+
+		$updateData = [
+			'name' => $post['name'],
+			'slug' => $slug
+		];
+
+		/* ---------- IMAGE UPDATE ---------- */
+		if (!empty($_FILES['uploadFileApp']['name']))
+		{
+			$ext = strtolower(pathinfo($_FILES['uploadFileApp']['name'], PATHINFO_EXTENSION));
+			$uniqueName = uniqid() . '.' . $ext;
+			$target = IMAGE_DIRECTORY . $uniqueName;
+
+			move_uploaded_file($_FILES['uploadFileApp']['tmp_name'], $target);
+			$updateData['app_icon'] = $uniqueName;
+		}
+
+		/* ---------- UPDATE QUERY ---------- */
+		$this->db->where('id', $id);
+		$update = $this->db->update('category_master', $updateData);
+
+		if ($update)
+		{
+			$this->session->set_flashdata(
+				'activate',
+				getCustomAlert('S', 'Category updated successfully.')
+			);
+		} else
+		{
+			$this->session->set_flashdata(
+				'activate',
+				getCustomAlert('E', 'Nothing changed or update failed.')
+			);
+		}
+
+		redirect('admin/Dashboard/Category/' . $post['mai_id']);
 	}
+
 
 	// public function UpdateParenrCategory($id)
 	// {
@@ -754,7 +901,6 @@ class Dashboard extends CI_Controller
 		$this->load->view('include/header', $data);
 		$this->load->view('category/SubcatgyList');
 		$this->load->view('include/footer');
-
 	}
 
 	public function addSubCategory()
@@ -811,14 +957,11 @@ class Dashboard extends CI_Controller
 			$this->session->set_flashdata('activate', getCustomAlert('S', 'Sub-Category has been add Successfully.'));
 
 			redirect('admin/Dashboard/subCatgy/' . $data['Catid']);
-
-
 		} else
 		{
 
 			$this->session->set_flashdata('activate', getCustomAlert('S', '!Opps Something is worng.Please try again.'));
 			redirect('admin/Dashboard/subCatgy/' . $data['Catid']);
-
 		}
 	}
 
@@ -836,8 +979,6 @@ class Dashboard extends CI_Controller
 		$this->load->view('include/header', $data);
 		$this->load->view('category/SubCatgyedit');
 		$this->load->view('include/footer');
-
-
 	}
 	public function AddOffer()
 	{
@@ -866,7 +1007,6 @@ class Dashboard extends CI_Controller
 		$this->db->where('id', $id);
 		$this->db->update('category_master', $arrayName);
 		echo $arrayName['status'];
-
 	}
 
 	public function getCatOffer()
@@ -934,8 +1074,6 @@ class Dashboard extends CI_Controller
 		{
 			$this->session->set_flashdata('activate', getCustomAlert('S', 'Sub-Category has been update Successfully.'));
 			redirect('admin/Dashboard/subCatgy/' . $data['catId']);
-
-
 		} elseif ($row == 2)
 		{
 			$this->session->set_flashdata('activate', getCustomAlert('W', 'Sub-Category Already Exsist.'));
@@ -1019,7 +1157,7 @@ class Dashboard extends CI_Controller
 		if (!empty($fileName))
 		{
 			move_uploaded_file($tmp_name, $targetlocation);
-			$data['brand_image'] = utf8_encode(trim($uniqueName));
+			$data['brand_images'] = utf8_encode(trim($uniqueName));
 		}
 
 		$row = $this->user_model->addBrandData($data);
@@ -1047,8 +1185,6 @@ class Dashboard extends CI_Controller
 		$this->load->view('include/header', $data);
 		$this->load->view('Brand/editbrand');
 		$this->load->view('include/footer');
-
-
 	}
 	public function UpdateBrandData()
 	{
@@ -1091,8 +1227,6 @@ class Dashboard extends CI_Controller
 		$this->db->where('id', $id);
 		$this->db->update('brand_master', $arrayName);
 		echo $arrayName['status'];
-
-
 	}
 	public function UnitList()
 	{
@@ -1147,7 +1281,6 @@ class Dashboard extends CI_Controller
 			$this->load->view('include/header', $data);
 			$this->load->view('manageTag/addTag');
 			$this->load->view('include/footer');
-
 		} else
 		{
 			// 🔹 Insert Tag
@@ -1209,10 +1342,13 @@ class Dashboard extends CI_Controller
 			return;
 		}
 
-		$products = $this->db->get_where('sub_product_master', [
-			'sub_category_id' => $sub_id,
-			'status' => 1
-		])->result_array();
+		// Get products grouped by sku_code
+		$this->db->select('*, MIN(id) as id'); // pick first id per sku_code
+		$this->db->from('sub_product_master');
+		$this->db->where('sub_category_id', $sub_id);
+		$this->db->where('status', 1);
+		$this->db->group_by('sku_code'); // group by SKU
+		$products = $this->db->get()->result_array();
 
 		if (empty($products))
 		{
@@ -1231,6 +1367,7 @@ class Dashboard extends CI_Controller
               </div>';
 		}
 	}
+
 	public function getProductsSubCategory()
 	{
 		$sub_ids = $this->input->post('sub_ids');
@@ -1358,7 +1495,6 @@ class Dashboard extends CI_Controller
 			$this->load->view('include/header', $data);
 			$this->load->view('manageTag/updateTag');
 			$this->load->view('include/footer');
-
 		} else
 		{
 
@@ -1708,8 +1844,6 @@ class Dashboard extends CI_Controller
 			$this->session->set_flashdata('activate', getCustomAlert('S', '!Opps Something is worng.Please try again.'));
 			redirect('admin/Dashboard/Distinguish/');
 		}
-
-
 	}
 	public function DistStatus()
 	{
@@ -1828,7 +1962,6 @@ class Dashboard extends CI_Controller
 		$this->load->view('include/header', $data);
 		$this->load->view('admin/editedProfile');
 		$this->load->view('include/footer');
-
 	}
 
 	public function UpdateAdminProfile($id = '')
@@ -1870,14 +2003,11 @@ class Dashboard extends CI_Controller
 				$this->session->set_flashdata('activate', getCustomAlert('S', 'Profile Updated Successfully.'));
 				redirect('admin/Dashboard/GetAdminProfile/' . $data['id']);
 			}
-
 		} else
 		{
 			$this->session->set_flashdata('activate', getCustomAlert('D', '!Opps Email Id Already Exists.Please try again.'));
 			redirect('admin/Dashboard/GetAdminProfile/' . $data['id']);
-
 		}
-
 	}
 
 	public function OfferList()
@@ -1956,7 +2086,6 @@ class Dashboard extends CI_Controller
 		{
 			$this->session->set_flashdata('activate', getCustomAlert('W', ' Offers Already Added this Category.'));
 			redirect('admin/Dashboard/OfferList/');
-
 		}
 	}
 
@@ -2010,9 +2139,7 @@ class Dashboard extends CI_Controller
 			{
 				$this->session->set_flashdata('activate', getCustomAlert('W', ' Offers Already Added this Category.'));
 				redirect('admin/Dashboard/OfferList/');
-
 			}
-
 		}
 	}
 
@@ -2132,7 +2259,6 @@ class Dashboard extends CI_Controller
 
 					$html .= '<option value ="' . $value['id'] . '"   >' . $value['sub_category_name'] . '</option>';
 				}
-
 			}
 			echo $html;
 		} else
@@ -2197,7 +2323,6 @@ class Dashboard extends CI_Controller
 		$this->db->where('id', $id);
 		$this->db->update('banner_master', $arrayName);
 		echo $arrayName['status'];
-
 	}
 
 	public function SortList()
@@ -2301,7 +2426,6 @@ class Dashboard extends CI_Controller
 			$this->session->set_flashdata('activate', getCustomAlert('S', '!Opps Something is worng.Please try again.'));
 			redirect('admin/Dashboard/SortList/');
 		}
-
 	}
 	public function SortStatus()
 	{
@@ -2411,7 +2535,6 @@ class Dashboard extends CI_Controller
 			$this->session->set_flashdata('activate', getCustomAlert('S', '!Opps Something is worng.Please try again.'));
 			redirect('admin/Dashboard/CouponList/');
 		}
-
 	}
 
 
@@ -2501,7 +2624,6 @@ class Dashboard extends CI_Controller
 					{
 						unlink(LOGO_DIRECTORY . '/' . $check_details['logo']);
 					}
-
 				}
 			}
 
@@ -2669,9 +2791,7 @@ class Dashboard extends CI_Controller
 					$this->session->set_flashdata('msg', AlertMSG('W', 'Oops! Something wrong.'));
 					$this->load->view('include/page', $data);
 				}
-
 			}
-
 		} else
 		{
 			$this->load->view('include/page', $data);
@@ -2756,7 +2876,6 @@ class Dashboard extends CI_Controller
 		// echo '<pre>';
 		// print_r($data['list'] ); die();
 		$this->load->view('include/page', $data);
-
 	}
 
 
@@ -2781,7 +2900,7 @@ class Dashboard extends CI_Controller
 				$save_arr = array(
 					'name' => trim(ucfirst($in_data['name'])),
 					'post' => trim(ucfirst($in_data['post_name'])),
-					'description' => '',//trim(ucfirst($in_data['description'])),
+					'description' => '', //trim(ucfirst($in_data['description'])),
 					'status' => 1,
 					'modify_date' => time()
 
@@ -2807,9 +2926,7 @@ class Dashboard extends CI_Controller
 					$this->session->set_flashdata('msg', AlertMSG('W', 'Oops! Something wrong.'));
 					$this->load->view('include/page', $data);
 				}
-
 			}
-
 		} else
 		{
 			$this->load->view('include/page', $data);
@@ -2840,7 +2957,7 @@ class Dashboard extends CI_Controller
 				$save_arr = array(
 					'name' => trim(ucfirst($in_data['name'])),
 					'post' => trim(ucfirst($in_data['post_name'])),
-					'description' => '',//trim(ucfirst($in_data['description'])),
+					'description' => '', //trim(ucfirst($in_data['description'])),
 					'status' => $in_data['status'],
 					'modify_date' => time()
 
@@ -2950,7 +3067,6 @@ class Dashboard extends CI_Controller
 		// echo '<pre>';
 		// print_r($data['list'] ); die();
 		$this->load->view('include/page', $data);
-
 	}
 
 	public function AddFAQ()
@@ -3224,7 +3340,6 @@ class Dashboard extends CI_Controller
 			move_uploaded_file($tmp_name, $targetlocation);
 
 			$data['img'] = utf8_encode(trim($uniqueName));
-
 		}
 		$data['add_date'] = time();
 		$websiteData = $this->db->get('website_landing_page_popup')->row_array();
@@ -3246,7 +3361,6 @@ class Dashboard extends CI_Controller
 			$this->session->set_flashdata('activate', getCustomAlert('W', 'Oops! somthing is worng please try again.'));
 			redirect('admin/Dashboard/web_popup');
 		}
-
 	}
 
 
@@ -3279,7 +3393,6 @@ class Dashboard extends CI_Controller
 			move_uploaded_file($tmp_name, $targetlocation);
 
 			$data['img'] = utf8_encode(trim($uniqueName));
-
 		}
 		$data['add_date'] = time();
 		$SellerPopupData = $this->db->get('seller_login_popup')->row_array();
@@ -3301,15 +3414,15 @@ class Dashboard extends CI_Controller
 			$this->session->set_flashdata('activate', getCustomAlert('W', 'Oops! somthing is worng please try again.'));
 			redirect('admin/Dashboard/web_popup');
 		}
-
 	}
 
 	public function advertisement()
 	{
 		$data['banners'] = $this->db
-			->order_by('id','DESC')
+			->order_by('id', 'DESC')
 			->get('advertisement')
 			->result();
+		$data['title'] = 'Add Advertisement';
 
 		$this->load->view('include/header', $data);
 		$this->load->view('admin/advertisement', $data);
@@ -3319,58 +3432,66 @@ class Dashboard extends CI_Controller
 	public function add()
 	{
 		// AJAX check (optional but safe)
-		if (!$this->input->is_ajax_request()) {
+		if (!$this->input->is_ajax_request())
+		{
 			show_error('No direct access allowed');
 		}
 
 		$section = $this->input->post('img_section');
 
-		if(empty($section)){
-			echo json_encode(['status'=>0,'msg'=>'Image section required']);
+		if (empty($section))
+		{
+			echo json_encode(['status' => 0, 'msg' => 'Image section required']);
 			exit;
 		}
 
 		/* ===== LIMIT CHECK (TABLE NAME FIXED) ===== */
-		if ($section == 'fixed') {
+		if ($section == 'fixed')
+		{
 			$count = $this->db
-				->where('img_section','fixed')
+				->where('img_section', 'fixed')
 				->count_all_results('advertisement');
 
-			if ($count >= 2) {
-				echo json_encode(['status'=>0,'msg'=>'Only 2 Fixed images allowed']);
+			if ($count >= 2)
+			{
+				echo json_encode(['status' => 0, 'msg' => 'Only 2 Fixed images allowed']);
 				exit;
 			}
 		}
 
-		if ($section == 'bottom') {
+		if ($section == 'bottom')
+		{
 			$count = $this->db
-				->where('img_section','bottom')
+				->where('img_section', 'bottom')
 				->count_all_results('advertisement');
 
-			if ($count >= 1) {
-				echo json_encode(['status'=>0,'msg'=>'Only 1 Bottom image allowed']);
+			if ($count >= 1)
+			{
+				echo json_encode(['status' => 0, 'msg' => 'Only 1 Bottom image allowed']);
 				exit;
 			}
 		}
 
 		/* ===== UPLOAD ===== */
-		if(empty($_FILES['image']['name'])){
-			echo json_encode(['status'=>0,'msg'=>'Please select image']);
+		if (empty($_FILES['image']['name']))
+		{
+			echo json_encode(['status' => 0, 'msg' => 'Please select image']);
 			exit;
 		}
 
-		$config['upload_path']   = FCPATH.'uploads/advertisement/';
+		$config['upload_path'] = FCPATH . 'uploads/advertisement/';
 		$config['allowed_types'] = 'jpg|jpeg|png|webp';
-		$config['max_size']      = 2048;
-		$config['file_name']     = time().'_'.rand(1000,9999);
+		$config['max_size'] = 2048;
+		$config['file_name'] = time() . '_' . rand(1000, 9999);
 
 		$this->load->library('upload');
 		$this->upload->initialize($config);
 
-		if (!$this->upload->do_upload('image')) {
+		if (!$this->upload->do_upload('image'))
+		{
 			echo json_encode([
-				'status'=>0,
-				'msg'=> strip_tags($this->upload->display_errors())
+				'status' => 0,
+				'msg' => strip_tags($this->upload->display_errors())
 			]);
 			exit;
 		}
@@ -3380,19 +3501,123 @@ class Dashboard extends CI_Controller
 		/* ===== INSERT (TABLE NAME FIXED) ===== */
 		$insert = [
 			'img_section' => $section,
-			'image'       => $img,
-			'url'         => $this->input->post('url'),
-			'added_on'    => date('Y-m-d H:i:s'),
-			'status'      => 1
+			'image' => $img,
+			'url' => $this->input->post('url'),
+			'add_date' => date('Y-m-d H:i:s'),
+			'status' => 1
 		];
 
 		$this->db->insert('advertisement', $insert);
 
-		echo json_encode(['status'=>1,'msg'=>'Banner added successfully']);
+		echo json_encode(['status' => 1, 'msg' => 'Banner added successfully']);
+	}
+	public function Updateadvertisement($id)
+	{
+		if (empty($id))
+		{
+			redirect('admin/Dashboard/updateadvertisement');
+		}
+
+		$data['banner'] = $this->db->get_where('advertisement', ['id' => $id])->row();
+
+		if (!$data['banner'])
+		{
+			show_404();
+		}
+		$data['title'] = 'Edit Advertisement';
+		$this->load->view('include/header', $data);
+		$this->load->view('admin/updateadvertisement', $data);
+		$this->load->view('include/footer');
+	}
+
+	public function update_advertisement()
+	{
+		$id = $this->input->post('id');
+
+		if (empty($id))
+		{
+			redirect('admin/Dashboard/advertisement');
+		}
+
+		$img_section = $this->input->post('img_section');
+		$url = $this->input->post('url');
+		$old_image = $this->input->post('old_image');
+
+		// -------- IMAGE UPLOAD (IF NEW FILE) --------
+		if (!empty($_FILES['image']['name']))
+		{
+
+			$config['upload_path'] = FCPATH . 'uploads/advertisement/';
+			$config['allowed_types'] = 'jpg|jpeg|png|webp';
+			$config['max_size'] = 2048;
+			$config['file_name'] = time() . '_' . rand(1000, 9999);
+
+			$this->load->library('upload');
+			$this->upload->initialize($config);
+
+			if (!$this->upload->do_upload('image'))
+			{
+				$this->session->set_flashdata('error', strip_tags($this->upload->display_errors()));
+				redirect('admin/Dashboard/advertisement/' . $id);
+			}
+
+			$img = $this->upload->data('file_name');
+
+
+			if (!empty($old_image) && file_exists(FCPATH . 'uploads/advertisement/' . $old_image))
+			{
+				unlink(FCPATH . 'uploads/advertisement/' . $old_image);
+			}
+
+		} else
+		{
+			$img = $old_image;
+		}
+
+
+		$update = [
+			'img_section' => $img_section,
+			'url' => $url,
+			'image' => $img
+		];
+
+		$this->db->where('id', $id)->update('advertisement', $update);
+
+		$this->session->set_flashdata('success', 'Banner updated successfully');
+		redirect('admin/Dashboard/advertisement');
+	}
+
+	public function delete_advertisement($id)
+	{
+		if (empty($id))
+		{
+			redirect('admin/Dashboard/advertisement');
+		}
+
+
+		$banner = $this->db->get_where('advertisement', ['id' => $id])->row();
+
+		if ($banner)
+		{
+
+			if (!empty($banner->image) && file_exists(FCPATH . 'uploads/advertisement/' . $banner->image))
+			{
+				unlink(FCPATH . 'uploads/advertisement/' . $banner->image);
+			}
+
+			// Database se delete
+			$this->db->where('id', $id)->delete('advertisement');
+
+			$this->session->set_flashdata('success', 'Banner deleted successfully');
+		} else
+		{
+			$this->session->set_flashdata('error', 'Banner not found');
+		}
+
+
+		redirect('admin/Dashboard/advertisement');
 	}
 
 
 
 }
-
-?>

@@ -1,4 +1,4 @@
-<?php defined('BASEPATH') OR exit('No direct script access allowed');
+<?php defined('BASEPATH') or exit('No direct script access allowed');
 class Vendor extends CI_Controller
 {
 
@@ -15,6 +15,8 @@ class Vendor extends CI_Controller
 		$this->load->model('User_model');
 		$this->load->library('form_validation');
 		$this->load->library('email_send');
+		$this->load->library('pagination');
+		$this->load->model('Order_model');
 		//$this->load->library('m_pdf');
 
 	}
@@ -32,15 +34,19 @@ class Vendor extends CI_Controller
 		$this->form_validation->set_rules('name', 'Full Name', 'required');
 		$this->form_validation->set_rules('email', 'Email', 'required|valid_email');
 		$this->form_validation->set_rules('mobile', 'Mobile', 'required|regex_match[/^[0-9]{10}$/]');
-		$this->form_validation->set_rules('pincode', 'Mobile', 'required|regex_match[/^[0-9]{6}$/]');
+		$this->form_validation->set_rules('pincode', 'Pincode', 'required|regex_match[/^[0-9]{6}$/]');
+		
 
-		$this->form_validation->set_rules('shop_name', 'Shop Name', 'required');
-		$this->form_validation->set_rules(
-			'gst_number',
-			'GST Number',
-			'regex_match[/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/]',
-			['regex_match' => 'Please enter a valid GST number.']
-		);
+		// GST Validation only if YES
+		if ($this->input->post('has_gst') == 'yes')
+		{
+			$this->form_validation->set_rules(
+				'gst_number',
+				'GST Number',
+				'required|regex_match[/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/]',
+				['regex_match' => 'Please enter a valid GST number.']
+			);
+		}
 
 		if ($this->form_validation->run() == false)
 		{
@@ -68,13 +74,23 @@ class Vendor extends CI_Controller
 		$aadhar_card = $this->_upload_file('aadhar_card', VENDOR_DOCUMENT_DIRECTORY);
 		$pan_card = $this->_upload_file('pan_card', VENDOR_DOCUMENT_DIRECTORY);
 
-		// ================= DATA ARRAY (ALL COLUMNS) =================
+		// ================= RANDOM VENDOR NUMBER =================
+		$vendor_random_number = 'VENRGTS' . date('Y') . rand(100000, 999999);
+
+		// ================= GST CONDITION =================
+		$gst_number = null;
+		if ($this->input->post('has_gst') == 'yes')
+		{
+			$gst_number = $this->input->post('gst_number');
+		}
+
+		// ================= DATA ARRAY =================
 		$data = [
+			'vendor_random_number' => $vendor_random_number,
 			'role' => 'vendor',
 			'name' => $this->input->post('name'),
 			'shop_name' => $this->input->post('shop_name'),
 			'email' => $this->input->post('email'),
-
 			'mobile' => $mobile,
 			'otp' => null,
 			'verify_otp' => 0,
@@ -83,15 +99,15 @@ class Vendor extends CI_Controller
 			'aadhar_card' => $aadhar_card,
 			'pan_card' => $pan_card,
 			'address' => $this->input->post('address'),
-			'locality' => $this->input->post('locality'),
+			
 			'city' => $this->input->post('city'),
 			'state' => $this->input->post('state'),
 			'pincode' => $this->input->post('pincode'),
-			'gst_number' => $this->input->post('gst_number'),
+			'gst_number' => $gst_number, // ✅ Only if YES
 			'promoter_id' => null,
-			'promoter_code_used' => null,
+			'promoter_code_used' => $this->input->post('promoter_code_used'),
 			'wallet_amount' => 0.00,
-			'status' => 0, // 0 = pending
+			'status' => 0,
 			'add_date' => date('Y-m-d H:i:s'),
 			'modify_date' => null
 		];
@@ -101,8 +117,10 @@ class Vendor extends CI_Controller
 
 		if ($id)
 		{
-			// ================= EMAIL DATA (PASSWORD NOT INCLUDED) =================
+
+			// ================= EMAIL DATA =================
 			$mail_data = [
+				'vendor_id' => $vendor_random_number,
 				'name' => $data['name'],
 				'shop_name' => $data['shop_name'],
 				'mobile' => $data['mobile'],
@@ -111,16 +129,14 @@ class Vendor extends CI_Controller
 				'city' => $data['city'],
 				'state' => $data['state'],
 				'pincode' => $data['pincode'],
-				'gst_number' => $data['gst_number']
+				'gst_number' => $gst_number
 			];
-
 
 			$email_body = $this->load->view(
 				'web/email/vendor_registration_mail',
 				$mail_data,
 				true
 			);
-
 
 			$this->email_send->send_email(
 				$data['email'],
@@ -139,40 +155,45 @@ class Vendor extends CI_Controller
 	}
 
 
+
 	// ================= UPLOAD FUNCTION =================
 	private function _upload_file($field_name, $upload_dir)
 	{
 		if (!empty($_FILES[$field_name]['name']))
 		{
+
 			if (!is_dir($upload_dir))
 			{
 				mkdir($upload_dir, 0777, true);
 			}
 
-			$config = [];
 			$config['upload_path'] = $upload_dir;
 			$config['allowed_types'] = 'jpg|jpeg|png|pdf';
-			$config['max_size'] = 2048; // 2MB
+			$config['max_size'] = 2048;
 			$config['encrypt_name'] = TRUE;
 
-			// IMPORTANT: re-initialize upload library
 			$this->load->library('upload');
 			$this->upload->initialize($config);
 
 			if ($this->upload->do_upload($field_name))
 			{
+
 				$file = $this->upload->data();
-				return 'assets/vendor_images/' . $file['file_name'];
+
+				// ✅ Convert absolute path → relative path
+				$relative_path = str_replace(FCPATH, '', $upload_dir);
+
+				return $relative_path . $file['file_name'];
 			} else
 			{
-				// DEBUG ERROR
 				echo json_encode([
 					'status' => 'error',
-					'msg' => $this->upload->display_errors()
+					'msg' => strip_tags($this->upload->display_errors())
 				]);
 				exit;
 			}
 		}
+
 		return null;
 	}
 
@@ -249,10 +270,163 @@ class Vendor extends CI_Controller
 	}
 
 
+	public function VendorOrderList()
+	{
+		is_not_logged_in();
+		$this->load->library('pagination');
 
+		$limit = 10;
+		$pageNo = $this->input->get('per_page');
+		$pageNo = (!empty($pageNo) && $pageNo > 0) ? $pageNo : 1;
+		$offset = ($pageNo - 1) * $limit;
 
+		// ================= FILTERS =================
+		$keywords = $this->input->post('keywords');
+		$fromDate = $this->input->post('fromDate');
+		$toDate = $this->input->post('toDate');
+		$order_status = $this->input->post('order_status');
+		$delete_status = $this->input->post('delete_status');
+		$customer_name = $this->input->post('customer_name');
 
+		$vendor_id = $this->session->userdata('adminData')['Id'];
 
+		// ================= BASE QUERY =================
+		$this->db->select('o.*, u.username, u.mobile');
+		$this->db->from('order_master o');
+		$this->db->join('purchase_master p', 'p.order_master_id = o.id', 'inner');
+		$this->db->join('user_master u', 'u.id = o.user_master_id', 'left');
+		$this->db->where('p.vendor_id', $vendor_id);
+		$this->db->group_by('o.id');
+
+		// ================= APPLY FILTERS =================
+
+		// 1️⃣ Keywords (Order Number)
+		if (!empty($keywords))
+		{
+			$this->db->like('o.order_number', $keywords);
+		}
+		// 2️⃣ Customer Name
+		elseif (!empty($customer_name))
+		{
+			$this->db->like('u.username', $customer_name);
+		}
+		// 3️⃣ Order Status
+		elseif (!empty($order_status))
+		{
+			$this->db->where('o.status', $order_status);
+		}
+		// 4️⃣ Delete Status
+		elseif (!empty($delete_status) && $delete_status == 'delete')
+		{
+			$this->db->where('o.action_payment', 'delete');
+		}
+		// 5️⃣ Date Range (apply only if BOTH dates are selected)
+		elseif (!empty($fromDate) && !empty($toDate))
+		{
+			$this->db->where("DATE(FROM_UNIXTIME(o.add_date)) >=", $fromDate);
+			$this->db->where("DATE(FROM_UNIXTIME(o.add_date)) <=", $toDate);
+		} else
+		{
+			// Default: only active orders
+			$this->db->where('o.action_payment', 'Yes');
+		}
+
+		// ================= TOTAL RECORDS =================
+		$clone = clone $this->db;
+		$totalRecords = $clone->count_all_results();
+
+		// ================= FETCH DATA =================
+		$this->db->order_by('o.id', 'DESC');
+		$this->db->limit($limit, $offset);
+		$AllRecord = $this->db->get()->result_array();
+
+		// ================= PAGINATION =================
+		$config['base_url'] = base_url('admin/Vendor/VendorOrderList');
+		$config['total_rows'] = $totalRecords;
+		$config['per_page'] = $limit;
+		$config['use_page_numbers'] = TRUE;
+		$config['page_query_string'] = TRUE;
+		$config['num_links'] = 3;
+		$this->pagination->initialize($config);
+
+		$entries = 'Showing ' . ($offset + 1) . ' to ' . ($offset + count($AllRecord)) . ' of ' . $totalRecords . ' entries';
+
+		$data = [
+			'results' => $AllRecord,
+			'links' => $this->pagination->create_links(),
+			'entries' => $entries,
+			'index' => 'VendorOrder',
+			'title' => 'Sales Report'
+		];
+
+		$this->load->view('include/header', $data);
+		$this->load->view('Vendor/VendorOrderList', $data);
+		$this->load->view('include/footer');
+	}
+
+	public function VendorViewOrderDetails($order_id)
+	{
+		is_not_logged_in();
+
+		// ✅ CORRECT vendor id
+		$vendorData = $this->session->userdata('adminData');
+		$vendor_id = $vendorData['Id'];
+
+		// ✅ ORDER MASTER
+		$data['getData'] = $this->Vendor_model->getOrderMaster($order_id);
+
+		// ✅ VENDOR WISE PRODUCTS
+		$data['purchaseData'] = $this->Vendor_model
+			->getVendorPurchase($order_id, $vendor_id);
+
+		// ✅ RETURN CHECK
+		$data['check_return'] = $this->Vendor_model
+			->checkVendorReturn($order_id, $vendor_id);
+
+		$this->load->view('include/header', $data);
+		$this->load->view('Vendor/VendorViewOrderDetails', $data);
+		$this->load->view('include/footer');
+	}
+
+	
+	public function accept($purchase_id)
+	{
+		$vendor_id = $this->session->userdata('adminData')['Id'];
+
+		$this->db->where([
+			'id' => $purchase_id,
+			'vendor_id' => $vendor_id,
+			'status' => 1
+		])->update('purchase_master', ['status' => 3]);
+
+		redirect($_SERVER['HTTP_REFERER']);
+	}
+
+	public function cancel($purchase_id)
+	{
+		$vendor_id = $this->session->userdata('adminData')['Id'];
+
+		$this->db->where([
+			'id' => $purchase_id,
+			'vendor_id' => $vendor_id,
+			'status' => 1
+		])->update('purchase_master', ['status' => 2]);
+
+		redirect($_SERVER['HTTP_REFERER']);
+	}
+
+	public function ship($purchase_id)
+	{
+		$vendor_id = $this->session->userdata('adminData')['Id'];
+
+		$this->db->where([
+			'id' => $purchase_id,
+			'vendor_id' => $vendor_id,
+			'status' => 3
+		])->update('purchase_master', ['status' => 4]);
+
+		redirect($_SERVER['HTTP_REFERER']);
+	}
 
 
 
@@ -265,17 +439,17 @@ class Vendor extends CI_Controller
 
 
 	// End Registration
-	public function index()
-	{
-		$data['index'] = 'Vendor';
-		$data['index2'] = '';
-		$data['title'] = 'Manage Vendor';
-		$data['getData'] = $this->user_model->getVendotList();
+	// public function index()
+	// {
+	// 	$data['index'] = 'Vendor';
+	// 	$data['index2'] = '';
+	// 	$data['title'] = 'Manage Vendor';
+	// 	$data['getData'] = $this->Vendor_model->getVendotList();
 
-		$this->load->view('include/header', $data);
-		$this->load->view('Vendor/VendorList');
-		$this->load->view('include/footer');
-	}
+	// 	$this->load->view('include/header', $data);
+	// 	$this->load->view('Vendor/VendorList');
+	// 	$this->load->view('include/footer');
+	// }
 
 	public function AddVendor()
 	{
@@ -314,7 +488,6 @@ class Vendor extends CI_Controller
 				redirect('admin/Vendor/AddVendor/');
 			}
 		}
-
 	}
 
 
@@ -347,7 +520,6 @@ class Vendor extends CI_Controller
 				$this->session->set_flashdata('activate', getCustomAlert('S', ' Vendor has been add Successfully.'));
 				redirect('admin/Vendor/');
 			}
-
 		} else
 		{
 			$this->session->set_flashdata('activate', getCustomAlert('D', '!Opps Email Id Already Exists.Please try again.'));
@@ -362,7 +534,6 @@ class Vendor extends CI_Controller
 		$query = $this->db->query("SELECT * FROM `admin_master` where phone_no = '" . $num . "'")->num_rows();
 		/*echo $this->db->last_query();exit;*/
 		echo ($query > 0) ? '1' : '';
-
 	}
 
 	public function VendorStatus($id)
@@ -375,7 +546,6 @@ class Vendor extends CI_Controller
 		$this->db->where('id', $id);
 		$this->db->update('staff_master', $arrayName);
 		echo $arrayName['status'];
-
 	}
 
 
@@ -420,7 +590,6 @@ class Vendor extends CI_Controller
 				$this->session->set_flashdata('activate', getCustomAlert('S', ' Vendor has been Updated Successfully.'));
 				redirect('admin/Vendor/');
 			}
-
 		} else
 		{
 			$this->session->set_flashdata('activate', getCustomAlert('D', '!Opps Email Id Already Exists.Please try again.'));
@@ -592,7 +761,6 @@ class Vendor extends CI_Controller
 					{
 						$updateData[$field] = 'assets/vendor_images/' . $fileData['file_name'];
 					}
-
 				} else
 				{
 					$this->session->set_flashdata(
@@ -696,9 +864,5 @@ class Vendor extends CI_Controller
 		$headers .= "MIME-Version: 1.0\r\n";
 		$headers .= "Content-type: text/html; charset=utf-8\r\n";
 		mail($to, $subject, '<pre style="font-size:14px;">' . $message . '</pre>', $headers);
-
-
 	}
-
-
 }

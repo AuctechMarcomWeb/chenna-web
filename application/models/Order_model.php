@@ -5,6 +5,62 @@
     parent::__construct();
     $this->load->database();
   }
+  public function getPurchaseSummary($vendorId)
+  {
+    $summary = [
+      'total_orders'     => 0,
+      'pending_orders'   => 0,
+      'accepted_orders'  => 0,
+      'cancelled_orders' => 0,
+      'shipped_orders'   => 0,
+      'delivered_orders' => 0,
+      'completed_orders' => 0 
+    ];
+
+    $this->db->select('status, COUNT(*) as count');
+    $this->db->from('purchase_master');
+    $this->db->where('vendor_id', $vendorId);
+    $this->db->group_by('status');
+    $query = $this->db->get();
+
+    if ($query->num_rows() > 0) {
+      foreach ($query->result() as $row) {
+        $summary['total_orders'] += $row->count;
+
+        switch ($row->status) {
+          case 1:
+            $summary['pending_orders'] = $row->count;
+            break;
+          case 2:
+            $summary['cancelled_orders'] = $row->count;
+            break;
+          case 3:
+            $summary['accepted_orders'] = $row->count;
+            break;
+          case 4:
+            $summary['shipped_orders'] = $row->count;
+            break;
+          case 5:
+            $summary['delivered_orders'] = $row->count;
+            $summary['completed_orders'] = $row->count;
+            break;
+        }
+      }
+    }
+
+    return $summary;
+  }
+
+
+  // Total products added by vendor
+  public function TotalGetProducts($vendorId)
+  {
+    $this->db->where('added_type', 2);
+    $this->db->where('addedBy', $vendorId);
+    $this->db->select('COUNT(DISTINCT product_code) as total');
+    $query = $this->db->get('sub_product_master');
+    return $query->row()->total ?? 0;
+  }
 
   public function updateActionPaymentStatus($id)
   {
@@ -19,11 +75,9 @@
   public function getOrderList($type = '', $id = '')
   {
     $this->db->order_by('id', 'Desc');
-    if ($type == '1')
-    {
+    if ($type == '1') {
       return $this->db->query('SELECT  id    FROM order_master order by id Desc')->result_array();
-    } else
-    {
+    } else {
       return $this->db->query('SELECT DISTINCT  order_master_id FROM `purchase_master` Where vendor_master_id ="' . $id . '" order by order_master_id Desc ')->result_array();
     }
   }
@@ -54,7 +108,6 @@
 
     #echo $query['payment_type']; exit;
     return $query;
-
   }
 
 
@@ -70,11 +123,9 @@
 
   public function GetUserAddres($id = '', $diliver = '')
   {
-    if (!empty($diliver))
-    {
+    if (!empty($diliver)) {
       $sql = $this->db->query('SELECT * FROM `user_delivery_address` Where id =' . $id . '')->row_array();
-    } else
-    {
+    } else {
       $sql = $this->db->query('SELECT * FROM `user_address_master` Where id =' . $id . '')->row_array();
     }
 
@@ -99,12 +150,10 @@
   public function GetProductStatus($orderid = '', $type = '', $field = '', $vendor_id = '')
   {
     // echo $orderid."/".$type."/".$
-    if ($type == '1')
-    {
+    if ($type == '1') {
       $SQL = " SELECT * FROM `purchase_master` WHERE order_master_id = '" . $orderid . "'";
     }
-    if ($type == '2')
-    {
+    if ($type == '2') {
       $SQL = " SELECT * FROM `purchase_master` WHERE order_master_id = '" . $orderid . "'  AND vendor_master_id = '" . $vendor_id . "' ";
     }
     $status = $this->db->query($SQL)->row_array();
@@ -114,13 +163,10 @@
   {
 
 
-    if ($type == '1')
-    {
+    if ($type == '1') {
       $SQL = " SELECT Sum(" . $field . ") as items FROM `purchase_master` WHERE order_master_id = '" . $orderid . "'";
-
     }
-    if ($type == '2')
-    {
+    if ($type == '2') {
       $SQL = " SELECT Sum(" . $field . ") as items FROM `purchase_master` WHERE order_master_id ='" . $orderid . "'  AND vendor_master_id = '" . $vendor_id . "' ";
     }
     $status = $this->db->query($SQL)->row_array();
@@ -134,11 +180,9 @@
 
   public function getSingleOrderData($orderid = '', $type = '', $vendor_id = '')
   {
-    if ($type == '1')
-    {
+    if ($type == '1') {
       $SQL = " SELECT * FROM `purchase_master` WHERE order_master_id = '" . $orderid . "'";
-    } elseif ($type == '2')
-    {
+    } elseif ($type == '2') {
       $SQL = " SELECT * FROM `purchase_master` WHERE order_master_id = '" . $orderid . "'  AND vendor_master_id = '" . $vendor_id . "' ";
     }
 
@@ -155,7 +199,6 @@
     //print_r($getDetail); exit;
 
     return $getDetail;
-
   }
 
   public function GetAddress($id = '')
@@ -202,8 +245,7 @@
     $arrayName['modify_date'] = time();
 
     $activity = 0;
-    if (!empty($request['activity']))
-    {
+    if (!empty($request['activity'])) {
       $activity = $request['activity'];
     }
 
@@ -214,39 +256,34 @@
     $this->db->where(array('order_master_id' => $request['order_id']));  #, 'vendor_master_id' => $request['vendor_id']
     $this->db->update('purchase_master', $arrayName);  #, 'vendor_master_id' => $request['vendor_id']
 
-    if ($request['StatusUpdate'] == 5)
-    {
+    if ($request['StatusUpdate'] == 5) {
       $this->db->where('id', $request['order_id']);
       $modify_date = time();
       $this->db->update('order_master', array('status' => 5, 'modify_date' => $modify_date, 'activity' => $activity));
       $orde_logstatus = 5;
     }
 
-    if ($request['StatusUpdate'] == 6)
-    {
+    if ($request['StatusUpdate'] == 6) {
       $this->db->where('id', $request['order_id']);
       $modify_date = time();
       $this->db->update('order_master', array('status' => 6, 'modify_date' => $modify_date, 'activity' => $activity));
       $orde_logstatus = 6;
     }
-    if ($request['StatusUpdate'] == 2)
-    {
+    if ($request['StatusUpdate'] == 2) {
       $this->db->where('id', $request['order_id']);
       $modify_date = time();
       $this->db->update('order_master', array('status' => 2, 'modify_date' => $modify_date, 'activity' => $activity));
       $orde_logstatus = 2;
     }
 
-    if ($request['StatusUpdate'] == 4)
-    {
+    if ($request['StatusUpdate'] == 4) {
       $this->db->where('id', $request['order_id']);
       $modify_date = time();
       $this->db->update('order_master', array('status' => 4, 'modify_date' => $modify_date, 'activity' => $activity));
       $orde_logstatus = 4;
     }
 
-    if ($request['StatusUpdate'] == 3)
-    {
+    if ($request['StatusUpdate'] == 3) {
       $this->db->where('id', $request['order_id']);
       $modify_date = time();
       $this->db->update('order_master', array('status' => 3, 'modify_date' => $modify_date, 'activity' => $activity));
@@ -277,8 +314,7 @@
     $check = $this->db->get('settings')->result_array();
 
     $fields = array();
-    foreach ($check as $key => $value)
-    {
+    foreach ($check as $key => $value) {
 
       $fields['version'] = $value['app_verison'];
       $fields['install_type'] = $value['type'];
@@ -286,12 +322,10 @@
       $array[] = $fields;
     }
 
-    if (COUNT($check) > 0)
-    {
+    if (COUNT($check) > 0) {
       $arr['Detail'] = $array;
       generateServerResponse(S, 'S', $arr);
-    } else
-    {
+    } else {
       generateServerResponse('0', 'E');
     }
   }
@@ -307,8 +341,7 @@
     $check = $this->db->get('settings')->result_array();
 
     $fields = array();
-    foreach ($check as $key => $value)
-    {
+    foreach ($check as $key => $value) {
 
       $fields['user_amount'] = $value['referel_to_get'];
       $fields['minimumPurchase'] = $value['min_first_purchase_amt'];
@@ -316,24 +349,19 @@
       $array[] = $fields;
     }
 
-    if (COUNT($check) > 0)
-    {
+    if (COUNT($check) > 0) {
       $arr['Detail'] = $array;
       generateServerResponse(S, 'S', $arr);
-    } else
-    {
+    } else {
       generateServerResponse('0', 'E');
     }
   }
   public function GetData($table, $condition, $order, $id)
   {
-    if (!empty($id))
-    {
+    if (!empty($id)) {
       $data = $this->db->get_where($table, $condition)->row_array();
-    } else
-    {
-      if (!empty($order))
-      {
+    } else {
+      if (!empty($order)) {
         $this->db->order_by($order['column'], $order['columnData']);
       }
       $data = $this->db->get_where($table, $condition)->result_array();
@@ -344,11 +372,9 @@
   {
     $this->db->select($column);
     $this->db->where($condition);
-    if (!empty($id))
-    {
+    if (!empty($id)) {
       $data = $this->db->get($table)->row_array();
-    } else
-    {
+    } else {
       $data = $this->db->get($table)->result_array();
     }
     return $data;
@@ -363,46 +389,44 @@
 
 
   // ratna code 
-public function getOrderSummary()
-{
+  public function getOrderSummary()
+  {
     $summary = [];
 
-   
-    $summary['delivered_orders'] = $this->db->where('status', 3)
-                                           ->from('order_master')
-                                           ->count_all_results();
 
-  
+    $summary['delivered_orders'] = $this->db->where('status', 3)
+      ->from('order_master')
+      ->count_all_results();
+
+
     $summary['pending_orders'] = $this->db->where('status !=', 3)
-                                         ->from('order_master')
-                                         ->count_all_results();
+      ->from('order_master')
+      ->count_all_results();
     $summary['failed_orders'] = $this->db->where('status', 2)
-                                        ->from('order_master')
-                                        ->count_all_results();
+      ->from('order_master')
+      ->count_all_results();
 
     $summary['cancelled_orders'] = $this->db->where('status', 4)
-                                          ->from('order_master')
-                                          ->count_all_results();
+      ->from('order_master')
+      ->count_all_results();
 
-  
+
     $summary['shipped_orders'] = $this->db->where('status', 5)
-                                         ->from('order_master')
-                                         ->count_all_results();
+      ->from('order_master')
+      ->count_all_results();
 
-   
+
     $summary['waiting_approval_orders'] = $this->db->where('status', 1)
-                                                 ->from('order_master')
-                                                 ->count_all_results();
+      ->from('order_master')
+      ->count_all_results();
 
 
     $summary['rejected_orders'] = $this->db->where('status', 6)
-                                         ->from('order_master')
-                                         ->count_all_results();
+      ->from('order_master')
+      ->count_all_results();
 
     $summary['total_orders'] = $this->db->count_all('order_master');
 
     return $summary;
-}
-
-
+  }
 }

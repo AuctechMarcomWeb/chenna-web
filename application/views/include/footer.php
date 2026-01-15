@@ -1,23 +1,21 @@
+<footer class="main-footer">
+ 
+  <strong>Copyright &copy; 2025-26
+    <a href="#">Chenna</a>.
+  </strong> All rights reserved &reg.
+</footer>
 
-  	<footer class="main-footer">
-    
-    <strong>Copyright &copy; 2025-26 <a href="<?= base_url('admin/Users/');?>">Chenna</a>.</strong> All rights
-    reserved &reg.
-  </footer>
-	<!-- Add the sidebar's background. This div must be placed immediately after the control sidebar -->
-	<div class="control-sidebar-bg"></div>
-	</div>
-	<!-- ./wrapper -->
-<!--<script src="<?php //echo base_url('assets/admin/plugins/datatables/jquery.dataTables.min.js');?>"></script>-->
-<!--<script src="<?php // echo  base_url('assets/admin/plugins/datatables/dataTables.bootstrap.min.js');?>"></script>-->
-<script src="<?php //echo  base_url('assets/admin/js/jquery-1.8.0.min.js');?>">
-<script src="<?php echo base_url('assets/admin/plugins/select2/select2.full.min.js');?>"></script>
+<!-- Add the sidebar's background. This div must be placed immediately after the control sidebar -->
+<div class="control-sidebar-bg"></div>
+</div>
+
+<script src="<?php echo base_url('assets/admin/plugins/select2/select2.full.min.js'); ?>"></script>
 
 
 <!-- page script -->
 <script>
-  $(function () {
-    
+  $(function() {
+
     $("#example1").DataTable();
     $('#example2').DataTable({
       "paging": true,
@@ -32,8 +30,7 @@
 
 
 <script type="text/javascript">
-  
- /*function getSubCatList(){
+  /*function getSubCatList(){
       var html = '';
       var state = $('#category').val();
       var city  = JSON.parse('<?php echo json_encode($city); ?>');
@@ -47,68 +44,59 @@
       });
       $('#city').html(html);
     }*/
-
-
-
 </script>
 
 <script type="text/javascript">
-  $("#category").change(function(){
-  
+  $("#category").change(function() {
+
     var id = this.value;
     $.ajax({
-        type: "POST",
-        url: "<?php  echo base_url('admin/Dashboard/getsubCatgy')?>/"+id,
-               
-        success: function(result){
-          console.log(result)
-        if(result!='')
-          {
-            $('#subCategory').html(result);
-          } else
-          {
-            $('#msg').html('');
-          }
-         
+      type: "POST",
+      url: "<?php echo base_url('admin/Dashboard/getsubCatgy') ?>/" + id,
+
+      success: function(result) {
+        console.log(result)
+        if (result != '') {
+          $('#subCategory').html(result);
+        } else {
+          $('#msg').html('');
         }
-      });
-    });
 
-  </script>
+      }
+    });
+  });
+</script>
 <script type="text/javascript">
-          //Date picker
-    $('#datepicker').datepicker({
-      autoclose: true,
-      format:'dd-mm-yyyy'
-    });
-     $('#datepicker2').datepicker({
-      autoclose: true,
-      format:'dd-mm-yyyy'
-    });
+  //Date picker
+  $('#datepicker').datepicker({
+    autoclose: true,
+    format: 'dd-mm-yyyy'
+  });
+  $('#datepicker2').datepicker({
+    autoclose: true,
+    format: 'dd-mm-yyyy'
+  });
 
-    function checkExsist(){
+  function checkExsist() {
     var Appid = $("#AppId").val();
     //alert(Appid);
     $.ajax({
-            type: "POST",
-            url: "<?php  echo base_url('admin/Dashboard/ExsistMsg')?>",
-            data:'app_id='+Appid,
-           
-            success: function(result){
-              if(result==1)
-              {
-                $('#msg').html('<span style="color:red;"> This Application-Id Alresdy Exsist </span>');
-              } else
-              {
-                $('#msg').html('');
-              }
-             
-            }
-          });
-     }
+      type: "POST",
+      url: "<?php echo base_url('admin/Dashboard/ExsistMsg') ?>",
+      data: 'app_id=' + Appid,
 
+      success: function(result) {
+        if (result == 1) {
+          $('#msg').html('<span style="color:red;"> This Application-Id Alresdy Exsist </span>');
+        } else {
+          $('#msg').html('');
+        }
 
-    </script>
+      }
+    });
+  }
+</script>
 
 </body>
+
 </html>

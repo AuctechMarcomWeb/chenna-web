@@ -160,18 +160,7 @@ $categoryList = $this->db->query("Select* from `category_master` where (status=1
         margin-top: 10px;
     }
 
-    .header-2 .top-nav span {
-        color: #ffffff;
-        background: #d80101;
-    }
-
-    .header-icon .badge-theme {
-        position: absolute;
-        top: -11px;
-        right: 2px;
-        font-size: 9px;
-        padding: 5px 8px;
-    }
+  
 
     .section-b-space {
         padding-bottom: calc(30px + 30 * (100vw - 320px) / 1600);
@@ -508,28 +497,26 @@ $categoryList = $this->db->query("Select* from `category_master` where (status=1
 </style>
 <!-- Left Side Ad -->
 <div class="ad-wrapper">
-    <div class=" ad-left" id="leftAd">
-        <span class="ad-close" onclick="closeAd('leftAd')">&times;</span>
-        <a href="https://example.com" target="_blank">
-            <img src="https://d3jmn01ri1fzgl.cloudfront.net/photoadking/webp_original/gold-jewellery-ads-template-0l5detf144218f.webp"
-                alt="Advertisement">
-        </a>
-    </div>
 
-    <!-- Bottom Center Ad -->
-    <div class=" ad-bottom" id="bottomAd">
-        <span class="ad-close" onclick="closeAd('bottomAd')">&times;</span>
-        <a href="https://example.com" target="_blank">
-            <img src="https://d3jmn01ri1fzgl.cloudfront.net/photoadking/webp_original/red-and-white-end-of-season-advertisement-template-cmi16s1b5c9ae8.webp"
-                alt="Advertisement">
-        </a>
-    </div>
+    <?php if (!empty($fixedAds)): ?>
+        <?php foreach ($fixedAds as $ad): ?>
+            <div class="ad-left" id="leftAd_<?= $ad['id'] ?>">
+                <span class="ad-close" onclick="closeAd('leftAd_<?= $ad['id'] ?>')">&times;</span>
+                <a href="<?= htmlspecialchars($ad['url']) ?>" target="_blank">
+                    <img src="<?= base_url('uploads/advertisement/' . $ad['image']) ?>" alt="Advertisement">
+                </a>
+            </div>
+        <?php endforeach; ?>
+    <?php endif; ?>
 </div>
+
 <script>
     function closeAd(id) {
-        document.getElementById(id).style.display = "none";
+        const ad = document.getElementById(id);
+        if (ad) ad.style.display = 'none';
     }
 </script>
+
 
 
 <!-- home section start -->
@@ -595,43 +582,55 @@ $categoryList = $this->db->query("Select* from `category_master` where (status=1
             <div class="col-12">
                 <div class="category-slider-1 arrow-slider wow fadeInUp">
 
-                    <?php $parentList = $this->db->select('id, name')->where('status', 1)->get('parent_category_master')->result_array();
+                    <?php
+                    $parentList = $this->db
+                        ->select('id, name, slug')
+                        ->where('status', 1)
+                        ->get('parent_category_master')
+                        ->result_array();
 
                     foreach ($parentList as $parent)
                     {
-                        $cateList = $this->db->select('id, category_name, app_icon')->where(['mai_id' => $parent['id'], 'status' => 1])
+                        $cateList = $this->db
+                            ->select('id, category_name, slug, app_icon')
+                            ->where([
+                                'mai_id' => $parent['id'],
+                                'status' => 1
+                            ])
                             ->get('category_master')
                             ->result_array();
 
                         foreach ($cateList as $cate)
                         {
+                            // product count
+                            $itemCount = $this->db
+                                ->select('COUNT(DISTINCT sku_code) as total')
+                                ->where('category_id', $cate['id'])
+                                ->where('status', 1)
+                                ->get('sub_product_master')
+                                ->row()
+                                ->total;
+
+                            $categoryUrl = base_url(
+                                $parent['slug'] . '/' . $cate['slug']
+                            );
                             ?>
                             <div>
                                 <div class="category-box-list">
 
-                                    <a href="<?= base_url(slugify($parent['name']) . '/' . slugify($cate['category_name'])) ?>"
-                                        class="category-name">
+                                    <a href="<?= $categoryUrl ?>" class="category-name">
                                         <h4><?= $cate['category_name']; ?></h4>
-                                        <?php
-
-                                        $itemCount = $this->db->where('category_id', $cate['id'])
-                                            ->from('sub_product_master')
-                                            ->count_all_results();
-                                        ?>
                                         <h6><?= $itemCount ?> items</h6>
                                     </a>
 
                                     <div class="category-box-view">
-                                        <a
-                                           href="<?= base_url(slugify($parent['name']) . '/' . slugify($cate['category_name'])) ?>">
+                                        <a href="<?= $categoryUrl ?>">
                                             <img style="height:130px; width:100%; object-fit:contain"
                                                 src="<?= base_url('assets/category_images/' . $cate['app_icon']); ?>"
                                                 class="img-fluid blur-up lazyload" alt="<?= $cate['category_name']; ?>">
                                         </a>
 
-                                        <button
-                                            onclick="location.href='<?= base_url(slugify($parent['name']) . '/' . slugify($cate['category_name'])) ?>';"
-                                            class="btn shop-button">
+                                        <button onclick="location.href='<?= $categoryUrl ?>';" class="btn shop-button">
                                             <span>Shop Now</span>
                                             <i class="fas fa-angle-right"></i>
                                         </button>
@@ -650,14 +649,19 @@ $categoryList = $this->db->query("Select* from `category_master` where (status=1
     </div>
 </section>
 
+
 <!-- Category Section End -->
 
 
 <!-- Deal Section Start -->
 <?php
-// 🔁 Auto-loop all remaining tags
-$section = $sections[$tagIndex % count($sections)];
-$tagIndex++;
+
+if (!empty($sections) && count($sections) > 0) {
+    $section = $sections[$tagIndex % count($sections)];
+    $tagIndex++;
+} else {
+    $section = null;
+}
 ?>
 
 <?php if (!empty($section)): ?>
@@ -777,9 +781,13 @@ $tagIndex++;
 
 <!-- Product Section Start -->
 <?php
-// 🔁 Auto-loop all remaining tags
-$section = $sections[$tagIndex % count($sections)];
-$tagIndex++;
+// Agar tags available hain tabhi section lo
+if (!empty($sections) && count($sections) > 0) {
+    $section = $sections[$tagIndex % count($sections)];
+    $tagIndex++;
+} else {
+    $section = null;
+}
 ?>
 
 <?php if (!empty($section)): ?>
@@ -904,9 +912,13 @@ $tagIndex++;
 
 <!-- Product Section Start -->
 <?php
-// 🔁 Auto-loop all remaining tags
-$section = $sections[$tagIndex % count($sections)];
-$tagIndex++;
+// Agar tags available hain tabhi section lo
+if (!empty($sections) && count($sections) > 0) {
+    $section = $sections[$tagIndex % count($sections)];
+    $tagIndex++;
+} else {
+    $section = null;
+}
 ?>
 
 <?php if (!empty($section)): ?>
@@ -1004,6 +1016,8 @@ $tagIndex++;
 <section class="banner-section">
     <div class="container-fluid-lg">
         <div class="row gy-lg-0 gy-3">
+
+            <!-- Left Column: Static Banner Content -->
             <div class="col-lg-8">
                 <div class="banner-contain-3 h-100 pt-sm-5 hover-effect">
                     <img src="https://themes.pixelstrap.com/fastkart/assets/images/grocery/banner/8.png"
@@ -1013,27 +1027,19 @@ $tagIndex++;
                         <div>
                             <h3 class="fw-bold banner-contain">Safe Delivery to the door</h3>
                             <h4 class="mb-sm-3 mb-2 delivery-contain">Safe payments, trusted sellers, and smooth
-                                delivery.
-                            </h4>
+                                delivery.</h4>
                             <ul class="banner-list">
                                 <li>
                                     <div class="delivery-box">
-                                        <div class="check-icon">
-                                            <i class="fa-solid fa-check"></i>
-                                        </div>
-
+                                        <div class="check-icon"><i class="fa-solid fa-check"></i></div>
                                         <div class="check-contain">
                                             <h5>24/7 Customer Support</h5>
                                         </div>
                                     </div>
                                 </li>
-
                                 <li>
                                     <div class="delivery-box">
-                                        <div class="check-icon">
-                                            <i class="fa-solid fa-check"></i>
-                                        </div>
-
+                                        <div class="check-icon"><i class="fa-solid fa-check"></i></div>
                                         <div class="check-contain">
                                             <h5>7-Day Returns</h5>
                                         </div>
@@ -1041,37 +1047,49 @@ $tagIndex++;
                                 </li>
                             </ul>
                             <button class="btn theme-bg-color text-white mt-sm-4 mt-3 fw-bold"
-                                onclick="location.href = '<?= base_url('web/contact'); ?>';"><i
-                                    class="fa-solid fa-headset"></i> &nbsp; Help Center</button>
+                                onclick="location.href = '<?= base_url('web/contact'); ?>';">
+                                <i class="fa-solid fa-headset"></i> &nbsp; Help Center
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <!-- Right Column: Dynamic Bottom Ad -->
             <div class="col-lg-4">
                 <div class="banner-contain-3 pt-lg-4 h-100 hover-effect">
-                    <a href="javascript:void(0)">
-                        <img src="https://themes.pixelstrap.com/fastkart/assets/images/grocery/banner/9.jpg"
-                            class="img-fluid social-image blur-up lazyload w-100" alt="">
-                    </a>
+                    <?php if (!empty($bottomAds)): ?>
+                        <?php $ad = array_values($bottomAds)[0];?>
+                        <a href="<?= htmlspecialchars($ad['url']) ?>" target="_blank">
+                            <img src="<?= base_url('uploads/advertisement/' . $ad['image']) ?>"
+                                class="img-fluid social-image blur-up lazyload w-100" alt="Advertisement">
+                        </a>
+                    <?php else: ?>
+                        <!-- fallback default image -->
+                        <a href="javascript:void(0)">
+                            <img src="plugins/images/new-img/about/7.jpg"
+                                class="img-fluid social-image blur-up lazyload w-100" alt="Advertisement">
+                        </a>
+                    <?php endif; ?>
                 </div>
+
+
             </div>
+
         </div>
     </div>
 </section>
+
 <!-- Banner Section End -->
 
-
 <?php
-// Pehle 4 sections already exist (index 0-3)
-// Ab baaki ke tags dynamically loop me
 for ($i = 3; $i < count($sections); $i++)
 {
     $section = $sections[$i];
 
     if (empty($section) || empty($section['products']))
-        continue; // skip empty
-    ?>
+        continue; // skip empty sections
+?>
     <section>
         <div class="container-fluid-lg">
             <div class="title">
@@ -1096,12 +1114,12 @@ for ($i = 3; $i < count($sections); $i++)
                                                     <?php if (empty($userData)): ?>
                                                         <button class="btn p-0 wishlist btn-wishlist text-danger" data-bs-toggle="modal"
                                                             data-bs-target="#login-popup">
-                                                            <i class="iconly-Heart icli" id="iconly-Heart"></i>
+                                                            <i class="iconly-Heart icli"></i>
                                                         </button>
                                                     <?php else: ?>
                                                         <button class="btn p-0 wishlist btn-wishlist text-danger"
                                                             onclick="add_wishlist('<?= $product['id']; ?>', '<?= $user_id ?>')">
-                                                            <i class="iconly-Heart icli" id="iconly-Heart"></i>
+                                                            <i class="iconly-Heart icli"></i>
                                                         </button>
                                                     <?php endif; ?>
                                                 </div>
@@ -1121,10 +1139,9 @@ for ($i = 3; $i < count($sections); $i++)
                                                         <?php
                                                         $rating = round($product['average_rating']);
                                                         for ($j = 1; $j <= 5; $j++):
-                                                            ?>
+                                                        ?>
                                                             <li>
-                                                                <i data-feather="star"
-                                                                    class="<?= ($j <= $rating) ? 'fill' : ''; ?>"></i>
+                                                                <i data-feather="star" class="<?= ($j <= $rating) ? 'fill' : ''; ?>"></i>
                                                             </li>
                                                         <?php endfor; ?>
                                                     </ul>
@@ -1158,6 +1175,7 @@ for ($i = 3; $i < count($sections); $i++)
         </div>
     </section>
 <?php } ?>
+
 
 
 

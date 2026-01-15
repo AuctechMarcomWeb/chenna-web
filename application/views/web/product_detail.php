@@ -837,6 +837,87 @@ if (!empty($getData['image5']))
         border: 2px solid #000;
         opacity: 1;
     }
+
+    /* Center arrows vertically on image */
+    .level2-banner-slider .item {
+        height: 400px;
+        /* Fixed height */
+        overflow: hidden;
+        position: relative;
+    }
+
+
+
+    /* Navigation arrows */
+    .level2-banner-slider .owl-nav {
+        position: absolute;
+        top: 43%;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+
+    .level2-banner-slider .owl-nav button {
+        background: rgba(0, 0, 0, 0.4);
+        color: #fff;
+        border: none;
+        font-size: 24px;
+        padding: 10px 15px;
+        border-radius: 50%;
+        pointer-events: all;
+        transition: background 0.3s;
+    }
+
+    .level2-banner-slider .owl-nav button:hover {
+        background: rgba(0, 0, 0, 0.7);
+    }
+
+    .level2-banner-slider .owl-dots {
+        position: absolute;
+        bottom: 10px;
+        width: 100%;
+        text-align: center;
+    }
+
+    .ratio_156 .bg-size:before {
+        content: "";
+        padding-top: 100%;
+        display: block;
+    }
+
+    .product-title.product-warning {
+        background-color: rgb(255 229 217);
+    }
+
+    .product-title.product-warning {
+        padding: 9px;
+        text-align: center;
+        background-color: #d54f0d40;
+        color: #000;
+        border-radius: 8px 8px 0 0;
+        border: 2px solid rgba(0, 0, 0, 0);
+        background-size: contain;
+        background-clip: border-box;
+        background-position: 0 0;
+        -webkit-animation: shape 15s linear infinite;
+        animation: shape 15s linear infinite;
+    }
+
+    .home-contain {
+
+        border-radius: 0px;
+    }
+
+    .vendor-box .vendor-contain {
+        padding: 0px;
+    }
+
+    .location {
+        font-size: 12px !important;
+        margin-top: 7px !important;
+    }
 </style>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
@@ -1125,69 +1206,91 @@ if (!empty($getData['image5']))
 
             <div class="col-xxl-3 col-xl-4 col-lg-5 d-none d-lg-block wow fadeInUp">
                 <div class="right-sidebar-box">
-                    <div class="vendor-box">
-                        <div class="vendor-contain">
-                            <div class="vendor-image">
-                                <img src="../plugins/images/logo.png" class="blur-up lazyload" alt="">
-                            </div>
 
-                            <div class="vendor-name">
-                                <h5 class="fw-500">Chenna</h5>
+                    <?php if (!empty($vendorData)): ?>
 
-                            </div>
-                        </div>
 
-                        <p class="vendor-detail" style="text-align:justify;">
-                            At Chenna, we bring you the finest and trendiest styles straight from the heart of
-                            fashion. Every piece is crafted to add comfort, elegance, and a touch of confidence to your
-                            everyday look.
+                        <div class="vendor-box">
+                            <div class="vendor-contain" style="display: flex; align-items: center; gap: 15px;">
 
-                        </p>
 
-                        <div class="vendor-list">
-                            <ul>
-                                <li>
-                                    <div class="address-contact">
-                                        <i data-feather="headphones"></i>
-                                        <h5>Contact Us: <span class="text-content"> +91 98380 75493</span></h5>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="pt-25">
-                        <div class="hot-line-number">
-                            <div class="share-option">
-                                <div class="product-title m-0">
-                                    <h4>Social Media</h4>
+                                <div class="vendor-image" style="flex-shrink: 0;">
+                                    <img src="<?= !empty($vendorData['vendor_logo'])
+                                        ? base_url($vendorData['vendor_logo'])
+                                        : base_url('assets/images/no-image.png'); ?>"
+                                        alt="<?= $vendorData['name'] ?? 'Vendor'; ?>"
+                                        style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;">
                                 </div>
-                                <ul class="social-share-list">
-                                    <li>
-                                        <a href="javascript:void(0)">
-                                            <i class="fa-brands fa-facebook-f"></i>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="javascript:void(0)">
-                                            <i class="fa-brands fa-linkedin-in"></i>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="javascript:void(0)">
-                                            <i class="fa-brands fa-whatsapp"></i>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="javascript:void(0)">
-                                            <i class="fa-solid fa-envelope"></i>
-                                        </a>
-                                    </li>
-                                </ul>
+
+
+                                <div class="vendor-name">
+                                    <?php if (!empty($vendorData['shop_name'])): ?>
+                                        <p class="text-content" style="margin: 0; font-weight: 600; font-size: 16px;">
+                                            <?= ucfirst($vendorData['shop_name']); ?>
+                                        </p>
+                                        <span class="location">
+                                            <img width="20" height="20" src="https://img.icons8.com/color/48/marker--v1.png"
+                                                alt="marker--v1" />
+                                            <?= !empty($vendorData['city']) ? $vendorData['city'] : 'N/A'; ?>,
+                                            <?= !empty($vendorData['state']) ? $vendorData['state'] : 'N/A'; ?>
+
+
+                                        </span>
+                                    <?php endif; ?>
+                                </div>
+
+                            </div>
+                           
+                        </div>
+
+                    <?php else: ?>
+                        <div class="vendor-box">
+                            <div class="vendor-contain">
+                                <div class="vendor-image">
+                                    <img src="<?= base_url('plugins/images/logo.png'); ?>" class="blur-up lazyload"
+                                        alt="Default Vendor">
+                                </div>
+                                <div class="vendor-name">
+                                    <h5 class="fw-500">Chenna</h5>
+                                </div>
                             </div>
                         </div>
+                    <?php endif; ?>
+                    <div class="ratio_156 pt-2">
+                        <div>
+                            <h3 class="product-title product-warning">Special Offer</h3>
+                        </div>
+                        <?php
+                        $adList = $this->db->where('bannerType', 2)
+                            ->where('level', 2)
+                            ->where('status', 1)
+                            ->get('banner_master')
+                            ->result_array();
+                        ?>
+
+                        <div class="owl-carousel owl-theme level2-banner-slider mt-2">
+                            <?php if (!empty($adList)): ?>
+                                <?php foreach ($adList as $ad): ?>
+                                    <div class="item">
+                                        <div class="home-contain">
+                                            <img src="<?= base_url('assets/banner_images/' . $ad['banner_image']); ?>"
+                                                class="bg-img blur-up lazyload" alt="Banner">
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <div class="item">
+                                    <div class="home-contain">
+                                        <img src="<?= base_url('assets/images/vegetable/banner/8.jpg'); ?>"
+                                            class="bg-img blur-up lazyload" alt="Default Banner">
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+                        </div>
                     </div>
+
                 </div>
+
             </div>
         </div>
     </div>
@@ -1265,6 +1368,15 @@ if (!empty($getData['image5']))
                                                 ?>
                                             </td>
                                         </tr>
+                                        <?php if (!empty($extra_fields)): ?>
+                                            <?php foreach ($extra_fields as $field): ?>
+                                                <tr>
+                                                    <th scope="row"><?= ucfirst(str_replace('_', ' ', $field['field_name'])); ?>
+                                                    </th>
+                                                    <td><?= $field['field_value'] ?: 'No data found'; ?></td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
 
                                         <tr>
                                             <th scope="row">Fit</th>
@@ -1830,7 +1942,6 @@ if (!empty($getData['image5']))
             $('#writereview').modal('show');
         }
     });
-
 </script>
 <script>
     $('.review-like, .review-dislike').on('click', function (e) {
@@ -1853,11 +1964,9 @@ if (!empty($getData['image5']))
 
                 if (res.status === 'login') {
                     $('#login-popup').modal('show');
-                }
-                else if (res.status === 'not_purchased') {
+                } else if (res.status === 'not_purchased') {
                     alert('Only buyers can like or dislike reviews');
-                }
-                else if (res.status === 'success') {
+                } else if (res.status === 'success') {
                     $('#like_' + review_id).text(res.like);
                     $('#dislike_' + review_id).text(res.dislike);
                 }
@@ -1869,7 +1978,6 @@ if (!empty($getData['image5']))
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-
     function buy_now(pro_id) {
         const quantity = document.querySelector('.qty-input').value || 1;
 
@@ -1899,7 +2007,6 @@ if (!empty($getData['image5']))
             }
         });
     }
-
 </script>
 <script>
     const variations = <?= json_encode($variations) ?>;
@@ -2079,10 +2186,24 @@ if (!empty($getData['image5']))
             asNavFor: '.product-main.no-arrow',
             arrows: true,
             infinite: true,
-            responsive: [
-                { breakpoint: 992, settings: { slidesToShow: 4 } },
-                { breakpoint: 768, settings: { slidesToShow: 4 } },
-                { breakpoint: 576, settings: { slidesToShow: 3 } }
+            responsive: [{
+                breakpoint: 992,
+                settings: {
+                    slidesToShow: 4
+                }
+            },
+            {
+                breakpoint: 768,
+                settings: {
+                    slidesToShow: 4
+                }
+            },
+            {
+                breakpoint: 576,
+                settings: {
+                    slidesToShow: 3
+                }
+            }
             ]
         });
     }
@@ -2113,7 +2234,10 @@ if (!empty($getData['image5']))
         $.ajax({
             url: '<?= base_url("web/add_to_cart") ?>',
             type: 'POST',
-            data: { pro_id: selectedVariationId, quantity: qty },
+            data: {
+                pro_id: selectedVariationId,
+                quantity: qty
+            },
             dataType: 'json',
             success: function (res) {
                 if (res.status === 'error') {
@@ -2183,11 +2307,19 @@ if (!empty($getData['image5']))
         { ?>
             const qty = parseInt($('.qty-input').val()) || 1;
             if (!selectedVariationId) {
-                Swal.fire({ icon: 'warning', title: 'Select color and size', timer: 1500, showConfirmButton: false });
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Select color and size',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
                 return;
             }
 
-            $.post('<?= base_url("web/buy_now_session") ?>', { pro_id: selectedVariationId, quantity: qty }, function () {
+            $.post('<?= base_url("web/buy_now_session") ?>', {
+                pro_id: selectedVariationId,
+                quantity: qty
+            }, function () {
                 window.location.href = '<?= base_url("web/checkout") ?>';
             }, 'json');
         <?php } else
@@ -2249,7 +2381,8 @@ if (!empty($getData['image5']))
                 cursor: "zoom-out"
             });
 
-            let scale = 1, startDist = 0;
+            let scale = 1,
+                startDist = 0;
 
             $img.on("touchstart", function (e) {
                 if (e.originalEvent.touches.length === 2) {
@@ -2282,11 +2415,11 @@ if (!empty($getData['image5']))
     });
 </script>
 <script>
-
     document.querySelector('.share-toggle').addEventListener('click', function () {
         const box = document.getElementById('shareBox');
         box.style.display = box.style.display === 'none' ? 'block' : 'none';
     });
+
     function openSharePopup(url) {
         window.open(
             url,
@@ -2320,4 +2453,30 @@ if (!empty($getData['image5']))
         let emailUrl = "mailto:?subject=" + emailSubject + "&body=" + emailBody;
         openSharePopup(emailUrl);
     });
+</script>
+<script>
+
+    $(document).ready(function () {
+        $(".level2-banner-slider").owlCarousel({
+            loop: true,
+            margin: 0,
+            nav: true,
+            dots: false,
+            autoplay: true,
+            autoplayTimeout: 5000,
+            autoplayHoverPause: true,
+            items: 1,
+            navText: [
+                "<i class='fa fa-chevron-left'></i>",
+                "<i class='fa fa-chevron-right'></i>"
+            ],
+            responsive: {
+                0: { items: 1, nav: false, dots: false, height: 200 },
+                576: { items: 1, height: 250 },
+                768: { items: 1, height: 300 },
+                1200: { items: 1, height: 350 }
+            }
+        });
+    });
+
 </script>

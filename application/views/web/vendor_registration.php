@@ -53,74 +53,86 @@
 
                         <!-- Full Name -->
                         <div class="col-md-6">
-                            <label class="form-label">Full Name / Owner Name *</label>
+                            <label class="form-label">Full Name / Owner Name <span class="text-dager">*</span></label>
                             <input type="text" class="form-control" name="name" placeholder="Full Name" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Shop / Company Name </label>
+                            <input type="text" class="form-control" name="shop_name" placeholder="Shop Name" required>
                         </div>
 
                         <!-- Email -->
                         <div class="col-md-6">
-                            <label class="form-label">Email *</label>
+                            <label class="form-label">Email <span class="text-dager">*</span></label>
                             <input type="email" class="form-control" name="email" placeholder="Email Address" required>
                         </div>
 
                         <!-- Mobile -->
                         <div class="col-md-6">
-                            <label class="form-label">Mobile *</label>
+                            <label class="form-label">Mobile <span class="text-dager">*</span></label>
                             <input type="text" class="form-control" name="mobile" placeholder="Mobile Number"
                                 maxlength="10" minlength="10" required>
                         </div>
 
-                       
-
-                        <!-- Shop Name -->
-                        <div class="col-md-6">
-                            <label class="form-label">Shop / Company Name *</label>
-                            <input type="text" class="form-control" name="shop_name" placeholder="Shop Name" required>
-                        </div>
 
                         <!-- GST -->
                         <div class="col-md-6">
-                            <label class="form-label">GST Number</label>
-                            <input type="text" class="form-control" name="gst_number" placeholder="GST Number">
+                            <label class="form-label">GST Number <span class="text-danger">*</span></label>
+
+                            <div class="mb-2" id="gst_choice">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="has_gst" id="gst_yes"
+                                        value="yes">
+                                    <label class="form-check-label" for="gst_yes">Yes</label>
+                                </div>
+
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="has_gst" id="gst_no" value="no"
+                                        checked>
+                                    <label class="form-check-label" for="gst_no">No</label>
+                                </div>
+                            </div>
+
+                            <!-- GST INPUT -->
+                            <input type="text" class="form-control d-none" name="gst_number" id="gst_number"
+                                placeholder="Enter GST Number">
                         </div>
 
+
+
+                        <div class="col-md-6">
+                            <label class="form-label">Shop / Vendor Logo </label>
+                            <input type="file" class="form-control" name="vendor_logo" accept="image/*">
+                        </div>
                         <!-- Profile Pic -->
                         <div class="col-md-6">
-                            <label class="form-label">Profile Picture</label>
+                            <label class="form-label">Your Photo <span class="text-dager">*</span></label>
                             <input type="file" class="form-control" name="profile_pic" accept="image/*">
                         </div>
 
-                        <!-- Vendor Logo -->
-                        <div class="col-md-6">
-                            <label class="form-label">Vendor Logo</label>
-                            <input type="file" class="form-control" name="vendor_logo" accept="image/*">
-                        </div>
+
 
                         <!-- Aadhaar -->
                         <div class="col-md-6">
-                            <label class="form-label">Aadhaar Card *</label>
+                            <label class="form-label">Aadhaar Card <span class="text-dager">*</span></label>
                             <input type="file" class="form-control" name="aadhar_card" accept="image/*,application/pdf"
                                 required>
                         </div>
 
                         <!-- PAN -->
                         <div class="col-md-6">
-                            <label class="form-label">PAN Card *</label>
+                            <label class="form-label">PAN Card <span class="text-dager">*</span></label>
                             <input type="file" class="form-control" name="pan_card" accept="image/*,application/pdf"
                                 required>
                         </div>
 
                         <!-- Address -->
                         <div class="col-md-6">
-                            <label class="form-label">Address</label>
+                            <label class="form-label">Address <span class="text-dager">*</span></label>
                             <input type="text" class="form-control" name="address" placeholder="Full Address">
                         </div>
 
-                        <!-- Locality -->
-                        <div class="col-md-6">
-                            <label class="form-label">Locality</label>
-                            <input type="text" class="form-control" name="locality" placeholder="Locality">
-                        </div>
 
                         <!-- City -->
                         <div class="col-md-6">
@@ -136,21 +148,26 @@
 
                         <!-- Pincode -->
                         <div class="col-md-6">
-                            <label class="form-label">Pincode</label>
+                            <label class="form-label">Pincode <span class="text-dager">*</span></label>
                             <input type="number" class="form-control" name="pincode" maxlength="6" minlength="6"
                                 placeholder="Pincode">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Promoter Code</label>
-                            <input type="number" class="form-control" name="promoter_code_used" maxlength="6" minlength="6"
-                                placeholder="Code">
+                            <input type="number" class="form-control" name="promoter_code_used" maxlength="6"
+                                minlength="6" placeholder="Code">
                         </div>
                         <!-- Terms -->
                         <div class="col-12 mt-3">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" required>
                                 <label class="form-check-label">
-                                    I agree with <span>Terms</span> and <span>Privacy</span>
+                                    <label class="form-check-label">
+                                        By registering, I confirm that I have read and agree to the
+                                        <span>Terms & Conditions</span> and <span>Privacy Policy</span>.
+                                    </label>
+
+
                                 </label>
                             </div>
                         </div>
@@ -228,5 +245,36 @@
                 });
             }
         });
+    });
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const gstYes = document.getElementById("gst_yes");
+        const gstNo = document.getElementById("gst_no");
+        const gstInput = document.getElementById("gst_number");
+        const gstChoice = document.getElementById("gst_choice");
+
+        // YES CLICK
+        gstYes.addEventListener("change", function () {
+            if (this.checked) {
+                gstInput.classList.remove("d-none");   // show input
+                gstInput.setAttribute("required", "required");
+
+                gstChoice.classList.add("d-none");    // hide yes/no
+            }
+        });
+
+        // NO CLICK
+        gstNo.addEventListener("change", function () {
+            if (this.checked) {
+                gstInput.classList.add("d-none");     // hide input
+                gstInput.removeAttribute("required");
+                gstInput.value = "";
+
+                gstChoice.classList.remove("d-none"); // keep radios visible
+            }
+        });
+
     });
 </script>
