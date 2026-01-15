@@ -172,6 +172,12 @@
     width: 0;
     height: 0;
   }
+  .vendor-logo{
+    width: 80px;
+    height: 50px;
+    object-fit: contain;
+}
+
 </style>
 <div class="content-wrapper">
   <!-- Content Header (Page header) -->
@@ -319,13 +325,16 @@
                       <td><?= $value['name'] ?? ''; ?></td>
                       <td><?= $value['category_name'] ?? ''; ?></td>
                       <td><?= $category['sub_category_name'] ?? ''; ?></td>
-                     <td class="text-center text-blue"> <img src="<?= !empty($value['vendor_logo']) ? base_url().$value['vendor_logo'] : '---'; ?>" 
-                        alt="Vendor Logo"
-                        height="50"
-                        onerror="this.style.display='none'"><br>
-                        <span><?= $value['shop_name'] ?? '---'; ?></span>
+                     <td class="text-center text-blue"> <img src="<?= !empty($value['vendor_logo']) 
+                      ? base_url($value['vendor_logo']) 
+                      : base_url('plugins/images/logo.png'); ?>" 
+                          alt="Vendor Logo"
+                        class="vendor-logo"
+                          onerror="this.src='<?= base_url('plugins/images/logo.png'); ?>'">
+                      <br>
+                        <span><?= $value['shop_name'] ; ?></span>
                     </td>
-                      <td><?= $value['vendor_name'] ?? '---'; ?></td>
+                      <td><?= $value['vendor_name'] ?? '<span style="color:#f85606;">Chenna</span>'; ?></td>
                       <td>
                         <?= $value['product_name']; ?><br>
                         Color: <?= $value['color']; ?> | Size: <?= $value['size']; ?>

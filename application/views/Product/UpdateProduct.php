@@ -48,6 +48,13 @@ i.fa.fa-fw.fa-edit {
     color: azure;
 }
 .err_color{color: red;}
+i.fa.fa-plus {
+    float: left;
+    font-size: 17px;
+    line-height: 20px;
+    margin-right: 10px;
+    font-weight: norlmal;
+}
 </style>
 <style>
 .ck-editor__editable_inline {
@@ -1014,7 +1021,7 @@ $sub_cate_data = $this->db->get_where('sub_category_master', array('category_mas
               
               <div class="row" style="margin-left:10px;margin-top:10px !important">
                 <div class="col-sm-12 mt-5">
-                  <button type="button" class="btn btn-success mt-2" id="addMoreBtn">Add More</button>
+                  <button type="button" class="btn btn-success mt-2" id="addMoreBtn">  <i class="fa fa-plus me-2"></i>  Add More Info</button>
                   <button type="submit" class="btn btn-info mt-2" style="float:right;">Submit</button>
                 </div>
               </div>

@@ -40,6 +40,14 @@
   .err_color {
     color: red;
   }
+
+  i.fa.fa-plus {
+    float: left;
+    font-size: 17px;
+    line-height: 20px;
+    margin-right: 10px;
+    font-weight: norlmal;
+  }
 </style>
 <style>
   .ck-editor__editable_inline {
@@ -611,48 +619,59 @@ $sub_cate_data = @$this->db->get_where('sub_category_master', array('category_ma
                   </form>
 
                 </div>
-                <div class="<?php if($tab_id=='5'){echo'active';}else{'';}?> tab-pane" id="shipping_information">
-                  <form action="<?php echo base_url();?>admin/product/save_shipping" method="POST" enctype="multipart/form-data">
+                <div class="<?php if ($tab_id == '5')
+                {
+                  echo 'active';
+                } else
+                {
+                  '';
+                } ?> tab-pane" id="shipping_information">
+                  <form action="<?php echo base_url(); ?>admin/product/save_shipping" method="POST"
+                    enctype="multipart/form-data">
                     <div class="row" style="margin-left: 10px;">
 
-                        <div class="col-sm-3">
-                          <label>Weight (gm)</label>
-                            <input type="text" class="form-control"  value="<?=@$getBasicInfo['weight'];?>" name="weight" placeholder="Weight">
-                          </div>
+                      <div class="col-sm-3">
+                        <label>Weight (gm)</label>
+                        <input type="text" class="form-control" value="<?= @$getBasicInfo['weight']; ?>" name="weight"
+                          placeholder="Weight">
+                      </div>
 
-                        <div class="col-sm-3">
+                      <div class="col-sm-3">
                         <label>Packet Length (cm)</label>
-                          <input type="text" class="form-control" value="<?=@$getBasicInfo['packet_length'];?>"  name="packet_length" placeholder="Dimensional">
-                          
-                        </div>
+                        <input type="text" class="form-control" value="<?= @$getBasicInfo['packet_length']; ?>"
+                          name="packet_length" placeholder="Dimensional">
 
-                        <div class="col-sm-3">
+                      </div>
+
+                      <div class="col-sm-3">
                         <label>Packet Width (cm)</label>
-                          <input type="text" class="form-control" value="<?=@$getBasicInfo['packet_weight'];?>"  name="packet_weight" placeholder="Dimensional">
-                        
-                        </div>
+                        <input type="text" class="form-control" value="<?= @$getBasicInfo['packet_weight']; ?>"
+                          name="packet_weight" placeholder="Dimensional">
+
+                      </div>
 
 
 
-                        <div class="col-sm-3">
+                      <div class="col-sm-3">
                         <label>Packet Height (cm)</label>
-                          <input type="text" class="form-control" value="<?=@$getBasicInfo['packet_height'];?>"  name="packet_height" placeholder="Dimensional">
-                          <input type="hidden" class="form-control" name="id"  value="<?=@$getBasicInfo['id'];?>">
-                        </div>
-                    </div>
-                    <br>
-                    <div class="row" style="margin-left: 10px;"> 
-                      <div class="col-sm-12">
-                      <button type="submit" class="btn btn-info" style="float: right;">Next</button>
+                        <input type="text" class="form-control" value="<?= @$getBasicInfo['packet_height']; ?>"
+                          name="packet_height" placeholder="Dimensional">
+                        <input type="hidden" class="form-control" name="id" value="<?= @$getBasicInfo['id']; ?>">
                       </div>
                     </div>
-                    
-                    
-                    
-                    
+                    <br>
+                    <div class="row" style="margin-left: 10px;">
+                      <div class="col-sm-12">
+                        <button type="submit" class="btn btn-info" style="float: right;">Next</button>
+                      </div>
+                    </div>
+
+
+
+
                     <br>
                   </form>
-               </div>
+                </div>
                 <div class="<?php if ($tab_id == '6')
                 {
                   echo 'active';
@@ -678,7 +697,7 @@ $sub_cate_data = @$this->db->get_where('sub_category_master', array('category_ma
                         <label>Product Hsn</label>
                         <input type="text" class="form-control" name="product_hsn" placeholder="Product Hsn" required>
                       </div>
-                       <div class="col-sm-12">
+                      <div class="col-sm-12">
                         <label>Description</label>
                         <textarea class="form-control" name="pro_description" placeholder="Product Description"
                           required></textarea>
@@ -689,54 +708,59 @@ $sub_cate_data = @$this->db->get_where('sub_category_master', array('category_ma
                     <div id="productContainer"></div>
 
                     <!-- Hidden Template -->
-                    <div class="productGroup field-row" id="productTemplate" 
+                    <div class="productGroup field-row" id="productTemplate"
                       style="margin-bottom:10px; position:relative; display:none;">
-                      
+
                       <div class="row mb-2" style="margin-left:0;padding:10px">
-                          
-                          <div class="col-sm-1 sequence">
-                              <strong>1.</strong>
-                          </div>
 
-                          <div class="col-sm-5">
-                              <input type="text" class="form-control" name="field_name[]" placeholder="Enter Field Name">
-                          </div>
+                        <div class="col-sm-1 sequence">
+                          <strong>1.</strong>
+                        </div>
 
-                          <div class="col-sm-5">
-                              <input type="text" class="form-control" name="field_value[]" placeholder="Enter Field Value">
-                          </div>
+                        <div class="col-sm-5">
+                          <input type="text" class="form-control" name="field_name[]" placeholder="Enter Field Name">
+                        </div>
+
+                        <div class="col-sm-5">
+                          <input type="text" class="form-control" name="field_value[]" placeholder="Enter Field Value">
+                        </div>
                       </div>
 
-                      <button type="button" class="btn btn-danger removeBtn" 
-                              style="position:absolute; top:8px; right:28px;">Remove</button>
+                      <button type="button" class="btn btn-danger removeBtn"
+                        style="position:absolute; top:8px; right:28px;">Remove</button>
                     </div>
 
                     <!-- Submit Button -->
                     <div class="row" style="margin-top:10px; padding:20px">
-                        <button type="button" class="btn btn-success mt-2" id="addMoreBtn">Add More</button>
+                      <button type="button" class="btn btn-success mt-2 d-flex align-items-center" id="addMoreBtn">
+                        <i class="fa fa-plus me-2"></i> Add More Info
+                      </button>
                       <button type="submit" class="btn btn-info" style="float:right;">Submit</button>
-                    </div><br>
+                    </div>
 
-                  </form>
-                </div>
 
+                </div><br>
+
+                </form>
               </div>
-
-              <!-- jQuery -->
 
             </div>
 
+            <!-- jQuery -->
+
           </div>
 
-
         </div>
-        <!-- /.box-footer -->
+
 
       </div>
-      <!-- /.box -->
+      <!-- /.box-footer -->
 
     </div>
-    <!--/.col (right) -->
+    <!-- /.box -->
+
+</div>
+<!--/.col (right) -->
 </div>
 <!-- /.row -->
 </section>
@@ -745,32 +769,31 @@ $sub_cate_data = @$this->db->get_where('sub_category_master', array('category_ma
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
- $(document).ready(function(){
+  $(document).ready(function () {
 
     // ADD NEW FIELD
-    $("#addMoreBtn").click(function(){
-        var clone = $("#productTemplate").clone();
-        clone.removeAttr("id");
-        clone.show();
-        $("#productContainer").append(clone);
-        updateSequence();
+    $("#addMoreBtn").click(function () {
+      var clone = $("#productTemplate").clone();
+      clone.removeAttr("id");
+      clone.show();
+      $("#productContainer").append(clone);
+      updateSequence();
     });
 
     // REMOVE NEW FIELD (JS only)
-    $(document).on("click", ".removeBtn", function(){
-        $(this).closest(".field-row").remove();
-        updateSequence();
+    $(document).on("click", ".removeBtn", function () {
+      $(this).closest(".field-row").remove();
+      updateSequence();
     });
 
-});
+  });
 
-// UPDATE SEQUENCE NUMBERS
-function updateSequence()
-{
-    $(".field-row").each(function(index){
-        $(this).find(".sequence strong").text((index + 1) + ".");
+  // UPDATE SEQUENCE NUMBERS
+  function updateSequence() {
+    $(".field-row").each(function (index) {
+      $(this).find(".sequence strong").text((index + 1) + ".");
     });
-}
+  }
 </script>
 
 
