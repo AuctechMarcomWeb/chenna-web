@@ -14,7 +14,7 @@
       'cancelled_orders' => 0,
       'shipped_orders'   => 0,
       'delivered_orders' => 0,
-      'completed_orders' => 0 // optional: delivered as completed
+      'completed_orders' => 0 
     ];
 
     $this->db->select('status, COUNT(*) as count');

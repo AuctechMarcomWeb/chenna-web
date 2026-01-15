@@ -99,19 +99,11 @@ $main = strtolower(trim($main));
 if (
     // Fashion & Clothing
     $main == 'fashion-clothing' ||
-    $main == 'bottomwear' ||
+    $main == 'men-s-fashion' ||
     $main == 'footwear' ||
-    $main == 'men' ||
-    $main == 'women' ||
-    $main == 'western-wear' ||
+    $main == 'women-s-fashion' ||
+    $main == 'kids-fashion' ||
     $main == 'women-footwear' ||
-    $main == 'indian-and-festive-wear' ||
-    $main == 'boys-clothing' ||
-    $main == 'girls-clothing' ||
-    $main == 'kid' ||
-    $main == 'kids-infants' ||
-    $main == 'women-accessories' ||
-    $main == 'jewelry' ||
 
     // Electronics
     $main == 'electronics' ||

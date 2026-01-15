@@ -36,10 +36,12 @@ class Web extends CI_Controller
     $fields['mobile'] = $new_mobile;
     $this->db->where('mobile', $old_mobile);
     $row = $this->db->update('user_master', $fields);
-    if ($row > 0) {
+    if ($row > 0)
+    {
       echo '1';
       exit;
-    } else {
+    } else
+    {
       echo '2';
       exit;
     }
@@ -52,9 +54,10 @@ class Web extends CI_Controller
     $mobile_otp = $this->input->post('otp');
     $mobile = $mobile_num;
 
-    if (preg_match('/^\d{10}$/', $mobile_num) && !empty($mobile_otp)) {
+    if (preg_match('/^\d{10}$/', $mobile_num) && !empty($mobile_otp))
+    {
 
-      $text = 'Dear Customer, Your Mobile Verification OTP is: ' . $mobile_otp . '. Please enter this OTP to verify your mobile number. From www.Wazi Wears.in Regards, Wazi Wears Real Time Private Limited';
+      $text = 'Dear Customer, Your Mobile Verification OTP is: ' . $mobile_otp . '. Please enter this OTP to verify your mobile number. From www.Chenna.in Regards, Chenna Real Time Private Limited';
 
       sendSMS($mobile_num, $text, '1007086055987083292');
 
@@ -62,7 +65,8 @@ class Web extends CI_Controller
         ->set_status_header(200)
         ->set_content_type('application/json')
         ->set_output(json_encode(['status' => 'Success', 'message' => 'SMS sent successfully']));
-    } else {
+    } else
+    {
 
       $this->output
         ->set_status_header(400)
@@ -94,7 +98,8 @@ class Web extends CI_Controller
     $mobile = $mobile_num;
     $mobile_otp = $this->input->post('otp');
 
-    if (strlen($mobile) === 10 && strlen($mobile_otp) != 0) {
+    if (strlen($mobile) === 10 && strlen($mobile_otp) != 0)
+    {
 
       $data = array(
         'PRODUCT_ID' => $product_id,
@@ -103,13 +108,14 @@ class Web extends CI_Controller
       // Insert data into ORDER_QUERY table
       // $this->ORDER_QUERY->insert($data);
       $this->db->insert('ORDER_QUERY', $data);
-      $text = 'Dear Customer Your Mobile Verification OTP is: ' . $mobile_otp . ' Please enter this OTP to verify your mobile number. From www.Wazi Wears.inRegardsWazi Wears Real Time Private Limited';
+      $text = 'Dear Customer Your Mobile Verification OTP is: ' . $mobile_otp . ' Please enter this OTP to verify your mobile number. From www.Chenna.inRegardsChenna Real Time Private Limited';
       sendSMS($mobile_num, $text, '1007086055987083292');
       $this->output
         ->set_status_header(200)
         ->set_content_type('application/json')
         ->set_output(json_encode(['status' => 'Success', 'message' => 'SMS sent successfully']));
-    } else {
+    } else
+    {
       // Return an error response for invalid mobile number
       $this->output
         ->set_status_header(400)
@@ -127,11 +133,14 @@ class Web extends CI_Controller
     $this->db->group_by('product_code');
     $res = $this->db->get_where('sub_product_master', array('status' => '1'))->result_array();
     $output = '<ul class="list-unstyled search_list">';
-    if ($res) {
-      foreach ($res as $row) {
+    if ($res)
+    {
+      foreach ($res as $row)
+      {
         $output .= '<li class="li_list">' . $row["product_name"] . '</li>';
       }
-    } else {
+    } else
+    {
       $output .= '<li class="li_list">Search Was Not Found</li>';
     }
     $output .= '</ul>';
@@ -142,12 +151,14 @@ class Web extends CI_Controller
     $pro_id = (int) $this->input->post('pro_id');
     $qty = (int) $this->input->post('quantity');
 
-    if ($qty < 1) $qty = 1;
+    if ($qty < 1)
+      $qty = 1;
 
     // Fetch product info
     $product_info = $this->db->get_where('sub_product_master', ['id' => $pro_id])->row_array();
 
-    if (!$product_info) {
+    if (!$product_info)
+    {
       echo json_encode([
         'cart_val' => $this->cart->total_items(),
         'qty' => 'false'
@@ -158,14 +169,17 @@ class Web extends CI_Controller
     // Check if product already in cart to get existing qty
     $total_item = $this->cart->contents();
     $pro_qty = 0;
-    foreach ($total_item as $value) {
-      if ($pro_id == $value['id']) {
+    foreach ($total_item as $value)
+    {
+      if ($pro_id == $value['id'])
+      {
         $pro_qty = $value['qty'];
       }
     }
 
     // Check stock
-    if ($product_info['quantity'] >= ($pro_qty + $qty)) {
+    if ($product_info['quantity'] >= ($pro_qty + $qty))
+    {
       // Clean product name
       $name_clean = str_replace(
         ['"', "'", "(", ")", "#", "&", "|", "/", "-", "_", "@", "$", "*", "!", "?", "%", "+", "=", "~", "`", "^", "<", ">", "{", "}", "[", "]", ";", ":", ",", ".", "\\"],
@@ -198,7 +212,8 @@ class Web extends CI_Controller
         'cart_val' => $this->cart->total_items(),
         'qty' => 'true'
       ]);
-    } else {
+    } else
+    {
       echo json_encode([
         'cart_val' => $this->cart->total_items(),
         'qty' => 'false'
@@ -212,15 +227,19 @@ class Web extends CI_Controller
     $pro_id = $this->input->post('pro_id');
     $total_item = $this->cart->contents();
     $pro_qty = 0;
-    foreach ($total_item as $value) {
-      if ($pro_id == $value['id']) {
+    foreach ($total_item as $value)
+    {
+      if ($pro_id == $value['id'])
+      {
         $pro_qty = $value['qty'];
       }
     }
     $pro_id = $this->input->post('pro_id');
     $product_info = $this->db->get_where('sub_product_master', array('id' => $pro_id))->row_array();
-    if ($product_info['quantity'] > $pro_qty) {
-      if (!empty($product_info)) {
+    if ($product_info['quantity'] > $pro_qty)
+    {
+      if (!empty($product_info))
+      {
         $qty = 1;
       }
       $data = array(
@@ -240,7 +259,8 @@ class Web extends CI_Controller
       $data_val['data'] = $insert_Data;
       $cart_total = $this->cart->total_items();
       echo json_encode($data_val);
-    } else {
+    } else
+    {
       $data_val['cart_val'] = $this->cart->total_items();
       $data_val['qty'] = 'false';
       echo json_encode($data_val);
@@ -266,24 +286,31 @@ class Web extends CI_Controller
       ->where('status', 1)
       ->get()
       ->result_array();
-    if ($id == 2) {
+    if ($id == 2)
+    {
       $data['p_cat'] = "fresh-fruits";
-    } else if ($id == 3) {
+    } else if ($id == 3)
+    {
       $data["p_cat"] = "fresh-vegetables";
-    } else if ($id == 7) {
+    } else if ($id == 7)
+    {
       $data['p_cat'] = "chicken-meat";
-    } else if ($id == 12) {
+    } else if ($id == 12)
+    {
       $data['p_cat'] = "kalanamak-rice";
-    } else if ($id == 16) {
+    } else if ($id == 16)
+    {
       $data['p_cat'] = "spices";
-    } else if ($id == 13) {
+    } else if ($id == 13)
+    {
       $data['p_cat'] = "dairy-items";
-    } else {
+    } else
+    {
       $data['p_cat'] = "dry-fruits";
     }
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Category | Wazi Wears';
+    $data['title'] = 'Category | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/category_items');
     $this->load->view('web/include/footer');
@@ -294,23 +321,11 @@ class Web extends CI_Controller
 
     $data['wishlist_count'] = !empty($userData) ? $this->web_model->get_total_wishlist_by_user($userData['id']) : 0;
 
-    // $data['productsCollection'] = $this->web_model->getCollectionByTagNameWithRating("Product For You");
-    // $data['mensCollection'] = $this->web_model->getCollectionByTagNameWithRating("Men’s Collections");
-    // $data['womensCollection'] = $this->web_model->getCollectionByTagNameWithRating("Women's Collections");
-    // $data['kidsCollection'] = $this->web_model->getCollectionByTagNameWithRating("Kids Collection");
-    // $data['footwearsCollection'] = $this->web_model->getCollectionByTagNameWithRating("Footwear Collections");
-    // $data['accessoriesCollection'] = $this->web_model->getCollectionByTagNameWithRating("Women's Accessories Collections");
-
-
+    // Tags
     $data['sections'] = $this->web_model->getAllTagSections();
     $data['tagIndex'] = 0;
 
-
-
-
-
-
-    // ✅ Fetch Parent & Child Categories
+    // Categories
     $data['categories'] = $this->db
       ->select('p.id as parent_id, p.name as parent_name, c.id as category_id, c.category_name, c.app_icon')
       ->from('parent_category_master p')
@@ -321,12 +336,28 @@ class Web extends CI_Controller
       ->order_by('c.id', 'ASC')
       ->get()
       ->result_array();
-    $data['title'] = 'Welcome to Wazi Wears | Shop Online with Best Offers‎';
+
+    // === Fetch Ads ===
+    $ads = $this->db
+      ->where('status', 1)
+      ->where_in('img_section', ['fixed', 'bottom'])
+      ->order_by('add_date', 'ASC')
+      ->get('advertisement')
+      ->result_array();
+
+
+    $data['fixedAds'] = array_filter($ads, fn($ad) => $ad['img_section'] === 'fixed');
+    $data['bottomAds'] = array_filter($ads, fn($ad) => $ad['img_section'] === 'bottom');
+
+    // Page title
+    $data['title'] = 'Welcome to Chenna | Shop Online with Best Offers‎';
+
     // Load views
     $this->load->view('web/include/header', $data);
-    $this->load->view('web/home');
-    $this->load->view('web/include/footer');
+    $this->load->view('web/home', $data);
+    $this->load->view('web/include/footer', $data);
   }
+
   public function vegetable_item_list()
   {
     $parent_category_id = 3;
@@ -338,7 +369,7 @@ class Web extends CI_Controller
     $data['getData'] = $result;
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = "Vegetables | Wazi Wears";
+    $data['title'] = "Vegetables | Chenna";
     $this->load->view('web/include/header', $data);
     $this->load->view('web/category_product_list');
     $this->load->view('web/include/cart_footer');
@@ -354,7 +385,7 @@ class Web extends CI_Controller
     $data['getData'] = $result;
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = "Vegetables | Wazi Wears";
+    $data['title'] = "Vegetables | Chenna";
     $this->load->view('web/include/header', $data);
     $this->load->view('web/category_product_list');
     $this->load->view('web/include/cart_footer');
@@ -370,7 +401,7 @@ class Web extends CI_Controller
     $data['getData'] = $result;
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = "Vegetables | Wazi Wears";
+    $data['title'] = "Vegetables | Chenna";
     $this->load->view('web/include/header', $data);
     $this->load->view('web/category_product_list');
     $this->load->view('web/include/cart_footer');
@@ -389,7 +420,8 @@ class Web extends CI_Controller
     $this->db->select('product_name');
     $this->db->from('sub_product_master');
     $this->db->where('status', '1');
-    if (!empty($keywords)) {
+    if (!empty($keywords))
+    {
       $this->db->like('product_name', $keywords);
     }
     $this->db->group_by('product_name');
@@ -420,7 +452,8 @@ class Web extends CI_Controller
     ");
     $this->db->from('sub_product_master');
     $this->db->where('status', '1');
-    if (!empty($keywords)) {
+    if (!empty($keywords))
+    {
       $this->db->like('product_name', $keywords);
     }
     $this->db->group_by('product_name');
@@ -429,7 +462,8 @@ class Web extends CI_Controller
     $AllRecord = $this->db->get()->result_array();
 
 
-    foreach ($AllRecord as &$product) {
+    foreach ($AllRecord as &$product)
+    {
       $product['variations'] = $this->db->select('id,size,color,final_price,price, quantity')
         ->from('sub_product_master')
         ->where('status', '1')
@@ -470,7 +504,8 @@ class Web extends CI_Controller
     $this->db->like('product_name', $search);
     $this->db->limit(10);
     $query = $this->db->get();
-    foreach ($query->result_array() as $row) {
+    foreach ($query->result_array() as $row)
+    {
       echo '<div class="suggestion-item" style="padding: 8px; cursor: pointer; border-bottom: 1px solid #eee;">' . htmlspecialchars($row['product_name']) . '</div>';
     }
   }
@@ -493,13 +528,16 @@ class Web extends CI_Controller
   {
     // echo "<pre>";print_r($category);exit();
     $categoryArray = explode("-", $category);
-    $categoryArray2 = str_replace("-", " ", $category);;
+    $categoryArray2 = str_replace("-", " ", $category);
+    ;
     $bannerList = $this->web_model->getBannerList();
     $MainCategoryList = $this->web_model->getMainCategoryList();
-    if (empty($_GET['keyword'])) {
+    if (empty($_GET['keyword']))
+    {
       $a = $this->web_model->getDataBySubCate($main, $categoryArray['0']);
       $config["base_url"] = base_url('' . $main . '/' . $categoryArray['0'] . '?keyword=');
-    } else if (!empty($_GET['keyword'])) {
+    } else if (!empty($_GET['keyword']))
+    {
       $keyword = $_GET['keyword'];
       $a = $this->web_model->getDataBySubCate($main, $categoryArray['0']);
       $config["base_url"] = base_url('' . $main . '/' . $categoryArray['0'] . '?keyword=');
@@ -521,11 +559,13 @@ class Web extends CI_Controller
     $links = explode('&nbsp;', $str_links);
     $pageNo = "";
     $offset = 0;
-    if (!empty($_GET['per_page'])) {
+    if (!empty($_GET['per_page']))
+    {
       $pageNo = $_GET['per_page'];
       $offset = ($pageNo - 1) * $limit;
     }
-    if (empty($_GET['keyword'])) {
+    if (empty($_GET['keyword']))
+    {
       $men = $main;
       $category = $categoryArray['0'];
       $main = str_replace('-', ' ', strtolower($main));
@@ -545,7 +585,8 @@ class Web extends CI_Controller
       $this->db->order_by('id', 'DESC');
       $this->db->limit($limit, $offset);
       $AllRecord = $this->db->get_where('sub_product_master', array('status' => '1', 'category_id' => $category['id'], 'parent_category_id' => $mainCategory['id']))->result_array();
-    } else if (!empty($_GET['keyword'])) {
+    } else if (!empty($_GET['keyword']))
+    {
       $keyword = $_GET['keyword'];
       $men = $main;
       $category = $categoryArray['0'];
@@ -574,7 +615,7 @@ class Web extends CI_Controller
         'index2' => '',
         'bannerList' => $bannerList,
         'MainCategoryList' => $MainCategoryList,
-        'title' => $main . ' | ' . $categoryArray['0'] . ' | Wazi Wears',
+        'title' => $main . ' | ' . $categoryArray['0'] . ' | Chenna',
         'index2' => ''
       )
     );
@@ -587,13 +628,16 @@ class Web extends CI_Controller
   public function category_product_list($mainSlug, $categorySlug)
   {
     $user_id = $this->session->userdata('User')['id'] ?? null;
-
+    $wishlist_count = !empty($userData)
+      ? $this->web_model->get_total_wishlist_by_user($userData['id'])
+      : 0;
     // Get main category
     $mainCategory = $this->db->get_where('parent_category_master', [
       'slug' => $mainSlug,
       'status' => 1
     ])->row_array();
-    if (!$mainCategory) show_404();
+    if (!$mainCategory)
+      show_404();
 
     // Get category under main
     $categoryRow = $this->db->get_where('category_master', [
@@ -601,7 +645,8 @@ class Web extends CI_Controller
       'slug' => $categorySlug,
       'status' => 1
     ])->row_array();
-    if (!$categoryRow) show_404();
+    if (!$categoryRow)
+      show_404();
 
     // Get all sibling categories + subcategories
     $categories = $this->db->select('id, category_name, slug')
@@ -611,7 +656,8 @@ class Web extends CI_Controller
       ->get('category_master')
       ->result_array();
 
-    foreach ($categories as &$cat) {
+    foreach ($categories as &$cat)
+    {
       $cat['subcategories'] = $this->db->select('id, sub_category_name, slug')
         ->where('category_master_id', $cat['id'])
         ->where('status', 1)
@@ -628,15 +674,17 @@ class Web extends CI_Controller
       ->get()->row_array();
 
     $data = [
-      'mainCategory'    => $mainCategory,
-      'categoryRow'     => $categoryRow,
-      'mainCategoryId'  => $mainCategory['id'],
-      'categoryId'      => $categoryRow['id'],
-      'categories'      => $categories,
+      'user_id' => $user_id,
+      'wishlist_count' => $wishlist_count,
+      'mainCategory' => $mainCategory,
+      'categoryRow' => $categoryRow,
+      'mainCategoryId' => $mainCategory['id'],
+      'categoryId' => $categoryRow['id'],
+      'categories' => $categories,
       'min_price_range' => $priceRange['min_price'] ?? 0,
       'max_price_range' => $priceRange['max_price'] ?? 100000,
-      'user_id'         => $user_id,
-      'title'           => $categoryRow['category_name'] . ' - ' . $mainCategory['name']
+      'user_id' => $user_id,
+      'title' => $categoryRow['category_name'] . ' - ' . $mainCategory['name']
     ];
 
     $this->load->view('web/include/header', $data);
@@ -682,7 +730,12 @@ class Web extends CI_Controller
     $this->db->from("sub_product_master sp");
     $this->db->join("($subQueryStr) latest", "sp.id=latest.max_id", "inner");
     $this->db->join("customer_review cr", "sp.id=cr.product_id AND cr.status=1", "left");
+
+    $this->db->where('sp.status', 1);
+    $this->db->where('sp.verify_status', 1);
+
     $this->db->group_by('sp.id');
+
 
     if (!empty($rating))
       $this->db->having('avg_rating >=', $rating);
@@ -695,7 +748,8 @@ class Web extends CI_Controller
 
     // Wishlist
     $wishlist_product_ids = [];
-    if ($user_id) {
+    if ($user_id)
+    {
       $wishlist_product_ids = array_column(
         $this->db->select('product_id')
           ->from('wish_list_master')
@@ -706,7 +760,8 @@ class Web extends CI_Controller
     }
 
     $products = [];
-    foreach ($result as $p) {
+    foreach ($result as $p)
+    {
       $products[] = [
         'id' => $p['id'],
         'sku_code' => $p['sku_code'],
@@ -748,6 +803,9 @@ class Web extends CI_Controller
   {
     $userData = $this->session->userdata('User');
     $user_id = !empty($userData) ? $userData['id'] : null;
+    $wishlist_count = !empty($userData)
+      ? $this->web_model->get_total_wishlist_by_user($userData['id'])
+      : 0;
 
     // Fetch IDs by slug
     $mainCategory = $this->db->get_where('parent_category_master', ['slug' => $mainSlug, 'status' => 1])->row_array();
@@ -777,7 +835,8 @@ class Web extends CI_Controller
       ->where('mai_id', $mainCategoryId)
       ->get()->result_array();
 
-    foreach ($categories as &$cat) {
+    foreach ($categories as &$cat)
+    {
       $cat['subcategories'] = $this->db->select('id, sub_category_name, slug')
         ->from('sub_category_master')
         ->where('status', 1)
@@ -787,6 +846,7 @@ class Web extends CI_Controller
 
     $data = [
       'user_id' => $user_id,
+      'wishlist_count' => $wishlist_count,
       'mainCategoryId' => $mainCategoryId,
       'categoryId' => $categoryId,
       'subCategoryId' => $subCategoryId,
@@ -808,14 +868,14 @@ class Web extends CI_Controller
     $user_id = $this->session->userdata('User')['id'] ?? 0;
 
     $mainCategoryId = $this->input->post('mainCategoryId');
-    $categoryId     = $this->input->post('categoryId');
-    $subCategoryId  = $this->input->post('subCategoryId');
-    $min_price      = (float)$this->input->post('min_price');
-    $max_price      = (float)$this->input->post('max_price');
-    $size           = $this->input->post('size');
-    $rating         = $this->input->post('rating');
-    $page           = (int)$this->input->post('page') ?: 1;
-    $perPage        = (int)$this->input->post('perPage') ?: 12;
+    $categoryId = $this->input->post('categoryId');
+    $subCategoryId = $this->input->post('subCategoryId');
+    $min_price = (float) $this->input->post('min_price');
+    $max_price = (float) $this->input->post('max_price');
+    $size = $this->input->post('size');
+    $rating = $this->input->post('rating');
+    $page = (int) $this->input->post('page') ?: 1;
+    $perPage = (int) $this->input->post('perPage') ?: 12;
 
     /* =====================================================
        MAIN PRODUCT QUERY (SKU GROUPED)
@@ -823,14 +883,22 @@ class Web extends CI_Controller
     $this->db->select('*')
       ->from('sub_product_master')
       ->where('status', 1)
+      ->where('verify_status', 1)
       ->group_by('sku_code');
 
-    if ($mainCategoryId) $this->db->where('parent_category_id', $mainCategoryId);
-    if ($categoryId)     $this->db->where_in('category_id', explode(',', $categoryId));
-    if ($subCategoryId)  $this->db->where_in('sub_category_id', explode(',', $subCategoryId));
-    if ($size)           $this->db->where_in('size', explode(',', $size));
-    if ($min_price)      $this->db->where('final_price >=', $min_price);
-    if ($max_price)      $this->db->where('final_price <=', $max_price);
+
+    if ($mainCategoryId)
+      $this->db->where('parent_category_id', $mainCategoryId);
+    if ($categoryId)
+      $this->db->where_in('category_id', explode(',', $categoryId));
+    if ($subCategoryId)
+      $this->db->where_in('sub_category_id', explode(',', $subCategoryId));
+    if ($size)
+      $this->db->where_in('size', explode(',', $size));
+    if ($min_price)
+      $this->db->where('final_price >=', $min_price);
+    if ($max_price)
+      $this->db->where('final_price <=', $max_price);
 
     $allProducts = $this->db->order_by('id', 'DESC')->get()->result_array();
     $totalProducts = count($allProducts);
@@ -841,7 +909,8 @@ class Web extends CI_Controller
     $product_ids = array_column($allProducts, 'id');
     $product_avg = [];
 
-    if (!empty($product_ids)) {
+    if (!empty($product_ids))
+    {
       $ratings = $this->db->select('product_id, AVG(rating) as avg_rating')
         ->from('customer_review')
         ->where_in('product_id', $product_ids)
@@ -849,17 +918,19 @@ class Web extends CI_Controller
         ->group_by('product_id')
         ->get()->result_array();
 
-      foreach ($ratings as $r) {
+      foreach ($ratings as $r)
+      {
         $product_avg[$r['product_id']] = round($r['avg_rating'], 1);
       }
     }
 
-    foreach ($allProducts as &$p) {
+    foreach ($allProducts as &$p)
+    {
       $p['avg'] = $product_avg[$p['id']] ?? 0;
       $p['is_in_wishlist'] = $user_id
         ? $this->db->where('user_id', $user_id)
-        ->where('product_id', $p['id'])
-        ->count_all_results('wish_list_master') > 0
+          ->where('product_id', $p['id'])
+          ->count_all_results('wish_list_master') > 0
         : 0;
     }
     unset($p);
@@ -867,13 +938,17 @@ class Web extends CI_Controller
     /* =====================================================
        RATING FILTER (POST PROCESS)
     ====================================================== */
-    if ($rating) {
+    if ($rating)
+    {
       $ratingsArr = explode(',', $rating);
       $allProducts = array_filter($allProducts, function ($p) use ($ratingsArr) {
-        foreach ($ratingsArr as $r) {
-          $r = (float)$r;
-          if ($r < 5 && $p['avg'] >= $r && $p['avg'] < ($r + 1)) return true;
-          if ($r == 5 && $p['avg'] == 5) return true;
+        foreach ($ratingsArr as $r)
+        {
+          $r = (float) $r;
+          if ($r < 5 && $p['avg'] >= $r && $p['avg'] < ($r + 1))
+            return true;
+          if ($r == 5 && $p['avg'] == 5)
+            return true;
         }
         return false;
       });
@@ -885,7 +960,7 @@ class Web extends CI_Controller
     /* =====================================================
        PAGINATION
     ====================================================== */
-    $offset  = ($page - 1) * $perPage;
+    $offset = ($page - 1) * $perPage;
     $products = array_slice($allProducts, $offset, $perPage);
 
     /* =====================================================
@@ -895,9 +970,12 @@ class Web extends CI_Controller
       ->from('sub_product_master')
       ->where('status', 1);
 
-    if ($mainCategoryId) $sizeQuery->where('parent_category_id', $mainCategoryId);
-    if ($categoryId)     $sizeQuery->where_in('category_id', explode(',', $categoryId));
-    if ($subCategoryId)  $sizeQuery->where_in('sub_category_id', explode(',', $subCategoryId));
+    if ($mainCategoryId)
+      $sizeQuery->where('parent_category_id', $mainCategoryId);
+    if ($categoryId)
+      $sizeQuery->where_in('category_id', explode(',', $categoryId));
+    if ($subCategoryId)
+      $sizeQuery->where_in('sub_category_id', explode(',', $subCategoryId));
 
     $sizesArr = array_column($sizeQuery->get()->result_array(), 'size');
 
@@ -908,26 +986,29 @@ class Web extends CI_Controller
       ->from('sub_product_master')
       ->where('status', 1);
 
-    if ($mainCategoryId) $priceQuery->where('parent_category_id', $mainCategoryId);
-    if ($categoryId)     $priceQuery->where_in('category_id', explode(',', $categoryId));
-    if ($subCategoryId)  $priceQuery->where_in('sub_category_id', explode(',', $subCategoryId));
+    if ($mainCategoryId)
+      $priceQuery->where('parent_category_id', $mainCategoryId);
+    if ($categoryId)
+      $priceQuery->where_in('category_id', explode(',', $categoryId));
+    if ($subCategoryId)
+      $priceQuery->where_in('sub_category_id', explode(',', $subCategoryId));
 
     $priceRow = $priceQuery->get()->row_array();
 
-    $dynamicMin = (int)($priceRow['min_price'] ?? 0);
-    $dynamicMax = (int)($priceRow['max_price'] ?? 10000);
+    $dynamicMin = (int) ($priceRow['min_price'] ?? 0);
+    $dynamicMax = (int) ($priceRow['max_price'] ?? 10000);
 
     /* =====================================================
        RESPONSE
     ====================================================== */
     echo json_encode([
-      'products'    => $products,
-      'total'       => $totalProducts,
-      'totalPages'  => ceil($totalProducts / $perPage),
-      'limit'       => $perPage,
-      'sizes'       => $sizesArr,
-      'min_price'   => $dynamicMin,
-      'max_price'   => $dynamicMax
+      'products' => $products,
+      'total' => $totalProducts,
+      'totalPages' => ceil($totalProducts / $perPage),
+      'limit' => $perPage,
+      'sizes' => $sizesArr,
+      'min_price' => $dynamicMin,
+      'max_price' => $dynamicMax
     ]);
   }
 
@@ -946,7 +1027,7 @@ class Web extends CI_Controller
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
     $data['getData'] = $this->web_model->getDataByTag($tag, $id);
-    $data['title'] = $tag . ' products | Wazi Wears';
+    $data['title'] = $tag . ' products | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/tag_product_list');
     $this->load->view('web/include/footer');
@@ -962,7 +1043,7 @@ class Web extends CI_Controller
       ->get_where('order_master', array('id' => $order_id))
       ->row()
       ->pdf_link;
-    $data['title'] = 'Order Details | Wazi Wears ';
+    $data['title'] = 'Order Details | Chenna ';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/order_details');
     $this->load->view('web/include/footer');
@@ -974,7 +1055,8 @@ class Web extends CI_Controller
     // Fetch order details
     $order = $this->db->get_where('order_master', ['id' => $order_id])->row_array();
 
-    if (!$order) {
+    if (!$order)
+    {
       log_message('error', 'Order not found: ' . $order_id);
       show_404();
       return;
@@ -986,12 +1068,14 @@ class Web extends CI_Controller
     $this->db->where('p.order_master_id', $order_id); // ✅ FIXED
     $purchase_items = $this->db->get()->result_array();
 
-    if (empty($purchase_items)) {
+    if (empty($purchase_items))
+    {
       log_message('error', 'No purchase items found for order: ' . $order_id);
     }
 
     $address = $this->db->get_where('order_address_master', ['order_master_id' => $order_id])->row_array();
-    if (!$address) {
+    if (!$address)
+    {
       log_message('error', 'No shipping address found for order: ' . $order_id);
     }
 
@@ -1013,7 +1097,8 @@ class Web extends CI_Controller
 
     $order = $this->db->get_where('order_master', ['id' => $order_id])->row_array();
 
-    if (!$order) {
+    if (!$order)
+    {
       show_404();
       return;
     }
@@ -1024,13 +1109,15 @@ class Web extends CI_Controller
 
     $purchase_items = $this->db->get_where('purchase_master', ['id' => $order_id])->result_array();
 
-    if (empty($purchase_items)) {
+    if (empty($purchase_items))
+    {
       log_message('error', 'No purchase items found for order: ' . $order_id);
     }
 
 
     $address = $this->db->get_where('order_address_master', ['order_master_id' => $order_id])->row_array();
-    if (!$address) {
+    if (!$address)
+    {
       log_message('error', 'No shipping address found for order: ' . $order_id);
     }
 
@@ -1050,7 +1137,7 @@ class Web extends CI_Controller
   public function product_detail()
   {
     $userData = $this->session->userdata('User');
-    $user_id  = !empty($userData) ? $userData['id'] : null;
+    $user_id = !empty($userData) ? $userData['id'] : null;
 
     $wishlist_count = !empty($user_id)
       ? $this->web_model->get_total_wishlist_by_user($user_id)
@@ -1062,20 +1149,23 @@ class Web extends CI_Controller
     // 🔹 PRODUCT DATA
     $data['getData'] = $this->web_model->productDetails($product_id);
 
-    if (empty($data['getData'])) {
+    if (empty($data['getData']))
+    {
       show_404();
     }
 
     $data['product'] = $data['getData'];
 
     // 🔹 BRAND NAME
-    if (!empty($data['getData']['brand_id'])) {
+    if (!empty($data['getData']['brand_id']))
+    {
       $brand = $this->db
         ->get_where('brand_master', ['id' => $data['getData']['brand_id']])
         ->row_array();
 
       $data['product']['brand_name'] = $brand['brand_name'] ?? 'N/A';
-    } else {
+    } else
+    {
       $data['product']['brand_name'] = 'N/A';
     }
 
@@ -1089,22 +1179,25 @@ class Web extends CI_Controller
       ->result_array();
 
     $data['colorData'] = array_values(array_unique(array_column($data['variations'], 'color')));
-    $data['sizeData']  = array_values(array_unique(array_column($data['variations'], 'size')));
+    $data['sizeData'] = array_values(array_unique(array_column($data['variations'], 'size')));
+    $data['extra_fields'] = $this->web_model->getProductExtraFields($product_id);
+
 
     // =====================================================
     // 🔥 VENDOR + SHOP DATA (MAIN REQUIREMENT)
     // =====================================================
     $vendorData = [];
 
-    if (!empty($data['getData']['vendor_id'])) {
+    if (!empty($data['getData']['vendor_id']))
+    {
 
       $vendorData = $this->db
         ->select('
                 v.id AS vendor_id,
-                v.name,
                 v.vendor_logo AS vendor_logo,
                 v.shop_name,
-                v.mobile
+                v.state,
+                v.city
             ')
         ->from('vendors v')
         ->join('shop_master sm', 'sm.id = v.id', 'left')
@@ -1117,11 +1210,12 @@ class Web extends CI_Controller
 
     // 🔹 RELATED PRODUCTS
     $current_product_code = $data['getData']['product_code'];
-    $sub_category_id      = $data['getData']['sub_category_id'];
+    $sub_category_id = $data['getData']['sub_category_id'];
 
     $relatedProducts = [];
 
-    if ($sub_category_id && $current_product_code) {
+    if ($sub_category_id && $current_product_code)
+    {
 
       $related = $this->db
         ->select('id, product_name, product_code, main_image, final_price, price, quantity')
@@ -1135,8 +1229,10 @@ class Web extends CI_Controller
 
       $unique = [];
 
-      foreach ($related as $prod) {
-        if (!isset($unique[$prod['product_code']])) {
+      foreach ($related as $prod)
+      {
+        if (!isset($unique[$prod['product_code']]))
+        {
 
           $prod['total_qty'] = $this->db
             ->select_max('quantity')
@@ -1182,10 +1278,10 @@ class Web extends CI_Controller
       ->row()->rating ?? 0;
 
     // 🔹 COMMON DATA
-    $data['bannerList']       = $this->web_model->getBannerList();
+    $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['wishlist_count']  = $wishlist_count;
-    $data['title']           = url_title($data['getData']['product_name'], '-', true);
+    $data['wishlist_count'] = $wishlist_count;
+    $data['title'] = url_title($data['getData']['product_name'], '-', true);
 
     // 🔹 LOAD VIEW
     $this->load->view('web/include/header', $data);
@@ -1197,7 +1293,8 @@ class Web extends CI_Controller
   {
     $id = $this->input->post('id');
     $product = $this->web_model->get_sub_product_by_id($id);
-    if ($product) {
+    if ($product)
+    {
       $base_url = base_url('assets/product_images/');
       // Images check करके full path बना दो
       $product['main_image'] = $product['main_image'] ? $base_url . $product['main_image'] : '';
@@ -1207,13 +1304,15 @@ class Web extends CI_Controller
       $product['image4'] = $product['image4'] ? $base_url . $product['image4'] : '';
       $product['image5'] = $product['image5'] ? $base_url . $product['image5'] : '';
       echo json_encode(['success' => true, 'product' => $product]);
-    } else {
+    } else
+    {
       echo json_encode(['success' => false]);
     }
   }
   public function checkout_payment_old()
   {
-    if (count($this->cart->contents()) == 0) {
+    if (count($this->cart->contents()) == 0)
+    {
       redirect(base_url());
     }
     $userData = $this->session->userdata('User');
@@ -1251,9 +1350,11 @@ class Web extends CI_Controller
     $fields['address_id'] = $address_id;
     $fields['user_master_id'] = $userData['id'];
     $check = $this->db->get_where('save_address_id', array('user_master_id' => $userData['id']))->num_rows();
-    if ($check == '0') {
+    if ($check == '0')
+    {
       $this->db->insert('save_address_id', $fields);
-    } else {
+    } else
+    {
       $this->db->where('user_master_id', $userData['id']);
       $this->db->update('save_address_id', $fields);
     }
@@ -1265,7 +1366,7 @@ class Web extends CI_Controller
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
     $data['getData'] = $this->db->get_where('wish_list_master', array('user_id' => $userData['id']))->result_array();
-    $data['title'] = 'Wish List Details | Wazi Wears';
+    $data['title'] = 'Wish List Details | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/account_wishlist');
     $this->load->view('web/include/footer');
@@ -1278,7 +1379,7 @@ class Web extends CI_Controller
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
     $this->db->order_by('id', 'DESC');
     $data['getData'] = $this->db->get_where('order_master', array('user_master_id' => $userData['id'], 'action_payment' => "Yes"))->result_array();
-    $data['title'] = 'Order List | Wazi Wears';
+    $data['title'] = 'Order List | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/account_order');
     $this->load->view('web/include/footer');
@@ -1287,7 +1388,8 @@ class Web extends CI_Controller
   {
     $o_res = $this->db->get_where('purchase_master', array('order_master_id' => $o_id))->result_array();
     $html = '';
-    foreach ($o_res as $value) {
+    foreach ($o_res as $value)
+    {
       $pro_res = $this->db->get_where('sub_product_master', array('id' => $value['product_master_id']))->row_array();
       $array_url = parse_url($pro_res['main_image']);
       $img_url = 'https://' . $array_url['host'] . '' . $array_url['path'] . '?raw=1';
@@ -1305,11 +1407,13 @@ class Web extends CI_Controller
               </div>
               <div class="pt-2 pl-sm-3 mx-auto mx-sm-0 text-center">
                 <div class="text-muted mb-2">Quantity:</div>' . $value['quantity'] . ' </div>';
-      if ($value['status'] == '3') {
+      if ($value['status'] == '3')
+      {
         $html .= '<a href="' . base_url() . 'web/returnSingleOrder/' . $value['id'] . '/' . $value['product_master_id'] . '" style="margin-top: 100px;">
                 <p class="btn btn-sm btn-warning" onclick="return confirm(Are you sure you want to delete this item?);">Return Request</p>
                 </a>';
-      } else if ($value['status'] == '8') {
+      } else if ($value['status'] == '8')
+      {
         $html .= '<p class="btn btn-sm btn-success">Return</p>';
       }
       $html .= '<div class="pt-2 pl-sm-3 mx-auto mx-sm-0 text-center">
@@ -1326,7 +1430,7 @@ class Web extends CI_Controller
     // $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
     $data['getWalletData'] = $this->db->get_where('wallet_master', array('user_master_id' => $userData['id']))->row_array();
-    $data['title'] = 'Wallet Details | Wazi Wears';
+    $data['title'] = 'Wallet Details | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/account_wallet', $data);
     $this->load->view('web/include/footer');
@@ -1356,31 +1460,36 @@ class Web extends CI_Controller
     $dataa['billing_country'] = 'India';
     $dataa['billing_tel'] = $userData['mobile'];
     $dataa['billing_email'] = $userData['email_id'];
-    $dataa['merchant_param1'] = 'Wazi Wears add money';
+    $dataa['merchant_param1'] = 'Chenna add money';
     $this->load->view('paymentGateway/instomojo', $dataa);
   }
   public function become_a_vendor()
   {
     $data = $this->input->post();
-    if (empty($data)) {
+    if (empty($data))
+    {
       $data['bannerList'] = $this->web_model->getBannerList();
       $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-      $data['title'] = 'Become a vendor | Wazi Wears ';
+      $data['title'] = 'Become a vendor | Chenna ';
       $this->load->view('web/include/header', $data);
       $this->load->view('web/seller');
       $this->load->view('web/include/footer');
-    } else {
+    } else
+    {
       $check_mobile = $this->db->get_where('staff_master', array('mobile' => $data['mobile']))->num_rows();
       $check_email = $this->db->get_where('staff_master', array('email' => $data['email']))->num_rows();
-      if ($check_mobile > 0) {
+      if ($check_mobile > 0)
+      {
         $message = '<div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button><strong><h3>Fail!<h3></strong>This mobile no is already registered with us. Please go to seller login page to access your dashboard</div>';
         $this->session->set_flashdata('message', $message);
         redirect(site_url('web/success/'), 'refresh');
-      } else if ($check_email > 0) {
+      } else if ($check_email > 0)
+      {
         $message = '<div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button><strong><h3>Fail!<h3></strong>Email Already Exits.Please try another.</div>';
         $this->session->set_flashdata('message', $message);
         redirect(site_url('web/success/'), 'refresh');
-      } else {
+      } else
+      {
         $data['seller_code'] = mb_substr(strtoupper($data['name']), 0, 3) . '' . substr($data['mobile'], -4);
         $data['add_date'] = time();
         $data['modify_date'] = time();
@@ -1388,7 +1497,7 @@ class Web extends CI_Controller
         $row = $this->db->insert('staff_master', $data);
         $insert_id = $this->db->insert_id();
         //New TEXT*****
-        $text = "Your seller account has been successfully registered with Wazi Wears. Kindly visit https://Wazi Wears.in/seller to start uploading your products on Wazi Wears and start earning Regards Wazi Wears Real Time Private Limited";
+        $text = "Your seller account has been successfully registered with Chenna. Kindly visit https://Chenna.in/seller to start uploading your products on Chenna and start earning Regards Chenna Real Time Private Limited";
         //$text="Seller registration Test";
         // ***OLD TEXT*****
         //$text="Congratulations! You have successfully registered your seller account with us.\r\nUser name : ".$data['name'];
@@ -1396,10 +1505,10 @@ class Web extends CI_Controller
         sendSMS($data['mobile'], $text, '1007050631475099664');
         $email_message = 'Dear ' . $data['name'] . ',
           Congratulations and welcome to a whole new world of online marketplace
-          You have provisionally created your Wazi Wears seller account.
+          You have provisionally created your Chenna seller account.
           Kindly complete your seller profile and connect with us to expand your business.
           Your Login id is ' . $data['mobile'] . '';
-        sentCommonEmail($data['email'], $email_message, 'Wazi Wearse Registration Successfully.');
+        sentCommonEmail($data['email'], $email_message, 'Chennae Registration Successfully.');
         $message = '<div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button><strong><h3>Success!</h3></strong>Thanks for registering with us. Now you have to complete your profile and KYC after that you can start listing your product.</div>';
         $this->session->set_flashdata('message', $message);
         redirect(site_url('web/success/' . $insert_id), 'refresh');
@@ -1427,7 +1536,8 @@ class Web extends CI_Controller
   {
     $userData = $this->session->userdata('User');
 
-    if (empty($userData)) {
+    if (empty($userData))
+    {
       redirect(base_url('login'));
       return;
     }
@@ -1443,12 +1553,14 @@ class Web extends CI_Controller
 
     $wishListData = $this->db->get_where('wish_list_master', ['user_id' => $user_id])->result_array();
 
-    foreach ($wishListData as &$value) {
+    foreach ($wishListData as &$value)
+    {
       $product_id = $value['product_id'];
 
       $product = $this->db->get_where('sub_product_master', ['id' => $product_id, 'status' => 1])->row_array();
 
-      if ($product) {
+      if ($product)
+      {
 
         $ratingData = $this->db
           ->select('AVG(rating) as avg_rating, COUNT(id) as total_reviews')
@@ -1478,12 +1590,15 @@ class Web extends CI_Controller
   {
     $data = $this->input->post();
     $userData = $this->session->userdata('User');
-    if (empty($data)) {
+    if (empty($data))
+    {
       $data['userInfo'] = $this->db->get_where('user_master', array('id' => $userData['id']))->row_array();
       $data['bannerList'] = $this->web_model->getBannerList();
       $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
       $data['get_total_orders'] = $this->web_model->get_total_orders_by_user($userData['id']);
-      $data['get_total_wishlist'] = $this->web_model->get_total_wishlist_by_user($userData['id']);
+      $this->db->where('user_id', $userData['id']);
+      $wishlist_count = $this->db->get('wish_list_master')->num_rows();
+      $data['wishlist_count'] = $wishlist_count;
       //$data['getData'] = $this->db->get_where('order_master', array('user_master_id' => $userData['id'], 'action_payment' => "Yes"))->result_array();
       $this->db->from('order_master');
       $this->db->where(array(
@@ -1493,12 +1608,16 @@ class Web extends CI_Controller
       $this->db->order_by('id', 'DESC');
       $data['getData'] = $this->db->get()->result_array();
       $data['address_data'] = $this->db->get_where('user_address_master', array('user_master_id' => $userData['id']))->result_array();
-      $data['wishListData'] = $this->db->get_where('wish_list_master', array('user_id' => $userData['id']))->result_array();
-      $data['title'] = 'Account Profile | Wazi Wears';
+      $data['wishListData'] = $this->db->get_where(
+        'wish_list_master',
+        array('user_id' => $userData['id'])
+      )->result_array();
+      $data['title'] = 'Account Profile | Chenna';
       $this->load->view('web/include/header', $data);
       $this->load->view('web/account_profile');
       $this->load->view('web/include/footer');
-    } else {
+    } else
+    {
       $fileName = $_FILES["profile"]["name"];
       $extension = explode('.', $fileName);
       $extension = strtolower(end($extension));
@@ -1507,7 +1626,8 @@ class Web extends CI_Controller
       $size = $_FILES["profile"]["size"];
       $tmp_name = $_FILES['profile']['tmp_name'];
       $targetlocation = PROFILE_DIRECTORY . $uniqueName;
-      if (!empty($fileName)) {
+      if (!empty($fileName))
+      {
         move_uploaded_file($tmp_name, $targetlocation);
         $data['profile_pic'] = utf8_encode(trim($uniqueName));
 
@@ -1521,7 +1641,8 @@ class Web extends CI_Controller
       $userDatasession = $this->session->userdata('User');
       $userDatasession['username'] = $data['username'];
       $this->session->set_userdata('User', $userDatasession);
-      if ($row > 0) {
+      if ($row > 0)
+      {
         $user_ses = $this->session->set_userdata('username', $data['username']);
         $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button>Profile Update successfully.</div></div>');
         //redirect('web/account_profile');
@@ -1539,28 +1660,33 @@ class Web extends CI_Controller
   {
     $data = $this->input->post();
     $userData = $this->session->userdata('User');
-    if (empty($data)) {
+    if (empty($data))
+    {
       $data['userInfo'] = $this->db->get_where('user_master', array('id' => $userData['id']))->row_array();
       $data['bannerList'] = $this->web_model->getBannerList();
       $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
       $data['getData'] = $this->web_model->getAllUserAddress($userData['id']);
       $data['address_data'] = $this->db->get_where('user_address_master', array('user_master_id' => $userData['id']))->result_array();
-      $data['title'] = 'Account Address List | Wazi Wears';
+      $data['title'] = 'Account Address List | Chenna';
       $this->load->view('web/include/header', $data);
       $this->load->view('web/account_address');
       $this->load->view('web/include/footer');
-    } else {
+    } else
+    {
       $address = $this->db->get_where('user_address_master', array('user_master_id' => $userData['id']))->row_array();
       $data['user_master_id'] = $userData['id'];
       $data['add_date'] = time();
       $data['modify_date'] = time();
-      if (empty($address)) {
+      if (empty($address))
+      {
         $row = $this->db->insert('user_address_master', $data);
-      } else {
+      } else
+      {
         $this->db->where('user_master_id', $userData['id']);
         $row = $this->db->update('user_address_master', $data);
       }
-      if ($row > 0) {
+      if ($row > 0)
+      {
         $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button>Address Update successfully.</div></div>');
         redirect('profile');
       }
@@ -1569,17 +1695,21 @@ class Web extends CI_Controller
   public function subscribe_user()
   {
     $email = $this->input->post('email', TRUE);
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL))
+    {
       echo json_encode(['status' => 'error', 'message' => 'Invalid email address.']);
       return;
     }
-    if ($this->web_model->is_already_subscribed($email)) {
+    if ($this->web_model->is_already_subscribed($email))
+    {
       echo json_encode(['status' => 'info', 'message' => 'This email is already subscribed.']);
       return;
     }
-    if ($this->web_model->subscribe_user($email)) {
+    if ($this->web_model->subscribe_user($email))
+    {
       echo json_encode(['status' => 'success', 'message' => 'You have successfully subscribed.']);
-    } else {
+    } else
+    {
       echo json_encode(['status' => 'error', 'message' => 'Subscription failed. Please try again.']);
     }
   }
@@ -1587,22 +1717,25 @@ class Web extends CI_Controller
   {
     $data = $this->input->post();
     $userData = $this->session->userdata('User');
-    if (empty($data)) {
+    if (empty($data))
+    {
       $data['userInfo'] = $this->db->get_where('user_master', array('id' => $userData['id']))->row_array();
       $data['bannerList'] = $this->web_model->getBannerList();
       $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
       $data['getData'] = $this->web_model->getAllUserAddress($userData['id']);
       $data['address_data'] = $this->db->get_where('user_address_master', array('user_master_id' => $userData['id']))->row_array();
-      $data['title'] = 'Add Address | Wazi Wears';
+      $data['title'] = 'Add Address | Chenna';
       $this->load->view('web/include/header', $data);
       $this->load->view('web/add_address');
       $this->load->view('web/include/footer');
-    } else {
+    } else
+    {
       $data['user_master_id'] = $userData['id'];
       $data['add_date'] = time();
       $data['modify_date'] = time();
       $row = $this->db->insert('user_address_master', $data);
-      if ($row > 0) {
+      if ($row > 0)
+      {
         $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button>Address Added successfully.</div></div>');
         redirect('address');
       }
@@ -1617,7 +1750,8 @@ class Web extends CI_Controller
     $data['add_date'] = time();
     $data['modify_date'] = time();
     $row = $this->db->insert('user_address_master', $data);
-    if ($row > 0) {
+    if ($row > 0)
+    {
       $this->session->set_flashdata('activatee', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button>Address Added successfully.</div></div>');
 
       redirect($this->agent->referrer());
@@ -1627,21 +1761,24 @@ class Web extends CI_Controller
   {
     $data = $this->input->post();
     $userData = $this->session->userdata('User');
-    if (empty($data)) {
+    if (empty($data))
+    {
       $data['userInfo'] = $this->db->get_where('user_master', array('id' => $userData['id']))->row_array();
       $data['bannerList'] = $this->web_model->getBannerList();
       $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
       $data['getData'] = $this->web_model->getAllUserAddress($userData['id']);
       $data['address_data'] = $this->db->get_where('user_address_master', array('id' => $id))->row_array();
-      $data['title'] = 'Update Address | Wazi Wears';
+      $data['title'] = 'Update Address | Chenna';
       $this->load->view('web/include/header', $data);
       $this->load->view('web/update_address');
       $this->load->view('web/include/footer');
-    } else {
+    } else
+    {
       $data['modify_date'] = time();
       $this->db->where('id', $id);
       $row = $this->db->update('user_address_master', $data);
-      if ($row > 0) {
+      if ($row > 0)
+      {
         $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button>Address Update successfully.</div></div>');
         redirect('web/account_profile');
       }
@@ -1650,7 +1787,8 @@ class Web extends CI_Controller
   public function edit_address()
   {
     $postData = $this->input->post();
-    if (!empty($postData)) {
+    if (!empty($postData))
+    {
       $id = $postData['id'];
       $updateData = [
         'title' => $postData['title'],
@@ -1668,7 +1806,8 @@ class Web extends CI_Controller
       $this->db->update('user_address_master', $updateData);
       $this->session->set_flashdata('success', 'Address updated successfully');
       redirect('web/account_profile');
-    } else {
+    } else
+    {
       show_error("No data received for update.");
     }
   }
@@ -1676,7 +1815,8 @@ class Web extends CI_Controller
   {
     $getOrderdata = $this->db->select('status')->get_where('order_master', ['id' => $order_id])->row_array();
     // echo "<pre>";print_r($getOrderdata);exit();
-    if ($getOrderdata['status'] == '5') {
+    if ($getOrderdata['status'] == '5')
+    {
       $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success">
         <div class="alert alert-danger alert-dismissible">
         <button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button>
@@ -1695,23 +1835,25 @@ class Web extends CI_Controller
       ->where('order_master.id', $order_id)
       ->where('order_master.id', $order_id)
       ->get();
-    if ($query->num_rows() > 0) {
+    if ($query->num_rows() > 0)
+    {
       $result = $query->row();
       $order_number = $result->order_number;
       $user = $result->username;
       $emailid = $result->email_id;
       $mobile = $result->mobile;
-      $message = "Dear customer, Your Order no. -" . $order_number . ", has been cancelled and please contact with our Support team.Thanks .Regards , Wazi Wears Real Time Private Limited , www.Wazi Wears.in ";
+      $message = "Dear customer, Your Order no. -" . $order_number . ", has been cancelled and please contact with our Support team.Thanks .Regards , Chenna Real Time Private Limited , www.Chenna.in ";
       $tempID = '1007492296258821177';
       $this->load->helper('/email/temp5');
       $status = "Order Cancelled";
-      $email_text = "Your order no. " . $order_number . " has been cancelled and please contact with our Support team.Thanks .Regards , Wazi Wears Real Time Private Limited , www.Wazi Wears.in ";
-      $email_body = temp5($status, $user, $email_text, "https://Wazi Wears.in");
+      $email_text = "Your order no. " . $order_number . " has been cancelled and please contact with our Support team.Thanks .Regards , Chenna Real Time Private Limited , www.Chenna.in ";
+      $email_body = temp5($status, $user, $email_text, "https://Chenna.in");
       $subject = "Your order no " . $order_number . " has been delivered";
       sentCommonEmail($emailid, $email_body, $subject);
       sendSMS($mobile, $message, $tempID);
     }
-    if ($row > 0) {
+    if ($row > 0)
+    {
       $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button>Order Cancel successfully.</div></div>');
       redirect('order-list');
     }
@@ -1723,7 +1865,8 @@ class Web extends CI_Controller
     $row = $this->db->update('order_master', $fields);
     $this->db->where('order_master_id', $order_id);
     $this->db->update('purchase_master', $fields);
-    if ($row > 0) {
+    if ($row > 0)
+    {
       $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button>Order Return Request Send successfully.</div></div>');
       redirect('web/order_detail/' . $order_id);
     }
@@ -1734,12 +1877,14 @@ class Web extends CI_Controller
     $this->db->where(array('order_master_id' => $order_id, 'product_master_id' => $product_id));
     $row = $this->db->update('purchase_master', $fields);
     $check = $this->db->get_where('purchase_master', array('order_master_id' => $order_id, 'status' => '3'))->num_rows();
-    if ($check == '1') {
+    if ($check == '1')
+    {
       $fields['status'] = '7';
       $this->db->where('id', $order_id);
       $this->update('order_master', $fields);
     }
-    if ($row > 0) {
+    if ($row > 0)
+    {
       $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button>Return Request Send successfully.</div></div>');
       redirect('web/order_detail/' . $order_id);
     }
@@ -1751,13 +1896,16 @@ class Web extends CI_Controller
     $wishList_res = $this->User_master_model->add_wishlist_data($user_id, $pro_id);
     $wish_row = $this->db->get_where('wish_list_master', ['user_id' => $user_id])->num_rows();
     $res['wish_row'] = $wish_row;
-    if ($wishList_res === 'added') {
+    if ($wishList_res === 'added')
+    {
       $res['success'] = true;
       $res['message'] = 'Product added to wishlist.';
-    } elseif ($wishList_res === 'exists') {
+    } elseif ($wishList_res === 'exists')
+    {
       $res['success'] = false;
       $res['message'] = 'Product already in wishlist.';
-    } else {
+    } else
+    {
       $res['success'] = false;
       $res['message'] = 'Something went wrong. Please try again.';
     }
@@ -1806,11 +1954,13 @@ class Web extends CI_Controller
     // }
     $query = $this->db->get_where('pin_code_master', array('pin_code' => $pincode, 'status' => 1));
 
-    if ($query->num_rows() > 0) {
+    if ($query->num_rows() > 0)
+    {
 
       echo 1;
       exit;
-    } else {
+    } else
+    {
       echo 2;
       exit;
     }
@@ -1819,10 +1969,12 @@ class Web extends CI_Controller
   {
     $this->db->where('id', $id);
     $res = $this->db->delete('wish_list_master');
-    if ($res) {
+    if ($res)
+    {
       $this->session->set_flashdata('activate', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button>Item removed from your Wishlist successfully.</div></div>');
       redirect('web/account_wishlist');
-    } else {
+    } else
+    {
       $this->session->set_flashdata('error', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button>Somthing went wrong.</div></div>');
       redirect('web/account_wishlist');
     }
@@ -1832,22 +1984,26 @@ class Web extends CI_Controller
     $this->output->set_content_type('application/json');
     $product_id = $this->input->post('product_id');
     $user_id = $this->input->post('user_id');
-    if ($product_id && $user_id) {
+    if ($product_id && $user_id)
+    {
       $this->db->where('product_id', $product_id);
       $this->db->where('user_id', $user_id);
       $res = $this->db->delete('wish_list_master');
-      if ($res) {
+      if ($res)
+      {
         echo json_encode([
           'status' => 'success',
           'message' => 'Item removed from your Wishlist successfully.'
         ]);
-      } else {
+      } else
+      {
         echo json_encode([
           'status' => 'error',
           'message' => 'Something went wrong while removing the item.'
         ]);
       }
-    } else {
+    } else
+    {
       echo json_encode([
         'status' => 'error',
         'message' => 'Invalid request data.'
@@ -1856,15 +2012,19 @@ class Web extends CI_Controller
   }
   public function delete_address($address_id)
   {
-    if ($address_id) {
+    if ($address_id)
+    {
       $this->db->where('id', $address_id);
       $deleted = $this->db->delete('user_address_master');
-      if ($deleted) {
+      if ($deleted)
+      {
         echo json_encode(['status' => 'success', 'message' => 'Address deleted successfully.']);
-      } else {
+      } else
+      {
         echo json_encode(['status' => 'error', 'message' => 'Failed to delete address.']);
       }
-    } else {
+    } else
+    {
       echo json_encode(['status' => 'error', 'message' => 'Invalid address ID.']);
     }
   }
@@ -1873,10 +2033,12 @@ class Web extends CI_Controller
     $mobile = $this->input->post('mobile');
     $otp = $this->input->post('otp');
     $check = $this->db->get_where('user_master', array('mobile' => $mobile, 'otp' => $otp))->row_array();
-    if (!empty($check)) {
+    if (!empty($check))
+    {
       echo '1';
       exit();
-    } else {
+    } else
+    {
       echo '2';
       exit();
     }
@@ -1885,7 +2047,7 @@ class Web extends CI_Controller
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Account Payment | Wazi Wears';
+    $data['title'] = 'Account Payment | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/account_payment');
     $this->load->view('web/include/footer');
@@ -1894,7 +2056,7 @@ class Web extends CI_Controller
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Blog | Wazi Wears';
+    $data['title'] = 'Blog | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/blog');
     $this->load->view('web/include/footer');
@@ -1908,7 +2070,7 @@ class Web extends CI_Controller
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Blog List | Wazi Wears';
+    $data['title'] = 'Blog List | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/blog_list');
     $this->load->view('web/include/footer');
@@ -1917,7 +2079,7 @@ class Web extends CI_Controller
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Forgot Password | Wazi Wears';
+    $data['title'] = 'Forgot Password | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/forgot_password');
     $this->load->view('web/include/footer');
@@ -1926,7 +2088,7 @@ class Web extends CI_Controller
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Login Registration | Wazi Wears';
+    $data['title'] = 'Login Registration | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/login_registration');
     $this->load->view('web/include/footer');
@@ -1944,7 +2106,8 @@ class Web extends CI_Controller
     $gst_list = [];
     $product_ids = [];
 
-    foreach ($cart_items as $item) {
+    foreach ($cart_items as $item)
+    {
       $gst_data = $this->web_model->get_gst($item['id']);
       $gst_list[$item['id']] = $gst_data ? $gst_data->gst : 0;
       $product_ids[] = $item['id'];
@@ -1962,13 +2125,17 @@ class Web extends CI_Controller
 
     $valid = [];
 
-    foreach ($all_coupons as $c) {
-      if (!empty($c['product_ids'])) {
+    foreach ($all_coupons as $c)
+    {
+      if (!empty($c['product_ids']))
+      {
         $cp = explode(',', $c['product_ids']);
-        if (array_intersect($product_ids, $cp)) {
+        if (array_intersect($product_ids, $cp))
+        {
           $valid[] = $c;
         }
-      } else {
+      } else
+      {
         $valid[] = $c;
       }
     }
@@ -1989,31 +2156,36 @@ class Web extends CI_Controller
     $userData = $this->session->userdata('User');
     $user_id = $userData['id'] ?? 0;
 
-    if (empty($code)) {
+    if (empty($code))
+    {
       echo json_encode(['status' => 'error', 'message' => 'Enter coupon code']);
       return;
     }
 
     $coupon = $this->web_model->get_coupon_by_code($code);
 
-    if (!$coupon) {
+    if (!$coupon)
+    {
       echo json_encode(['status' => 'error', 'message' => 'Invalid or expired coupon']);
       return;
     }
 
     $today = date('Y-m-d H:i:s');
-    if ($coupon['start_date'] > $today || $coupon['end_date'] < $today || $coupon['status'] != 1) {
+    if ($coupon['start_date'] > $today || $coupon['end_date'] < $today || $coupon['status'] != 1)
+    {
       echo json_encode(['status' => 'error', 'message' => 'Coupon expired or inactive']);
       return;
     }
 
-    if (!empty($user_id)) {
+    if (!empty($user_id))
+    {
       $used = $this->db->get_where('coupon_validity_master', [
         'user_id' => $user_id,
         'coupon_id' => $coupon['id']
       ])->row_array();
 
-      if ($used) {
+      if ($used)
+      {
         echo json_encode(['status' => 'error', 'message' => 'You have already used this coupon']);
         return;
       }
@@ -2023,7 +2195,8 @@ class Web extends CI_Controller
     $totalUsed = $this->db->where('coupon_id', $coupon['id'])
       ->from('coupon_validity_master')
       ->count_all_results();
-    if ($totalUsed >= $coupon['usage_limit_total']) {
+    if ($totalUsed >= $coupon['usage_limit_total'])
+    {
       echo json_encode(['status' => 'error', 'message' => 'Coupon usage limit reached']);
       return;
     }
@@ -2044,7 +2217,8 @@ class Web extends CI_Controller
   public function checkout()
   {
     $userData = $this->session->userdata('User');
-    if (empty($userData)) {
+    if (empty($userData))
+    {
       redirect('web/login');
     }
     $user_id = $userData['id'];
@@ -2058,7 +2232,7 @@ class Web extends CI_Controller
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
     $data['getData'] = $this->db->get_where('user_address_master', ['user_master_id' => $user_id])->result_array();
     $data['address_data'] = $this->db->get_where('user_address_master', ['user_master_id' => $user_id])->row_array();
-    $data['title'] = 'Checkout | Wazi Wears';
+    $data['title'] = 'Checkout | Chenna';
 
     // ---------------------------
     // 2) Checkout items
@@ -2066,7 +2240,8 @@ class Web extends CI_Controller
     $checkout_items = [];
     $buyNow = $this->session->userdata('buy_now');
 
-    if (!empty($buyNow)) {
+    if (!empty($buyNow))
+    {
       $product = $this->db->get_where('sub_product_master', ['id' => $buyNow['pro_id']])->row_array();
       $gst_percent = !empty($product['gst']) ? $product['gst'] : 0;
       $checkout_items[] = [
@@ -2080,8 +2255,10 @@ class Web extends CI_Controller
         'vendor_id' => $product['vendor_id'] ?? null,
         'promoter_id' => $product['promoter_id'] ?? null
       ];
-    } else {
-      foreach ($this->cart->contents() as $item) {
+    } else
+    {
+      foreach ($this->cart->contents() as $item)
+      {
         $product = $this->db->get_where('sub_product_master', ['id' => $item['id']])->row_array();
         $gst_percent = !empty($product['gst']) ? $product['gst'] : 0;
         $checkout_items[] = [
@@ -2107,18 +2284,23 @@ class Web extends CI_Controller
     $coupon = $this->session->userdata('applied_coupon') ?? null;
     $total_cost = 0;
 
-    foreach ($checkout_items as $item) {
+    foreach ($checkout_items as $item)
+    {
       $total_cost += $item['final_price'] * $item['qty'];
     }
 
     $coupon_discount = 0;
-    if (!empty($coupon)) {
-      if ($coupon['discount_type'] == 'percent') {
+    if (!empty($coupon))
+    {
+      if ($coupon['discount_type'] == 'percent')
+      {
         $coupon_discount = ($coupon['discount_value'] / 100) * $total_cost;
-        if (!empty($coupon['max_discount_amount']) && $coupon_discount > $coupon['max_discount_amount']) {
+        if (!empty($coupon['max_discount_amount']) && $coupon_discount > $coupon['max_discount_amount'])
+        {
           $coupon_discount = $coupon['max_discount_amount'];
         }
-      } else {
+      } else
+      {
         $coupon_discount = $coupon['discount_value'];
       }
     }
@@ -2129,7 +2311,8 @@ class Web extends CI_Controller
     // 4) GST calculation on discounted subtotal
     // ---------------------------
     $gst_total = 0;
-    foreach ($checkout_items as $item) {
+    foreach ($checkout_items as $item)
+    {
       $item_total = $item['final_price'] * $item['qty'];
       $item_discount = ($item_total / $total_cost) * $coupon_discount; // proportional discount
       $gst_percent = $item['gst'] ?? 18;
@@ -2183,7 +2366,8 @@ class Web extends CI_Controller
     $paymentType = $this->input->post('paymentType') ?? 1;
     $tid = $this->input->post('tid');
 
-    if (empty($address_id)) {
+    if (empty($address_id))
+    {
       $this->session->set_flashdata('error', 'Please select a delivery address.');
       redirect('web/checkout');
     }
@@ -2198,7 +2382,8 @@ class Web extends CI_Controller
     $checkout_items = $this->session->userdata('checkout_items') ?? [];
 
     // Ensure each item has vendor_id and promoter_id
-    foreach ($checkout_items as $key => $item) {
+    foreach ($checkout_items as $key => $item)
+    {
       $product = $this->db->get_where('sub_product_master', ['id' => $item['id']])->row_array();
       $checkout_items[$key]['vendor_id'] = $product['vendor_id'] ?? null;
       $checkout_items[$key]['promoter_id'] = $product['promoter_id'] ?? null;
@@ -2210,18 +2395,23 @@ class Web extends CI_Controller
 
     // Calculate total cost
     $total_cost = 0;
-    foreach ($checkout_items as $item) {
+    foreach ($checkout_items as $item)
+    {
       $total_cost += $item['final_price'] * $item['qty'];
     }
 
     // Calculate coupon discount
-    if (!empty($applied_coupon)) {
-      if ($applied_coupon['discount_type'] == 'percent') {
+    if (!empty($applied_coupon))
+    {
+      if ($applied_coupon['discount_type'] == 'percent')
+      {
         $coupon_discount_amount = ($applied_coupon['discount_value'] / 100) * $total_cost;
-        if (!empty($applied_coupon['max_discount_amount']) && $coupon_discount_amount > $applied_coupon['max_discount_amount']) {
+        if (!empty($applied_coupon['max_discount_amount']) && $coupon_discount_amount > $applied_coupon['max_discount_amount'])
+        {
           $coupon_discount_amount = $applied_coupon['max_discount_amount'];
         }
-      } else {
+      } else
+      {
         $coupon_discount_amount = $applied_coupon['discount_value'];
       }
     }
@@ -2231,7 +2421,8 @@ class Web extends CI_Controller
 
     // Calculate GST on discounted amount
     $gst_total = 0;
-    foreach ($checkout_items as $item) {
+    foreach ($checkout_items as $item)
+    {
       $item_total = $item['final_price'] * $item['qty'];
       $item_discount = ($item_total / $total_cost) * $coupon_discount_amount; // proportional discount
       $item_total_after_discount = $item_total - $item_discount;
@@ -2255,7 +2446,7 @@ class Web extends CI_Controller
     $data['gst_total'] = $gst_total;
     $data['shipping'] = $shipping;
     $data['grand_total'] = $grand_total;
-    $data['title'] = 'Payment | Wazi Wears';
+    $data['title'] = 'Payment | Chenna';
     $data['paymentType'] = $paymentType;
     $data['tid'] = $tid;
 
@@ -2269,7 +2460,8 @@ class Web extends CI_Controller
   {
     $userData = $this->session->userdata('User');
 
-    if (empty($userData) || empty($userData['id'])) {
+    if (empty($userData) || empty($userData['id']))
+    {
       echo json_encode(['count' => 0]);
       return;
     }
@@ -2286,14 +2478,14 @@ class Web extends CI_Controller
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'About-Us | Wazi Wears';
+    $data['title'] = 'About-Us | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/about');
     $this->load->view('web/include/footer');
   }
   public function tersms_conditions()
   {
-    $data['title'] = 'Terms & Conditions | Wazi Wears';
+    $data['title'] = 'Terms & Conditions | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/tersms_conditions');
     $this->load->view('web/include/footer');
@@ -2301,17 +2493,20 @@ class Web extends CI_Controller
   public function contact()
   {
     $data = $this->input->post();
-    if (empty($data)) {
+    if (empty($data))
+    {
       $data['bannerList'] = $this->web_model->getBannerList();
       $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-      $data['title'] = 'Contact-Us | Wazi Wears';
+      $data['title'] = 'Contact-Us | Chenna';
       $this->load->view('web/include/header', $data);
       $this->load->view('web/contact');
       $this->load->view('web/include/footer');
-    } else {
+    } else
+    {
       $row = $this->db->insert('enquiry_master', $data);
-      if ($row > 0) {
-        $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button>Thanks! For contacting Wazi Wears.
+      if ($row > 0)
+      {
+        $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button>Thanks! For contacting Chenna.
           We will contact you soon</div></div>');
         redirect('web/contact');
       }
@@ -2321,7 +2516,7 @@ class Web extends CI_Controller
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'FAQ | Wazi Wears';
+    $data['title'] = 'FAQ | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/faq');
     $this->load->view('web/include/footer');
@@ -2330,7 +2525,7 @@ class Web extends CI_Controller
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Help | Wazi Wears';
+    $data['title'] = 'Help | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/help');
     $this->load->view('web/include/footer');
@@ -2339,7 +2534,7 @@ class Web extends CI_Controller
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'FAQ Help Request | Wazi Wears';
+    $data['title'] = 'FAQ Help Request | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/faq_help_request');
     $this->load->view('web/include/footer');
@@ -2348,7 +2543,7 @@ class Web extends CI_Controller
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Term Conditions | Wazi Wears';
+    $data['title'] = 'Term Conditions | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/terms&condition');
     $this->load->view('web/include/footer');
@@ -2357,7 +2552,7 @@ class Web extends CI_Controller
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Privacy Policy | Wazi Wears';
+    $data['title'] = 'Privacy Policy | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/terms_conditions');
     $this->load->view('web/include/footer');
@@ -2366,7 +2561,7 @@ class Web extends CI_Controller
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Privacy Policy | Wazi Wears';
+    $data['title'] = 'Privacy Policy | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/privacy_policy');
     $this->load->view('web/include/footer');
@@ -2375,7 +2570,7 @@ class Web extends CI_Controller
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Refund Policy | Wazi Wears';
+    $data['title'] = 'Refund Policy | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/refund_policy');
     $this->load->view('web/include/footer');
@@ -2384,7 +2579,7 @@ class Web extends CI_Controller
   {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Privacy Policy | Wazi Wears';
+    $data['title'] = 'Privacy Policy | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/cancellation_policy');
     $this->load->view('web/include/footer');
@@ -2394,7 +2589,8 @@ class Web extends CI_Controller
   {
     $wishlist_count = 0;
     $cart_count = count($this->cart->contents());
-    if ($this->session->userdata('user_id')) {
+    if ($this->session->userdata('user_id'))
+    {
       $user_id = $this->session->userdata('user_id');
       $wishlist_count = $this->db->where('user_id', $user_id)->count_all_results('wishlist_table');
     }
@@ -2408,7 +2604,7 @@ class Web extends CI_Controller
     $data['getData'] = $this->db->get_where('staff_master', array('id' => $id))->row_array();
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['title'] = 'Order Success | Wazi Wears';
+    $data['title'] = 'Order Success | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/registration_success');
     $this->load->view('web/include/footer');
@@ -2440,11 +2636,11 @@ class Web extends CI_Controller
     $this->db->where('id', $serller_id);
     $this->db->update('staff_master', array('mobile_otp' => $mobile_otp, 'email_otp' => $email_otp));
 
-    $text = 'Dear ' . $staff['name'] . ' Your Mobile Verification OTP is: ' . $mobile_otp . ' Please enter this OTP to verify your mobile number. From www.Wazi Wears.inRegardsWazi Wears Real Time Private Limited';
+    $text = 'Dear ' . $staff['name'] . ' Your Mobile Verification OTP is: ' . $mobile_otp . ' Please enter this OTP to verify your mobile number. From www.Chenna.inRegardsChenna Real Time Private Limited';
     $this->load->helper('/email/temp9');
     $status = 'Email Verification';
     $user = $staff['name'];
-    $email_text = $email_otp . ' is your email verification OTP. Please use this otp for the verification of your email id with Wazi Wears.';
+    $email_text = $email_otp . ' is your email verification OTP. Please use this otp for the verification of your email id with Chenna.';
     $email_body = temp9($status, $user, $email_text);
     $subject = 'Email Verification OTP';
     sendSMS($staff['mobile'], $text, '1007086055987083292');
@@ -2457,13 +2653,15 @@ class Web extends CI_Controller
     $otp = $this->input->post('otp');
     $this->db->select('mobile_otp,email_verify');
     $staff = $this->db->get_where('staff_master', array('id' => $serller_id))->row_array();
-    if ($staff['mobile_otp'] == $otp) {
+    if ($staff['mobile_otp'] == $otp)
+    {
       $this->db->where('id', $serller_id);
       $this->db->update('staff_master', array('mobile_verify' => '1'));
       $message['mobile_verify'] = '1';
       $message['email_verify'] = $staff['email_verify'];
       $message['type'] = '1';
-    } else {
+    } else
+    {
       $message['mobile_verify'] = '2';
       $message['email_verify'] = $staff['email_verify'];
       $message['type'] = '2';
@@ -2477,13 +2675,15 @@ class Web extends CI_Controller
     $otp = $this->input->post('otp');
     $this->db->select('email_otp,mobile_verify');
     $staff = $this->db->get_where('staff_master', array('id' => $serller_id))->row_array();
-    if ($staff['email_otp'] == $otp) {
+    if ($staff['email_otp'] == $otp)
+    {
       $this->db->where('id', $serller_id);
       $this->db->update('staff_master', array('email_verify' => '1'));
       $message['mobile_verify'] = $staff['mobile_verify'];
       $message['email_verify'] = '1';
       $message['type'] = '1';
-    } else {
+    } else
+    {
       $message['mobile_verify'] = $staff['mobile_verify'];
       $message['email_verify'] = '2';
       $message['type'] = '2';
@@ -2509,13 +2709,16 @@ class Web extends CI_Controller
     $fields['add_date'] = time();
     $fields['modify_date'] = time();
     $address_data = $this->db->get_where('user_address_master', array('user_master_id' => $userData['id']))->row_array();
-    if (empty($address_data)) {
+    if (empty($address_data))
+    {
       $row = $this->db->insert('user_address_master', $fields);
-    } else {
+    } else
+    {
       $this->db->where('user_master_id', $userData['id']);
       $row = $this->db->update('user_address_master', $fields);
     }
-    if ($row > 0) {
+    if ($row > 0)
+    {
       $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button>Address Added successfully.</div></div>');
       redirect('web/checkout_payment');
     }
@@ -2524,7 +2727,8 @@ class Web extends CI_Controller
   {
     $this->db->where('id', $address_id);
     $row = $this->db->delete('user_address_master');
-    if ($row > 0) {
+    if ($row > 0)
+    {
       $this->session->set_flashdata('activatee', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button>Address deleted successfully.</div></div>');
       redirect('web/checkout');
     }
@@ -2535,7 +2739,8 @@ class Web extends CI_Controller
     $data = $this->input->post();
     $userData = $this->session->userdata('User');
 
-    if (empty($userData)) {
+    if (empty($userData))
+    {
       redirect('web/login');
       return;
     }
@@ -2546,7 +2751,8 @@ class Web extends CI_Controller
     $coupon_discount_amount = 0;
 
     // Get order items
-    if (!empty($buyNow['pro_id'])) {
+    if (!empty($buyNow['pro_id']))
+    {
       $prod = $this->db->get_where('sub_product_master', ['id' => $buyNow['pro_id']])->row_array();
       $total_items = [
         [
@@ -2564,15 +2770,18 @@ class Web extends CI_Controller
         ]
       ];
       $is_buy_now = true;
-    } else {
+    } else
+    {
       $cart_contents = $this->cart->contents();
-      if (empty($cart_contents)) {
+      if (empty($cart_contents))
+      {
         $this->session->set_flashdata('activate_m', '<div class="alert alert-danger">Your cart is empty.</div>');
         redirect(base_url());
         return;
       }
       $total_items = [];
-      foreach ($cart_contents as $c) {
+      foreach ($cart_contents as $c)
+      {
         $prod = $this->db->get_where('sub_product_master', ['id' => $c['id']])->row_array();
         $total_items[] = [
           'id' => $c['id'],
@@ -2593,18 +2802,23 @@ class Web extends CI_Controller
 
     // Calculate total price
     $total_price = 0;
-    foreach ($total_items as $itm) {
+    foreach ($total_items as $itm)
+    {
       $total_price += $itm['final_price'] * $itm['qty'];
     }
 
     // Calculate coupon discount
-    if (!empty($applied_coupon)) {
-      if ($applied_coupon['discount_type'] == 'percent') {
+    if (!empty($applied_coupon))
+    {
+      if ($applied_coupon['discount_type'] == 'percent')
+      {
         $coupon_discount_amount = ($applied_coupon['discount_value'] / 100) * $total_price;
-        if (!empty($applied_coupon['max_discount_amount']) && $coupon_discount_amount > $applied_coupon['max_discount_amount']) {
+        if (!empty($applied_coupon['max_discount_amount']) && $coupon_discount_amount > $applied_coupon['max_discount_amount'])
+        {
           $coupon_discount_amount = $applied_coupon['max_discount_amount'];
         }
-      } else {
+      } else
+      {
         $coupon_discount_amount = $applied_coupon['discount_value'];
       }
     }
@@ -2613,7 +2827,8 @@ class Web extends CI_Controller
 
     // Calculate GST
     $gst_total = 0;
-    foreach ($total_items as $itm) {
+    foreach ($total_items as $itm)
+    {
       $item_total = $itm['final_price'] * $itm['qty'];
       $item_discount = (!empty($total_price)) ? ($item_total / $total_price) * $coupon_discount_amount : 0;
       $item_total_after_discount = $item_total - $item_discount;
@@ -2629,7 +2844,8 @@ class Web extends CI_Controller
     // Shipping charge
     $OrderSettings = $this->db->get_where('settings', ['id' => '1'])->row_array();
     $shipping = 0;
-    if (!empty($OrderSettings)) {
+    if (!empty($OrderSettings))
+    {
       $min_bal = (float) $OrderSettings['min_order_bal'];
       $ship_amt = (float) $OrderSettings['shipping_amount'];
       $shipping = ($subtotal_after_coupon > $min_bal) ? 0 : $ship_amt;
@@ -2642,7 +2858,8 @@ class Web extends CI_Controller
     $paymentType = in_array((int) ($data['paymentType'] ?? 1), $validPaymentTypes) ? (int) $data['paymentType'] : 1;
 
     $transaction_id = '';
-    if ($paymentType == 2) {
+    if ($paymentType == 2)
+    {
       $transaction_id = 'TXN_' . time() . '_' . substr(str_shuffle('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 8);
       $tid = $transaction_id;
       log_message('info', 'Generated Transaction ID: ' . $transaction_id . ' for Order');
@@ -2674,7 +2891,8 @@ class Web extends CI_Controller
     $lastId = $this->db->insert_id();
 
     // Save coupon usage
-    if (!empty($applied_coupon)) {
+    if (!empty($applied_coupon))
+    {
       $coupon_data = [
         'user_id' => $userId,
         'coupon_id' => $applied_coupon['id'],
@@ -2687,7 +2905,8 @@ class Web extends CI_Controller
     }
 
     // Insert purchase items and reduce stock
-    foreach ($total_items as $itm) {
+    foreach ($total_items as $itm)
+    {
       $this->db->query("UPDATE sub_product_master SET quantity = quantity - " . (int) $itm['qty'] . " WHERE id = " . (int) $itm['id']);
 
       $product = $this->db->select('product_name, shop_id, main_image, product_hsn, sku_code, gst, vendor_id, promoter_id')
@@ -2739,7 +2958,8 @@ class Web extends CI_Controller
     $this->db->insert($addressTable, $fields);
 
     // Payment gateway redirection if needed
-    if ($paymentType == 2) {
+    if ($paymentType == 2)
+    {
       $gatewayData = [
         'final_price' => $grand_total,
         'shipping_charge' => $shipping,
@@ -2760,7 +2980,7 @@ class Web extends CI_Controller
         'billing_country' => 'India',
         'billing_tel' => $address_data['mobile_number'] ?? '',
         'billing_email' => $userData['email'] ?? '',
-        'merchant_param1' => 'Wazi Wears REAL TIME PRIVATE LIMITED'
+        'merchant_param1' => 'Chenna REAL TIME PRIVATE LIMITED'
       ];
       $this->load->view('paymentGateway/ccavRequestHandler', $gatewayData);
       return;
@@ -2778,12 +2998,14 @@ class Web extends CI_Controller
   {
     $order_id = $this->input->post('order_id');
     $order = $this->db->get_where('order_master', ['id' => $order_id])->row_array();
-    if (!$order) {
+    if (!$order)
+    {
       echo json_encode(['status' => 'error', 'message' => 'Order not found!']);
       return;
     }
 
-    if (!in_array($order['status'], [1, 3, 5])) {
+    if (!in_array($order['status'], [1, 3, 5]))
+    {
       echo json_encode(['status' => 'error', 'message' => 'This order cannot be cancelled!']);
       return;
     }
@@ -2814,7 +3036,7 @@ class Web extends CI_Controller
     $html .= '<div style="float:left;width:100%; margin-top:20px;">
                     <div style="float:left;width:70%">
                         <div class="image">
-                            <h3>Wazi Wears Real Time Pvt.Ltd.</h3>
+                            <h3>Chenna Real Time Pvt.Ltd.</h3>
                         </div>
                         <div style="margin-left: 30px; top: -60px" >
                             <div style="margin-left: 140px !important;"></div>
@@ -2832,7 +3054,8 @@ class Web extends CI_Controller
     $total1 = 0;
     $total = 0;
     $i = 1;
-    foreach ($getProduct as $key => $value) {
+    foreach ($getProduct as $key => $value)
+    {
       $total += $value['final_price'] * $value['quantity'];
     }
     $TotalValue = $total;
@@ -2843,7 +3066,8 @@ class Web extends CI_Controller
     $total1 = 0;
     $total = 0;
     $i = 1;
-    foreach ($getProduct as $key => $value) {
+    foreach ($getProduct as $key => $value)
+    {
       $hsnArr = $this->db->get_where('sub_product_master', array('id' => $value['product_master_id']))->row_array();
       $html .= '<tr><td>' . $i . '.</td><td>' . $value['product_name'] . '</td><td>' . $value['final_price'] . '</td><td>' . $value['quantity'] . '</td><td>' . $value['size'] . '</td><td>' . $value['color'] . '</td><td>' . $hsnArr['product_hsn'] . '</td><td>Rs. ' . $value['final_price'] * $value['quantity'] . '/-</td></tr>';
       $i++;
@@ -2856,15 +3080,15 @@ class Web extends CI_Controller
     $html .= '<div style="float:left;width:100%; margin-top:25px;"><div style="float:left;width:60%"></div><div style="float:right;width:40%"><table><tr><td><p style="font-size:14px;"><b>Total</b></p></td><td>' . $total . '/-</td></tr> <tr><td><p style="font-size:14px;">GST :</p></td><td>' . $gst . '/-</td></tr><tr><td><p style="font-size:14px;">Shipping & Delivery Charge </p></td><td>' . $shippingAmount . '/-</td></tr><tr><td><p style="font-size:14px;">Grand Total </p></td><td><b>' . $TotalValue . '/-</b></td></tr></table>
         <p style="color:red">Note: Including Shipping Charges and taxes.</p></div></div>';
     $html .= '<center> <div>
-        <center><span style="font-weight: 600;font-size: 18px;">Thank you..... <br> <span style="font-size: 15px;font-weight: 700;color: #005512;"> Order By Wazi Wears Real Time Pvt.Ltd.</span>
+        <center><span style="font-weight: 600;font-size: 18px;">Thank you..... <br> <span style="font-size: 15px;font-weight: 700;color: #005512;"> Order By Chenna Real Time Pvt.Ltd.</span>
         <br>
         <span style="font-size: 15px;font-weight: 600;">+91 7460833766</span>
         <br>
-        <span style="font-size: 15px;font-weight: 600;">Wazi Wears110@gmail.com</span>
+        <span style="font-size: 15px;font-weight: 600;">Chenna110@gmail.com</span>
         </span>
         </center>
         </div> </center>';
-    // $html .= '<div style="float:left;width:80%;margin-left:30%"><table><tr><td><p style="font-size:16px;">Thank you...</p>Order By - </td><td><div class="image" style="margin-top:4px;"><br><h4><i>Wazi Wears Pvt. Ltd.</i></h4></div><div style="top: -60px">
+    // $html .= '<div style="float:left;width:80%;margin-left:30%"><table><tr><td><p style="font-size:16px;">Thank you...</p>Order By - </td><td><div class="image" style="margin-top:4px;"><br><h4><i>Chenna Pvt. Ltd.</i></h4></div><div style="top: -60px">
     // </div></td></tr></table></div>
     // ';
     $html .= '<br><p style="text-align:center;">(This is a system generated invoice and does not require a signature.)</p>';
@@ -2897,7 +3121,7 @@ class Web extends CI_Controller
     $status = "Order Placed";
     $order_no = $OrderDetail['order_number'];
     $user = $user_info['username'];
-    // $email_text = "Thank You for shopping with Wazi Wears. We would like to let you know that your order has been placed and we are waiting for your order confirmation by the seller. If you would like to view the status of order please visit YOUR ORDERS on Wazi Wears.in";
+    // $email_text = "Thank You for shopping with Chenna. We would like to let you know that your order has been placed and we are waiting for your order confirmation by the seller. If you would like to view the status of order please visit YOUR ORDERS on Chenna.in";
     // $img_link = $img_url;
     // $product_title = $product['product_name'];
     // $size = $purchase['size'];
@@ -2922,7 +3146,7 @@ class Web extends CI_Controller
     //************************ End order placed ********************************************
     $html = '';
     $html .= '<div class="container" style="margin: 0 70px;background-color: white;margin-top:20px;border:4px solid rgb(239,126,45);height: auto;padding: 20px;border-radius: 10px;font-size: 15px;">
-    <img class="img-fluid" src="https://Wazi Wears.in/My-Img/INCONS/SO-logo.png" alt="Wazi Wears" style="position: absolute;top: 0;height: 42px;width: 200px;">
+    <img class="img-fluid" src="https://Chenna.in/My-Img/INCONS/SO-logo.png" alt="Chenna" style="position: absolute;top: 0;height: 42px;width: 200px;">
     <div class="billing-head" style="margin: 0px;float: right;font-size: 15px;font-weight: 500;">
       <div class="row" >
         <div class="col-12"><p style="margin: 0px;float: right;font-size: 15px;font-weight: 500;">Order Placed</p></div>
@@ -2936,12 +3160,15 @@ class Web extends CI_Controller
     </div>
     <section style=" padding: 0px 10% 0 10%; margin: 5px 0px 10px;">
     <h3>Order Details <span style="font-size:17px;font-weight: 700;padding-left: 10em;"><h3>';
-    foreach ($purchase as $key => $purchase) {
+    foreach ($purchase as $key => $purchase)
+    {
       $product = $this->db->get_where('sub_product_master', array('id' => $purchase['product_master_id']))->row_array();
       $array_url = parse_url($product['main_image']);
-      if (empty($array_url['host'])) {
+      if (empty($array_url['host']))
+      {
         $img_url = base_url() . '/assets/product_images/' . $product['main_image'];
-      } else {
+      } else
+      {
         $img_url = 'https://' . $array_url['host'] . '' . $array_url['path'] . '?raw=1';
       }
       $html .= '
@@ -2979,7 +3206,7 @@ class Web extends CI_Controller
         </table>
         <table style="width:100%; padding: 0px 10% 0 11%; margin: 5px 0px 10px;border: 1.5px solid rgb(239,126,45); padding-bottom: 17px;background: #f5f5f5;">
           <tr>
-            <td><img src="https://Wazi Wears.in/assets/flow.png" alt="Request Flow" style="height: 65px;width:55%;margin-bottom: 10px;"></td>
+            <td><img src="https://Chenna.in/assets/flow.png" alt="Request Flow" style="height: 65px;width:55%;margin-bottom: 10px;"></td>
             <td><span style="padding-top:1em;font-size:15px;font-weight: 500;">Delivery Details</span></td>
           </tr>
           <tr>
@@ -3002,11 +3229,11 @@ class Web extends CI_Controller
        <table style="width:100%;padding: 0px 10% 0 13%; margin: 5px 0px 10px;">
          
           <tr>
-            <td><img src="https://Wazi Wears.in/My-Img/INCONS/SO-logo.png" alt="Wazi Wears" style="height: 38px;width: 100px;"></td>
-            <td><img src="https://Wazi Wears.in/assets/google_play.png" alt="Wazi Wears" style="width:100px;margin-top:-12px;"></td>
-            <td><a href="https://www.facebook.com/infoWazi Wears"><img src="https://Wazi Wears.in/assets/facebook.png" alt="Wazi Wears" style="height: 36px;width: 42px;background: transparent;margin-right: 16px;"></a>
-              <a href="https://www.instagram.com/Wazi Wears_official"><img src="https://Wazi Wears.in/assets/instagram.png" alt="Wazi Wears" style="height: 36px;width: 42px;background: transparent;margin-right: 16px;"></a>
-              <a href="https://twitter.com/infoWazi Wears"><img src="https://Wazi Wears.in/assets/twitter.jpg" alt="Wazi Wears" style="height: 36px;width: 42px;background: transparent;margin-right: 16px;"></a></td>
+            <td><img src="https://Chenna.in/My-Img/INCONS/SO-logo.png" alt="Chenna" style="height: 38px;width: 100px;"></td>
+            <td><img src="https://Chenna.in/assets/google_play.png" alt="Chenna" style="width:100px;margin-top:-12px;"></td>
+            <td><a href="https://www.facebook.com/infoChenna"><img src="https://Chenna.in/assets/facebook.png" alt="Chenna" style="height: 36px;width: 42px;background: transparent;margin-right: 16px;"></a>
+              <a href="https://www.instagram.com/Chenna_official"><img src="https://Chenna.in/assets/instagram.png" alt="Chenna" style="height: 36px;width: 42px;background: transparent;margin-right: 16px;"></a>
+              <a href="https://twitter.com/infoChenna"><img src="https://Chenna.in/assets/twitter.jpg" alt="Chenna" style="height: 36px;width: 42px;background: transparent;margin-right: 16px;"></a></td>
           </tr>
         </table>
       </div>';
@@ -3018,7 +3245,7 @@ class Web extends CI_Controller
     $to = $email;
     $subject = $sub;
     $message .= "Note - This is a System Generated Mail, please do not reply.\r\n";
-    $headers = "From:" . "support@Wazi Wears.in" . "\r\n";
+    $headers = "From:" . "support@Chenna.in" . "\r\n";
     $headers .= "MIME-Version: 1.0\r\n";
     $headers .= "Content-type: text/html; charset=utf-8\r\n";
     mail($to, $subject, $smsmessage, $headers);
@@ -3066,14 +3293,16 @@ class Web extends CI_Controller
 
     $order = $this->db->get_where($tables['order'], ['id' => $decoded_order_id])->row_array();
 
-    if (empty($order)) {
+    if (empty($order))
+    {
       $tables['order'] = 'order_master2';
       $tables['address'] = 'order_address_master2';
       $tables['purchase'] = 'purchase_master2';
       $order = $this->db->get_where($tables['order'], ['id' => $decoded_order_id])->row_array();
     }
 
-    if (empty($order)) {
+    if (empty($order))
+    {
       show_404();
     }
 
@@ -3091,7 +3320,7 @@ class Web extends CI_Controller
     $paymentTypeName = $paymentTypeMap[$payment_type] ?? 'Unknown';
 
     $data = [
-      'title' => 'Order Success | Wazi Wears',
+      'title' => 'Order Success | Chenna',
       'order_data' => $order,
       'address_data' => $address_data,
       'purchase_items' => $purchase_items,
@@ -3107,20 +3336,24 @@ class Web extends CI_Controller
 
     $order = $this->db->get_where('order_master2', ['order_number' => $order_number])->row_array();
 
-    if (empty($order)) {
+    if (empty($order))
+    {
       $order = $this->db->get_where('order_master', ['order_number' => $order_number])->row_array();
     }
-    if (empty($order)) {
+    if (empty($order))
+    {
       show_404();
       return;
     }
 
     $address = $this->db->get_where('order_address_master2', ['order_master_id' => $order['id']])->row_array();
-    if (empty($address)) {
+    if (empty($address))
+    {
       $address = $this->db->get_where('order_address_master', ['order_master_id' => $order['id']])->row_array();
     }
     $items = $this->db->get_where('purchase_master2', ['order_master_id' => $order['id']])->result_array();
-    if (empty($items)) {
+    if (empty($items))
+    {
       $items = $this->db->get_where('purchase_master', ['order_master_id' => $order['id']])->result_array();
     }
 
@@ -3132,7 +3365,7 @@ class Web extends CI_Controller
     $paymentTypeName = $paymentTypeMap[(int) ($order['payment_type'] ?? 0)] ?? 'Unknown';
 
     $data = [
-      'title' => 'Order Success | Wazi Wears',
+      'title' => 'Order Success | Chenna',
       'order_data' => $order,
       'address_data' => $address,
       'purchase_items' => $items,
@@ -3163,13 +3396,14 @@ class Web extends CI_Controller
   text-align: left;
   padding: 8px;
 } </style><h1 style="text-align:center;font-size:34px"><u>Invoice</u></h1>';
-    $html .= '<div style="float:left;width:100%; margin-top:20px;"><div style="float:left;width:70%"><div class="image"><h3>Wazi Wears Real Time Pvt.Ltd.</h3></div><div style="margin-left: 30px; top: -60px" >
+    $html .= '<div style="float:left;width:100%; margin-top:20px;"><div style="float:left;width:70%"><div class="image"><h3>Chenna Real Time Pvt.Ltd.</h3></div><div style="margin-left: 30px; top: -60px" >
                 <div style="margin-left: 140px !important;"></div></div></div><div style="float:left;width:30%;"><div><b style="font-size:15px;"> Order No &nbsp;:</b></b>&nbsp;' . $OrderDetail['order_number'] . '</div><br><b style="font-size:15px;"> Order Date :</b>&nbsp;' . date('d-m-Y', $OrderDetail['add_date']) . ' </div>
          </div></div>';
     $total1 = 0;
     $total = 0;
     $i = 1;
-    foreach ($getProduct as $key => $value) {
+    foreach ($getProduct as $key => $value)
+    {
       $total += $value['final_price'] * $value['quantity'];
     }
     $TotalValue = $total;
@@ -3179,7 +3413,8 @@ class Web extends CI_Controller
     $total1 = 0;
     $total = 0;
     $i = 1;
-    foreach ($getProduct as $key => $value) {
+    foreach ($getProduct as $key => $value)
+    {
       $hsnArr = $this->db->get_where('sub_product_master', array('id' => $value['product_master_id']))->row_array();
       $html .= '<tr><td>' . $i . '.</td><td>' . $value['product_name'] . '</td><td>' . $value['final_price'] . '</td><td>' . $value['quantity'] . '</td><td>' . $value['size'] . '</td><td>' . $value['color'] . '</td><td>' . $hsnArr['product_hsn'] . '</td><td>Rs. ' . $value['final_price'] * $value['quantity'] . '/-</td></tr>';
       $i++;
@@ -3192,16 +3427,16 @@ class Web extends CI_Controller
     $html .= '<div style="float:left;width:100%; margin-top:25px;"><div style="float:left;width:60%"></div><div style="float:right;width:40%"><table><tr><td><p style="font-size:14px;"><b>Total</b></p></td><td>' . $total . '/-</td></tr> <tr><td><p style="font-size:14px;">GST :</p></td><td>' . $gst . '/-</td></tr><tr><td><p style="font-size:14px;">Shipping & Delivery Charge </p></td><td>' . $shippingAmount . '/-</td></tr><tr><td><p style="font-size:14px;">Grand Total </p></td><td><b>' . $TotalValue . '/-</b></td></tr></table>
         <p style="color:red">Note: Including Shipping Charges and taxes.</p></div></div>';
     $html .= '<center> <div>
-        <center><span style="font-weight: 600;font-size: 18px;">Thank you..... <br> <span style="font-size: 15px;font-weight: 700;color: #005512;"> Order By Wazi Wears Real Time Pvt.Ltd.</span>
+        <center><span style="font-weight: 600;font-size: 18px;">Thank you..... <br> <span style="font-size: 15px;font-weight: 700;color: #005512;"> Order By Chenna Real Time Pvt.Ltd.</span>
         <br>
         <span style="font-size: 15px;font-weight: 600;">+91 7460833766</span>
         <br>
-        <span style="font-size: 15px;font-weight: 600;">Wazi Wears110@gmail.com</span>
+        <span style="font-size: 15px;font-weight: 600;">Chenna110@gmail.com</span>
         </span>
        
         </center>
  </div> </center>';
-    // $html .= '<div style="float:left;width:80%;margin-left:30%"><table><tr><td><p style="font-size:16px;">Thank you...</p>Order By - </td><td><div class="image" style="margin-top:4px;"><br><h4><i>Wazi Wears Pvt. Ltd.</i></h4></div><div style="top: -60px">
+    // $html .= '<div style="float:left;width:80%;margin-left:30%"><table><tr><td><p style="font-size:16px;">Thank you...</p>Order By - </td><td><div class="image" style="margin-top:4px;"><br><h4><i>Chenna Pvt. Ltd.</i></h4></div><div style="top: -60px">
     // </div></td></tr></table></div>
     // ';
     $html .= '<br><p style="text-align:center;">(This is a system generated invoice and does not require a signature.)</p>';
@@ -3227,20 +3462,24 @@ class Web extends CI_Controller
     $voucher_id = $voucherData['id'];
     $voucher_value = $voucherData['voucher_value'];
     $oldCartAmt = $this->cart->total();
-    if (!empty($voucherData)) {
+    if (!empty($voucherData))
+    {
       $totalCartAmt = $this->cart->total();
-      if ($totalCartAmt > $check_cart_amt) {
+      if ($totalCartAmt > $check_cart_amt)
+      {
         $check_vouch = $this->db->select_sum('voucher_uses')
           ->from('voucher_validity_master')
           ->where('voucher_id', $voucher_id)
           ->get();
         $check_vouch_valdity = $check_vouch->result_array();
         $vouch_valdity = $check_vouch_valdity[0]['voucher_uses'];
-        if ($vouch_valdity < $voucher_uses_limit) {
+        if ($vouch_valdity < $voucher_uses_limit)
+        {
           $this->db->where('user_id', $u_id);
           $this->db->where('voucher_id', $voucher_id);
           $check_user_voucher_use = $this->db->get('voucher_validity_master')->row_array();
-          if ($check_user_voucher_use) {
+          if ($check_user_voucher_use)
+          {
             $newCartAmt = $_SESSION['cart_contents']['cart_total'] = $totalCartAmt - $voucherData['voucher_value'];
             $vouchValData = array(
               'voucher_uses' => $check_user_voucher_use['voucher_uses'] + 1
@@ -3249,7 +3488,8 @@ class Web extends CI_Controller
             $this->db->update('voucher_validity_master', $vouchValData);
             // <img src='".base_url()."/assets/emoji/congratulation.png' height='50px' width='50px'>&nbsp;
             $this->session->set_flashdata("Voucher_Succ", "<img src='" . base_url() . "/assets/emoji/congratulation.png' height='50px' width='50px'>&nbsp;congratulation.! You get OFF <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" . $oldCartAmt . "-" . $voucherData['voucher_value'] . "&nbsp;=&nbsp;" . $newCartAmt . "&nbsp;<i class='fa fa-rupee'></i>");
-          } else {
+          } else
+          {
             $newCartAmt = $_SESSION['cart_contents']['cart_total'] = $totalCartAmt - $voucherData['voucher_value'];
             $vouchValData = array(
               'user_id' => $u_id,
@@ -3259,7 +3499,8 @@ class Web extends CI_Controller
             $this->db->insert('voucher_validity_master', $vouchValData);
             $this->session->set_flashdata("Voucher_Succ", "<img src='" . base_url() . "/assets/emoji/congratulation.png' height='50px' width='50px'>&nbsp;congratulation.! You get &nbsp;&nbsp;&nbsp;&nbsp; OFF&nbsp;" . $oldCartAmt . "-" . $voucherData['voucher_value'] . "&nbsp;=&nbsp;" . $newCartAmt . "&nbsp;<i class='fa fa-rupee'></i>");
           }
-        } else {
+        } else
+        {
           $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button><img src="' . base_url() . '/assets/emoji/expire.png" height="50px" width="50px">Opps..Voucher Expired</div></div>');
           redirect('web/checkout_payment');
         }
@@ -3267,11 +3508,13 @@ class Web extends CI_Controller
         // $voucher_succ = $voucher_id;
         // $voucher_succ = $voucher_id;
         redirect('web/checkout_payment/voucher');
-      } else {
+      } else
+      {
         $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button><img src="' . base_url() . '/assets/emoji/lowcart_amt.png" height="50px" width="50px">Please limit your cart amount up to ' . $check_cart_amt . '&nbsp;<i class="fa fa-rupee"></i></div></div>');
         redirect('web/checkout_payment');
       }
-    } else {
+    } else
+    {
       $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button><img src="' . base_url() . '/assets/emoji/thinking.png" height="50px" width="50px">Voucher Code is Invalid,Please try again.</div></div>');
       redirect('web/checkout_payment');
     }
@@ -3284,9 +3527,11 @@ class Web extends CI_Controller
     $data = $this->input->post();
     $coupon_code = $data['coupon_code'];
     $payment_mode = $data['payment_mode'];
-    if ($payment_mode == '1') {
+    if ($payment_mode == '1')
+    {
       $payment_mode = 'cod';
-    } else {
+    } else
+    {
       $payment_mode = 'online';
     }
     $couponData = $this->db->get_where('coupon_master', array('coupon_code' => $coupon_code, 'status' => '1'))->row_array();
@@ -3304,15 +3549,21 @@ class Web extends CI_Controller
     $coupon_id = $couponData['id'];
     $oldCartAmt = $this->cart->total();
     $totalCartAmt = $this->cart->total();
-    if (!empty($couponData)) {
-      if ($couponData['applicable_payment_mode'] == $payment_mode) {
-        if ($coupon_end_date >= $current_date) {
+    if (!empty($couponData))
+    {
+      if ($couponData['applicable_payment_mode'] == $payment_mode)
+      {
+        if ($coupon_end_date >= $current_date)
+        {
           $cartAllData = $this->cart->contents();
           //for apply discount OverAll Product
-          if ($apply_discountOn == '1') {
-            if ($totalCartAmt > $check_cart_amt) {
+          if ($apply_discountOn == '1')
+          {
+            if ($totalCartAmt > $check_cart_amt)
+            {
               $proId = array();
-              foreach ($cartAllData as $cartData) {
+              foreach ($cartAllData as $cartData)
+              {
                 $proId[] = $cartData['id'];
               }
               //if($arrayRec = array_intersect($proId,$applyCouponOn)){
@@ -3321,26 +3572,33 @@ class Web extends CI_Controller
               $this->db->where_in('id', $proId);
               $this->db->where('final_price >', $product_price_range);
               $filter_pro_rec = $this->db->get()->result_array();
-              if ($filter_pro_rec) {
+              if ($filter_pro_rec)
+              {
                 $check_coupon = $this->db->select_sum('coupon_uses')
                   ->from('coupon_validity_master')
                   ->where('coupon_id', $coupon_id)
                   ->get();
                 $check_coupon_valdity = $check_coupon->result_array();
                 $coupon_valdity = $check_coupon_valdity[0]['coupon_uses'];
-                if ($coupon_valdity < $coupon_uses_limit) {
+                if ($coupon_valdity < $coupon_uses_limit)
+                {
                   $this->db->where('user_id', $u_id);
                   $this->db->where('coupon_id', $coupon_id);
                   $check_user_coupon_use = $this->db->get('coupon_validity_master')->row_array();
-                  if ($check_user_coupon_use) {
-                    if ($coupon_discount_type == 1) { // 1= FLAT Discount, 2= percentage
-                      if ($coupon_type == 1) { // 1= Discountable Amount, 2= cashback
+                  if ($check_user_coupon_use)
+                  {
+                    if ($coupon_discount_type == 1)
+                    { // 1= FLAT Discount, 2= percentage
+                      if ($coupon_type == 1)
+                      { // 1= Discountable Amount, 2= cashback
                         $newCartAmt = $_SESSION['cart_contents']['cart_total'] = $totalCartAmt - $couponData['coupn_discount_val'];
                         // $dd = $_SESSION["Coupon_Succ"] = "Coupon Applied Successfully You get ".$oldCartAmt."-".$couponData['coupn_discount_val']."=".$newCartAmt."";
                         $this->session->set_flashdata("Coupon_Succ", "<b>Discount:</b>&nbsp;&nbsp;&nbsp;&nbsp;-" . $couponData['coupn_discount_val'] . "&nbsp;<i class='fa fa-rupee'></i>");
-                      } else {
+                      } else
+                      {
                         $userWallet = $this->db->get_where('wallet_master', array('user_master_id' => $u_id))->row_array();
-                        if ($userWallet) {
+                        if ($userWallet)
+                        {
                           $walletAmt = $userWallet['wallet_amount'] + $couponData['coupn_discount_val'];
                           $updateWalletData = array(
                             'wallet_amount' => $walletAmt,
@@ -3349,7 +3607,8 @@ class Web extends CI_Controller
                           $this->db->where('user_master_id', $u_id);
                           $this->db->update('wallet_master', $updateWalletData);
                           $this->session->set_flashdata("Coupon_Succ", "Get &nbsp;&nbsp;" . $couponData['coupn_discount_val'] . "&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
-                        } else {
+                        } else
+                        {
                           $walletAmt = array(
                             'user_master_id' => $u_id,
                             'wallet_amount' => $couponData['coupn_discount_val'],
@@ -3360,29 +3619,36 @@ class Web extends CI_Controller
                           $this->session->set_flashdata("Coupon_Succ", "Get &nbsp;&nbsp;" . $couponData['coupn_discount_val'] . "&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
                         }
                       }
-                    } else {
-                      if ($coupon_type == 1) { // 1= Discountable Amount, 2= cashback
+                    } else
+                    {
+                      if ($coupon_type == 1)
+                      { // 1= Discountable Amount, 2= cashback
                         // $discountAmt = $totalCartAmt*$couponData['coupn_discount_val']/100;
                         $discountAmt = $filter_pro_rec[0]['final_price'] * $couponData['coupn_discount_val'] / 100;
                         $discountAmt = round($discountAmt);
-                        if ($discountAmt > $minimum_discount_value) {
+                        if ($discountAmt > $minimum_discount_value)
+                        {
                           $discountAmt = $minimum_discount_value;
                           $newCartAmt = $_SESSION['cart_contents']['cart_total'] = $totalCartAmt - $discountAmt;
-                        } else {
+                        } else
+                        {
                           $newCartAmt = $_SESSION['cart_contents']['cart_total'] = $totalCartAmt - $discountAmt;
                         }
                         // $this->session->set_flashdata("Coupon_Succ", "<img src='".base_url()."/assets/emoji/congratulation.png' height='50px' width='50px'>&nbsp;congratulation.! You get &nbsp;&nbsp;&nbsp;&nbsp; OFF&nbsp;".$oldCartAmt."-".$discountAmt."&nbsp;=&nbsp;".$newCartAmt."&nbsp;<i class='fa fa-rupee'></i>");
                         $this->session->set_flashdata("Coupon_Succ", "Discount:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-" . $discountAmt . "&nbsp;<i class='fa fa-rupee'></i>");
-                      } else {
+                      } else
+                      {
                         // $discountAmt = $totalCartAmt*$couponData['coupn_discount_val']/100;
                         $discountAmt = $filter_pro_rec[0]['final_price'] * $couponData['coupn_discount_val'] / 100;
                         $discountAmt = round($discountAmt);
-                        if ($discountAmt > $minimum_discount_value) {
+                        if ($discountAmt > $minimum_discount_value)
+                        {
                           $discountAmt = $minimum_discount_value;
                           // $newCartAmt = $_SESSION['cart_contents']['cart_total']=$totalCartAmt-$discountAmt;
                         }
                         $userWallet = $this->db->get_where('wallet_master', array('user_master_id' => $u_id))->row_array();
-                        if ($userWallet) {
+                        if ($userWallet)
+                        {
                           $walletAmt = $userWallet['wallet_amount'] + $discountAmt;
                           $updateWalletData = array(
                             'wallet_amount' => $walletAmt,
@@ -3392,7 +3658,8 @@ class Web extends CI_Controller
                           $this->db->update('wallet_master', $updateWalletData);
                           // $this->session->set_flashdata("Coupon_Succ", "<img src='".base_url()."/assets/emoji/congratulation.png' height='50px' width='50px'>&nbsp;congratulation.! You get <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$discountAmt."&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
                           $this->session->set_flashdata("Coupon_Succ", "Get &nbsp;&nbsp;" . $discountAmt . "&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
-                        } else {
+                        } else
+                        {
                           $walletAmt = array(
                             'user_master_id' => $u_id,
                             'wallet_amount' => $discountAmt,
@@ -3409,15 +3676,20 @@ class Web extends CI_Controller
                     );
                     $this->db->where('id', $check_user_coupon_use['id']);
                     $this->db->update('coupon_validity_master', $couponValData);
-                  } else { //user coupon uses condition close
-                    if ($coupon_discount_type == 1) { // 1= FLAT Discount, 2= percantage
-                      if ($coupon_type == 1) { // 1= Discountable Amount, 2= cashback
+                  } else
+                  { //user coupon uses condition close
+                    if ($coupon_discount_type == 1)
+                    { // 1= FLAT Discount, 2= percantage
+                      if ($coupon_type == 1)
+                      { // 1= Discountable Amount, 2= cashback
                         $newCartAmt = $_SESSION['cart_contents']['cart_total'] = $totalCartAmt - $couponData['coupn_discount_val'];
                         // $this->session->set_flashdata("Coupon_Succ", "<img src='".base_url()."/assets/emoji/congratulation.png' height='50px' width='50px'>&nbsp;congratulation.! You get &nbsp;&nbsp;&nbsp;&nbsp; OFF&nbsp;".$oldCartAmt."-".$couponData['coupn_discount_val']."&nbsp;=&nbsp;".$newCartAmt."&nbsp;<i class='fa fa-rupee'></i>");
                         $this->session->set_flashdata("Coupon_Succ", "Discount:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-" . $couponData['coupn_discount_val'] . "&nbsp;<i class='fa fa-rupee'></i>");
-                      } else {
+                      } else
+                      {
                         $userWallet = $this->db->get_where('wallet_master', array('user_master_id' => $u_id))->row_array();
-                        if ($userWallet) {
+                        if ($userWallet)
+                        {
                           $walletAmt = $userWallet['wallet_amount'] + $couponData['coupn_discount_val'];
                           $updateWalletData = array(
                             'wallet_amount' => $walletAmt,
@@ -3427,7 +3699,8 @@ class Web extends CI_Controller
                           $this->db->update('wallet_master', $updateWalletData);
                           // $this->session->set_flashdata("Coupon_Succ", "<img src='".base_url()."/assets/emoji/congratulation.png' height='50px' width='50px'>&nbsp;congratulation.! You get <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$couponData['coupn_discount_val']."&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
                           $this->session->set_flashdata("Coupon_Succ", "Get &nbsp;&nbsp;" . $couponData['coupn_discount_val'] . "&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
-                        } else {
+                        } else
+                        {
                           $walletAmt = array(
                             'user_master_id' => $u_id,
                             'wallet_amount' => $couponData['coupn_discount_val'],
@@ -3439,28 +3712,35 @@ class Web extends CI_Controller
                           $this->session->set_flashdata("Coupon_Succ", "Get &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" . $couponData['coupn_discount_val'] . "&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
                         }
                       }
-                    } else {
-                      if ($coupon_type == 1) { // 1= Discountable Amount
+                    } else
+                    {
+                      if ($coupon_type == 1)
+                      { // 1= Discountable Amount
                         // $discountAmt = $totalCartAmt*$couponData['coupn_discount_val']/100;
                         $discountAmt = $filter_pro_rec[0]['final_price'] * $couponData['coupn_discount_val'] / 100;
                         $discountAmt = round($discountAmt);
-                        if ($discountAmt > $minimum_discount_value) {
+                        if ($discountAmt > $minimum_discount_value)
+                        {
                           $discountAmt = $minimum_discount_value;
                           $newCartAmt = $_SESSION['cart_contents']['cart_total'] = $totalCartAmt - $discountAmt;
-                        } else {
+                        } else
+                        {
                           $newCartAmt = $_SESSION['cart_contents']['cart_total'] = $totalCartAmt - $discountAmt;
                         }
                         // $this->session->set_flashdata("Coupon_Succ", "<img src='".base_url()."/assets/emoji/congratulation.png' height='50px' width='50px'>&nbsp;congratulation.! You get &nbsp;&nbsp;&nbsp;&nbsp; OFF&nbsp;".$oldCartAmt."-".$discountAmt."&nbsp;=&nbsp;".$newCartAmt."&nbsp;<i class='fa fa-rupee'></i>");
                         $this->session->set_flashdata("Coupon_Succ", "Discount:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-" . $discountAmt . "&nbsp;<i class='fa fa-rupee'></i>");
-                      } else {
+                      } else
+                      {
                         // $discountAmt = $totalCartAmt*$couponData['coupn_discount_val']/100;
                         $discountAmt = $filter_pro_rec[0]['final_price'] * $couponData['coupn_discount_val'] / 100;
                         $discountAmt = round($discountAmt);
-                        if ($discountAmt > $minimum_discount_value) {
+                        if ($discountAmt > $minimum_discount_value)
+                        {
                           $discountAmt = $minimum_discount_value;
                         }
                         $userWallet = $this->db->get_where('wallet_master', array('user_master_id' => $u_id))->row_array();
-                        if ($userWallet) {
+                        if ($userWallet)
+                        {
                           $walletAmt = $userWallet['wallet_amount'] + $discountAmt;
                           $updateWalletData = array(
                             'wallet_amount' => $walletAmt,
@@ -3470,7 +3750,8 @@ class Web extends CI_Controller
                           $this->db->update('wallet_master', $updateWalletData);
                           // $this->session->set_flashdata("Coupon_Succ", "<img src='".base_url()."/assets/emoji/congratulation.png' height='50px' width='50px'>&nbsp;congratulation.! You get <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$discountAmt."&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
                           $this->session->set_flashdata("Coupon_Succ", "Get &nbsp;&nbsp;" . $discountAmt . "&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
-                        } else {
+                        } else
+                        {
                           $walletAmt = array(
                             'user_master_id' => $u_id,
                             'wallet_amount' => $discountAmt,
@@ -3493,11 +3774,13 @@ class Web extends CI_Controller
                   // coupon applied successfully msg
                   $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button><img src="' . base_url() . '/assets/emoji/happy.png" height="50px" width="50px">Coupon Applied successfully.</div></div>');
                   redirect('web/checkout_payment/coupon');
-                } else { //coupon validity condition close
+                } else
+                { //coupon validity condition close
                   $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button><img src="' . base_url() . '/assets/emoji/expire.png" height="50px" width="50px">Opps..Coupon Expired</div></div>');
                   redirect('web/checkout_payment');
                 }
-              } else { //filter product condition close
+              } else
+              { //filter product condition close
                 $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button><img src="' . base_url() . '/assets/emoji/confuse.png" height="50px" width="50px">You have not taken any product in such price range, for which this coupon is valid</div></div>');
                 redirect('web/checkout_payment');
               }
@@ -3505,23 +3788,28 @@ class Web extends CI_Controller
               // $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button><img src="'.base_url().'/assets/emoji/confuse.png" height="50px" width="50px">Sorry, This coupon is not valid for these product.</div></div>');
               // redirect('web/checkout_payment');
               // }
-            } else { //cart limit condition close
+            } else
+            { //cart limit condition close
               $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button><img src="' . base_url() . '/assets/emoji/lowcart_amt.png" height="50px" width="50px">Please limit your cart amount up to ' . $check_cart_amt . '&nbsp;<i class="fa fa-rupee"></i></div></div>');
               redirect('web/checkout_payment');
             }
           }
           //check category type
-          else if ($apply_discountOn == '2') {
-            if ($totalCartAmt > $check_cart_amt) {
+          else if ($apply_discountOn == '2')
+          {
+            if ($totalCartAmt > $check_cart_amt)
+            {
               $catId = array();
               $proId = array();
-              foreach ($cartAllData as $cartData) {
+              foreach ($cartAllData as $cartData)
+              {
                 $pro_id = $cartData['id'];
                 $proRec = $this->db->get_where('sub_product_master', array('id' => $pro_id))->row_array();
                 $catId[] = $proRec['category_id'];
                 $proId[] = $pro_id;
               }
-              if ($arrayRec = array_intersect($catId, $applyCouponOn)) {
+              if ($arrayRec = array_intersect($catId, $applyCouponOn))
+              {
                 $this->db->select('*');
                 $this->db->from('sub_product_master');
                 $this->db->where_in('category_id', $arrayRec);
@@ -3529,7 +3817,8 @@ class Web extends CI_Controller
                 // $this->db->where('final_price <',$product_price_range);
                 $this->db->where('final_price >', $product_price_range);
                 $filter_pro_rec = $this->db->get()->result_array();
-                if ($filter_pro_rec) {
+                if ($filter_pro_rec)
+                {
                   // if($totalCartAmt > $check_cart_amt){
                   $check_coupon = $this->db->select_sum('coupon_uses')
                     ->from('coupon_validity_master')
@@ -3537,19 +3826,25 @@ class Web extends CI_Controller
                     ->get();
                   $check_coupon_valdity = $check_coupon->result_array();
                   $coupon_valdity = $check_coupon_valdity[0]['coupon_uses'];
-                  if ($coupon_valdity < $coupon_uses_limit) {
+                  if ($coupon_valdity < $coupon_uses_limit)
+                  {
                     $this->db->where('user_id', $u_id);
                     $this->db->where('coupon_id', $coupon_id);
                     $check_user_coupon_use = $this->db->get('coupon_validity_master')->row_array();
-                    if ($check_user_coupon_use) {
-                      if ($coupon_discount_type == 1) { // 1 = FLAT Discount, 2= percantage
-                        if ($coupon_type == 1) { // 1= Discountable Amount, 2= cashback
+                    if ($check_user_coupon_use)
+                    {
+                      if ($coupon_discount_type == 1)
+                      { // 1 = FLAT Discount, 2= percantage
+                        if ($coupon_type == 1)
+                        { // 1= Discountable Amount, 2= cashback
                           $newCartAmt = $_SESSION['cart_contents']['cart_total'] = $totalCartAmt - $couponData['coupn_discount_val'];
                           // $this->session->set_flashdata("Coupon_Succ", "<img src='".base_url()."/assets/emoji/congratulation.png' height='50px' width='50px'>&nbsp;congratulation.! You get &nbsp;&nbsp;&nbsp;&nbsp; OFF&nbsp;".$oldCartAmt."-".$couponData['coupn_discount_val']."&nbsp;=&nbsp;".$newCartAmt."&nbsp;<i class='fa fa-rupee'></i>");
                           $this->session->set_flashdata("Coupon_Succ", "Discount:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-" . $couponData['coupn_discount_val'] . "&nbsp;<i class='fa fa-rupee'></i>");
-                        } else {
+                        } else
+                        {
                           $userWallet = $this->db->get_where('wallet_master', array('user_master_id' => $u_id))->row_array();
-                          if ($userWallet) {
+                          if ($userWallet)
+                          {
                             $walletAmt = $userWallet['wallet_amount'] + $couponData['coupn_discount_val'];
                             $updateWalletData = array(
                               'wallet_amount' => $walletAmt,
@@ -3559,7 +3854,8 @@ class Web extends CI_Controller
                             $this->db->update('wallet_master', $updateWalletData);
                             // $this->session->set_flashdata("Coupon_Succ", "<img src='".base_url()."/assets/emoji/congratulation.png' height='50px' width='50px'>&nbsp;congratulation.! You get <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$couponData['coupn_discount_val']."&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
                             $this->session->set_flashdata("Coupon_Succ", "Get &nbsp;&nbsp;" . $couponData['coupn_discount_val'] . "&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
-                          } else {
+                          } else
+                          {
                             $walletAmt = array(
                               'user_master_id' => $u_id,
                               'wallet_amount' => $couponData['coupn_discount_val'],
@@ -3570,28 +3866,35 @@ class Web extends CI_Controller
                             $this->session->set_flashdata("Coupon_Succ", "Get &nbsp;&nbsp;" . $couponData['coupn_discount_val'] . "&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
                           }
                         }
-                      } else {
-                        if ($coupon_type == 1) { // 1= Discountable Amount, 2= cashback
+                      } else
+                      {
+                        if ($coupon_type == 1)
+                        { // 1= Discountable Amount, 2= cashback
                           $discountAmt = $filter_pro_rec[0]['final_price'] * $couponData['coupn_discount_val'] / 100;
                           $discountAmt = round($discountAmt);
-                          if ($discountAmt > $minimum_discount_value) {
+                          if ($discountAmt > $minimum_discount_value)
+                          {
                             $discountAmt = $minimum_discount_value;
                             $newCartAmt = $_SESSION['cart_contents']['cart_total'] = $totalCartAmt - $discountAmt;
-                          } else {
+                          } else
+                          {
                             $newCartAmt = $_SESSION['cart_contents']['cart_total'] = $totalCartAmt - $discountAmt;
                           }
                           // $discountAmt = $totalCartAmt*$couponData['coupn_discount_val']/100;
                           // $this->session->set_flashdata("Coupon_Succ", "<img src='".base_url()."/assets/emoji/congratulation.png' height='50px' width='50px'>&nbsp;congratulation.! You get &nbsp;&nbsp;&nbsp;&nbsp; OFF&nbsp;".$oldCartAmt."-".$discountAmt."&nbsp;=&nbsp;".$newCartAmt."&nbsp;<i class='fa fa-rupee'></i>");
                           $this->session->set_flashdata("Coupon_Succ", "<b>Discount:</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-" . $discountAmt . "&nbsp;<i class='fa fa-rupee'></i>");
-                        } else {
+                        } else
+                        {
                           $discountAmt = $filter_pro_rec[0]['final_price'] * $couponData['coupn_discount_val'] / 100;
                           $discountAmt = round($discountAmt);
-                          if ($discountAmt > $minimum_discount_value) {
+                          if ($discountAmt > $minimum_discount_value)
+                          {
                             $discountAmt = $minimum_discount_value;
                           }
                           // $discountAmt = $totalCartAmt*$couponData['coupn_discount_val']/100;
                           $userWallet = $this->db->get_where('wallet_master', array('user_master_id' => $u_id))->row_array();
-                          if ($userWallet) {
+                          if ($userWallet)
+                          {
                             // $walletAmt = $userWallet['wallet_amount']+$couponData['coupn_discount_val'];
                             $walletAmt = $userWallet['wallet_amount'] + $discountAmt;
                             $updateWalletData = array(
@@ -3601,7 +3904,8 @@ class Web extends CI_Controller
                             $this->db->where('user_master_id', $u_id);
                             $this->db->update('wallet_master', $updateWalletData);
                             $this->session->set_flashdata("Coupon_Succ", "Get &nbsp;&nbsp;" . $discountAmt . "&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
-                          } else {
+                          } else
+                          {
                             $walletAmt = array(
                               'user_master_id' => $u_id,
                               'wallet_amount' => $discountAmt,
@@ -3619,15 +3923,20 @@ class Web extends CI_Controller
                       );
                       $this->db->where('id', $check_user_coupon_use['id']);
                       $this->db->update('coupon_validity_master', $couponValData);
-                    } else { //user coupon uses condition close
-                      if ($coupon_discount_type == 1) { // 1 = FLAT Discount, 2= percantage
-                        if ($coupon_type == 1) { // 1= Discountable Amount, 2= cashback
+                    } else
+                    { //user coupon uses condition close
+                      if ($coupon_discount_type == 1)
+                      { // 1 = FLAT Discount, 2= percantage
+                        if ($coupon_type == 1)
+                        { // 1= Discountable Amount, 2= cashback
                           $newCartAmt = $_SESSION['cart_contents']['cart_total'] = $totalCartAmt - $couponData['coupn_discount_val'];
                           // $this->session->set_flashdata("Coupon_Succ", "<img src='".base_url()."/assets/emoji/congratulation.png' height='50px' width='50px'>&nbsp;congratulation.! You get &nbsp;&nbsp;&nbsp;&nbsp; OFF&nbsp;".$oldCartAmt."-".$couponData['coupn_discount_val']."&nbsp;=&nbsp;".$newCartAmt."&nbsp;<i class='fa fa-rupee'></i>");
                           $this->session->set_flashdata("Coupon_Succ", "Discount:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-" . $couponData['coupn_discount_val'] . "&nbsp;<i class='fa fa-rupee'></i>");
-                        } else {
+                        } else
+                        {
                           $userWallet = $this->db->get_where('wallet_master', array('user_master_id' => $u_id))->row_array();
-                          if ($userWallet) {
+                          if ($userWallet)
+                          {
                             $walletAmt = $userWallet['wallet_amount'] + $couponData['coupn_discount_val'];
                             $updateWalletData = array(
                               'wallet_amount' => $walletAmt,
@@ -3637,7 +3946,8 @@ class Web extends CI_Controller
                             $this->db->update('wallet_master', $updateWalletData);
                             // $this->session->set_flashdata("Coupon_Succ", "<img src='".base_url()."/assets/emoji/congratulation.png' height='50px' width='50px'>&nbsp;congratulation.! You get <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$couponData['coupn_discount_val']."&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
                             $this->session->set_flashdata("Coupon_Succ", "Get &nbsp;&nbsp;" . $couponData['coupn_discount_val'] . "&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
-                          } else {
+                          } else
+                          {
                             $walletAmt = array(
                               'user_master_id' => $u_id,
                               'wallet_amount' => $couponData['coupn_discount_val'],
@@ -3649,29 +3959,36 @@ class Web extends CI_Controller
                             $this->session->set_flashdata("Coupon_Succ", "Get &nbsp;&nbsp;" . $couponData['coupn_discount_val'] . "&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
                           }
                         }
-                      } else {
-                        if ($coupon_type == 1) { // 1= Discountable Amount, 2= cashback
+                      } else
+                      {
+                        if ($coupon_type == 1)
+                        { // 1= Discountable Amount, 2= cashback
                           // $discountAmt = $totalCartAmt*$couponData['coupn_discount_val']/100;
                           $discountAmt = $filter_pro_rec[0]['final_price'] * $couponData['coupn_discount_val'] / 100;
                           $discountAmt = round($discountAmt);
-                          if ($discountAmt > $minimum_discount_value) {
+                          if ($discountAmt > $minimum_discount_value)
+                          {
                             $discountAmt = $minimum_discount_value;
                             $newCartAmt = $_SESSION['cart_contents']['cart_total'] = $totalCartAmt - $discountAmt;
-                          } else {
+                          } else
+                          {
                             $newCartAmt = $_SESSION['cart_contents']['cart_total'] = $totalCartAmt - $discountAmt;
                           }
                           // $this->session->set_flashdata("Coupon_Succ", "<img src='".base_url()."/assets/emoji/congratulation.png' height='50px' width='50px'>&nbsp;congratulation.! You get &nbsp;&nbsp;&nbsp;&nbsp; OFF&nbsp;".$oldCartAmt."-".$discountAmt."&nbsp;=&nbsp;".$newCartAmt."&nbsp;<i class='fa fa-rupee'></i>");
                           // $this->session->set_flashdata("Coupon_Succ", "<b>Discount:</b>&nbsp;&nbsp;&nbsp;&nbsp;-".$discountAmt."&nbsp;<i class='fa fa-rupee'></i>");
                           $this->session->set_flashdata("Coupon_Succ", "Discount:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-" . $discountAmt . "&nbsp;<i class='fa fa-rupee'></i>");
-                        } else {
+                        } else
+                        {
                           // $discountAmt = $totalCartAmt*$couponData['coupn_discount_val']/100;
                           $discountAmt = $filter_pro_rec[0]['final_price'] * $couponData['coupn_discount_val'] / 100;
                           $discountAmt = round($discountAmt);
-                          if ($discountAmt > $minimum_discount_value) {
+                          if ($discountAmt > $minimum_discount_value)
+                          {
                             $discountAmt = $minimum_discount_value;
                           }
                           $userWallet = $this->db->get_where('wallet_master', array('user_master_id' => $u_id))->row_array();
-                          if ($userWallet) {
+                          if ($userWallet)
+                          {
                             $walletAmt = $userWallet['wallet_amount'] + $discountAmt;
                             $updateWalletData = array(
                               'wallet_amount' => $walletAmt,
@@ -3681,7 +3998,8 @@ class Web extends CI_Controller
                             $this->db->update('wallet_master', $updateWalletData);
                             // $this->session->set_flashdata("Coupon_Succ", "<img src='".base_url()."/assets/emoji/congratulation.png' height='50px' width='50px'>&nbsp;congratulation.! You get <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$discountAmt."&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
                             $this->session->set_flashdata("Coupon_Succ", "Get &nbsp;&nbsp;" . $discountAmt . "&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
-                          } else {
+                          } else
+                          {
                             $walletAmt = array(
                               'user_master_id' => $u_id,
                               'wallet_amount' => $discountAmt,
@@ -3705,38 +4023,46 @@ class Web extends CI_Controller
                     $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button><img src="' . base_url() . '/assets/emoji/happy.png" height="50px" width="50px">Coupon Applied successfully.</div></div>');
                     // $coupon_succ = $coupon_id;
                     redirect('web/checkout_payment/coupon');
-                  } else { //coupon validity condition close
+                  } else
+                  { //coupon validity condition close
                     $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button><img src="' . base_url() . '/assets/emoji/expire.png" height="50px" width="50px">Opps..Coupon Expired</div></div>');
                     redirect('web/checkout_payment');
                   }
-                } else { //filter product condition close
+                } else
+                { //filter product condition close
                   $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button><img src="' . base_url() . '/assets/emoji/confuse.png" height="50px" width="50px">You have not taken any product in such price range, for which this coupon is valid</div></div>');
                   redirect('web/checkout_payment');
                 }
-              } else { //category exist or not condition close
+              } else
+              { //category exist or not condition close
                 $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button><img src="' . base_url() . '/assets/emoji/confuse.png" height="50px" width="50px">Coupon Not applicable for this type category.</div></div>');
                 redirect('web/checkout_payment');
               }
-            } else { //cart limit condition close
+            } else
+            { //cart limit condition close
               $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button><img src="' . base_url() . '/assets/emoji/lowcart_amt.png" height="50px" width="50px">Please limit your cart amount up to ' . $check_cart_amt . '&nbsp;<i class="fa fa-rupee"></i></div></div>');
               redirect('web/checkout_payment');
             }
           } // apply discount on category condition close
           // apply discount on sub category
-          else if ($apply_discountOn == '3') {
-            if ($totalCartAmt > $check_cart_amt) {
+          else if ($apply_discountOn == '3')
+          {
+            if ($totalCartAmt > $check_cart_amt)
+            {
               $userData = $this->session->userdata('User');
               // Wishlist count
               $data['wishlist_count'] = !empty($userData) ? $this->web_model->get_total_wishlist_by_user($userData['id']) : 0;
               $subCatId = array();
               $proId = array();
-              foreach ($cartAllData as $cartData) {
+              foreach ($cartAllData as $cartData)
+              {
                 $pro_id = $cartData['id'];
                 $proRec = $this->db->get_where('sub_product_master', array('id' => $pro_id))->row_array();
                 $subCatId[] = $proRec['sub_category_id'];
                 $proId[] = $pro_id;
               }
-              if ($arrayRec = array_intersect($subCatId, $applyCouponOn)) {
+              if ($arrayRec = array_intersect($subCatId, $applyCouponOn))
+              {
                 $this->db->select('*');
                 $this->db->from('sub_product_master');
                 $this->db->where_in('sub_category_id', $arrayRec);
@@ -3744,7 +4070,8 @@ class Web extends CI_Controller
                 // $this->db->where('final_price <',$product_price_range);
                 $this->db->where('final_price >', $product_price_range);
                 $filter_pro_rec = $this->db->get()->result_array();
-                if ($filter_pro_rec) {
+                if ($filter_pro_rec)
+                {
                   // if($totalCartAmt > $check_cart_amt){
                   $check_coupon = $this->db->select_sum('coupon_uses')
                     ->from('coupon_validity_master')
@@ -3752,18 +4079,24 @@ class Web extends CI_Controller
                     ->get();
                   $check_coupon_valdity = $check_coupon->result_array();
                   $coupon_valdity = $check_coupon_valdity[0]['coupon_uses'];
-                  if ($coupon_valdity < $coupon_uses_limit) {
+                  if ($coupon_valdity < $coupon_uses_limit)
+                  {
                     $this->db->where('user_id', $u_id);
                     $this->db->where('coupon_id', $coupon_id);
                     $check_user_coupon_use = $this->db->get('coupon_validity_master')->row_array();
-                    if ($check_user_coupon_use) {
-                      if ($coupon_discount_type == 1) { // 1 = FLAT Discount, 2= percantage
-                        if ($coupon_type == 1) { // 1= Discountable Amount, 2= cashback
+                    if ($check_user_coupon_use)
+                    {
+                      if ($coupon_discount_type == 1)
+                      { // 1 = FLAT Discount, 2= percantage
+                        if ($coupon_type == 1)
+                        { // 1= Discountable Amount, 2= cashback
                           $newCartAmt = $_SESSION['cart_contents']['cart_total'] = $totalCartAmt - $couponData['coupn_discount_val'];
                           $this->session->set_flashdata("Coupon_Succ", "Discount:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-" . $couponData['coupn_discount_val'] . "&nbsp;<i class='fa fa-rupee'></i>");
-                        } else {
+                        } else
+                        {
                           $userWallet = $this->db->get_where('wallet_master', array('user_master_id' => $u_id))->row_array();
-                          if ($userWallet) {
+                          if ($userWallet)
+                          {
                             $walletAmt = $userWallet['wallet_amount'] + $couponData['coupn_discount_val'];
                             $updateWalletData = array(
                               'wallet_amount' => $walletAmt,
@@ -3772,7 +4105,8 @@ class Web extends CI_Controller
                             $this->db->where('user_master_id', $u_id);
                             $this->db->update('wallet_master', $updateWalletData);
                             $this->session->set_flashdata("Coupon_Succ", "Get &nbsp;&nbsp;" . $couponData['coupn_discount_val'] . "&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
-                          } else {
+                          } else
+                          {
                             $walletAmt = array(
                               'user_master_id' => $u_id,
                               'wallet_amount' => $couponData['coupn_discount_val'],
@@ -3783,27 +4117,34 @@ class Web extends CI_Controller
                             $this->session->set_flashdata("Coupon_Succ", "Get &nbsp;&nbsp;" . $couponData['coupn_discount_val'] . "&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
                           }
                         }
-                      } else {
-                        if ($coupon_type == 1) { // 1= Discountable Amount, 2= cashback
+                      } else
+                      {
+                        if ($coupon_type == 1)
+                        { // 1= Discountable Amount, 2= cashback
                           // $discountAmt = $totalCartAmt*$couponData['coupn_discount_val']/100;
                           $discountAmt = $filter_pro_rec[0]['final_price'] * $couponData['coupn_discount_val'] / 100;
                           $discountAmt = round($discountAmt);
-                          if ($discountAmt > $minimum_discount_value) {
+                          if ($discountAmt > $minimum_discount_value)
+                          {
                             $discountAmt = $minimum_discount_value;
                             $newCartAmt = $_SESSION['cart_contents']['cart_total'] = $totalCartAmt - $discountAmt;
-                          } else {
+                          } else
+                          {
                             $newCartAmt = $_SESSION['cart_contents']['cart_total'] = $totalCartAmt - $discountAmt;
                           }
                           $this->session->set_flashdata("Coupon_Succ", "Discount:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-" . $discountAmt . "&nbsp;<i class='fa fa-rupee'></i>");
-                        } else {
+                        } else
+                        {
                           // $discountAmt = $totalCartAmt*$couponData['coupn_discount_val']/100;
                           $discountAmt = $filter_pro_rec[0]['final_price'] * $couponData['coupn_discount_val'] / 100;
                           $discountAmt = round($discountAmt);
-                          if ($discountAmt > $minimum_discount_value) {
+                          if ($discountAmt > $minimum_discount_value)
+                          {
                             $discountAmt = $minimum_discount_value;
                           }
                           $userWallet = $this->db->get_where('wallet_master', array('user_master_id' => $u_id))->row_array();
-                          if ($userWallet) {
+                          if ($userWallet)
+                          {
                             $walletAmt = $userWallet['wallet_amount'] + $discountAmt;
                             // $walletAmt = $userWallet['wallet_amount']+$couponData['coupn_discount_val'];
                             $updateWalletData = array(
@@ -3813,7 +4154,8 @@ class Web extends CI_Controller
                             $this->db->where('user_master_id', $u_id);
                             $this->db->update('wallet_master', $updateWalletData);
                             $this->session->set_flashdata("Coupon_Succ", "Get &nbsp;&nbsp;" . $discountAmt . "&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
-                          } else {
+                          } else
+                          {
                             $walletAmt = array(
                               'user_master_id' => $u_id,
                               'wallet_amount' => $discountAmt,
@@ -3830,14 +4172,19 @@ class Web extends CI_Controller
                       );
                       $this->db->where('id', $check_user_coupon_use['id']);
                       $this->db->update('coupon_validity_master', $couponValData);
-                    } else { //user coupon uses condition close
-                      if ($coupon_discount_type == 1) { // 1 = FLAT Discount, 2= percentage
-                        if ($coupon_type == 1) { // 1= Discountable Amount, 2= cashback
+                    } else
+                    { //user coupon uses condition close
+                      if ($coupon_discount_type == 1)
+                      { // 1 = FLAT Discount, 2= percentage
+                        if ($coupon_type == 1)
+                        { // 1= Discountable Amount, 2= cashback
                           $newCartAmt = $_SESSION['cart_contents']['cart_total'] = $totalCartAmt - $couponData['coupn_discount_val'];
                           $this->session->set_flashdata("Coupon_Succ", "Discount:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-" . $couponData['coupn_discount_val'] . "&nbsp;<i class='fa fa-rupee'></i>");
-                        } else {
+                        } else
+                        {
                           $userWallet = $this->db->get_where('wallet_master', array('user_master_id' => $u_id))->row_array();
-                          if ($userWallet) {
+                          if ($userWallet)
+                          {
                             $walletAmt = $userWallet['wallet_amount'] + $couponData['coupn_discount_val'];
                             $updateWalletData = array(
                               'wallet_amount' => $walletAmt,
@@ -3847,7 +4194,8 @@ class Web extends CI_Controller
                             $this->db->update('wallet_master', $updateWalletData);
                             // $this->session->set_flashdata("Coupon_Succ", "<img src='".base_url()."/assets/emoji/congratulation.png' height='50px' width='50px'>&nbsp;congratulation.! You get <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$couponData['coupn_discount_val']."&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
                             $this->session->set_flashdata("Coupon_Succ", "Get &nbsp;&nbsp;" . $couponData['coupn_discount_val'] . "&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
-                          } else {
+                          } else
+                          {
                             $walletAmt = array(
                               'user_master_id' => $u_id,
                               'wallet_amount' => $couponData['coupn_discount_val'],
@@ -3859,28 +4207,35 @@ class Web extends CI_Controller
                             $this->session->set_flashdata("Coupon_Succ", "Get &nbsp;&nbsp;" . $couponData['coupn_discount_val'] . "&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
                           }
                         }
-                      } else {
-                        if ($coupon_type == 1) { // 1= Discountable Amount, 2= cashback
+                      } else
+                      {
+                        if ($coupon_type == 1)
+                        { // 1= Discountable Amount, 2= cashback
                           $discountAmt = $filter_pro_rec[0]['final_price'] * $couponData['coupn_discount_val'] / 100;
                           $discountAmt = round($discountAmt);
-                          if ($discountAmt > $minimum_discount_value) {
+                          if ($discountAmt > $minimum_discount_value)
+                          {
                             $discountAmt = $minimum_discount_value;
                             $newCartAmt = $_SESSION['cart_contents']['cart_total'] = $totalCartAmt - $discountAmt;
-                          } else {
+                          } else
+                          {
                             $newCartAmt = $_SESSION['cart_contents']['cart_total'] = $totalCartAmt - $discountAmt;
                           }
                           // $discountAmt = $totalCartAmt*$couponData['coupn_discount_val']/100;
                           // $this->session->set_flashdata("Coupon_Succ", "<img src='".base_url()."/assets/emoji/congratulation.png' height='50px' width='50px'>&nbsp;congratulation.! You get &nbsp;&nbsp;&nbsp;&nbsp; OFF&nbsp;".$oldCartAmt."-".$discountAmt."&nbsp;=&nbsp;".$newCartAmt."&nbsp;<i class='fa fa-rupee'></i>");
                           $this->session->set_flashdata("Coupon_Succ", "Discount:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-" . $discountAmt . "&nbsp;<i class='fa fa-rupee'></i>");
-                        } else {
+                        } else
+                        {
                           $discountAmt = $filter_pro_rec[0]['final_price'] * $couponData['coupn_discount_val'] / 100;
                           $discountAmt = round($discountAmt);
-                          if ($discountAmt > $minimum_discount_value) {
+                          if ($discountAmt > $minimum_discount_value)
+                          {
                             $discountAmt = $minimum_discount_value;
                           }
                           // $discountAmt = $totalCartAmt*$couponData['coupn_discount_val']/100;
                           $userWallet = $this->db->get_where('wallet_master', array('user_master_id' => $u_id))->row_array();
-                          if ($userWallet) {
+                          if ($userWallet)
+                          {
                             $walletAmt = $userWallet['wallet_amount'] + $discountAmt;
                             $updateWalletData = array(
                               'wallet_amount' => $walletAmt,
@@ -3889,7 +4244,8 @@ class Web extends CI_Controller
                             $this->db->where('user_master_id', $u_id);
                             $this->db->update('wallet_master', $updateWalletData);
                             $this->session->set_flashdata("Coupon_Succ", "Get &nbsp;&nbsp;" . $discountAmt . "&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
-                          } else {
+                          } else
+                          {
                             $walletAmt = array(
                               'user_master_id' => $u_id,
                               'wallet_amount' => $discountAmt,
@@ -3912,57 +4268,72 @@ class Web extends CI_Controller
                     $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button><img src="' . base_url() . '/assets/emoji/happy.png" height="50px" width="50px">Coupon Applied successfully.</div></div>');
                     $coupon_succ = $coupon_id;
                     redirect('web/checkout_payment/coupon/' . $coupon_succ);
-                  } else { //coupon validity condition close
+                  } else
+                  { //coupon validity condition close
                     $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button><img src="' . base_url() . '/assets/emoji/expire.png" height="50px" width="50px">Opps..Coupon Expired</div></div>');
                     redirect('web/checkout_payment');
                   }
-                } else { //filter product condition close
+                } else
+                { //filter product condition close
                   $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button><img src="' . base_url() . '/assets/emoji/confuse.png" height="50px" width="50px">You have not taken any product in such price range, for which this coupon is valid</div></div>');
                   redirect('web/checkout_payment');
                 }
-              } else { //category exist or not condition close
+              } else
+              { //category exist or not condition close
                 $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button><img src="' . base_url() . '/assets/emoji/confuse.png" height="50px" width="50px">Coupon Not applicable for this type sub category.</div></div>');
                 redirect('web/checkout_payment');
               }
-            } else { //cart limit condition close
+            } else
+            { //cart limit condition close
               $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button><img src="' . base_url() . '/assets/emoji/lowcart_amt.png" height="50px" width="50px">Please limit your cart amount up to ' . $check_cart_amt . '&nbsp;<i class="fa fa-rupee"></i></div></div>');
               redirect('web/checkout_payment');
             }
           } // apply discount on sub category close
           // apply discount for Customer
-          else if ($apply_discountOn == '4') {
-            if ($totalCartAmt > $check_cart_amt) {
+          else if ($apply_discountOn == '4')
+          {
+            if ($totalCartAmt > $check_cart_amt)
+            {
               $proId = array();
-              foreach ($cartAllData as $cartData) {
+              foreach ($cartAllData as $cartData)
+              {
                 $proId[] = $cartData['id'];
               }
-              if ($arrayRec = in_array($u_id, $applyCouponOn)) {
+              if ($arrayRec = in_array($u_id, $applyCouponOn))
+              {
                 $this->db->select('*');
                 $this->db->from('sub_product_master');
                 $this->db->where_in('id', $proId);
                 // $this->db->where('final_price <',$product_price_range);
                 $this->db->where('final_price >', $product_price_range);
                 $filter_pro_rec = $this->db->get()->result_array();
-                if ($filter_pro_rec) {
+                if ($filter_pro_rec)
+                {
                   $check_coupon = $this->db->select_sum('coupon_uses')
                     ->from('coupon_validity_master')
                     ->where('coupon_id', $coupon_id)
                     ->get();
                   $check_coupon_valdity = $check_coupon->result_array();
                   $coupon_valdity = $check_coupon_valdity[0]['coupon_uses'];
-                  if ($coupon_valdity < $coupon_uses_limit) {
+                  if ($coupon_valdity < $coupon_uses_limit)
+                  {
                     $this->db->where('user_id', $u_id);
                     $this->db->where('coupon_id', $coupon_id);
                     $check_user_coupon_use = $this->db->get('coupon_validity_master')->row_array();
-                    if ($check_user_coupon_use) {
-                      if ($coupon_discount_type == 1) { // 1= FLAT Discount, 2= Percantage
-                        if ($coupon_type == 1) { // 1= Discountable Amount, 2= cashback
+                    if ($check_user_coupon_use)
+                    {
+                      if ($coupon_discount_type == 1)
+                      { // 1= FLAT Discount, 2= Percantage
+                        if ($coupon_type == 1)
+                        { // 1= Discountable Amount, 2= cashback
                           // $_SESSION['cart_contents']['cart_total']=$totalCartAmt-$couponData['coupn_discount_val'];
                           $newCartAmt = $_SESSION['cart_contents']['cart_total'] = $totalCartAmt - $couponData['coupn_discount_val'];
                           $this->session->set_flashdata("Coupon_Succ", "Discount:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-" . $couponData['coupn_discount_val'] . "&nbsp;<i class='fa fa-rupee'></i>");
-                        } else {
+                        } else
+                        {
                           $userWallet = $this->db->get_where('wallet_master', array('user_master_id' => $u_id))->row_array();
-                          if ($userWallet) {
+                          if ($userWallet)
+                          {
                             $walletAmt = $userWallet['wallet_amount'] + $couponData['coupn_discount_val'];
                             $updateWalletData = array(
                               'wallet_amount' => $walletAmt,
@@ -3971,7 +4342,8 @@ class Web extends CI_Controller
                             $this->db->where('user_master_id', $u_id);
                             $this->db->update('wallet_master', $updateWalletData);
                             $this->session->set_flashdata("Coupon_Succ", "Get &nbsp;&nbsp;" . $couponData['coupn_discount_val'] . "&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
-                          } else {
+                          } else
+                          {
                             $walletAmt = array(
                               'user_master_id' => $u_id,
                               'wallet_amount' => $couponData['coupn_discount_val'],
@@ -3982,27 +4354,34 @@ class Web extends CI_Controller
                             $this->session->set_flashdata("Coupon_Succ", "Get &nbsp;&nbsp;" . $couponData['coupn_discount_val'] . "&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
                           }
                         }
-                      } else {
-                        if ($coupon_type == 1) { // 1= Discountable Amount, 2= cashback
+                      } else
+                      {
+                        if ($coupon_type == 1)
+                        { // 1= Discountable Amount, 2= cashback
                           // $discountAmt = $totalCartAmt*$couponData['coupn_discount_val']/100;
                           $discountAmt = $filter_pro_rec[0]['final_price'] * $couponData['coupn_discount_val'] / 100;
                           $discountAmt = round($discountAmt);
-                          if ($discountAmt > $minimum_discount_value) {
+                          if ($discountAmt > $minimum_discount_value)
+                          {
                             $discountAmt = $minimum_discount_value;
                             $newCartAmt = $_SESSION['cart_contents']['cart_total'] = $totalCartAmt - $discountAmt;
-                          } else {
+                          } else
+                          {
                             $newCartAmt = $_SESSION['cart_contents']['cart_total'] = $totalCartAmt - $discountAmt;
                           }
                           $this->session->set_flashdata("Coupon_Succ", "Discount:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-" . $discountAmt . "&nbsp;<i class='fa fa-rupee'></i>");
-                        } else {
+                        } else
+                        {
                           // $discountAmt = $totalCartAmt*$couponData['coupn_discount_val']/100;
                           $discountAmt = $filter_pro_rec[0]['final_price'] * $couponData['coupn_discount_val'] / 100;
                           $discountAmt = round($discountAmt);
-                          if ($discountAmt > $minimum_discount_value) {
+                          if ($discountAmt > $minimum_discount_value)
+                          {
                             $discountAmt = $minimum_discount_value;
                           }
                           $userWallet = $this->db->get_where('wallet_master', array('user_master_id' => $u_id))->row_array();
-                          if ($userWallet) {
+                          if ($userWallet)
+                          {
                             $walletAmt = $userWallet['wallet_amount'] + $discountAmt;
                             $updateWalletData = array(
                               'wallet_amount' => $walletAmt,
@@ -4011,7 +4390,8 @@ class Web extends CI_Controller
                             $this->db->where('user_master_id', $u_id);
                             $this->db->update('wallet_master', $updateWalletData);
                             $this->session->set_flashdata("Coupon_Succ", "Get &nbsp;&nbsp;" . $discountAmt . "&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
-                          } else {
+                          } else
+                          {
                             $walletAmt = array(
                               'user_master_id' => $u_id,
                               'wallet_amount' => $discountAmt,
@@ -4028,14 +4408,19 @@ class Web extends CI_Controller
                       );
                       $this->db->where('id', $check_user_coupon_use['id']);
                       $this->db->update('coupon_validity_master', $couponValData);
-                    } else { //user coupon uses condition close
-                      if ($coupon_discount_type == 1) { // 1= FLAT Discount, 2= Percentage
-                        if ($coupon_type == 1) { // 1= Discountable Amount, 2= cashback
+                    } else
+                    { //user coupon uses condition close
+                      if ($coupon_discount_type == 1)
+                      { // 1= FLAT Discount, 2= Percentage
+                        if ($coupon_type == 1)
+                        { // 1= Discountable Amount, 2= cashback
                           $newCartAmt = $_SESSION['cart_contents']['cart_total'] = $totalCartAmt - $couponData['coupn_discount_val'];
                           $this->session->set_flashdata("Coupon_Succ", "Discount:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-" . $couponData['coupn_discount_val'] . "&nbsp;<i class='fa fa-rupee'></i>");
-                        } else {
+                        } else
+                        {
                           $userWallet = $this->db->get_where('wallet_master', array('user_master_id' => $u_id))->row_array();
-                          if ($userWallet) {
+                          if ($userWallet)
+                          {
                             $walletAmt = $userWallet['wallet_amount'] + $couponData['coupn_discount_val'];
                             $updateWalletData = array(
                               'wallet_amount' => $walletAmt,
@@ -4045,7 +4430,8 @@ class Web extends CI_Controller
                             $this->db->update('wallet_master', $updateWalletData);
                             // $this->session->set_flashdata("Coupon_Succ", "<img src='".base_url()."/assets/emoji/congratulation.png' height='50px' width='50px'>&nbsp;congratulation.! You get <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$couponData['coupn_discount_val']."&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
                             $this->session->set_flashdata("Coupon_Succ", "Get &nbsp;&nbsp;" . $couponData['coupn_discount_val'] . "&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
-                          } else {
+                          } else
+                          {
                             $walletAmt = array(
                               'user_master_id' => $u_id,
                               'wallet_amount' => $couponData['coupn_discount_val'],
@@ -4056,27 +4442,34 @@ class Web extends CI_Controller
                             $this->session->set_flashdata("Coupon_Succ", "Get &nbsp;&nbsp;" . $couponData['coupn_discount_val'] . "&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
                           }
                         }
-                      } else {
-                        if ($coupon_type == 1) { // 1= Discountable Amount, 2= cashback
+                      } else
+                      {
+                        if ($coupon_type == 1)
+                        { // 1= Discountable Amount, 2= cashback
                           $discountAmt = $filter_pro_rec[0]['final_price'] * $couponData['coupn_discount_val'] / 100;
                           $discountAmt = round($discountAmt);
-                          if ($discountAmt > $minimum_discount_value) {
+                          if ($discountAmt > $minimum_discount_value)
+                          {
                             $discountAmt = $minimum_discount_value;
                             $newCartAmt = $_SESSION['cart_contents']['cart_total'] = $totalCartAmt - $discountAmt;
-                          } else {
+                          } else
+                          {
                             $newCartAmt = $_SESSION['cart_contents']['cart_total'] = $totalCartAmt - $discountAmt;
                           }
                           // $discountAmt = $totalCartAmt*$couponData['coupn_discount_val']/100;
                           $this->session->set_flashdata("Coupon_Succ", "Discount:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-" . $discountAmt . "&nbsp;<i class='fa fa-rupee'></i>");
-                        } else {
+                        } else
+                        {
                           // $discountAmt = $totalCartAmt*$couponData['coupn_discount_val']/100;
                           $discountAmt = $filter_pro_rec[0]['final_price'] * $couponData['coupn_discount_val'] / 100;
                           $discountAmt = round($discountAmt);
-                          if ($discountAmt > $minimum_discount_value) {
+                          if ($discountAmt > $minimum_discount_value)
+                          {
                             $discountAmt = $minimum_discount_value;
                           }
                           $userWallet = $this->db->get_where('wallet_master', array('user_master_id' => $u_id))->row_array();
-                          if ($userWallet) {
+                          if ($userWallet)
+                          {
                             $walletAmt = $userWallet['wallet_amount'] + $discountAmt;
                             $updateWalletData = array(
                               'wallet_amount' => $walletAmt,
@@ -4085,7 +4478,8 @@ class Web extends CI_Controller
                             $this->db->where('user_master_id', $u_id);
                             $this->db->update('wallet_master', $updateWalletData);
                             $this->session->set_flashdata("Coupon_Succ", "Get &nbsp;&nbsp;" . $discountAmt . "&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
-                          } else {
+                          } else
+                          {
                             $walletAmt = array(
                               'user_master_id' => $u_id,
                               'wallet_amount' => $discountAmt,
@@ -4108,57 +4502,72 @@ class Web extends CI_Controller
                     $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button><img src="' . base_url() . '/assets/emoji/happy.png" height="50px" width="50px">Coupon Applied successfully.</div></div>');
                     // $coupon_succ = $coupon_id;
                     redirect('web/checkout_payment/coupon');
-                  } else { //coupon validity condition close
+                  } else
+                  { //coupon validity condition close
                     $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button><img src="' . base_url() . '/assets/emoji/expire.png" height="50px" width="50px">Opps..Coupon Expired</div></div>');
                     redirect('web/checkout_payment');
                   }
-                } else { //filter product condition close
+                } else
+                { //filter product condition close
                   $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button><img src="' . base_url() . '/assets/emoji/confuse.png" height="50px" width="50px">You have not taken any product in such price range, for which this coupon is valid</div></div>');
                   redirect('web/checkout_payment');
                 }
-              } else { //Customer elegible for coupon or not condition close
+              } else
+              { //Customer elegible for coupon or not condition close
                 $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button><img src="' . base_url() . '/assets/emoji/confuse.png" height="50px" width="50px">Sorry, This coupon is for membership users only.</div></div>');
                 redirect('web/checkout_payment');
               }
-            } else { //cart limit condition close
+            } else
+            { //cart limit condition close
               $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button><img src="' . base_url() . '/assets/emoji/lowcart_amt.png" height="50px" width="50px">Please limit your cart amount up to ' . $check_cart_amt . '&nbsp;<i class="fa fa-rupee"></i></div></div>');
               redirect('web/checkout_payment');
             }
           }
           //apply discount for Product
-          else if ($apply_discountOn == '5') {
-            if ($totalCartAmt > $check_cart_amt) {
+          else if ($apply_discountOn == '5')
+          {
+            if ($totalCartAmt > $check_cart_amt)
+            {
               $proId = array();
-              foreach ($cartAllData as $cartData) {
+              foreach ($cartAllData as $cartData)
+              {
                 $proId[] = $cartData['id'];
               }
-              if ($arrayRec = array_intersect($proId, $applyCouponOn)) {
+              if ($arrayRec = array_intersect($proId, $applyCouponOn))
+              {
                 $this->db->select('*');
                 $this->db->from('sub_product_master');
                 $this->db->where_in('id', $proId);
                 // $this->db->where('final_price <',$product_price_range);
                 $this->db->where('final_price >', $product_price_range);
                 $filter_pro_rec = $this->db->get()->result_array();
-                if ($filter_pro_rec) {
+                if ($filter_pro_rec)
+                {
                   $check_coupon = $this->db->select_sum('coupon_uses')
                     ->from('coupon_validity_master')
                     ->where('coupon_id', $coupon_id)
                     ->get();
                   $check_coupon_valdity = $check_coupon->result_array();
                   $coupon_valdity = $check_coupon_valdity[0]['coupon_uses'];
-                  if ($coupon_valdity < $coupon_uses_limit) {
+                  if ($coupon_valdity < $coupon_uses_limit)
+                  {
                     $this->db->where('user_id', $u_id);
                     $this->db->where('coupon_id', $coupon_id);
                     $check_user_coupon_use = $this->db->get('coupon_validity_master')->row_array();
-                    if ($check_user_coupon_use) {
-                      if ($coupon_discount_type == 1) { // 1= FLAT discount, 2= percantage discount
-                        if ($coupon_type == 1) { // 1= Discountable Amount, 2= cashback
+                    if ($check_user_coupon_use)
+                    {
+                      if ($coupon_discount_type == 1)
+                      { // 1= FLAT discount, 2= percantage discount
+                        if ($coupon_type == 1)
+                        { // 1= Discountable Amount, 2= cashback
                           $newCartAmt = $_SESSION['cart_contents']['cart_total'] = $totalCartAmt - $couponData['coupn_discount_val'];
                           // $this->session->set_flashdata("Coupon_Succ", "<img src='".base_url()."/assets/emoji/congratulation.png' height='50px' width='50px'>&nbsp;congratulation.! You get &nbsp;&nbsp;&nbsp;&nbsp; OFF&nbsp;".$oldCartAmt."-".$couponData['coupn_discount_val']."&nbsp;=&nbsp;".$newCartAmt."&nbsp;<i class='fa fa-rupee'></i>");
                           $this->session->set_flashdata("Coupon_Succ", "Discount:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-" . $couponData['coupn_discount_val'] . "&nbsp;<i class='fa fa-rupee'></i>");
-                        } else {
+                        } else
+                        {
                           $userWallet = $this->db->get_where('wallet_master', array('user_master_id' => $u_id))->row_array();
-                          if ($userWallet) {
+                          if ($userWallet)
+                          {
                             $walletAmt = $userWallet['wallet_amount'] + $couponData['coupn_discount_val'];
                             $updateWalletData = array(
                               'wallet_amount' => $walletAmt,
@@ -4167,7 +4576,8 @@ class Web extends CI_Controller
                             $this->db->where('user_master_id', $u_id);
                             $this->db->update('wallet_master', $updateWalletData);
                             $this->session->set_flashdata("Coupon_Succ", "Get &nbsp;&nbsp;" . $couponData['coupn_discount_val'] . "&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
-                          } else {
+                          } else
+                          {
                             $walletAmt = array(
                               'user_master_id' => $u_id,
                               'wallet_amount' => $couponData['coupn_discount_val'],
@@ -4178,27 +4588,34 @@ class Web extends CI_Controller
                             $this->session->set_flashdata("Coupon_Succ", "Get &nbsp;&nbsp;" . $couponData['coupn_discount_val'] . "&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
                           }
                         }
-                      } else {
-                        if ($coupon_type == 1) { // 1= Discountable Amount, 2= cashback
+                      } else
+                      {
+                        if ($coupon_type == 1)
+                        { // 1= Discountable Amount, 2= cashback
                           // $discountAmt = $totalCartAmt*$couponData['coupn_discount_val']/100;
                           $discountAmt = $filter_pro_rec[0]['final_price'] * $couponData['coupn_discount_val'] / 100;
                           $discountAmt = round($discountAmt);
-                          if ($discountAmt > $minimum_discount_value) {
+                          if ($discountAmt > $minimum_discount_value)
+                          {
                             $discountAmt = $minimum_discount_value;
                             $newCartAmt = $_SESSION['cart_contents']['cart_total'] = $totalCartAmt - $discountAmt;
-                          } else {
+                          } else
+                          {
                             $newCartAmt = $_SESSION['cart_contents']['cart_total'] = $totalCartAmt - $discountAmt;
                           }
                           $this->session->set_flashdata("Coupon_Succ", "Discount:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-" . $discountAmt . "&nbsp;<i class='fa fa-rupee'></i>");
-                        } else {
+                        } else
+                        {
                           // $discountAmt = $totalCartAmt*$couponData['coupn_discount_val']/100;
                           $discountAmt = $filter_pro_rec[0]['final_price'] * $couponData['coupn_discount_val'] / 100;
                           $discountAmt = round($discountAmt);
-                          if ($discountAmt > $minimum_discount_value) {
+                          if ($discountAmt > $minimum_discount_value)
+                          {
                             $discountAmt = $minimum_discount_value;
                           }
                           $userWallet = $this->db->get_where('wallet_master', array('user_master_id' => $u_id))->row_array();
-                          if ($userWallet) {
+                          if ($userWallet)
+                          {
                             $walletAmt = $userWallet['wallet_amount'] + $discountAmt;
                             $updateWalletData = array(
                               'wallet_amount' => $walletAmt,
@@ -4208,7 +4625,8 @@ class Web extends CI_Controller
                             $this->db->update('wallet_master', $updateWalletData);
                             // $this->session->set_flashdata("Coupon_Succ", "<img src='".base_url()."/assets/emoji/congratulation.png' height='50px' width='50px'>&nbsp;congratulation.! You get <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".$discountAmt."&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
                             $this->session->set_flashdata("Coupon_Succ", "Get &nbsp;&nbsp;" . $discountAmt . "&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
-                          } else {
+                          } else
+                          {
                             $walletAmt = array(
                               'user_master_id' => $u_id,
                               'wallet_amount' => $discountAmt,
@@ -4225,14 +4643,19 @@ class Web extends CI_Controller
                       );
                       $this->db->where('id', $check_user_coupon_use['id']);
                       $this->db->update('coupon_validity_master', $couponValData);
-                    } else { //user coupon uses condition close
-                      if ($coupon_discount_type == 1) { // 1= FLAT Discount, 2= Percantage Discount
-                        if ($coupon_type == 1) { // 1= Discountable Amount, 2= cashback
+                    } else
+                    { //user coupon uses condition close
+                      if ($coupon_discount_type == 1)
+                      { // 1= FLAT Discount, 2= Percantage Discount
+                        if ($coupon_type == 1)
+                        { // 1= Discountable Amount, 2= cashback
                           $newCartAmt = $_SESSION['cart_contents']['cart_total'] = $totalCartAmt - $couponData['coupn_discount_val'];
                           $this->session->set_flashdata("Coupon_Succ", "Discount:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-" . $couponData['coupn_discount_val'] . "&nbsp;<i class='fa fa-rupee'></i>");
-                        } else {
+                        } else
+                        {
                           $userWallet = $this->db->get_where('wallet_master', array('user_master_id' => $u_id))->row_array();
-                          if ($userWallet) {
+                          if ($userWallet)
+                          {
                             $walletAmt = $userWallet['wallet_amount'] + $couponData['coupn_discount_val'];
                             $updateWalletData = array(
                               'wallet_amount' => $walletAmt,
@@ -4241,7 +4664,8 @@ class Web extends CI_Controller
                             $this->db->where('user_master_id', $u_id);
                             $this->db->update('wallet_master', $updateWalletData);
                             $this->session->set_flashdata("Coupon_Succ", "Get &nbsp;&nbsp;" . $couponData['coupn_discount_val'] . "&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
-                          } else {
+                          } else
+                          {
                             $walletAmt = array(
                               'user_master_id' => $u_id,
                               'wallet_amount' => $couponData['coupn_discount_val'],
@@ -4252,27 +4676,34 @@ class Web extends CI_Controller
                             $this->session->set_flashdata("Coupon_Succ", "Get &nbsp;&nbsp;" . $couponData['coupn_discount_val'] . "&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
                           }
                         }
-                      } else {
-                        if ($coupon_type == 1) { // 1= Discountable Amount, 2= cashback
+                      } else
+                      {
+                        if ($coupon_type == 1)
+                        { // 1= Discountable Amount, 2= cashback
                           // $discountAmt = $totalCartAmt*$couponData['coupn_discount_val']/100;
                           $discountAmt = $filter_pro_rec[0]['final_price'] * $couponData['coupn_discount_val'] / 100;
                           $discountAmt = round($discountAmt);
-                          if ($discountAmt > $minimum_discount_value) {
+                          if ($discountAmt > $minimum_discount_value)
+                          {
                             $discountAmt = $minimum_discount_value;
                             $newCartAmt = $_SESSION['cart_contents']['cart_total'] = $totalCartAmt - $discountAmt;
-                          } else {
+                          } else
+                          {
                             $newCartAmt = $_SESSION['cart_contents']['cart_total'] = $totalCartAmt - $discountAmt;
                           }
                           $this->session->set_flashdata("Coupon_Succ", "Discount:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-" . $discountAmt . "&nbsp;<i class='fa fa-rupee'></i>");
-                        } else {
+                        } else
+                        {
                           // $discountAmt = $totalCartAmt*$couponData['coupn_discount_val']/100;
                           $discountAmt = $filter_pro_rec[0]['final_price'] * $couponData['coupn_discount_val'] / 100;
                           $discountAmt = round($discountAmt);
-                          if ($discountAmt > $minimum_discount_value) {
+                          if ($discountAmt > $minimum_discount_value)
+                          {
                             $discountAmt = $minimum_discount_value;
                           }
                           $userWallet = $this->db->get_where('wallet_master', array('user_master_id' => $u_id))->row_array();
-                          if ($userWallet) {
+                          if ($userWallet)
+                          {
                             $walletAmt = $userWallet['wallet_amount'] + $discountAmt;
                             $updateWalletData = array(
                               'wallet_amount' => $walletAmt,
@@ -4281,7 +4712,8 @@ class Web extends CI_Controller
                             $this->db->where('user_master_id', $u_id);
                             $this->db->update('wallet_master', $updateWalletData);
                             $this->session->set_flashdata("Coupon_Succ", "Get &nbsp;&nbsp;" . $discountAmt . "&nbsp;<i class='fa fa-rupee'></i>&nbsp;in your wallet");
-                          } else {
+                          } else
+                          {
                             $walletAmt = array(
                               'user_master_id' => $u_id,
                               'wallet_amount' => $discountAmt,
@@ -4304,35 +4736,43 @@ class Web extends CI_Controller
                     $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button><img src="' . base_url() . '/assets/emoji/happy.png" height="50px" width="50px">Coupon Applied successfully.</div></div>');
                     // $coupon_succ = $coupon_id;
                     redirect('web/checkout_payment/coupon');
-                  } else { //coupon validity condition close
+                  } else
+                  { //coupon validity condition close
                     $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button><img src="' . base_url() . '/assets/emoji/expire.png" height="50px" width="50px">Opps..Coupon Expired</div></div>');
                     redirect('web/checkout_payment');
                   }
-                } else { //filter product condition close
+                } else
+                { //filter product condition close
                   $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button><img src="' . base_url() . '/assets/emoji/confuse.png" height="50px" width="50px">You have not taken any product in such price range, for which this coupon is valid</div></div>');
                   redirect('web/checkout_payment');
                 }
-              } else { //Customer elegible for coupon or not condition close
+              } else
+              { //Customer elegible for coupon or not condition close
                 $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button><img src="' . base_url() . '/assets/emoji/confuse.png" height="50px" width="50px">Sorry, This coupon is not valid for these product.</div></div>');
                 redirect('web/checkout_payment');
               }
-            } else { //cart limit condition close
+            } else
+            { //cart limit condition close
               $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button><img src="' . base_url() . '/assets/emoji/lowcart_amt.png" height="50px" width="50px">Please limit your cart amount up to ' . $check_cart_amt . '&nbsp;<i class="fa fa-rupee"></i></div></div>');
               redirect('web/checkout_payment');
             }
-          } else { //apply discount on condition close
+          } else
+          { //apply discount on condition close
             $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button><img src="' . base_url() . '/assets/emoji/confuse.png" height="50px" width="50px">This coupon is not valid for this categories.</div></div>');
             redirect('web/checkout_payment');
           }
-        } else {
+        } else
+        {
           $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button><img src="' . base_url() . '/assets/emoji/expire.png" height="50px" width="50px">Opps..Coupon Expired</div></div>');
           redirect('web/checkout_payment');
         }
-      } else { //wrong Payment mode condition close
+      } else
+      { //wrong Payment mode condition close
         $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button><img src="' . base_url() . '/assets/emoji/confuse.png" height="50px" width="50px">Coupon is not for ' . $payment_mode . ' payment method.</div></div>');
         redirect('web/checkout_payment');
       }
-    } else { //coupon exist or not condition close
+    } else
+    { //coupon exist or not condition close
       $this->session->set_flashdata('activate_m', '<div class="col-xs-12 col-sm-12 divPadding" id="err_success"><div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true" style="width: auto; color: #333; height: 20px;">×</button><img src="' . base_url() . '/assets/emoji/thinking.png" height="50px" width="50px">Coupon Code is Invalid,Please try again.</div></div>');
       redirect('web/checkout_payment');
     }
@@ -4343,7 +4783,8 @@ class Web extends CI_Controller
     $data = $this->input->post();
     $inputAmt = $data['wallet_amt'];
     $userWallet = $this->db->get_where('wallet_master', array('user_master_id' => $userData['id']))->row_array();
-    if ($userWallet['wallet_amount'] > $inputAmt) {
+    if ($userWallet['wallet_amount'] > $inputAmt)
+    {
       $leftWalletAmt = $userWallet['wallet_amount'] - $inputAmt;
       $walletData = array(
         'wallet_amount' => $leftWalletAmt,
@@ -4355,7 +4796,8 @@ class Web extends CI_Controller
       $newCartAmt = $_SESSION['cart_contents']['cart_total'] = $totalCartAmt - $inputAmt;
       $this->session->set_flashdata("wallet_use_Succ", "You use successfully <u> <b>" . $inputAmt . "</b></u>&nbsp;<i class='fa fa-rupee'></i> from your wallet, let's continue your shopping.");
       redirect('web/checkout_payment/walletUses');
-    } else {
+    } else
+    {
       $this->session->set_flashdata("wallet_use_faild", "Looks like you don't have enough balance in your wallet");
       redirect('web/checkout_payment/walletUsesFalse');
     }
@@ -4371,9 +4813,11 @@ class Web extends CI_Controller
     $text = 'Your OTP is: ' . $otp;
     sendSMS($mobile, $text, '1007086055987083292');
 
-    if ($user) {
+    if ($user)
+    {
       $this->web_model->update_otp($mobile, $otp);
-    } else {
+    } else
+    {
       $this->web_model->insert_user_with_otp($mobile, $otp);
     }
 
@@ -4389,7 +4833,8 @@ class Web extends CI_Controller
 
     $user_res = $this->web_model->verify_otp($mobile, $otp);
 
-    if (!empty($user_res)) {
+    if (!empty($user_res))
+    {
       $user_data = [
         "id" => $user_res["id"],
         "email" => $user_res["email_id"],
@@ -4402,7 +4847,8 @@ class Web extends CI_Controller
         "message" => "Login successful",
         "redirect" => $redirect
       ]);
-    } else {
+    } else
+    {
       echo json_encode([
         "status" => "error",
         "message" => "Invalid OTP"

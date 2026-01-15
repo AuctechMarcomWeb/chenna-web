@@ -87,7 +87,7 @@
         .note{
             font-size:13px;
             color:#7f8c8d;
-            margin-top:15px;
+            margin-top:10px;
             text-align:center;
         }
 
@@ -105,7 +105,7 @@
         }
 
         .footer a{
-            color:blue;
+            color:orangered;
             text-decoration:none;
         }
     </style>
@@ -117,15 +117,15 @@
 
     <!-- Header -->
     <div class="header">
-        <img src="http://localhost/chenna/plugins/images/logo.png" alt="Chenna Logo">
+        <img src="../plugins/images/logo.png" alt="Chenna Logo">
         <p style="font-size:13px;">
-            <a href="https://www.chenna.co">www.chenna.co</a>
+           
         </p>
     </div>
 
     <!-- Banner -->
     <div class="welcome-image">
-        <img src="https://themes.pixelstrap.com/fastkart/email-templete/images/welcome-poster.jpg" alt="Welcome">
+        <img src="../plugins/images/welcome-poster.jpg" alt="Welcome">
     </div>
 
     <!-- Title -->
@@ -138,11 +138,11 @@
 
     <!-- Status -->
     <div class="button-container">
-        <span class="verify-button">Your Account : Approved By Admin</span>
+        <span class="verify-button">Your Account : Activate / Approved</span>
     </div>
 
     <!-- Login Info -->
-    <p class="text-left">
+    <p>
         You can now log in using the credentials below:
     </p>
 
@@ -157,7 +157,7 @@
         </tr>
     </table>
 
-    <p>
+    <p style="text-align: center;margin-top:20px">
         After logging in, you can start managing your shop, products, and orders.
     </p>
 
@@ -170,9 +170,7 @@
     <div class="text-left" style="margin-top:25px;">
         <p style="margin:0;">Best Regards,</p>
         <p style="margin:5px 0;"><b>Team Chenna.co</b></p>
-        <p style="margin:5px 0;">
-            <a href="https://www.chenna.co">www.chenna.co</a>
-        </p>
+        
     </div>
 
     <!-- Footer -->

@@ -1,21 +1,13 @@
 <?php
 if (!function_exists('slugify'))
 {
-    function slugify($string)
-    {
-
-        $string = strtolower($string);
-
-
-        $string = preg_replace('/[^a-z0-9]+/', '-', $string);
-
-
-        $string = preg_replace('/-+/', '-', $string);
-
-
-        $string = trim($string, '-');
-
-        return $string;
-    }
+    function slugify($text)
+{
+    $text = strtolower($text);
+    $text = preg_replace('/[^a-z0-9\s-]/', '', $text); // remove special chars like &, @, etc.
+    $text = preg_replace('/\s+/', '-', $text); // replace spaces with hyphen
+    $text = trim($text, '-');
+    return $text;
+}
 }
 ?>

@@ -1,4 +1,8 @@
 <style>
+    .accordion-body {
+        padding: 6px 11px;
+    }
+
     .product-box-4 .product-detail .buy-button {
         bottom: -3px;
     }
@@ -501,7 +505,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ion-rangeslider@2.3.1/css/ion.rangeSlider.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         const ajaxUrl = "<?= base_url('web/ajax_filter_subcategory_products') ?>";
         const baseProductImagePath = "<?= base_url('assets/product_images/') ?>";
         const userId = '<?= $user_id ?? "" ?>';
@@ -538,7 +542,7 @@
             }
 
             return products.map(p => {
-                const heartClass = p.is_in_wishlist ? 'iconly-Heart' : 'iconly-Heart text-muted';
+                const heartClass = p.is_in_wishlist ? 'text-danger' : 'text-gray';
                 const img = p.main_image ? baseProductImagePath + p.main_image : baseProductImagePath + 'default.png';
                 const rating = parseFloat(p.avg) || 0;
                 return `<div class="col-6 col-sm-6 col-md-4 col-lg-3 col-xl-2 product-card">
@@ -547,9 +551,9 @@
                     <div class="product-image position-relative">
                         <div class="label-flex position-absolute top-0 end-0 p-2" title="Wishlist">
                             ${userId ? `<button class="btn p-0 wishlist btn-wishlist" onclick="add_wishlist('${p.id}', '${userId}')">
-                                <i class="iconly-Heart icli ${heartClass}" id="wish_heart${p.id}" style="background: white; padding: 4px;border-radius: 20px;"></i>
+                                <i class="iconly-Heart icli ${heartClass} text-gray" id="wish_heart${p.id}" style="background: white; padding: 4px;border-radius: 20px;"></i>
                             </button>` : `<button class="btn p-0 wishlist btn-wishlist" data-bs-toggle="modal" data-bs-target="#login-popup">
-                                <i class="iconly-Heart icli" style="background: white; padding: 4px;border-radius: 20px;"></i>
+                                <i class="iconly-Heart icli text-danger" style="background: white; padding: 4px;border-radius: 20px;"></i>
                             </button>`}
                         </div>
                         <a href="<?= base_url() ?>product/${p.id}">
@@ -625,11 +629,11 @@
                 grid: true,
 
                 prefix: "₹ ", // ₹ show hoga
-                prettify: function(num) { // yaha add karein
+                prettify: function (num) { // yaha add karein
                     return num.toLocaleString('en-IN'); // Indian format: 5,00,000
                 },
 
-                onFinish: function(data) {
+                onFinish: function (data) {
                     currentPrice.min = data.from;
                     currentPrice.max = data.to;
                     currentPage = 1;
@@ -657,7 +661,7 @@
 
         }
 
-        $("#minPriceDropdown, #maxPriceDropdown").off('change').on('change', function() {
+        $("#minPriceDropdown, #maxPriceDropdown").off('change').on('change', function () {
             let minVal = parseInt($("#minPriceDropdown").val());
             let maxVal = parseInt($("#maxPriceDropdown").val());
 
@@ -689,7 +693,7 @@
                 rating: toCsv(currentRatings),
                 page: currentPage,
                 perPage: perPage
-            }, function(res) {
+            }, function (res) {
                 $("#productGrid").html(buildProductsHtml(res.products || []));
 
                 let sizeHtml = (res.sizes || []).map(s => {
@@ -711,7 +715,7 @@
             }, 'json');
         }
 
-        $(document).on("change", ".category-filter", function() {
+        $(document).on("change", ".category-filter", function () {
             $(".category-filter").not(this).prop("checked", false);
             currentCategory = $(this).val() || null;
             $(".subcategory-box").hide();
@@ -721,26 +725,26 @@
             applyFilters();
         });
 
-        $(document).on("change", ".sub-category-filter", function() {
+        $(document).on("change", ".sub-category-filter", function () {
             const parent = $(this).data("parent");
             currentSubCategory = $(`.sub-category-filter[data-parent='${parent}']:checked`).map((i, v) => v.value).get();
             currentPage = 1;
             applyFilters();
         });
 
-        $(document).on("change", ".size-filter, .rating-filter", function() {
+        $(document).on("change", ".size-filter, .rating-filter", function () {
             currentSizes = $(".size-filter:checked").map((i, v) => v.value).get();
             currentRatings = $(".rating-filter:checked").map((i, v) => v.value).get();
             currentPage = 1;
             applyFilters();
         });
 
-        $(document).on("click", ".page-number", function() {
+        $(document).on("click", ".page-number", function () {
             currentPage = parseInt($(this).data("page"));
             applyFilters();
         });
         // Previous click
-        $(document).on("click", ".prev-page", function() {
+        $(document).on("click", ".prev-page", function () {
             let page = parseInt($(this).data("page"));
             if (page >= 1) {
                 currentPage = page;
@@ -749,7 +753,7 @@
         });
 
         // Next click
-        $(document).on("click", ".next-page", function() {
+        $(document).on("click", ".next-page", function () {
             let page = parseInt($(this).data("page"));
             if (page >= 1) {
                 currentPage = page;
@@ -758,7 +762,7 @@
         });
 
 
-        $("#clearFilters").click(function() {
+        $("#clearFilters").click(function () {
             $(":checkbox").prop("checked", false);
             currentCategory = originalCategory;
             currentSubCategory = [originalSubCategory];
@@ -784,10 +788,10 @@
             type: 'POST',
             data: {
                 pro_id: productId
-            }, 
+            },
             dataType: 'json',
-            success: function(response) {
-                
+            success: function (response) {
+
                 if (response.status === 'success') {
                     refreshCartIcon();
                     Swal.fire({
@@ -809,7 +813,7 @@
                     });
                 }
             },
-            error: function() {
+            error: function () {
                 Swal.fire({
                     title: 'Error!',
                     text: 'Unable to add product. Try again later.',
@@ -824,12 +828,12 @@
     function refreshCartIcon() {
         $.ajax({
             url: '<?= base_url('web/cart_icon_partial') ?>',
-            success: function(data) {
+            success: function (data) {
                 $('#cart_items').html(data);
             }
         });
     }
-    $(document).on('click', '.filter-toggle-icon', function() {
+    $(document).on('click', '.filter-toggle-icon', function () {
         $('#filterSidebar .accordion').slideToggle();
         $(this).toggleClass('rotate');
     });

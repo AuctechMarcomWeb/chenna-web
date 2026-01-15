@@ -88,7 +88,7 @@
                                                                     <li>
                                                                         <h6 class="text-content mb-0"><span
                                                                                 class="text-title">Phone:</span>
-                                                                            <?= $addressData['mobile_number'] . ' , ' . $addressData['alternate_number']; ?>
+                                                                            <?= $addressData['mobile_number']; ?>
                                                                         </h6>
                                                                     </li>
                                                                 </ul>

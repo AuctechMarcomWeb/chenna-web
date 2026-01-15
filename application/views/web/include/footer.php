@@ -32,7 +32,9 @@
                             src="<?php echo base_url('plugins/images/logo.png'); ?>" class="img-fluid" alt="">
                     </a>
                     <p class="information-text" style="text-align:justify; width:80%">
-                        Cenna.co is a multi-category online marketplace where you can find everything you need in one place, from daily essentials to trending products. We focus on quality, fair prices, and a smooth shopping experience you can trust every day.
+                        Cenna.co is a multi-category online marketplace where you can find everything you need in one
+                        place, from daily essentials to trending products. We focus on quality, fair prices, and a
+                        smooth shopping experience you can trust every day.
                     </p>
                     <ul class="social-icon">
                         <li style=" display: inline-block;">
@@ -97,7 +99,7 @@
                             <a href="<?php echo site_url('web/refund_policy'); ?>" class="footer-contain-2">
                                 <i class="fas fa-angle-right"></i>Refund Policy</a>
                         </li>
-                        
+
                     </ul>
                 </div>
 
@@ -106,39 +108,113 @@
                         <h4> Categories</h4>
                     </div>
                     <ul class="footer-list footer-contact mb-sm-0 mb-3">
+
+                        <!-- MEN -->
                         <li>
                             <?php
-                            $category_id = 10;
-                            $sub = $this->db->get_where('category_master', ['id' => $category_id])->row_array();
-                            $main = $this->db->get_where('parent_category_master', ['id' => $sub['mai_id']])->row_array();
-                            $url = base_url(strtolower(str_replace([' ', '(', ')'], ['-', '', ''], $main['name'])) . '/' . strtolower(str_replace([' ', '(', ')'], ['-', '', ''], $sub['category_name'])));
+                            $category_id = 5; // Men category id
+                            
+                            $sub = $this->db->get_where('category_master', [
+                                'id' => $category_id,
+                                'status' => 1
+                            ])->row_array();
+
+                            if (!empty($sub))
+                            {
+                                $parent = $this->db->get_where('parent_category_master', [
+                                    'id' => $sub['mai_id'],
+                                    'status' => 1
+                                ])->row_array();
+
+                                if (!empty($parent))
+                                {
+                                    $url = base_url($parent['slug'] . '/' . $sub['slug']);
+                                } else
+                                {
+                                    $url = 'javascript:void(0);';
+                                }
+                            } else
+                            {
+                                $url = 'javascript:void(0);';
+                            }
                             ?>
-                            <a href="<?= $url; ?>men/ethnic-wear" class="footer-contain-2">
-                                <i class="fas fa-angle-right"></i>Men</a>
+                            <a href="<?= $url; ?>" class="footer-contain-2">
+                                <i class="fas fa-angle-right"></i> Men
+                            </a>
                         </li>
-                        <li>
-                            <?php
-                            $category_id = 15;
-                            $sub = $this->db->get_where('category_master', ['id' => $category_id])->row_array();
-                            $main = $this->db->get_where('parent_category_master', ['id' => $sub['mai_id']])->row_array();
-                            $url = base_url(strtolower(str_replace([' ', '(', ')'], ['-', '', ''], $main['name'])) . '/' . strtolower(str_replace([' ', '(', ')'], ['-', '', ''], $sub['category_name'])));
-                            ?>
-                            <a href="<?= $url; ?>women/ethnic-wear" class="footer-contain-2">
-                                <i class="fas fa-angle-right"></i>Women</a>
-                        </li>
-                        <li>
-                            <?php
-                            $category_id = 26;
-                            $sub = $this->db->get_where('category_master', ['id' => $category_id])->row_array();
-                            $main = $this->db->get_where('parent_category_master', ['id' => $sub['mai_id']])->row_array();
-                            $url = base_url(strtolower(str_replace([' ', '(', ')'], ['-', '', ''], $main['name'])) . '/' . strtolower(str_replace([' ', '(', ')'], ['-', '', ''], $sub['category_name'])));
-                            ?>
-                            <a href="<?= $url; ?>kid/combo" class="footer-contain-2">
-                                <i class="fas fa-angle-right"></i>Kids</a>
-                        </li>
+
                        
+                        <li>
+                            <?php
+                            $category_id = 6; 
+                            
+                            $sub = $this->db->get_where('category_master', [
+                                'id' => $category_id,
+                                'status' => 1
+                            ])->row_array();
+
+                            if (!empty($sub))
+                            {
+                                $parent = $this->db->get_where('parent_category_master', [
+                                    'id' => $sub['mai_id'],
+                                    'status' => 1
+                                ])->row_array();
+
+                                if (!empty($parent))
+                                {
+                                    $url = base_url($parent['slug'] . '/' . $sub['slug']);
+                                } else
+                                {
+                                    $url = 'javascript:void(0);';
+                                }
+                            } else
+                            {
+                                $url = 'javascript:void(0);';
+                            }
+                            ?>
+                            <a href="<?= $url; ?>" class="footer-contain-2">
+                                <i class="fas fa-angle-right"></i> Women
+                            </a>
+                        </li>
+
+                       
+                        <li>
+                            <?php
+                            $category_id = 7; 
+                            
+                            $sub = $this->db->get_where('category_master', [
+                                'id' => $category_id,
+                                'status' => 1
+                            ])->row_array();
+
+                            if (!empty($sub))
+                            {
+                                $parent = $this->db->get_where('parent_category_master', [
+                                    'id' => $sub['mai_id'],
+                                    'status' => 1
+                                ])->row_array();
+
+                                if (!empty($parent))
+                                {
+                                    $url = base_url($parent['slug'] . '/' . $sub['slug']);
+                                } else
+                                {
+                                    $url = 'javascript:void(0);';
+                                }
+                            } else
+                            {
+                                $url = 'javascript:void(0);';
+                            }
+                            ?>
+                            <a href="<?= $url; ?>" class="footer-contain-2">
+                                <i class="fas fa-angle-right"></i> Kids
+                            </a>
+                        </li>
 
                     </ul>
+
+
+
                 </div>
 
                 <div class="col-xxl-4 col-xl-4 col-sm-6">
@@ -150,7 +226,8 @@
                             <a href="javascript:void(0)">
                                 <div class="inform-box flex-start-box">
                                     <i data-feather="map-pin"></i>
-                                    <p> New Jiamau, 1090 Chauraha, 167/101, Shaligram Building, Hazratganj, Lucknow, Uttar Pradesh 226001
+                                    <p> New Jiamau, 1090 Chauraha, 167/101, Shaligram Building, Hazratganj, Lucknow,
+                                        Uttar Pradesh 226001
                                     </p>
                                 </div>
                             </a>

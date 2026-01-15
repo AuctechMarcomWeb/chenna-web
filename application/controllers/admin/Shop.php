@@ -46,7 +46,7 @@ public function addShop() {
 			$data['index2']        = '';
 	     	$data['title']         = 'Manage pincode';			
 	     	$data['VendorList']    = $this->db->get_where('staff_master',array('status'=>'1'))->result_array();	
-	     	$data['stateList']      = $this->db->get_where('states_list',array('country_id'=>'101'))->result_array();		
+	     	// $data['stateList']      = $this->db->get_where('states_list',array('country_id'=>'101'))->result_array();		
 			$this->load->view('include/header',$data);
 			$this->load->view('manage_shop/AddShop');
 			$this->load->view('include/footer');
@@ -175,8 +175,8 @@ public function delete_shop($id){
 	     	$data['title']         = 'Manage pincode';			
 	     	$data['getData']      = $this->db->get_where('shop_master',array('id'=>$id))->row_array();	
 	     	$data['VendorList']    = $this->db->get_where('staff_master',array('status'=>'1'))->result_array();	
-	     	$data['stateList']      = $this->db->get_where('states_list',array('country_id'=>'101'))->result_array();		
-	     	$data['CityList']      = $this->db->get_where('cities_list',array('state_id'=>$data['getData']['state_id']))->result_array();		
+	     	// $data['stateList']      = $this->db->get_where('states_list',array('country_id'=>'101'))->result_array();		
+	     	// $data['CityList']      = $this->db->get_where('cities_list',array('state_id'=>$data['getData']['state_id']))->result_array();		
 			$this->load->view('include/header',$data);
 			$this->load->view('manage_shop/updateShop');
 			$this->load->view('include/footer');

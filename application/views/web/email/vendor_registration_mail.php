@@ -121,15 +121,15 @@
 
         <!-- Header -->
         <div class="header">
-            <img src="http://localhost/chenna/plugins/images/logo.png" alt="Chenna Logo">
+            <img src="../plugins/images/logo.png" alt="Chenna Logo">
             <p style="margin:8px 0 0;font-size:13px;">
-                <a href="https://www.chenna.co">www.chenna.co</a>
+               
             </p>
         </div>
 
         <!-- Welcome Image -->
         <div class="welcome-image">
-            <img src="https://themes.pixelstrap.com/fastkart/email-templete/images/welcome-poster.jpg" alt="Welcome">
+            <img src="../plugins/images/welcome-poster.jpg" alt="Welcome">
         </div>
 
         <!-- Welcome Text -->
@@ -142,7 +142,7 @@
         <!-- Status Button -->
         <div class="button-container">
             <span class="verify-button">
-                Current Status: Waiting for Admin Approval
+                Current Status: Waiting for Approval
             </span>
         </div>
 
@@ -156,6 +156,10 @@
         <!-- Vendor Details Table -->
         <h3>Your Submitted Details</h3>
         <table>
+             <tr>
+                <td><b>Vendor  Registration Number</b></td>
+                <td><?= $vendor_random_number; ?></td>
+            </tr>
             <tr>
                 <td><b>Full Name</b></td>
                 <td><?= $name; ?></td>
@@ -203,9 +207,7 @@
         <div style="margin:20px 0; color:#2c3e50; font-size:14px;">
             <p style="margin:0;">Best Regards,</p>
             <p style="margin:5px 0;"><b>Chenna.co Team</b></p>
-            <p style="margin:5px 0;">
-                <a href="https://www.chenna.co">www.chenna.co</a>
-            </p>
+            
         </div>
 
         <!-- Footer -->

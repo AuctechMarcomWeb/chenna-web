@@ -133,7 +133,7 @@
       <!-- SALES / ORDERS -->
       <li class="<?php echo (($index == 'VendorOrder') ? 'active' : ''); ?>">
         <a href="<?php echo site_url('admin/Vendor/VendorOrderList'); ?>">
-          <i class="fa fa-cart-plus"></i> <span>Sales Report</span>
+          <i class="fa fa-cart-plus"></i> <span>Manage Orders</span>
         </a>
       </li>
 

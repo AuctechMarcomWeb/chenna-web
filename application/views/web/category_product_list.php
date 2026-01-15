@@ -1,4 +1,8 @@
 <style>
+    .accordion-body {
+        padding: 6px 11px;
+    }
+
     .product-box-4:hover .product-image img {
         transform: scale(1.04);
     }
@@ -74,7 +78,7 @@
 
     .iconly-Heart:before {
         content: "\e931";
-        color: red;
+       
     }
 
     .btn-warning {
@@ -629,7 +633,7 @@
 
             let html = "";
             products.forEach(p => {
-                const heartClass = p.in_wishlist ? 'text-danger' : 'text-muted';
+                const heartClass = p.in_wishlist ? 'text-danger' : 'text-gray';
                 const img = (p.main_image || "").startsWith("http") ? p.main_image : baseProductImagePath + (p.main_image || 'default.png');
                 const rating = parseFloat(p.avg) || 0;
                 const urlName = cleanUrlName(p.product_name || '');
@@ -642,14 +646,14 @@
                         <div class="label-flex position-absolute top-0 end-0 p-2" title="Wishlist">
                             ${userId ?
                         `<button class="btn p-0 wishlist btn-wishlist" onclick="add_wishlist('${p.id}', '${userId}')">
-                                <i class="iconly-Heart icli ${heartClass}" id="wish_heart${p.id}" style="background: white; padding: 4px;border-radius: 20px;"></i>
+                                <i class="iconly-Heart text-gray icli ${heartClass}" id="wish_heart${p.id}" style="background: white; padding: 4px;border-radius: 20px;"></i>
                             </button>` :
                         `<button class="btn p-0 wishlist btn-wishlist" data-bs-toggle="modal" data-bs-target="#login-popup">
-                                <i class="iconly-Heart icli text-muted" style="background: white; padding: 4px;border-radius: 20px;"></i>
+                                <i class="iconly-Heart icli text-danger" style="background: white; padding: 4px;border-radius: 20px;"></i>
                             </button>`
                     }
                         </div>
-                        <a href="<?= base_url() ?>${urlName}/${p.id}">
+                        <a href="<?= base_url() ?>product/${p.id}">
                             <img src="${img}" class="img-fluid w-100">
                         </a>
                     </div>
@@ -666,7 +670,7 @@
                 }
 
                 html += `</ul>
-                        <a href="<?= base_url() ?>${urlName}/${p.id}" class="text-decoration-none">
+                        <a href="<?= base_url() ?>product/${p.id}" class="text-decoration-none">
                             <h5 class="name mt-2 text-dark">${p.product_name}</h5>
                         </a>
                         <h5 class="price text-danger mt-1 mb-4">
