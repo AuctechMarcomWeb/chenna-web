@@ -94,19 +94,19 @@
 
 
                                         <!-- View Button -->
-                                        <a href="<?= site_url('admin/vendor/Vendor_view_details/' . $pro->id); ?>"
+                                        <a href="<?= site_url('admin/vendor/PromoteViewDetails/' . $pro->id); ?>"
                                             class="btn btn-sm btn-info">
                                             View
                                         </a>
 
                                         <!-- Edit Button -->
-                                        <a href="<?= site_url('admin/vendor/edit/' . $pro->id); ?>"
+                                        <!-- <a href="<?= site_url('admin/vendor/edit/' . $pro->id); ?>"
                                             class="btn btn-sm btn-warning">
                                             Edit
-                                        </a>
+                                        </a> -->
 
                                         <!-- Delete Button -->
-                                        <button class="btn btn-sm btn-danger" onclick="deleteVendor(<?= $pro->id; ?>)">
+                                        <button class="btn btn-sm btn-danger" onclick="deletePromoter(<?= $pro->id; ?>)">
                                             Delete
                                         </button>
                                     </td>
@@ -214,21 +214,21 @@
     }
 </script>
 <script>
-    function deleteVendor(id) {
+    function deletePromoter(id) {
         Swal.fire({
             title: 'Are you sure?',
-            text: "This vendor will be permanently deleted!",
+            text: "This Promoter will be permanently deleted!",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: '<?= site_url("admin/vendor/admin_delete_vendor"); ?>',
+                    url: '<?= site_url("admin/vendor/admin_delete_promoter"); ?>',
                     type: 'POST',
                     data: { id: id },
                     success: function (res) {
-                        Swal.fire('Deleted!', 'Vendor deleted successfully.', 'success');
+                        Swal.fire('Deleted!', 'Promoter deleted successfully.', 'success');
                         location.reload();
                     }
                 });

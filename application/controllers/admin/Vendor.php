@@ -604,8 +604,27 @@ class Vendor extends CI_Controller
 		}
 	}
 
+	public function PromoteViewDetails($id)
+	{
+		$data['promoter'] = $this->Vendor_model->get_admin_promoter_by_id($id);
 
+		if (empty($data['promoter']))
+		{
+			show_404();
+		}
 
+		$data['title'] = 'Promoter List';
+		$this->load->view('include/header', $data);
+		$this->load->view('Promoter/PromoteViewDetails', $data);
+		$this->load->view('include/footer');
+	}
+
+	public function admin_delete_promoter()
+	{
+		$id = $this->input->post('id');
+		$this->Vendor_model->admin_delete_promoter($id);
+		echo 'success';
+	}
 
 
 	public function accept($purchase_id)
