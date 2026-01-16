@@ -26,7 +26,8 @@ class Vendor_model extends CI_Model
 
   public function admin_approve_and_update_vendor_password($id, $role, $hashed_password)
   {
-    if ($role == 'vendor') {
+    if ($role == 'vendor')
+    {
       return $this->db->where('id', $id)->update('vendors', ['status' => 1, 'password' => $hashed_password]);
     }
   }
@@ -34,7 +35,8 @@ class Vendor_model extends CI_Model
 
   public function admin_update_vendor_status($id, $role, $status)
   {
-    if ($role == 'vendor') {
+    if ($role == 'vendor')
+    {
       return $this->db->where('id', $id)->update('vendors', ['status' => $status]);
     }
   }
@@ -55,10 +57,12 @@ class Vendor_model extends CI_Model
   public function check_duplicate($mobile, $aadhar, $pan)
   {
     $this->db->where('mobile', $mobile);
-    if (!empty($aadhar)) {
+    if (!empty($aadhar))
+    {
       $this->db->or_where('aadhar_card', $aadhar);
     }
-    if (!empty($pan)) {
+    if (!empty($pan))
+    {
       $this->db->or_where('pan_card', $pan);
     }
     $query = $this->db->get('vendors');
@@ -66,12 +70,13 @@ class Vendor_model extends CI_Model
   }
 
 
-
   public function get_user($id, $role)
   {
-    if ($role == 'vendor') {
+    if ($role == 'vendor')
+    {
       return $this->db->get_where('vendors', ['id' => $id])->row();
-    } else {
+    } else
+    {
       return $this->db->get_where('promoters', ['id' => $id])->row();
     }
   }
@@ -120,7 +125,8 @@ class Vendor_model extends CI_Model
     ])->get('purchase_master')->num_rows();
   }
 
- public function getPurchaseSummary($vendor_id = '') {
+  public function getPurchaseSummary($vendor_id = '')
+  {
     $this->db->select("
         COUNT(id) AS total_orders,
         SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) AS pending_orders,
@@ -130,20 +136,54 @@ class Vendor_model extends CI_Model
     ");
     $this->db->from('purchase_master');
 
-    if ($vendor_id != '') {
-        $this->db->where('vendor_id', $vendor_id);
+    if ($vendor_id != '')
+    {
+      $this->db->where('vendor_id', $vendor_id);
     }
 
     $query = $this->db->get();
     return $query->row_array(); // returns a single row
-}
+  }
 
 
 
+  public function insert_promoters_user($data, $table)
+  {
+    $this->db->insert($table, $data);
+    return $this->db->insert_id();
+  }
+  public function check_promoter_duplicate($mobile, $email)
+  {
+    $this->db->where('mobile', $mobile);
+    $this->db->or_where('email', $email);
+    $query = $this->db->get('promoters');
+    return $query->num_rows() > 0;
+  }
 
 
+  public function get_all_promoters()
+  {
+    $this->db->select('*');
+    $this->db->from('promoters');
+    $this->db->order_by('add_date', 'DESC');
+    return $this->db->get()->result();
+  }
 
+  public function admin_approve_and_update_promoter_password($id, $role, $hashed_password)
+  {
+    if ($role == 'promoter')
+    {
+      return $this->db->where('id', $id)->update('promoters', ['status' => 1, 'password' => $hashed_password]);
+    }
+  }
 
+  public function admin_update_promoter_status($id, $role, $status)
+  {
+    if ($role == 'promoter')
+    {
+      return $this->db->where('id', $id)->update('promoters', ['status' => $status]);
+    }
+  }
 
   // End Registration
   // public function getVendotList()
@@ -173,7 +213,8 @@ class Vendor_model extends CI_Model
     $arrayName['company_pan_no'] = $request['CompanyPan'];
     $arrayName['company_tin_no'] = $request['CompanyTin'];
 
-    if (!empty($request['profile_pic'])) {
+    if (!empty($request['profile_pic']))
+    {
       $arrayName['profile_pic'] = $request['profile_pic'];
     }
     $arrayName['add_date'] = time();
@@ -181,7 +222,8 @@ class Vendor_model extends CI_Model
     $arrayName['status'] = '1';
     /*print_r($arrayName); exit;*/
     $insert = $this->db->insert('admin_master', $arrayName);
-    if ($insert > 0) {
+    if ($insert > 0)
+    {
       $message = urlencode("Hi  " . $arrayName['name'] . " , Your Account has been successfully registered. Now you can Login your Login-Id : " . $request['VendorEmail'] . " and Password : " . base64_decode($arrayName['password']) . ". Click For Login " . $link . "");
       /* echo $message; exit;*/
       $mobile = urlencode($arrayName['phone_no']);
@@ -216,7 +258,8 @@ class Vendor_model extends CI_Model
     $alphabet = '1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     $pass = array(); //remember to declare $pass as an array
     $alphaLength = strlen($alphabet) - 1; //put the length -1 in cache
-    for ($i = 0; $i < 10; $i++) {
+    for ($i = 0; $i < 10; $i++)
+    {
       $n = rand(0, $alphaLength);
       $pass[] = $alphabet[$n];
     }
@@ -245,7 +288,8 @@ class Vendor_model extends CI_Model
     $arrayName['company_pan_no'] = $request['CompanyPan'];
     $arrayName['company_tin_no'] = $request['CompanyTin'];
 
-    if (!empty($request['profile_pic'])) {
+    if (!empty($request['profile_pic']))
+    {
       $arrayName['profile_pic'] = $request['profile_pic'];
     }
 

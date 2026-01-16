@@ -79,6 +79,10 @@
                             <a href="<?php echo site_url('web/vendor_registration'); ?>" class="footer-contain-2">
                                 <i class="fas fa-angle-right"></i>Become Seller</a>
                         </li>
+                         <li>
+                            <a href="<?php echo site_url('web/promoter_registration'); ?>" class="footer-contain-2">
+                                <i class="fas fa-angle-right"></i>Become Promoter</a>
+                        </li>
                         <li>
                             <a href="<?php echo site_url('web/about'); ?>" class="footer-contain-2">
                                 <i class="fas fa-angle-right"></i>About Us</a>

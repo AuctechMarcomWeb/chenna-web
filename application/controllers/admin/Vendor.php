@@ -35,7 +35,7 @@ class Vendor extends CI_Controller
 		$this->form_validation->set_rules('email', 'Email', 'required|valid_email');
 		$this->form_validation->set_rules('mobile', 'Mobile', 'required|regex_match[/^[0-9]{10}$/]');
 		$this->form_validation->set_rules('pincode', 'Pincode', 'required|regex_match[/^[0-9]{6}$/]');
-		
+
 
 		// GST Validation only if YES
 		if ($this->input->post('has_gst') == 'yes')
@@ -99,7 +99,7 @@ class Vendor extends CI_Controller
 			'aadhar_card' => $aadhar_card,
 			'pan_card' => $pan_card,
 			'address' => $this->input->post('address'),
-			
+
 			'city' => $this->input->post('city'),
 			'state' => $this->input->post('state'),
 			'pincode' => $this->input->post('pincode'),
@@ -146,7 +146,7 @@ class Vendor extends CI_Controller
 
 			echo json_encode([
 				'status' => 'success',
-				'msg' => 'Registered successfully! Please check your email. Waiting for admin approval.'
+				'msg' => 'Registered successfully! Please check your email. Waiting for approval.'
 			]);
 		} else
 		{
@@ -203,8 +203,8 @@ class Vendor extends CI_Controller
 		$data['index2'] = 'AllVendorList';
 
 		$data['vendors'] = $this->Vendor_model->get_all_vendors();
-
-		$this->load->view('include/header');
+		$data['title'] = 'Vendor List';
+		$this->load->view('include/header', $data);
 		$this->load->view('Vendor/AllVendorList', $data);
 		$this->load->view('include/footer');
 	}
@@ -388,7 +388,226 @@ class Vendor extends CI_Controller
 		$this->load->view('include/footer');
 	}
 
-	
+	public function promoter_registration()
+	{
+		if (!$this->input->is_ajax_request())
+		{
+			show_404();
+		}
+
+		// ================= VALIDATION =================
+		$this->form_validation->set_rules('name', 'Full Name', 'required');
+		$this->form_validation->set_rules('email', 'Email', 'required|valid_email');
+		$this->form_validation->set_rules('mobile', 'Mobile', 'required|regex_match[/^[0-9]{10}$/]');
+		$this->form_validation->set_rules('pincode', 'Pincode', 'required|regex_match[/^[0-9]{6}$/]');
+
+		$this->form_validation->set_rules(
+			'account_no',
+			'Account Number',
+			'trim|regex_match[/^[0-9]{9,18}$/]',
+			['regex_match' => 'Please enter a valid account number (9 to 18 digits).']
+		);
+
+
+		$this->form_validation->set_rules(
+			'ifsc_code',
+			'IFSC Code',
+			'trim|regex_match[/^[A-Z]{4}0[A-Z0-9]{6}$/]',
+			['regex_match' => 'Please enter a valid IFSC code.']
+		);
+
+
+		if ($this->form_validation->run() == false)
+		{
+			echo json_encode([
+				'status' => 'error',
+				'msg' => strip_tags(validation_errors())
+			]);
+			return;
+		}
+
+		// ================= CHECK DUPLICATE =================
+		$mobile = $this->input->post('mobile');
+		$email = $this->input->post('email');
+
+		if ($this->Vendor_model->check_promoter_duplicate($mobile, $email))
+		{
+			echo json_encode(['status' => 'error', 'msg' => 'Already Registered! Approval Pending.']);
+			return;
+		}
+
+		// ================= FILE UPLOAD =================
+		$profile_pic = $this->_promoter_upload_file('profile_pic', PROMOTER_PROFILE_DIRECTORY);
+		$promoter_logo = $this->_promoter_upload_file('vendor_logo', PROMOTER_DOCUMENT_DIRECTORY);
+		$aadhar_card = $this->_promoter_upload_file('aadhar_card', PROMOTER_DOCUMENT_DIRECTORY);
+		$pan_card = $this->_promoter_upload_file('pan_card', PROMOTER_DOCUMENT_DIRECTORY);
+
+		// ================= RANDOM PROMOTER NUMBER =================
+		$promoter_random_number = 'PTMRGTS' . date('Y') . rand(100000, 999999);
+
+		// ================= DATA ARRAY (MATCHING TABLE) =================
+		$data = [
+			'promoter_random_number' => $promoter_random_number,
+			'role' => 'promoter',
+			'name' => $this->input->post('name'),
+			'email' => $email,
+			'password' => null,
+			'mobile' => $mobile,
+			'otp' => null,
+			'verify_otp' => 0,
+			'profile_pic' => $profile_pic,
+			'promoter_logo' => $promoter_logo,
+			'address' => $this->input->post('address'),
+			'city' => $this->input->post('city'),
+			'state' => $this->input->post('state'),
+			'pincode' => $this->input->post('pincode'),
+			'bank_name' => $this->input->post('bank_name'),
+			'account_no' => $this->input->post('account_no'),
+			'ifsc_code' => $this->input->post('ifsc_code'),
+			'aadhar_card' => $aadhar_card,
+			'pan_card' => $pan_card,
+			'reference_code' => null,
+			'referred_by' => $this->input->post('promoter_code_used'),
+			'wallet_amount' => 0.00,
+			'status' => 0,
+			'add_date' => date('Y-m-d H:i:s'),
+			'modify_date' => null
+		];
+
+		// ================= INSERT =================
+		$id = $this->Vendor_model->insert_promoters_user($data, 'promoters');
+
+		if ($id)
+		{
+
+			// ================= EMAIL DATA =================
+			$mail_data = [
+				'promoter_id' => $promoter_random_number,
+				'name' => $data['name'],
+				'mobile' => $data['mobile'],
+				'email' => $data['email'],
+				'address' => $data['address'],
+				'city' => $data['city'],
+				'state' => $data['state'],
+				'pincode' => $data['pincode']
+			];
+
+			$email_body = $this->load->view(
+				'web/email/promoter_registration_mail',
+				$mail_data,
+				true
+			);
+
+			$this->email_send->send_email(
+				$data['email'],
+				$email_body,
+				"Promoter Registration - Chenna"
+			);
+
+			echo json_encode([
+				'status' => 'success',
+				'msg' => 'Registered successfully! Please check your email. Waiting for approval.'
+			]);
+		} else
+		{
+			echo json_encode(['status' => 'error', 'msg' => 'Something went wrong!']);
+		}
+	}
+
+	// ================= UPLOAD FUNCTION =================
+	private function _promoter_upload_file($field_name, $upload_dir)
+	{
+		if (!empty($_FILES[$field_name]['name']))
+		{
+
+			if (!is_dir($upload_dir))
+			{
+				mkdir($upload_dir, 0777, true);
+			}
+
+			$config['upload_path'] = $upload_dir;
+			$config['allowed_types'] = 'jpg|jpeg|png|pdf';
+			$config['max_size'] = 2048;
+			$config['encrypt_name'] = TRUE;
+
+			$this->load->library('upload');
+			$this->upload->initialize($config);
+
+			if ($this->upload->do_upload($field_name))
+			{
+
+				$file = $this->upload->data();
+				$relative_path = str_replace(FCPATH, '', $upload_dir);
+
+				return $relative_path . $file['file_name'];
+			} else
+			{
+				echo json_encode([
+					'status' => 'error',
+					'msg' => strip_tags($this->upload->display_errors())
+				]);
+				exit;
+			}
+		}
+
+		return null;
+	}
+
+
+	public function promoter_list()
+	{
+		$data['index2'] = 'AllPromoterList';
+
+		$data['promoters'] = $this->Vendor_model->get_all_promoters();
+		$data['title'] = 'Promoter List';
+		$this->load->view('include/header', $data);
+		$this->load->view('Promoter/AllPromoterList', $data);
+		$this->load->view('include/footer');
+	}
+	public function admin_appro_promoter_users()
+	{
+		$id = $this->input->post('id');
+		$role = $this->input->post('role');
+		$status = $this->input->post('status');
+
+		if (!$id || !$role)
+		{
+			echo json_encode(['status' => 'error', 'msg' => 'Invalid request']);
+			return;
+		}
+		if ($status == 1)
+		{
+
+			$plain_password = str_pad(rand(0, 99999999), 8, '0', STR_PAD_LEFT);
+			$hashed_password = password_hash($plain_password, PASSWORD_BCRYPT);
+			$this->Vendor_model->admin_approve_and_update_promoter_password($id, $role, $hashed_password);
+			$user = $this->Vendor_model->get_user($id, $role);
+			$data = [
+				'name' => $user->name,
+				'mobile' => $user->mobile,
+				'password' => $plain_password
+			];
+			$msg = $this->load->view('web/email/promoter_approved_mail', $data, true);
+			$this->email_send->send_email(
+				$user->email,
+				$msg,
+				"Your Promoter Account Approved - Chenna"
+			);
+
+			echo json_encode(['status' => 'success', 'msg' => 'Promoter approved and credentials sent']);
+		} else
+		{
+
+			$this->Vendor_model->admin_update_promoter_status($id, $role, 0);
+
+			echo json_encode(['status' => 'success', 'msg' => 'Promoter moved to pending']);
+		}
+	}
+
+
+
+
+
 	public function accept($purchase_id)
 	{
 		$vendor_id = $this->session->userdata('adminData')['Id'];
@@ -427,7 +646,6 @@ class Vendor extends CI_Controller
 
 		redirect($_SERVER['HTTP_REFERER']);
 	}
-
 
 
 

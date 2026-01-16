@@ -12,9 +12,15 @@
       </a>
     </li>
 
-    <!-- ======================== ADMIN MENU ======================== -->
-    <?php if ($adminData['Type'] == 1) { ?>
 
+    <!-- ======================== ADMIN MENU ======================== -->
+    <?php if ($adminData['Type'] == 1)
+    { ?>
+      <li class="<?php echo (($index == 'EarningsDashboard') ? 'active' : ''); ?>">
+        <a href="<?php echo site_url('admin/EarningsDashboard'); ?>">
+          <i class="fa fa-line-chart"></i> <span>Earnings Dashboard</span>
+        </a>
+      </li>
       <li class="<?php echo (($index == 'Users') ? 'active' : ''); ?>">
         <a href="<?php echo site_url('admin/Users'); ?>">
           <i class="fa fa-user"></i> <span>Manage Users</span>
@@ -57,16 +63,36 @@
         </a>
       </li>
 
-      <li class="<?php echo (($index2 == 'Coupon') ? 'active' : ''); ?>">
-        <a href="<?php echo site_url('admin/Dashboard/couponList'); ?>">
-          <i class="fa fa-gift"></i> <span>Manage Coupon</span>
-        </a>
-      </li>
+
+
 
       <li class="<?php echo (($index2 == 'Tag') ? 'active' : ''); ?>">
         <a href="<?php echo site_url('admin/Dashboard/tagList'); ?>">
           <i class="fa fa-tags"></i> <span>Manage Tag</span>
         </a>
+      </li>
+
+      <li class="treeview <?php echo (($index == 'Product') ? 'active' : ''); ?>">
+        <a href="#">
+          <i class="fa fa-user-plus"></i> <span>Manage Plan</span>
+          <span class="pull-right-container">
+            <i class="fa fa-angle-left pull-right"></i>
+          </span>
+        </a>
+
+        <ul class="treeview-menu">
+          <li class="<?php echo (($index2 == 'AddPlan') ? 'active' : ''); ?>">
+            <a href="<?php echo site_url('admin/Subscription/AddPlan'); ?>">
+              <i class="fa fa-circle-o"></i> <span>Add Plan</span>
+            </a>
+          </li>
+          <li class="treeview <?php echo (($index == 'vendor') ? 'active' : ''); ?>">
+            <a href="<?php echo site_url('admin/Subscription/subscription_list'); ?>">
+              <i class="fa fa-circle-o"></i>
+              <span>Manage Plan Vendors</span>
+            </a>
+          </li>
+        </ul>
       </li>
 
       <li class="<?php echo (($index2 == 'ContactUsList') ? 'active' : ''); ?>">
@@ -75,9 +101,15 @@
         </a>
       </li>
 
+
       <li class="<?php echo (($index2 == 'VendorList') ? 'active' : ''); ?>">
         <a href="<?php echo site_url('admin/Vendor/vendor_list'); ?>">
           <i class="fa fa-user-plus"></i> <span>All Vendor List</span>
+        </a>
+      </li>
+      <li class="<?php echo (($index2 == 'PromoterList') ? 'active' : ''); ?>">
+        <a href="<?php echo site_url('admin/Vendor/promoter_list'); ?>">
+          <i class="fa fa-user-plus"></i> <span>All Promoter List</span>
         </a>
       </li>
       <li class="<?php echo (($index == 'Setting') ? 'active' : ''); ?>">
@@ -102,10 +134,14 @@
 
 
     <!-- ======================== VENDOR MENU ======================== -->
-    <?php if ($adminData['Type'] == 2) { ?>
+    <?php if ($adminData['Type'] == 2)
+    { ?>
 
-      
-
+      <li class="<?php echo (($index == 'EarningsDashboard') ? 'active' : ''); ?>">
+        <a href="<?php echo site_url('admin/EarningsDashboard'); ?>">
+          <i class="fa fa-line-chart"></i> <span>Earnings Dashboard</span>
+        </a>
+      </li>
       <!-- PRODUCTS -->
       <li class="treeview <?php echo (($index == 'Product') ? 'active' : ''); ?>">
         <a href="#">
