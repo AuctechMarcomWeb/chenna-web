@@ -121,7 +121,7 @@
 
         <!-- Header -->
         <div class="header">
-            <img src="../plugins/images/logo.png" alt="Chenna Logo">
+            <img src="<?= base_url('../plugins/images/loho.png'); ?>" alt="Chenna Logo">
             <p style="margin:8px 0 0;font-size:13px;">
                
             </p>
@@ -129,7 +129,7 @@
 
         <!-- Welcome Image -->
         <div class="welcome-image">
-            <img src="../plugins/images/welcome-poster.jpg" alt="Welcome">
+            <img src="<?= base_url('../plugins/images/welcome-poster.jpg'); ?>" alt="Welcome">
         </div>
 
         <!-- Welcome Text -->

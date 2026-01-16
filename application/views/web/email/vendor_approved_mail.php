@@ -117,7 +117,7 @@
 
     <!-- Header -->
     <div class="header">
-        <img src="../plugins/images/logo.png" alt="Chenna Logo">
+        <img src="<?= base_url('../plugins/images/loho.png'); ?>" alt="Chenna Logo">
         <p style="font-size:13px;">
            
         </p>
@@ -125,7 +125,7 @@
 
     <!-- Banner -->
     <div class="welcome-image">
-        <img src="../plugins/images/welcome-poster.jpg" alt="Welcome">
+        <img src="<?= base_url('../plugins/images/welcome-poster.jpg'); ?>" alt="Welcome">
     </div>
 
     <!-- Title -->
@@ -133,7 +133,7 @@
 
     <p class="text-left">
         We are pleased to inform you that your <b>Vendor Account</b> has been
-        <b>successfully approved by the Admin</b>.
+        <b>successfully approved.</b>.
     </p>
 
     <!-- Status -->

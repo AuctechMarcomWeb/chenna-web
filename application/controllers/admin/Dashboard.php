@@ -13,6 +13,7 @@ class Dashboard extends CI_Controller
 		$this->load->model('user_model');
 		$this->load->library('form_validation');
 		$this->load->model('Vendor_model');
+		$this->load->model('Subscription_model');
 		// $this->load->library('GlobalClass');
 		// $this->load->library('pagination');
 		is_not_logged_in();
@@ -187,62 +188,100 @@ class Dashboard extends CI_Controller
 		}
 	}
 
-	// public function index($id = '')
-	// {
-	// 	is_not_logged_in();
-	// 	$data['index'] = 'index';
-	// 	$data['index2'] = '';
-	// 	$data['title'] = 'Manage Dashboard';
-	// 	$this->load->model('Order_model');
-	// 	$data['title'] = 'Admin Dashboard';
-	// 	$data['order_summary'] = $this->Order_model->getOrderSummary();
-	// 	$this->load->view('include/header', $data);
-	// 	$this->load->view('dashboard/index');
-	// 	$this->load->view('include/footer');
-	// }
-
-
-	public function index($id = '')
+	public function index()
 	{
 		is_not_logged_in();
 
 		$user = $this->session->userdata('adminData');
-
 		if (!$user)
-		{
 			redirect('admin/Welcome');
-		}
+
+		$this->load->model('Subscription_model');
+		$this->load->model('Order_model');
 
 		$data = [];
-		$this->load->model('Order_model');
+		$data['index'] = 'index';
 
 		if ($user['Type'] == 1)
 		{
-			// Admin dashboard
+			// ================= ADMIN =================
 			$data['title'] = 'Admin Dashboard';
-			$data['index'] = 'index';
 			$data['order_summary'] = $this->Order_model->getOrderSummary();
+
 			$data['total_vendors'] = count($this->Vendor_model->get_all_vendors());
 		} else if ($user['Type'] == 2)
 		{
-			// Vendor dashboard
+			// ================= VENDOR =================
 			$data['title'] = 'Vendor Dashboard';
-			$data['index'] = 'index';
-
-			// Fetch order summary from purchase_master
 			$data['order_summary'] = $this->Order_model->getPurchaseSummary($user['Id']);
-
-			// Fetch total products for vendor
 			$data['total_products'] = $this->Order_model->TotalGetProducts($user['Id']);
-		} else
-		{
-			redirect('admin/Welcome');
+
+			// 🔥 Check Active + Approved Subscription
+			$active_subscription = $this->Subscription_model->getActiveSubscription($user['Id']);
+
+			// 🔥 Check if vendor has any pending subscription request
+			$pending_request = $this->Subscription_model->getPendingSubscriptionRequest($user['Id']);
+
+			// Show modal only if no active subscription AND no pending request
+			$data['show_subscription_popup'] = (empty($active_subscription) && empty($pending_request)) ? 1 : 0;
+
+			// 🔥 Load all active plans for popup
+			$data['plans'] = $this->db
+				->where('status', 1)
+				->get('admin_subscription_plans_master')
+				->result_array();
 		}
 
 		$this->load->view('include/header', $data);
-		$this->load->view('dashboard/index');
+		$this->load->view('dashboard/index', $data);
 		$this->load->view('include/footer');
 	}
+
+
+
+
+
+	// public function index($id = '')
+	// {
+	// 	is_not_logged_in();
+
+	// 	$user = $this->session->userdata('adminData');
+
+	// 	if (!$user)
+	// 	{
+	// 		redirect('admin/Welcome');
+	// 	}
+
+	// 	$data = [];
+	// 	$this->load->model('Order_model');
+
+	// 	if ($user['Type'] == 1)
+	// 	{
+	// 		// Admin dashboard
+	// 		$data['title'] = 'Admin Dashboard';
+	// 		$data['index'] = 'index';
+	// 		$data['order_summary'] = $this->Order_model->getOrderSummary();
+	// 		$data['total_vendors'] = count($this->Vendor_model->get_all_vendors());
+	// 	} else if ($user['Type'] == 2)
+	// 	{
+	// 		// Vendor dashboard
+	// 		$data['title'] = 'Vendor Dashboard';
+	// 		$data['index'] = 'index';
+
+	// 		// Fetch order summary from purchase_master
+	// 		$data['order_summary'] = $this->Order_model->getPurchaseSummary($user['Id']);
+
+	// 		// Fetch total products for vendor
+	// 		$data['total_products'] = $this->Order_model->TotalGetProducts($user['Id']);
+	// 	} else
+	// 	{
+	// 		redirect('admin/Welcome');
+	// 	}
+
+	// 	$this->load->view('include/header', $data);
+	// 	$this->load->view('dashboard/index');
+	// 	$this->load->view('include/footer');
+	// }
 
 
 	public function change_password($id = '')

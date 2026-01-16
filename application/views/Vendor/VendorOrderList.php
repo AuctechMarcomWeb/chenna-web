@@ -1,5 +1,5 @@
 <script type="text/javascript">
-  window.onload = function() {
+  window.onload = function () {
     $("#hiddenSms").fadeOut(5000);
   }
 </script>
@@ -213,17 +213,25 @@
                 </div>
 
                 <!-- Order Status -->
-                <div class="col-sm-2">
+                <div class="col-sm-3">
+                  <lable>Order Status</lable>
                   <select class="form-control" name="order_status">
-                    <option value="">All Status</option>
-                    <option value="1">Pending</option>
-                    <option value="3">Accept</option>
-                    <option value="2">Cancel</option>
-                    <option value="4">Shipped</option>
-                    <option value="5">Delivered</option>
-                    <option value="6">Reject by Seller</option>
-                    <option value="7">Return Request</option>
-                    <option value="8">Return Completed</option>
+                    <option value="1" <?php echo (@$_POST['order_status'] == '1') ? 'Selected' : '' ?>>
+                      Order&nbsp;waiting&nbsp;for&nbsp; seller&nbsp;approval</option>
+                    <option value="4" <?php echo (@$_POST['order_status'] == '4') ? 'Selected' : '' ?>>
+                      Order&nbsp;cancel&nbsp;by customer</option>
+                    <option value="5" <?php echo (@$_POST['order_status'] == '5') ? 'Selected' : '' ?>>
+                      Order&nbsp;confirmed&nbsp;by seller</option>
+                    <option value="6" <?php echo (@$_POST['order_status'] == '6') ? 'Selected' : '' ?>>
+                      Order&nbsp;reject&nbsp;by seller</option>
+                    <option value="3" <?php echo (@$_POST['order_status'] == '3') ? 'Selected' : '' ?>>Order&nbsp;Delivered
+                    </option>
+                    <option value="2" <?php echo (@$_POST['order_status'] == '2') ? 'Selected' : '' ?>>Order&nbsp;shipped
+                    </option>
+                    <option value="7" <?php echo (@$_POST['order_status'] == '7') ? 'Selected' : '' ?>>Return&nbsp;Request
+                    </option>
+                    <option value="8" <?php echo (@$_POST['order_status'] == '8') ? 'Selected' : '' ?>>Return&nbsp;Completed
+                    </option>
                   </select>
                 </div>
 
@@ -265,20 +273,25 @@
                 <tbody>
                   <?php
 
-                  if (!empty($pano)) {
-                    if ($pano == '1') {
+                  if (!empty($pano))
+                  {
+                    if ($pano == '1')
+                    {
                     }
                     $counter = (10 * ($pano - 1)) + 1;
-                  } else {
+                  } else
+                  {
                     $counter = 1;
                   }
 
-                  foreach ($results as $value) { ?>
+                  foreach ($results as $value)
+                  { ?>
 
 
                     <tr>
                       <td><?php echo $counter; ?>
-                        <a href="<?php echo site_url() . 'admin/Order/updatePaymentStatus/' . $value['id'] ?>"><button class="fa fa-trash-o"></button></a>
+                        <a href="<?php echo site_url() . 'admin/Order/updatePaymentStatus/' . $value['id'] ?>"><button
+                            class="fa fa-trash-o"></button></a>
                       </td>
                       <td>
                         <?php echo $orderNO = $this->Order_model->GetSingleData($value['id'], 'order_master', 'order_number');
@@ -291,90 +304,109 @@
 
                       <td>
                         <?php
-                        if ($value['status'] == 1) {
+                        if ($value['status'] == 1)
+                        {
                           echo '<b style="color:#ff6c00">Order&nbsp;waiting&nbsp;for&nbsp; seller&nbsp;approval</b>';
                         }
-                        if ($value['status'] == 4) {
+                        if ($value['status'] == 4)
+                        {
                           echo '<b style="color:#f00">Order&nbsp;cancel&nbsp;by customer</b>';
                         }
-                        if ($value['status'] == 5) {
+                        if ($value['status'] == 5)
+                        {
                           echo '<b style="color:#ff6c00">Order&nbsp;confirmed&nbsp;by seller</b>';
                         }
-                        if ($value['status'] == 6) {
+                        if ($value['status'] == 6)
+                        {
                           echo '<b style="color:green">Order&nbsp;reject&nbsp;by seller</b>';
                         }
-                        if ($value['status'] == 3) {
+                        if ($value['status'] == 3)
+                        {
                           echo '<b style="color:green">Order&nbsp;Accepeted&nbsp;Delivered</b>';
                         }
-                        if ($value['status'] == 2) {
+                        if ($value['status'] == 2)
+                        {
                           echo '<b style="color:#ff6c00">Order&nbsp;shipped</b>';
                         }
-                        if ($value['status'] == 7) {
+                        if ($value['status'] == 7)
+                        {
                           echo '<b style="color:#ff6c00">Return&nbsp;Request</b>';
                         }
-                        if ($value['status'] == 8) {
+                        if ($value['status'] == 8)
+                        {
                           echo '<b style="color:green">Return&nbsp;Completed</b>';
                         } ?>
 
                       </td>
                       <td>
                         <!--<a href="<?= $order['pdf_link']; ?>" target="_blank">View&nbsp;Invoice</a> -->
-                        <a href="<?= base_url('web/order_invoice/') . base64_encode($value['id']); ?>" target="_blank" " target=" _blank">View&nbsp;Invoice</a>
+                        <a href="<?= base_url('web/order_invoice/') . base64_encode($value['id']); ?>"
+                          target="_blank" " target=" _blank">View&nbsp;Invoice</a>
                       </td>
                       <!--  <td>
-                    <?php if (empty($value['shipping_label'])) {
+                    <?php if (empty($value['shipping_label']))
+                    {
                       echo 'NA';
                     } ?>
                     <ul>
                       
-                     <?php if (!empty($value['shipping_label'])) { ?>
+                     <?php if (!empty($value['shipping_label']))
+                     { ?>
                       <a href="<?php echo $value['shipping_label']; ?>" target="_blank">
                        <li>Download</li></a>
-                     <?php  } ?>
-                      <?php if (!empty($value['shipping_label1'])) { ?>
+                     <?php } ?>
+                      <?php if (!empty($value['shipping_label1']))
+                      { ?>
                       <a href="<?php echo $value['shipping_label1']; ?>" target="_blank">
                        <li>Download</li></a>
-                     <?php  } ?>
+                     <?php } ?>
 
-                      <?php if (!empty($value['shipping_label2'])) { ?>
+                      <?php if (!empty($value['shipping_label2']))
+                      { ?>
                       <a href="<?php echo $value['shipping_label2']; ?>" target="_blank">
                        <li>Download</li></a>
-                     <?php  } ?>
+                     <?php } ?>
 
-                      <?php if (!empty($value['shipping_label3'])) { ?>
+                      <?php if (!empty($value['shipping_label3']))
+                      { ?>
                       <a href="<?php echo $value['shipping_label3']; ?>" target="_blank">
                        <li>Download</li></a>
-                     <?php  } ?>
+                     <?php } ?>
 
-                      <?php if (!empty($value['shipping_label4'])) { ?>
+                      <?php if (!empty($value['shipping_label4']))
+                      { ?>
                       <a href="<?php echo $value['shipping_label4']; ?>" target="_blank">
                        <li>Download</li></a>
-                     <?php  } ?>
+                     <?php } ?>
 
-                      <?php if (!empty($value['shipping_label5'])) { ?>
+                      <?php if (!empty($value['shipping_label5']))
+                      { ?>
                       <a href="<?php echo $value['shipping_label5']; ?>" target="_blank">
                        <li>Download</li></a>
-                     <?php  } ?>
+                     <?php } ?>
 
                     </ul>
                   </td> -->
                       <td>
-                        <a href="<?php echo site_url() . 'admin/Vendor/VendorViewOrderDetails/' . $value['id'] ?>"><button class="btn btn-info">View</button></a>
+                        <a href="<?php echo site_url() . 'admin/Vendor/VendorViewOrderDetails/' . $value['id'] ?>"><button
+                            class="btn btn-info">View</button></a>
 
                       </td>
                       <!--  <td> 
 
                     <?php
 
-                    if (empty($order['waybill'])) { ?>
+                    if (empty($order['waybill']))
+                    { ?>
                       <button class="btn btn-success" onclick="assignCorier(<?= $value['id'] ?>);">Assign Courier</button>
 
-                    <?php } else { ?> 
+                    <?php } else
+                    { ?> 
 
                       <p style="color:#00c0ef;" title="logistic_name"><?= $value['logistic_name']; ?></p>
                       <p style="color:#dd4b39;" title="waybill"><?= $value['waybill']; ?></p>
 
-                   <?php  } ?>
+                   <?php } ?>
                   </td> -->
                       <td>
                         <?= $user_info['username']; ?><br>
@@ -383,19 +415,23 @@
                         <?= $order['id']; ?>
                       </td>
                       <!--<td><i class="fa fa-inr" aria-hidden="true"></i>&nbsp;<?php //echo $order['final_price']+ $order['shippment_charge']+ $order['gst'];
-                                                                                ?></td>-->
+                        ?></td>-->
                       <td><i class="fa fa-inr" aria-hidden="true"></i>&nbsp;<?= $order['final_price']; ?></td>
                       <td>
-                        <?php if ($order['payment_type'] == '1') {
+                        <?php if ($order['payment_type'] == '1')
+                        {
                           echo 'COD';
-                        } else {
+                        } else
+                        {
                           echo 'Online Payment';
                         } ?>
                       </td>
                       <td>
-                        <?php if ($order['payment_type'] == '2') {
+                        <?php if ($order['payment_type'] == '2')
+                        {
                           echo $order['payment_status'];
-                        } else {
+                        } else
+                        {
                           echo 'N/A';
                         } ?>
                       </td>
@@ -406,7 +442,7 @@
 
                     </tr>
 
-                  <?php $counter++;
+                    <?php $counter++;
                   } ?>
                 </tbody>
 
@@ -418,7 +454,8 @@
               <ul class="pagination pull-right" style="display: inline-block;">
                 <?php
 
-                foreach ($links as $link) {
+                foreach ($links as $link)
+                {
                   echo "<li>" . $link . "</li>";
                 }
                 ?>
@@ -471,7 +508,7 @@
         order_id: order_id
       },
       dataType: 'text',
-      success: function(response) {
+      success: function (response) {
         console.log(response);
         $('#setCorierHtml').html(response);
         $('#myModal').modal('show');
@@ -496,7 +533,7 @@
         'service': service
       },
       dataType: 'JSON',
-      success: function(response) {
+      success: function (response) {
         if (response.status == '1') {
           alert(response.message);
           location.reload();
@@ -510,17 +547,17 @@
 </script>
 
 <script>
-  
+
   document.querySelectorAll('#filterForm select, #filterForm input').forEach(el => {
-    el.addEventListener('change', function() {
-     
+    el.addEventListener('change', function () {
+
       if ((el.name == 'fromDate' || el.name == 'toDate')) {
         let from = document.querySelector('[name="fromDate"]').value;
         let to = document.querySelector('[name="toDate"]').value;
         if (from !== '' && to !== '') {
           document.getElementById('filterForm').submit();
         }
-        return; 
+        return;
       }
       document.querySelectorAll('#filterForm select, #filterForm input').forEach(input => {
         if (input !== el && input.name != 'fromDate' && input.name != 'toDate') {
