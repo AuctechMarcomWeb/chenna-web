@@ -157,7 +157,7 @@
         <h3>Your Submitted Details</h3>
         <table>
             <tr>
-                <td><b>Promoter Registration Number</b></td>
+                <td><b>Registration Number</b></td>
                 <td><?= $promoter_id; ?></td>
             </tr>
             <tr>

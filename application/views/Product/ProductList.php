@@ -3,8 +3,7 @@
     $("#hiddenSms").fadeOut(5000);
   }
 </script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
-    />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
 <style type="text/css">
   .ratingpoint {
     color: red;
@@ -172,12 +171,12 @@
     width: 0;
     height: 0;
   }
-  .vendor-logo{
+
+  .vendor-logo {
     width: 80px;
     height: 50px;
     object-fit: contain;
-}
-
+  }
 </style>
 <div class="content-wrapper">
   <!-- Content Header (Page header) -->
@@ -193,102 +192,91 @@
     <div class="row">
       <div id="msg">
         <div class="col-xs-12">
-
           <div class="box">
 
-
-            <?php $adminData = $this->session->userdata('adminData');
-            ?>
-            <div class="col-md-12" id="hiddenSms"><?php echo $this->session->flashdata('activate'); ?></div>
+            <?php $adminData = $this->session->userdata('adminData'); ?>
+            <div class="col-md-12" id="hiddenSms">
+              <?= $this->session->flashdata('activate'); ?>
+            </div>
 
             <div class="box-body" style="overflow-x:auto;"><br>
-
-
               <div class="col-sm-12">
-
-
                 <form method="POST">
                   <div class="row" style="margin-top: -19px;">
+
+                    <!-- SHOP DROPDOWN -->
                     <div class="col-sm-3">
-                      <select class="form-control select2" name="shop_id" id="cat_master_ID"
-                        data-item="<?= @$_POST['CatId'] ? @$_POST['CatId'] : '0'; ?>">
+                      <select class="form-control select2" name="shop_id">
                         <option value="">--Select Shop--</option>
-                        <?php if (!empty($shopList))
+                        <?php
+                        $shop_options = [];
+
+                        if ($adminData['Type'] == '2')
                         {
-                          foreach ($shopList as $shopList)
-                          { ?>
-                            <option value="<?php echo $shopList['id'] ?>" <?= (@$_POST['shop_id'] == $shopList['id']) ? 'selected' : ''; ?>><?php echo ucfirst($shopList['name']) ?></option>
-                          <?php }
-                        } ?>
+                          
+                          foreach ($shopList ?? [] as $shop)
+                          {
+                            $shop_options[$shop['id']] = $shop['name'];
+                          }
+                        } elseif ($adminData['Type'] == '3')
+                        {
+                          
+                          foreach ($results ?? [] as $product)
+                          {
+                            if (!empty($product['promoter_shop_name']))
+                            {
+                              $shop_options[$product['shop_id']] = $product['promoter_shop_name'];
+                            } elseif (!empty($product['shop_name']))
+                            {
+                             
+                              $shop_options[$product['shop_id']] = $product['shop_name'];
+                            }
+                          }
+                        } elseif ($adminData['Type'] == '1')
+                        {
+                          foreach ($shopList ?? [] as $shop)
+                          {
+                            $shop_options[$shop['id']] = $shop['name'];
+                          }
+                        }
+                        $shop_options = array_unique($shop_options);
+                        foreach ($shop_options as $id => $name):
+                          ?>
+                          <option value="<?= $id; ?>" <?= (@$_POST['shop_id'] == $id) ? 'selected' : ''; ?>>
+                            <?= ucfirst($name); ?>
+                          </option>
+                        <?php endforeach; ?>
                       </select>
                     </div>
-
-                    <?php if ($adminData['Type'] == '1')
-                    { ?>
-                      
+                    <?php if ($adminData['Type'] == '1'): ?>
                       <div class="col-sm-3">
                         <select class="form-control select2" name="vendor_id">
                           <option value="">--Select Vendor--</option>
-                          <?php if (!empty($vendorList))
-                          {
-                            foreach ($vendorList as $vendor)
-                            { ?>
-                              <option value="<?= $vendor['id'] ?>" <?= (@$_POST['vendor_id'] == $vendor['id']) ? 'selected' : ''; ?>>
-                                <?= ucfirst($vendor['shop_name']); ?>
-                              </option>
-                            <?php }
-                          } ?>
+                          <?php foreach ($vendorList ?? [] as $vendor): ?>
+                            <option value="<?= $vendor['id']; ?>" <?= (@$_POST['vendor_id'] == $vendor['id']) ? 'selected' : ''; ?>>
+                              <?= ucfirst($vendor['shop_name'] ?? $vendor['name']); ?>
+                            </option>
+                          <?php endforeach; ?>
                         </select>
                       </div>
-                   
+                    <?php endif; ?>
 
-                      <div class="col-sm-3">
-                        <input type="text" class="form-control" name="keywords" placeholder="Enter Product Name"
-                          value="<?= @$_POST['keywords']; ?>">
-                      </div>
+                    <!-- SEARCH KEYWORDS -->
+                    <div class="col-sm-3">
+                      <input type="text" class="form-control" name="keywords" placeholder="Enter Product Name"
+                        value="<?= @$_POST['keywords']; ?>">
+                    </div>
 
-                    <?php } ?>
-
+                    <!-- SUBMIT BUTTON -->
                     <div class="col-sm-1">
                       <input type="submit" class="btn btn-info" value="GET PRODUCTS">
                     </div>
+
                   </div>
                 </form>
+
               </div><br><br><br>
 
-              <?php
-
-              foreach ($results as $key => $results_results)
-              {
-                $product_array[] = @$results_results['product_code'];
-              }
-
-              if (!empty($product_array))
-              {
-
-                $product_string = implode(",", $product_array);
-
-              } else
-              {
-
-                $product_string = '';
-              }
-
-              ?>
-
-              <?php if ($adminData['Type'] == '1')
-              { ?>
-                <?php if (!empty($shop_id) or !empty($vendor_id))
-                { ?>
-
-
-
-                <?php }
-              } ?>
-              <?php if (isset($totalResult))
-              { ?>
-                <?php echo 'Product Counting: ' . $totalResult; ?>
-              <?php } ?>
               <table class="table table-bordered table-striped">
                 <thead>
                   <tr>
@@ -296,8 +284,9 @@
                     <th>PARENT CATEGORY</th>
                     <th>CATEGORY</th>
                     <th>SubCategory</th>
-                    <th>VENDOR SHOP</th>
-                    <th>VENDOR NAME</th>
+                    <th>SHOP</th>
+                    <th>NAME</th>
+                    <th>PROMOTER NAME</th>
                     <th>PRODUCTS</th>
                     <th>RATE / MRP</th>
                     <th>STOCK</th>
@@ -311,92 +300,87 @@
                   <?php foreach ($results as $value): ?>
                     <?php
                     $category = $this->db->get_where('sub_category_master', ['id' => $value['sub_category_id']])->row_array();
-                    $shop = $this->db->get_where('shop_master', ['id' => $value['shop_id']])->row_array();
-
-                    if (!empty($value['vendor_logo'])) {
-                          $image = base_url() . $value['vendor_logo'];
-                      } else {
-                         
-                      }
-
                     ?>
                     <tr>
                       <td><?= $counter; ?></td>
                       <td><?= $value['name'] ?? ''; ?></td>
                       <td><?= $value['category_name'] ?? ''; ?></td>
                       <td><?= $category['sub_category_name'] ?? ''; ?></td>
-                     <td class="text-center text-blue"> <img src="<?= !empty($value['vendor_logo']) 
-                      ? base_url($value['vendor_logo']) 
-                      : base_url('plugins/images/logo.png'); ?>" 
-                          alt="Vendor Logo"
-                        class="vendor-logo"
+
+                      <td class="text-center text-blue">
+                        <?php
+                        if ($value['added_type'] == '3')
+                        {
+                          // Promoter product
+                          $img = !empty($value['promoter_logo']) ? base_url($value['promoter_logo']) : base_url('plugins/images/logo.png');
+                          $shop_name = $value['promoter_shop_name'] ?? $value['promoter_name'];
+                        } else
+                        {
+                          // Vendor product
+                          $img = !empty($value['vendor_logo']) ? base_url($value['vendor_logo']) : base_url('plugins/images/logo.png');
+                          $shop_name = $value['vendor_shop_name'] ?? $value['shop_name'] ?? '';
+                        }
+                        ?>
+                        <img src="<?= $img; ?>" alt="Shop Logo" class="vendor-logo"
                           onerror="this.src='<?= base_url('plugins/images/logo.png'); ?>'">
-                      <br>
-                        <span><?= $value['shop_name'] ; ?></span>
-                    </td>
-                      <td><?= $value['vendor_name'] ?? '<span style="color:#f85606;">Chenna</span>'; ?></td>
+                        <br>
+                        <span><?= $shop_name; ?></span>
+                      </td>
+
+
+                      <td><?= $value['vendor_name'] ?? '---'; ?></td>
+                      <td><?= $value['promoter_name'] ?? 'Chenna'; ?></td>
+
                       <td>
                         <?= $value['product_name']; ?><br>
-                        Color: <?= $value['color']; ?> | Size: <?= $value['size']; ?>
+                        Color: <?= $value['color'] ?? ''; ?> | Size: <?= $value['size'] ?? ''; ?>
                       </td>
-                      <td><?= $value['final_price']; ?> / <?= $value['price']; ?></td>
-                      <td><?= $value['quantity']; ?></td>
+                      <td><?= $value['final_price'] ?? ''; ?> / <?= $value['price'] ?? ''; ?></td>
+                      <td><?= $value['quantity'] ?? ''; ?></td>
+
                       <td>
-                        <?php if ($adminData['Type'] == '1')
-                        { ?>
+                        <?php if ($adminData['Type'] == '1'): ?>
                           <label class="switch">
                             <input type="checkbox" <?= ($value['verify_status'] == '1') ? 'checked' : ''; ?>
                               onclick="verify_product(this.value, <?= $value['id']; ?>);">
                             <span class="slider round"></span>
                           </label>
-                        <?php } else
-                        { ?>
+                        <?php else: ?>
                           <span class="label <?= ($value['verify_status'] == '1') ? 'label-success' : 'label-danger'; ?>">
                             <?= ($value['verify_status'] == '1') ? 'VERIFY' : 'NOT VERIFY'; ?>
                           </span>
-                        <?php } ?>
-                      </td>
-                       <td>
-                          <?= date('d-m-Y | h:i:s A', strtotime($v->add_date ?? date('Y-m-d H:i:s'))); ?>
+                        <?php endif; ?>
                       </td>
 
-                       <td>
-                        <a href="<?= base_url('admin/Product/UpdateProduct/' . $value['id']); ?>"
-                            class="btn btn-info"><i class="fa-solid fa-pen-to-square"></i></a>
-                        <a href="<?= base_url('admin/product/delete_product/' . $value['id']); ?>"
-                            class="btn btn-danger" onclick="return confirm('Are you sure?');"><i
-                                class="fa-solid fa-trash"></i></a>
-                    </td>
+                      <td><?= date('d-m-Y | h:i:s A', strtotime($value['add_date'] ?? date('Y-m-d H:i:s'))); ?></td>
+
+                      <td>
+                        <a href="<?= base_url('admin/Product/UpdateProduct/' . $value['id']); ?>" class="btn btn-info"><i
+                            class="fa-solid fa-pen-to-square"></i></a>
+                        <a href="<?= base_url('admin/product/delete_product/' . $value['id']); ?>" class="btn btn-danger"
+                          onclick="return confirm('Are you sure?');"><i class="fa-solid fa-trash"></i></a>
+                      </td>
                     </tr>
                     <?php $counter++; ?>
                   <?php endforeach; ?>
                 </tbody>
               </table>
 
-              </form>
-
               <ul class="pagination pull-left" style="display: inline-block;">
                 <?= @$entries; ?>
               </ul>
               <ul class="pagination pull-right" style="display: inline-block;">
-                <?php
-
-                foreach ($links as $link)
-                {
-                  echo "<li>" . $link . "</li>";
-                }
-                ?>
+                <?php foreach ($links as $link)
+                  echo "<li>" . $link . "</li>"; ?>
               </ul>
 
             </div>
-            <!-- /.box-body -->
           </div>
-          <!-- /.box -->
         </div>
-        <!-- /.col -->
       </div>
-    </div> <!-- /.row -->
+    </div>
   </section>
+
   <!-- /.content -->
   <!-- Modal -->
   <div class="modal fade" id="myModal" role="dialog">

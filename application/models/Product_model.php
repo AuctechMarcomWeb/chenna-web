@@ -87,97 +87,97 @@ class Product_model extends CI_Model {
     $sql =  $this->db->query("SELECT * FROM `sub_category_master` Where id = '".$id."'")->row_array();
     return $sql['sub_category_name'];
   }
-   public function AddProductData($request) {
-    $adminData = $this->session->userdata('adminData');
-    $array = array();
+//    public function AddProductData($request) {
+//     $adminData = $this->session->userdata('adminData');
+//     $array = array();
 
-    if ($adminData['Type'] == '1') {
-        $array['Type'] = '1';
-    } else {
-        $array['Type'] = $adminData['Id'];
-    }
+//     if ($adminData['Type'] == '1') {
+//         $array['Type'] = '1';
+//     } else {
+//         $array['Type'] = $adminData['Id'];
+//     }
 
-    $array['added_by_id']                = $request['added_by_id'];
-    $array['product_unique_id']          = "Prod/".time();
-    $array['parent_category_master']    = $request['par_category_id'];
-    $array['category_master_id']         = $request['category_id'];
-    $array['sub_category_master_id']     = $request['sub_category_id'];
-    $array['brand_master_id']            = $request['BrandID'];
-    $array['product_name']               = ucwords($request['ProductName']);
-    $array['product_discount_type']      = $request['DiscounType'];
-    $array['product_discount_amount']    = $request['amountPer'];
-    $array['price']                      = $request['prod_price'];
-    $array['final_price']                = $request['finalPrice'];
-    $array['weight_litr']                = $request['whtLtr'];
-    $array['unit']                       = $request['unit'];
-    $array['quantity']                   = $request['qty']; 
-    $array['description']                = $request['Description'];
-     $array['gst']               = @$request['gst'] ? @$request['gst'] : 0; 
+//     $array['added_by_id']                = $request['added_by_id'];
+//     $array['product_unique_id']          = "Prod/".time();
+//     $array['parent_category_master']    = $request['par_category_id'];
+//     $array['category_master_id']         = $request['category_id'];
+//     $array['sub_category_master_id']     = $request['sub_category_id'];
+//     $array['brand_master_id']            = $request['BrandID'];
+//     $array['product_name']               = ucwords($request['ProductName']);
+//     $array['product_discount_type']      = $request['DiscounType'];
+//     $array['product_discount_amount']    = $request['amountPer'];
+//     $array['price']                      = $request['prod_price'];
+//     $array['final_price']                = $request['finalPrice'];
+//     $array['weight_litr']                = $request['whtLtr'];
+//     $array['unit']                       = $request['unit'];
+//     $array['quantity']                   = $request['qty']; 
+//     $array['description']                = $request['Description'];
+//      $array['gst']               = @$request['gst'] ? @$request['gst'] : 0; 
 
-    if (!empty($request['feature_product'])) {
-        $request['feature_product'] = $request['feature_product'];
-    } else {
-        $request['feature_product'] = 0;
-    }
-    $array['feature_product']            = $request['feature_product'];
+//     if (!empty($request['feature_product'])) {
+//         $request['feature_product'] = $request['feature_product'];
+//     } else {
+//         $request['feature_product'] = 0;
+//     }
+//     $array['feature_product']            = $request['feature_product'];
 
-    $array['cgst_amount']                = ($request['cgst_amount'] != '') ? $request['cgst_amount'] : ''; 
-    $array['sgst_amount']                = ($request['sgst_amount'] != '') ? $request['sgst_amount'] : ''; 
-    $array['total_tax_amt']              = ($request['total_tax_amt'] != '') ? $request['total_tax_amt'] : '';
-    $array['unit_price']                 = ($request['unit_price'] != '') ? $request['unit_price'] : ''; 
+//     $array['cgst_amount']                = ($request['cgst_amount'] != '') ? $request['cgst_amount'] : ''; 
+//     $array['sgst_amount']                = ($request['sgst_amount'] != '') ? $request['sgst_amount'] : ''; 
+//     $array['total_tax_amt']              = ($request['total_tax_amt'] != '') ? $request['total_tax_amt'] : '';
+//     $array['unit_price']                 = ($request['unit_price'] != '') ? $request['unit_price'] : ''; 
 
-    // ✅ New fields add here:
-    $array['ingredients']                = $request['ingredients'];
-    $array['specialty']                  = $request['specialty'];
-    $array['package']                    = $request['package'];
-    $array['manufacturer']               = $request['manufacturer'];
-    $array['nutritional']                = $request['nutritional'];
-    $array['net_quantity']               = $request['net_quantity'];
+//     // ✅ New fields add here:
+//     $array['ingredients']                = $request['ingredients'];
+//     $array['specialty']                  = $request['specialty'];
+//     $array['package']                    = $request['package'];
+//     $array['manufacturer']               = $request['manufacturer'];
+//     $array['nutritional']                = $request['nutritional'];
+//     $array['net_quantity']               = $request['net_quantity'];
 
-    $array['add_date']                   = time();
-    $array['modify_date']                = time();
-    $array['status']                     = '1';
+//     $array['add_date']                   = time();
+//     $array['modify_date']                = time();
+//     $array['status']                     = '1';
 
-    if ($adminData['Type'] == '1') {
-        $array['approving_status'] = '1';
-    } else {
-        $array['approving_status'] = '2';
-    }
+//     if ($adminData['Type'] == '1') {
+//         $array['approving_status'] = '1';
+//     } else {
+//         $array['approving_status'] = '2';
+//     }
 
-    // Insert into product_master
-    $this->db->insert('product_master', $array);
-    $last_id = $this->db->insert_id();
+//     // Insert into product_master
+//     $this->db->insert('product_master', $array);
+//     $last_id = $this->db->insert_id();
 
-    /********************************** log history **************************************/
-    $log_data['vendor_id']         = $adminData['Id'];
-    $log_data['product_id']        = $last_id;
-    $log_data['approving_status']  = ($adminData['Type'] == '1') ? 1 : 2;
-    $log_data['remark']            = "";
-    $log_data['add_date']          = time();
-    $this->db->insert('approving_product_log', $log_data);
-    /*************************************************************************************/
+//     /********************************** log history **************************************/
+//     $log_data['vendor_id']         = $adminData['Id'];
+//     $log_data['product_id']        = $last_id;
+//     $log_data['approving_status']  = ($adminData['Type'] == '1') ? 1 : 2;
+//     $log_data['remark']            = "";
+//     $log_data['add_date']          = time();
+//     $this->db->insert('approving_product_log', $log_data);
+//     /*************************************************************************************/
 
-    // ✅ Handle multiple images
-    foreach ($_FILES['uploadFile']['name'] as $item => $item_name) {
-        $fileName    = $_FILES["uploadFile"]["name"][$item];
-        $extension   = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
-        $uniqueName  = 'prod_'.uniqid().'.'.$extension;
-        $tmp_name    = $_FILES['uploadFile']['tmp_name'][$item];
-        $targetlocation = PRODUCT_DIRECTORY.$uniqueName;
+//     // ✅ Handle multiple images
+//     foreach ($_FILES['uploadFile']['name'] as $item => $item_name) {
+//         $fileName    = $_FILES["uploadFile"]["name"][$item];
+//         $extension   = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+//         $uniqueName  = 'prod_'.uniqid().'.'.$extension;
+//         $tmp_name    = $_FILES['uploadFile']['tmp_name'][$item];
+//         $targetlocation = PRODUCT_DIRECTORY.$uniqueName;
 
-        if (!empty($fileName)) {
-            move_uploaded_file($tmp_name, $targetlocation);
-            $data['product_image']       = utf8_encode(trim($uniqueName));
-            $data['product_master_id']   = $last_id;
-            $data['add_date']            = time();
-            $data['modify_date']         = time();
-            $data['status']              = '1';
-            $this->db->insert('product_images_master', $data);
-        }
-    }
+//         if (!empty($fileName)) {
+//             move_uploaded_file($tmp_name, $targetlocation);
+//             $data['product_image']       = utf8_encode(trim($uniqueName));
+//             $data['product_master_id']   = $last_id;
+//             $data['add_date']            = time();
+//             $data['modify_date']         = time();
+//             $data['status']              = '1';
+//             $this->db->insert('product_images_master', $data);
+//         }
+//     }
 
-    return $this->db->affected_rows();
-}
+//     return $this->db->affected_rows();
+// }
 
 
     public function getSingleProductData($id='')

@@ -14,8 +14,7 @@
 
 
     <!-- ======================== ADMIN MENU ======================== -->
-    <?php if ($adminData['Type'] == 1)
-    { ?>
+    <?php if ($adminData['Type'] == 1) { ?>
       <li class="<?php echo (($index == 'EarningsDashboard') ? 'active' : ''); ?>">
         <a href="<?php echo site_url('admin/EarningsDashboard'); ?>">
           <i class="fa fa-line-chart"></i> <span>Earnings Dashboard</span>
@@ -131,11 +130,8 @@
       </li>
 
     <?php } ?>
-
-
-    <!-- ======================== VENDOR MENU ======================== -->
-    <?php if ($adminData['Type'] == 2)
-    { ?>
+     <!-- ======================== VENDOR MENU ======================== -->
+    <?php if ($adminData['Type'] == 2) { ?>
 
       <li class="<?php echo (($index == 'EarningsDashboard') ? 'active' : ''); ?>">
         <a href="<?php echo site_url('admin/EarningsDashboard'); ?>">
@@ -182,6 +178,47 @@
 
     <?php } ?>
 
+    <?php if ($adminData['Type'] == 3) { ?>
 
+      <li class="<?php echo (($index == 'EarningsDashboard') ? 'active' : ''); ?>">
+        <a href="<?php echo site_url('admin/EarningsDashboard'); ?>">
+          <i class="fa fa-line-chart"></i> <span>Earnings Dashboard</span>
+        </a>
+      </li>
+       <!-- PRODUCTS -->
+      <li class="treeview <?php echo (($index == 'Product') ? 'active' : ''); ?>">
+        <a href="#">
+          <i class="fa fa-filter"></i> <span>Products Management</span>
+          <span class="pull-right-container">
+            <i class="fa fa-angle-left pull-right"></i>
+          </span>
+        </a>
+
+        <ul class="treeview-menu">
+          <li class="<?php echo (($index == 'PromoterProduct') ? 'active' : ''); ?>">
+            <a href="<?php echo site_url('admin/Product/PromoterProductList'); ?>">
+              <i class="fa fa-circle-o"></i> Manage Products
+            </a>
+          </li>
+
+          <li class="<?php echo (($index == 'VendorProductListByPromoter') ? 'active' : ''); ?>">
+            <a href="<?php echo site_url('admin/Product/AllVendorProductListByPromoter/' . $adminData['Id']); ?>">
+              <i class="fa fa-circle-o"></i> Product List
+            </a>
+          </li>
+        </ul>
+      </li>
+       <li class="<?php echo (($index == 'VendorListByPromoter') ? 'active' : ''); ?>">
+        <a  href="<?php echo site_url('admin/Vendor/VendorsByPromoter/' );?>">
+           <i class="fa fa-user-plus"></i> <span>Vendor List</span>
+        </a>
+      </li>
+
+       <li class="<?php echo (($index == 'PromoterSetting') ? 'active' : ''); ?>">
+        <a href="<?php echo site_url('admin/Vendor/PromoterUpdateProfile/' . $adminData['Id']); ?>">
+          <i class="fa fa-gears"></i> <span>Manage Settings</span>
+        </a>
+      </li>
+    <?php } ?>
   </ul>
 </section>

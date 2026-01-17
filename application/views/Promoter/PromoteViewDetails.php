@@ -107,10 +107,7 @@
                         <td><?= $promoter->pincode; ?></td>
                     </tr>
 
-                    <tr>
-                        <th>Promoter Code Used</th>
-                        <td><?= $promoter->promoter_code_used ?: '-----'; ?></td>
-                    </tr>
+                   
 
                     <tr>
                         <th>Wallet Amount</th>

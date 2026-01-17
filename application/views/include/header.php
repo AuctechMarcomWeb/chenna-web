@@ -44,7 +44,7 @@
 
 
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+defined('BASEPATH') or exit('No direct script access allowed'); ?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -116,8 +116,10 @@ defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 	<!-- jQuery Knob Chart -->
 	<script src="<?php echo base_url('assets/admin/plugins/knob/jquery.knob.js'); ?>"></script>
 	<!-- DataTables -->
-	<!--<script src="<?php //echo base_url('assets/admin/plugins/datatables/jquery.dataTables.min.js'); ?>"></script>-->
-	<!--<script src="<?php //echo base_url('assets/admin/plugins/datatables/dataTables.bootstrap.min.js'); ?>"></script>-->
+	<!--<script src="<?php //echo base_url('assets/admin/plugins/datatables/jquery.dataTables.min.js'); 
+						?>"></script>-->
+	<!--<script src="<?php //echo base_url('assets/admin/plugins/datatables/dataTables.bootstrap.min.js'); 
+						?>"></script>-->
 
 	<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 	<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
@@ -202,46 +204,77 @@ defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 				<?php
 				$adminData = $this->session->userdata('adminData');
 
-				// ================= FETCH USER DATA =================
-				if ($adminData['Type'] == '1')
-				{
-					// ADMIN
-					$userCheck = $this->db->get_where('admin_master', ['id' => $adminData['Id']])->row_array();
+				$profilePic = 'assets/school1.png';
+				$logoImage  = '/plugins/images/logo.png';
+				$name  = 'User';
+				$email = '';
 
-					$profilePic = !empty($userCheck['profile_pic'])
-						? 'assets/profile_image/' . $userCheck['profile_pic']
-						: 'assets/school1.png';
+				// ================= ADMIN =================
+				if ($adminData['Type'] == '1') {
+					$userCheck = $this->db->get_where('admin_master', [
+						'id' => $adminData['Id']
+					])->row_array();
 
-					$logoImage = '/plugins/images/logo.png'; // Default admin logo
-				} else
-				{
-					// VENDOR (IMPORTANT: table name lowercase 'vendors')
-					$userCheck = $this->db->get_where('vendors', ['id' => $adminData['Id']])->row_array();
+					if (!empty($userCheck)) {
+						$profilePic = !empty($userCheck['profile_pic'])
+							? 'assets/profile_image/' . $userCheck['profile_pic']
+							: 'assets/school1.png';
 
-					// Vendor profile image
-					$profilePic = !empty($userCheck['profile_pic'])
-						? $userCheck['profile_pic']
-						: 'assets/school1.png';
-
-					// Vendor logo
-					$logoImage = !empty($userCheck['vendor_logo'])
-						? $userCheck['vendor_logo']
-						: '/plugins/images/logo.png';
+						$logoImage = '/plugins/images/logo.png';
+						$name  = $userCheck['username'] ?? 'Admin';
+						$email = $userCheck['email'] ?? '';
+					}
 				}
 
-				// Safe name & email
-				$name = !empty($userCheck['name']) ? $userCheck['name'] : 'User';
-				$email = !empty($userCheck['email']) ? $userCheck['email'] : '';
+				// ================= VENDOR =================
+				elseif ($adminData['Type'] == '2') {
+					$userCheck = $this->db->get_where('vendors', [
+						'id' => $adminData['Id']
+					])->row_array();
+
+					if (!empty($userCheck)) {
+						$profilePic = !empty($userCheck['profile_pic'])
+							? $userCheck['profile_pic']
+							: 'assets/school1.png';
+
+						$logoImage = !empty($userCheck['vendor_logo'])
+							? $userCheck['vendor_logo']
+							: '/plugins/images/logo.png';
+
+						$name  = $userCheck['name'] ?? 'Vendor';
+						$email = $userCheck['email'] ?? '';
+					}
+				}
+
+				// ================= PROMOTER =================
+				elseif ($adminData['Type'] == '3') {
+					$userCheck = $this->db->get_where('promoters', [
+						'id' => $adminData['Id']
+					])->row_array();
+
+					if (!empty($userCheck)) {
+						$profilePic = !empty($userCheck['profile_pic'])
+							? $userCheck['profile_pic']
+							: 'assets/school1.png';
+
+						$logoImage = !empty($userCheck['promoter_logo'])
+							? $userCheck['promoter_logo']
+							: '/plugins/images/logo.png';
+
+						$name  = $userCheck['name'] ?? 'Promoter';
+						$email = $userCheck['email'] ?? '';
+					}
+				}
 				?>
 
 				<!-- Mini Logo -->
 				<span class="logo-mini">
-					<img src="<?php echo site_url('/plugins/images/logo.png'); ?>" width="45" >
+					<img src="<?php echo site_url('/plugins/images/logo.png'); ?>" width="45">
 				</span>
 
 				<!-- Full Logo -->
 				<span class="logo-lg">
-					<img src="<?= base_url($logoImage); ?>" style="height:50px">
+					<img src="<?php echo base_url($logoImage); ?>" style="height:50px">
 				</span>
 			</a>
 
@@ -257,7 +290,7 @@ defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 						<!-- User Account -->
 						<li class="dropdown user user-menu">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown">
-								<img src="<?php echo base_url($profilePic); ?>" class="user-image" alt="User Image">
+								<img src="<?php echo base_url($profilePic); ?>" class="user-image">
 								<span class="hidden-xs">
 									<?php echo (strlen($name) > 15) ? substr($name, 0, 12) . '...' : $name; ?>
 								</span>
@@ -266,7 +299,7 @@ defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 							<ul class="dropdown-menu">
 								<!-- User image -->
 								<li class="user-header">
-									<img src="<?php echo base_url($profilePic); ?>" class="img-circle" alt="User Image">
+									<img src="<?php echo base_url($profilePic); ?>" class="img-circle">
 									<p>
 										<?php echo $name; ?>
 										<small><?php echo $email; ?></small>
@@ -275,27 +308,36 @@ defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 
 								<!-- Footer -->
 								<li class="user-footer">
-									<?php if ($adminData['Type'] == '1')
-									{ ?>
+
+									<!-- ADMIN -->
+									<?php if ($adminData['Type'] == '1') { ?>
 										<div class="pull-left">
 											<a href="<?php echo base_url('admin/Dashboard/GetAdminProfile/' . $adminData['Id']); ?>"
 												class="btn btn-default btn-flat">Edit Profile</a>
 										</div>
-										<div class="pull-right">
-											<a href="<?php echo base_url('admin/Welcome/logout'); ?>"
-												class="btn btn-default btn-flat">Sign out</a>
-										</div>
-									<?php } else
-									{ ?>
+									<?php } ?>
+
+									<!-- VENDOR -->
+									<?php if ($adminData['Type'] == '2') { ?>
 										<div class="pull-left">
 											<a href="<?php echo base_url('admin/Vendor/UpdateVendorProfile/' . $adminData['Id']); ?>"
 												class="btn btn-default btn-flat">Edit Profile</a>
 										</div>
-										<div class="pull-right">
-											<a href="<?php echo base_url('admin/Welcome/logout'); ?>"
-												class="btn btn-default btn-flat">Sign out</a>
+									<?php } ?>
+
+									<!-- PROMOTER -->
+									<?php if ($adminData['Type'] == '3') { ?>
+										<div class="pull-left">
+											<a href="<?php echo base_url('admin/Vendor/PromoterUpdateProfile/' . $adminData['Id']); ?>"
+												class="btn btn-default btn-flat">Edit Profile</a>
 										</div>
 									<?php } ?>
+
+									<div class="pull-right">
+										<a href="<?php echo base_url('admin/Welcome/logout'); ?>"
+											class="btn btn-default btn-flat">Sign out</a>
+									</div>
+
 								</li>
 							</ul>
 						</li>
@@ -304,6 +346,7 @@ defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 				</div>
 			</nav>
 		</header>
+
 
 
 		<!-- Left side column. contains the logo and sidebar -->

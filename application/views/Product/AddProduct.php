@@ -168,15 +168,19 @@ $sub_cate_data = @$this->db->get_where('sub_category_master', array('category_ma
                         <select class="form-control select2" name="shop_id" id="shop_id" required style="width:100%;">
                           <option value="">Select Shop</option>
                           <?php foreach ($shopList as $shop): ?>
-                            <option value="<?= $shop['id']; ?>">
-                              <?= ucfirst($shop['shop_name'] ?? $shop['name']); ?>
+                            <?php
+                            $shopName = $shop['shop_name'] ?? $shop['name'] ?? '';
+                            $shopId = $shop['id'] ?? 0;
+                            ?>
+                            <option value="<?= $shopId; ?>" <?php
+                              if (isset($adminData) && $adminData['Type'] == 3)
+                                echo 'selected disabled';
+                              ?>>
+                              <?= ucfirst($shopName); ?>
                             </option>
                           <?php endforeach; ?>
                         </select>
                       </div>
-
-
-
 
 
 

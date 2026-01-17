@@ -48,15 +48,12 @@
   <section class="content-header">
     <h1>
       <?php
-      if ($adminData['Type'] == 1)
-      {
+      if ($adminData['Type'] == 1) {
         echo "Admin Dashboard";
-      } elseif ($adminData['Type'] == 2)
-      {
+      } elseif ($adminData['Type'] == 2) {
         echo "Vendor Dashboard";
-      } else
-      {
-        echo "Dashboard";
+      } elseif ($adminData['Type'] == 3) {
+        echo "Promoter Dashboard";
       }
       ?>
 
@@ -65,8 +62,7 @@
 
 
   <!-- ======================== ADMIN DASHBOARD ======================== -->
-  <?php if ($adminData['Type'] == 1)
-  { ?>
+  <?php if ($adminData['Type'] == 1) { ?>
     <section class="content">
       <div class="row">
 
@@ -210,8 +206,7 @@
 
 
   <!-- ======================== VENDOR DASHBOARD ======================== -->
-  <?php if ($adminData['Type'] == 2)
-  {
+  <?php if ($adminData['Type'] == 2) {
 
 
     $per = 10;
@@ -225,61 +220,36 @@
     $shop = $this->db->get_where('shop_master', ['vendor_id' => $adminData['Id']])->result_array();
     $shop_id = array_column($shop, 'id');
 
-    if (!empty($shop_id))
-    {
+    if (!empty($shop_id)) {
       $this->db->select('id');
       $this->db->where_in('shop_id', $shop_id);
       $product = $this->db->get('sub_product_master')->result();
-      if (!empty($product))
-      {
+      if (!empty($product)) {
         $per += 15;
       }
     }
 
     // MOBILE VERIFY
-    if (!empty($staff['mobile_verify']) && $staff['mobile_verify'] == '1')
-    {
+    if (!empty($staff['mobile_verify']) && $staff['mobile_verify'] == '1') {
       $per += 15;
     }
 
     // EMAIL VERIFY
-    if (!empty($staff['email_verify']) && $staff['email_verify'] == '1')
-    {
+    if (!empty($staff['email_verify']) && $staff['email_verify'] == '1') {
       $per += 15;
     }
 
     // PROFILE PIC
-    if (!empty($staff['profile_pic']))
-    {
+    if (!empty($staff['profile_pic'])) {
       $per += 5;
     }
 
-    ?>
+  ?>
 
     <section class="content">
       <div class="admin-card">
         <h3>Welcome, <?= ucwords($adminData['Name']); ?>!</h3>
         <p>You are logged in as <strong>Admin</strong>.</p>
-      </div>
-      <!-- <div class="row">
-        <div class="col-md-12">
-          <b>0% <span style="float:right;">100%</span></b>
-          <div class="progress progress-xs progress-striped active">
-            <div class="progress-bar progress-bar-success" style="width: <?= $per; ?>%;">
-              <?= $per; ?>%
-            </div>
-          </div>
-        </div>
-      </div> -->
-
-      <div class="row">
-        <div class="col-md-12">
-          <!-- <h3><?= $adminData['Name']; ?> Your seller profile is
-            <b><?= $per; ?>%</b> Completed
-            <?php if ($per < 99)
-            { ?>, please complete your profile to start selling.<?php } ?>
-          </h3> -->
-        </div>
       </div>
 
       <div class="row">
@@ -374,8 +344,7 @@
 
 </div>
 
-<?php if ($adminData['Type'] == 2 && $show_subscription_popup == 1)
-{ ?>
+<?php if ($adminData['Type'] == 2 && $show_subscription_popup == 1) { ?>
   <div id="subscriptionModal" class="modal fade" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
       <div class="modal-content shadow-lg border-0 rounded">
@@ -397,8 +366,7 @@
               <label class="fw-bold small">Select Plan (Optional)</label>
               <select name="plan_id" id="plan_id" class="form-control form-control-sm shadow-sm">
                 <option value="">-- Select Plan --</option>
-                <?php foreach ($plans as $p)
-                { ?>
+                <?php foreach ($plans as $p) { ?>
                   <option value="<?= $p['id']; ?>" data-type="<?= $p['plan_type']; ?>" data-price="<?= $p['price']; ?>"
                     data-commission="<?= $p['commission_percent']; ?>">
                     <?= $p['plan_name']; ?>
@@ -450,17 +418,21 @@
 
 
 <script>
-  $(document).ready(function () {
+  $(document).ready(function() {
 
     // SHOW MODAL ON LOGIN
-    $('#subscriptionModal').modal({ backdrop: 'static', keyboard: false });
+    $('#subscriptionModal').modal({
+      backdrop: 'static',
+      keyboard: false
+    });
     $('#subscriptionModal').modal('show');
 
     // LOAD PLANS
     var plans = <?= json_encode($plans); ?>;
 
-    let perHtml = '', monHtml = '';
-    plans.forEach(function (p) {
+    let perHtml = '',
+      monHtml = '';
+    plans.forEach(function(p) {
       if (p.plan_type == 2) { // Per Product
         perHtml += `<div class="plan-item" data-id="${p.id}">
                             <strong>${p.plan_name}</strong><br>
@@ -480,14 +452,14 @@
     $('#monthlyPlans').html(monHtml);
 
     // CLICK PLAN TO SELECT
-    $(document).on('click', '.plan-item', function () {
+    $(document).on('click', '.plan-item', function() {
       $('.plan-item').removeClass('active');
       $(this).addClass('active');
       $('#plan_id').val($(this).data('id'));
     });
 
     // DROPDOWN SELECT HIGHLIGHT BOX
-    $('#plan_id').change(function () {
+    $('#plan_id').change(function() {
       let selected = $(this).val();
       $('.plan-item').removeClass('active');
       if (selected) {
@@ -496,14 +468,14 @@
     });
 
     // SUBMIT FORM
-    $('#subscriptionForm').submit(function (e) {
+    $('#subscriptionForm').submit(function(e) {
       e.preventDefault();
       if ($('#plan_id').val() == '') {
         alert('Please select a plan!');
         return;
       }
 
-      $.post("<?= site_url('admin/Subscription/create'); ?>", $(this).serialize(), function (res) {
+      $.post("<?= site_url('admin/Subscription/create'); ?>", $(this).serialize(), function(res) {
         let data = JSON.parse(res);
         alert(data.message);
 
@@ -533,7 +505,7 @@
 <script>
   $.widget.bridge('uibutton', $.ui.button);
 
-  $(document).ready(function () {
+  $(document).ready(function() {
     var flag = $('#login_success').val();
     if (flag == '1') {
       $('#vendor_login_succ_modal').modal('show');

@@ -117,6 +117,35 @@
                 </div>
             <?php endif; ?>
 
+            <!-- ================= VENDOR DASHBOARD ================= -->
+            <?php if ($adminData['Type'] == 3): ?>
+                <div class="col-lg-4 col-xs-12">
+                    <div class="small-box bg-red">
+                        <div class="inner">
+                            <h3>₹ <?= number_format($summary['vendor_earning'], 2) ?></h3>
+                            <p>Total Promoters Earning</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-xs-12">
+                    <div class="small-box bg-aqua">
+                        <div class="inner">
+                            <h3><?= $summary['total_orders'] ?></h3>
+                            <p>Total Orders</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-xs-12">
+                    <div class="small-box bg-yellow">
+                        <div class="inner">
+                            <h3><?= $summary['total_products'] ?></h3>
+                            <p>Total Products</p>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
         </div>
     </section>
 </div>

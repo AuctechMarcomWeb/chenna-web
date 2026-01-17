@@ -1,5 +1,5 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 class Welcome extends CI_Controller
 {
   public function __construct()
@@ -31,20 +31,16 @@ class Welcome extends CI_Controller
 
     $count = $this->db->get_where('staff_master', array('mobile' => $mobile))->num_rows();
 
-    if ($count == '0')
-    {
+    if ($count == '0') {
 
       echo '0';
       exit;
-
-    } else
-    {
+    } else {
 
       echo '1';
       $this->send_otp($mobile);
       exit;
     }
-
   }
 
 
@@ -58,7 +54,6 @@ class Welcome extends CI_Controller
     $text = 'Dear Customer Your Forgot Password OTP is: ' . $otp . ' Thanks. DUKEKART PRIVATE LIMITED.';
 
     sendSMS($mobile, $text, '1007390806821450886');
-
   }
 
   function sendSMS($mobile, $message, $template)
@@ -72,7 +67,6 @@ class Welcome extends CI_Controller
 
 
     return 1;
-
   }
 
 
@@ -83,21 +77,15 @@ class Welcome extends CI_Controller
     $otp = $this->input->post('otp');
     $check = $this->db->get_where('staff_master', array('mobile' => $mobile, 'mobile_otp' => $otp))->row_array();
 
-    if (empty($check))
-    {
+    if (empty($check)) {
 
       echo '0';
       exit;
-
-    } else
-    {
+    } else {
 
       echo '1';
       exit;
-
     }
-
-
   }
 
 
@@ -109,185 +97,97 @@ class Welcome extends CI_Controller
     $this->db->where('mobile', $mobile);
     echo $row = $this->db->update('staff_master', $field);
     exit;
-
   }
 
-
-
-
-
-
-
-
-  // public function doLogin()
-  // {
-  //   $login_array = $this->input->post();
-
-  //   //print_r($login_array); exit;
-  //   $email = $login_array['email'];
-  //   $password = $login_array['password'];
-
-  //   $check = $this->db->get_where('admin_master', array('id' => '1'))->row_array();
-  //   if ($check['email'] == $email)
-  //   {
-  //     $loginType = '1';
-  //   } else
-  //   {
-  //     $loginType = '2';
-  //   }
-
-
-  //   /////////////////////////////// $oginType 1  IS FOR ADMIN LOGIN ///////////////////////////////
-
-
-  //   $admin = $this->user_model->login($email, base64_encode($password), $loginType);
-
-  //   if (!empty($admin))
-  //   {
-
-  //     $adminData = array(
-  //       'is_logged_in' => true,
-  //       'Type' => $loginType,
-  //       'Id' => $admin['id'],
-  //       'Name' => ucwords($admin['username']),
-  //       'Email' => $admin['email'],
-  //       'Picture' => $admin['profile_pic']
-  //     );
-  //     $this->session->set_userdata('adminData', $adminData);
-
-
-  //     $message = 'Welcome <strong>' . ucwords($admin['username']) . '</strong>.You have successfully logged in.';
-  //     $this->session->set_flashdata('login_message', getCustomAlert('S', $message));
-  //     //print_r($_SESSION); exit;
-  //     redirect('admin/Dashboard/index');
-
-  //   } else
-  //   {
-  //     $this->session->set_flashdata('login_message', generateAdminAlert('D', 1));
-  //     redirect('admin/Welcome');
-  //   }
-
-  // }
-
-// public function doLogin()
-// {
-//     $post = $this->input->post();
-
-//     $username = $post['email'];     // email
-//     $password = $post['password'];  // plain password
-
-//     // ---------------- ADMIN LOGIN ----------------
-//     $admin = $this->user_model->login($username, $password); // ✅ FIXED
-
-//     if (!empty($admin)) {
-//         $adminData = array(
-//             'is_logged_in' => true,
-//             'Type' => 1,
-//             'Id' => $admin['id'],
-//             'Name' => ucwords($admin['username']),
-//             'Email' => $admin['email'],
-//             'Picture' => $admin['profile_pic']
-//         );
-
-//         $this->session->set_userdata('adminData', $adminData);
-//         redirect('admin/Dashboard/index');
-//         return;
-//     }
-
-//     // ---------------- VENDOR LOGIN ----------------
-//     $vendor = $this->user_model->vendorLogin($username, $password);
-
-//     if (!empty($vendor)) {
-//         $vendorData = array(
-//             'is_logged_in' => true,
-//             'Type' => 2,
-//             'Id' => $vendor['id'],
-//             'Name' => ucwords($vendor['name']),
-//             'Email' => $vendor['email'],
-//             'Picture' => $vendor['profile_pic']
-//         );
-
-//         $this->session->set_userdata('adminData', $vendorData);
-//         redirect('admin/Dashboard/index');
-//         return;
-//     }
-
-//     // ---------------- INVALID LOGIN ----------------
-//     $this->session->set_flashdata('login_message', '<div class="alert alert-danger">Invalid Email or Password</div>');
-//     redirect('admin/Welcome');
-// }
 
 public function doLogin()
 {
     $post = $this->input->post();
 
-    $input    = trim($post['email']);   // Email OR Mobile
+    $input    = trim($post['email']);
     $password = $post['password'];
 
     /* ===============================
-       1️⃣ CHECK: EMAIL OR MOBILE
+       ADMIN LOGIN (EMAIL ONLY)
     =============================== */
-    if (filter_var($input, FILTER_VALIDATE_EMAIL)) {
-
-        // ---------------- ADMIN LOGIN (EMAIL ONLY) ----------------
+    if (filter_var($input, FILTER_VALIDATE_EMAIL))
+    {
         $admin = $this->user_model->adminLogin($input, $password);
 
         if (!empty($admin)) {
-            $adminData = array(
+            $this->session->set_userdata('adminData', [
                 'is_logged_in' => true,
-                'Type'   => 1,   // 1 = Admin
+                'Type'   => 1,
                 'Id'     => $admin['id'],
                 'Name'   => ucwords($admin['username']),
                 'Email'  => $admin['email'],
                 'Picture'=> $admin['profile_pic']
-            );
+            ]);
 
-            $this->session->set_userdata('adminData', $adminData);
             redirect('admin/Dashboard/index');
             return;
         }
 
-        // Email se vendor ko login allow nahi
         $this->session->set_flashdata(
             'login_message',
-            '<div class="alert alert-danger">Admin login only allowed using Email.</div>'
-        );
-        redirect('admin/Welcome');
-        return;
-
-    } elseif (preg_match('/^[0-9]{10}$/', $input)) {
-
-        // ---------------- VENDOR LOGIN (MOBILE ONLY) ----------------
-        $vendor = $this->user_model->vendorLogin($input, $password);
-
-        if (!empty($vendor)) {
-            $vendorData = array(
-                'is_logged_in' => true,
-                'Type'   => 2,   // 2 = Vendor
-                'Id'     => $vendor['id'],
-                'Name'   => ucwords($vendor['name']),
-                'Email'  => $vendor['email'],
-                'Picture'=> $vendor['profile_pic']
-            );
-
-            $this->session->set_userdata('adminData', $vendorData);
-            redirect('admin/Dashboard/index');
-            return;
-        }
-
-        // Mobile se admin ko login allow nahi
-        $this->session->set_flashdata(
-            'login_message',
-            '<div class="alert alert-danger">Vendor login only allowed using Mobile Number.</div>'
+            '<div class="alert alert-danger">Invalid Admin Email or Password.</div>'
         );
         redirect('admin/Welcome');
         return;
     }
 
-    // ---------------- INVALID FORMAT ----------------
+    /* ===============================
+       MOBILE LOGIN (VENDOR / PROMOTER)
+    =============================== */
+    if (preg_match('/^[0-9]{10}$/', $input))
+    {
+        // -------- VENDOR --------
+        $vendor = $this->user_model->vendorLogin($input, $password);
+        if (!empty($vendor)) {
+            $this->session->set_userdata('adminData', [
+                'is_logged_in' => true,
+                'Type'   => 2,
+                'Id'     => $vendor['id'],
+                'Name'   => ucwords($vendor['name']),
+                'Email'  => $vendor['email'],
+                'Picture'=> $vendor['profile_pic']
+            ]);
+
+            redirect('admin/Dashboard/index');
+            return;
+        }
+
+        // -------- PROMOTER --------
+        $promoter = $this->user_model->promoterLogin($input, $password);
+        if (!empty($promoter)) {
+            $this->session->set_userdata('adminData', [
+                'is_logged_in' => true,
+                'Type'   => 3,
+                'Id'     => $promoter['id'],
+                'Name'   => ucwords($promoter['name']),
+                'Email'  => $promoter['email'],
+                'Picture'=> $promoter['profile_pic']
+            ]);
+
+            redirect('admin/Dashboard/index');
+            return;
+        }
+
+        // INVALID MOBILE LOGIN
+        $this->session->set_flashdata(
+            'login_message',
+            '<div class="alert alert-danger">Invalid Mobile Number or Password.</div>'
+        );
+        redirect('admin/Welcome');
+        return;
+    }
+
+    /* ===============================
+       INVALID INPUT
+    =============================== */
     $this->session->set_flashdata(
         'login_message',
-        '<div class="alert alert-danger">Please enter valid Email (Admin) or Mobile Number (Vendor).</div>'
+        '<div class="alert alert-danger">Please enter valid Email or 10 digit Mobile Number.</div>'
     );
     redirect('admin/Welcome');
 }
@@ -307,8 +207,7 @@ public function doLogin()
     $admin = $this->user_model->login($mobile, $password, $loginType);
 
 
-    if (!empty($admin))
-    {
+    if (!empty($admin)) {
 
       $adminData = array(
         'is_logged_in' => true,
@@ -327,13 +226,10 @@ public function doLogin()
       // $success = base64_encode('1');
       $success = '1';
       redirect('admin/Dashboard/index/' . $success);
-
-    } else
-    {
+    } else {
       $this->session->set_flashdata('login_message', generateAdminAlert('D', 9));
       redirect('seller-login');
     }
-
   }
 
 
@@ -353,8 +249,7 @@ public function doLogin()
     $admin = $this->user_model->login($mobile, $password, $loginType);
 
 
-    if (!empty($admin))
-    {
+    if (!empty($admin)) {
 
       $adminData = array(
         'is_logged_in' => true,
@@ -373,13 +268,10 @@ public function doLogin()
       // $success = base64_encode('1');
       $success = '1';
       redirect('admin/Dashboard/index/' . $success);
-
-    } else
-    {
+    } else {
       $this->session->set_flashdata('login_message', generateAdminAlert('D', 9));
       redirect('seller-login');
     }
-
   }
 
 
@@ -388,15 +280,12 @@ public function doLogin()
   {
 
     $adminData = $this->session->userdata('adminData');
-    if ($adminData['Type'] == '1')
-    {
+    if ($adminData['Type'] == '1') {
 
       $this->session->unset_userdata('adminData');
       $this->session->set_flashdata('login_message', generateAdminAlert('S', 8));
       redirect('admin/Welcome');
-
-    } else
-    {
+    } else {
 
       $this->session->unset_userdata('adminData');
       $this->session->set_flashdata('login_message', generateAdminAlert('S', 8));
@@ -412,4 +301,3 @@ public function doLogin()
     redirect('school');
   }
 }
-?>
