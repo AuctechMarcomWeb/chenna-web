@@ -224,9 +224,138 @@ class Product_model extends CI_Model {
         
       }
 
-public function UpdateProductData($request, $login_id) {
+// public function UpdateProductData($request, $login_id) {
+//     $array = array();
+
+//     $array['status']                    = $request['status'];
+//     $array['category_master_id']        = $request['CatId'];
+//     $array['sub_category_master_id']    = $request['SubCat'];
+//     $array['brand_master_id']           = $request['BrandID'];
+//     $array['product_name']              = ucwords($request['ProductName']);
+//     $array['product_discount_type']     = $request['DiscounType'];
+//     $array['product_discount_amount']   = $request['discountValue'];
+//     $array['price']                     = $request['prod_price'];
+//     $array['final_price']               = $request['finalPrice'];
+//     $array['weight_litr']               = $request['whtLtr'];
+//     $array['unit']                      = $request['unit'];
+//     $array['quantity']                  = $request['qty']; 
+//     $array['description']               = $request['Description']; 
+//     $array['gst']                        = @$request['gst'] ? @$request['gst'] : 0; 
+//     $array['total_tax_amt']             = $request['total_tax_amt']; 
+//     $array['unit_price']                = $request['unit_price'];
+//     $array['approving_status']          = $request['approving_status'];
+//     $array['feature_product']           = $request['feature_product'];
+//     $array['remark']                    = $request['remark'] ? $request['remark'] : '';
+
+//     // ✅ New fields
+//     $array['ingredients']               = $request['ingredients'];
+//     $array['specialty']                 = $request['specialty'];
+//     $array['package']                   = $request['package'];
+//     $array['manufacturer']              = $request['manufacturer'];
+//     $array['nutritional']               = $request['nutritional'];
+//     $array['net_quantity']              = $request['net_quantity'];
+
+//     $array['modify_date']               = time();
+
+//     // 🔹 Update only the main row
+//     $this->db->where('id', $request['id']);
+//     $this->db->update('product_master', $array);
+//     $last_id = $request['id'];
+
+//     // 🔹 Log history (optional)
+//     $log_data['vendor_id']              = $login_id;
+//     $log_data['product_id']             = $request['id'];
+//     $log_data['approving_status']       = $request['approving_status'];
+//     $log_data['remark']                 = $request['remark'];
+//     $log_data['add_date']               = time();
+//     $this->db->insert('approving_product_log', $log_data);
+
+//     // 🔹 Handle multiple new images upload
+//     if (isset($_FILES['uploadFile'])) {
+//         foreach ($_FILES['uploadFile']['name'] as $item => $item_name) {
+//             $fileName    = $_FILES["uploadFile"]["name"][$item];
+//             $extension   = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+//             $uniqueName  = 'prod_'.uniqid().'.'.$extension;
+//             $tmp_name    = $_FILES['uploadFile']['tmp_name'][$item];
+//             $targetlocation = PRODUCT_DIRECTORY.$uniqueName;
+
+//             if (!empty($fileName)) {
+//                 move_uploaded_file($tmp_name, $targetlocation);
+//                 $data['product_image']        = utf8_encode(trim($uniqueName));
+//                 $data['product_master_id']    = $request['id'];
+//                 $data['add_date']             = time();
+//                 $data['modify_date']          = time();
+//                 $data['status']               = '1';
+//                 $this->db->insert('product_images_master', $data);
+//             }
+//         }
+//     }
+
+//     return $this->db->affected_rows();
+// }
+
+
+public function UpdateProductData($request, $login_id)
+{
     $array = array();
 
+    /* ===============================
+       SHOP / VENDOR / PROMOTER LOGIC
+       =============================== */
+    $shop_input = $request['shop_id'] ?? null;
+
+    $shop_id = null;
+    $vendor_id = null;
+    $promoter_id = null;
+    $promoter_shop_name = null;
+
+    if ($shop_input) {
+        // 🔹 Promoter shop selected
+        if (strpos($shop_input, 'p_') === 0) {
+            $promoter_id = str_replace('p_', '', $shop_input);
+
+            $promoter = $this->db->select('shop_name')
+                ->from('promoters')
+                ->where('id', $promoter_id)
+                ->get()
+                ->row_array();
+
+            $promoter_shop_name = $promoter['shop_name'] ?? null;
+            $shop_id = 0;
+            $vendor_id = null;
+        }
+        // 🔹 Vendor shop selected
+        else {
+            $shop_id = $shop_input;
+
+            $shop = $this->db->get_where('shop_master', ['id' => $shop_id])->row_array();
+            $vendor_id = $shop['vendor_id'] ?? null;
+
+            if ($vendor_id) {
+                $vendor = $this->db->select('promoter_id')
+                    ->from('vendors')
+                    ->where('id', $vendor_id)
+                    ->get()
+                    ->row_array();
+
+                $promoter_id = $vendor['promoter_id'] ?? null;
+
+                if ($promoter_id) {
+                    $promoter = $this->db->select('shop_name')
+                        ->from('promoters')
+                        ->where('id', $promoter_id)
+                        ->get()
+                        ->row_array();
+
+                    $promoter_shop_name = $promoter['shop_name'] ?? null;
+                }
+            }
+        }
+    }
+
+    /* ===============================
+       PRODUCT UPDATE DATA
+       =============================== */
     $array['status']                    = $request['status'];
     $array['category_master_id']        = $request['CatId'];
     $array['sub_category_master_id']    = $request['SubCat'];
@@ -238,16 +367,16 @@ public function UpdateProductData($request, $login_id) {
     $array['final_price']               = $request['finalPrice'];
     $array['weight_litr']               = $request['whtLtr'];
     $array['unit']                      = $request['unit'];
-    $array['quantity']                  = $request['qty']; 
-    $array['description']               = $request['Description']; 
-    $array['gst']                        = @$request['gst'] ? @$request['gst'] : 0; 
-    $array['total_tax_amt']             = $request['total_tax_amt']; 
+    $array['quantity']                  = $request['qty'];
+    $array['description']               = $request['Description'];
+    $array['gst']                       = $request['gst'] ?? 0;
+    $array['total_tax_amt']             = $request['total_tax_amt'];
     $array['unit_price']                = $request['unit_price'];
     $array['approving_status']          = $request['approving_status'];
     $array['feature_product']           = $request['feature_product'];
-    $array['remark']                    = $request['remark'] ? $request['remark'] : '';
+    $array['remark']                    = $request['remark'] ?? '';
 
-    // ✅ New fields
+    // 🔹 Extra fields
     $array['ingredients']               = $request['ingredients'];
     $array['specialty']                 = $request['specialty'];
     $array['package']                   = $request['package'];
@@ -255,46 +384,55 @@ public function UpdateProductData($request, $login_id) {
     $array['nutritional']               = $request['nutritional'];
     $array['net_quantity']              = $request['net_quantity'];
 
+    // 🔹 Shop & Promoter fields
+    $array['shop_id']                   = $shop_id;
+    $array['vendor_id']                 = $vendor_id;
+    $array['promoter_id']               = $promoter_id;
+    $array['promoter_shop_name']        = $promoter_shop_name;
+
     $array['modify_date']               = time();
 
-    // 🔹 Update only the main row
+    /* ===============================
+       UPDATE PRODUCT
+       =============================== */
     $this->db->where('id', $request['id']);
     $this->db->update('product_master', $array);
-    $last_id = $request['id'];
 
-    // 🔹 Log history (optional)
-    $log_data['vendor_id']              = $login_id;
-    $log_data['product_id']             = $request['id'];
-    $log_data['approving_status']       = $request['approving_status'];
-    $log_data['remark']                 = $request['remark'];
-    $log_data['add_date']               = time();
+    /* ===============================
+       LOG HISTORY
+       =============================== */
+    $log_data = [
+        'vendor_id'        => $login_id,
+        'product_id'       => $request['id'],
+        'approving_status' => $request['approving_status'],
+        'remark'           => $request['remark'],
+        'add_date'         => time()
+    ];
     $this->db->insert('approving_product_log', $log_data);
 
-    // 🔹 Handle multiple new images upload
-    if (isset($_FILES['uploadFile'])) {
+    /* ===============================
+       MULTI IMAGE UPLOAD
+       =============================== */
+    if (!empty($_FILES['uploadFile']['name'][0])) {
         foreach ($_FILES['uploadFile']['name'] as $item => $item_name) {
-            $fileName    = $_FILES["uploadFile"]["name"][$item];
-            $extension   = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
-            $uniqueName  = 'prod_'.uniqid().'.'.$extension;
-            $tmp_name    = $_FILES['uploadFile']['tmp_name'][$item];
-            $targetlocation = PRODUCT_DIRECTORY.$uniqueName;
+            if (!$item_name) continue;
 
-            if (!empty($fileName)) {
-                move_uploaded_file($tmp_name, $targetlocation);
-                $data['product_image']        = utf8_encode(trim($uniqueName));
-                $data['product_master_id']    = $request['id'];
-                $data['add_date']             = time();
-                $data['modify_date']          = time();
-                $data['status']               = '1';
-                $this->db->insert('product_images_master', $data);
-            }
+            $ext = pathinfo($item_name, PATHINFO_EXTENSION);
+            $uniqueName = 'prod_' . uniqid() . '.' . $ext;
+            move_uploaded_file($_FILES['uploadFile']['tmp_name'][$item], PRODUCT_DIRECTORY . $uniqueName);
+
+            $this->db->insert('product_images_master', [
+                'product_image'     => $uniqueName,
+                'product_master_id' => $request['id'],
+                'add_date'          => time(),
+                'modify_date'       => time(),
+                'status'            => 1
+            ]);
         }
     }
 
     return $this->db->affected_rows();
 }
-
-
 
 
     public function GetImages($id='')

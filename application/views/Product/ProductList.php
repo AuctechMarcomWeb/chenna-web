@@ -285,7 +285,7 @@
                     <th>CATEGORY</th>
                     <th>SubCategory</th>
                     <th>SHOP</th>
-                    <th>NAME</th>
+                    <th>Vendor NAME</th>
                     <th>PROMOTER NAME</th>
                     <th>PRODUCTS</th>
                     <th>RATE / MRP</th>
@@ -324,11 +324,11 @@
                         <img src="<?= $img; ?>" alt="Shop Logo" class="vendor-logo"
                           onerror="this.src='<?= base_url('plugins/images/logo.png'); ?>'">
                         <br>
-                        <span><?= $shop_name; ?></span>
+                        <!-- <span><?= $shop_name; ?></span> -->
                       </td>
 
 
-                      <td><?= $value['vendor_name'] ?? '---'; ?></td>
+                      <td><?= $value['vendor_name'] ?? 'Chenna'; ?></td>
                       <td><?= $value['promoter_name'] ?? 'Chenna'; ?></td>
 
                       <td>
