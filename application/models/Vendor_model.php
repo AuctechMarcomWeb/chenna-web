@@ -191,10 +191,14 @@ class Vendor_model extends CI_Model
       ->get('promoters')
       ->row();
   }
-
   public function admin_delete_promoter($id)
   {
     return $this->db->where('id', $id)->delete('promoters');
+  }
+
+   public function getSinglePromoterData($id)
+  {
+    return $this->db->get_where('promoters', ['id' => $id])->row_array();
   }
   // End Registration
   // public function getVendotList()

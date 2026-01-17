@@ -87,6 +87,25 @@ class User_model extends CI_Model
 
     return false;
 }
+// ---------------- PROMOTER LOGIN ----------------
+public function promoterLogin($mobile, $password)
+{
+    $this->db->select("id, name, email, mobile, profile_pic, password, status");
+    $query = $this->db->get_where('promoters', [
+        'mobile' => $mobile,
+        'status' => 1   // active promoter
+    ]);
+
+    $promoter = $query->row_array();
+
+    if ($promoter) {
+        if (password_verify($password, $promoter['password'])) {
+            return $promoter;
+        }
+    }
+
+    return false;
+}
 
 
 

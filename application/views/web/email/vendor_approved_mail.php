@@ -105,7 +105,7 @@
         }
 
         .footer a{
-            color:orangered;
+
             text-decoration:none;
         }
     </style>
@@ -133,7 +133,7 @@
 
     <p class="text-left">
         We are pleased to inform you that your <b>Vendor Account</b> has been
-        <b>successfully approved.</b>.
+        <b>successfully approved.</b>
     </p>
 
     <!-- Status -->
@@ -175,7 +175,7 @@
 
     <!-- Footer -->
     <div class="footer">
-        <p><a href="https://www.chenna.co">www.chenna.co</a></p>
+        <p><a href="https://www.chenna.co" style="color:oranged">www.chenna.co</a></p>
         <p style="color:white">New Jiamau, Hazratganj, Lucknow, UP – 226001</p>
         <p style="color:white">📞 +91 98380 75493 | ✉ info@auctech.in</p>
         <p style="margin-top:10px;color:white">© 2026 <b>Chenna.co</b>. All rights reserved.</p>

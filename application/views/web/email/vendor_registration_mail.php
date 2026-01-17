@@ -157,7 +157,7 @@
         <h3>Your Submitted Details</h3>
         <table>
              <tr>
-                <td><b>Vendor  Registration Number</b></td>
+                <td><b>Registration Number</b></td>
                 <td><?= $vendor_random_number; ?></td>
             </tr>
             <tr>

@@ -120,7 +120,7 @@ class Vendor extends CI_Controller
 
 			// ================= EMAIL DATA =================
 			$mail_data = [
-				'vendor_id' => $vendor_random_number,
+				'vendor_random_number' => $vendor_random_number,
 				'name' => $data['name'],
 				'shop_name' => $data['shop_name'],
 				'mobile' => $data['mobile'],
@@ -438,7 +438,7 @@ class Vendor extends CI_Controller
 
 		// ================= FILE UPLOAD =================
 		$profile_pic = $this->_promoter_upload_file('profile_pic', PROMOTER_PROFILE_DIRECTORY);
-		$promoter_logo = $this->_promoter_upload_file('vendor_logo', PROMOTER_DOCUMENT_DIRECTORY);
+		$promoter_logo = $this->_promoter_upload_file('promoter_logo', PROMOTER_DOCUMENT_DIRECTORY);
 		$aadhar_card = $this->_promoter_upload_file('aadhar_card', PROMOTER_DOCUMENT_DIRECTORY);
 		$pan_card = $this->_promoter_upload_file('pan_card', PROMOTER_DOCUMENT_DIRECTORY);
 
@@ -450,11 +450,13 @@ class Vendor extends CI_Controller
 			'promoter_random_number' => $promoter_random_number,
 			'role' => 'promoter',
 			'name' => $this->input->post('name'),
+			'shop_name' => $this->input->post('shop_name'),
 			'email' => $email,
 			'password' => null,
 			'mobile' => $mobile,
 			'otp' => null,
 			'verify_otp' => 0,
+			'gst_number' => $gst_number,
 			'profile_pic' => $profile_pic,
 			'promoter_logo' => $promoter_logo,
 			'address' => $this->input->post('address'),
@@ -626,6 +628,44 @@ class Vendor extends CI_Controller
 		echo 'success';
 	}
 
+	public function VendorsByPromoter()
+	{
+		// Get promoter session data
+		$promoterData = $this->session->userdata('promoterData');
+		$promoter_id = $promoterData['Id']; // Current promoter ID
+
+		// Fetch vendors who came through this promoter using promoter code
+		$this->db->select('
+        v.id as vendor_id,
+        v.name as vendor_name,
+        v.shop_name as vendor_shop,
+        v.mobile,
+        v.email,
+        v.status as vendor_status,
+        v.add_date as vendor_added_date,
+        p.name as promoter_name,
+        p.shop_name as promoter_shop
+    ');
+		$this->db->from('vendors v');
+		$this->db->join('promoters p', 'v.promoter_id = p.id', 'left');
+
+		// Filter: only vendors under this promoter AND used promoter code
+		$this->db->where('v.promoter_id', $promoter_id);
+		$this->db->where('v.promoter_code_used IS NOT NULL');
+		$this->db->where('v.promoter_code_used !=', '');
+
+		$this->db->order_by('v.add_date', 'desc');
+
+		$data['vendors'] = $this->db->get()->result_array();
+
+		// Load views
+		$data['title'] = 'All Vendor List';
+		$this->load->view('include/header', $data);
+		$this->load->view('Promoter/VendorsByPromoter', $data);
+		$this->load->view('include/footer');
+	}
+
+
 
 	public function accept($purchase_id)
 	{
@@ -666,7 +706,98 @@ class Vendor extends CI_Controller
 		redirect($_SERVER['HTTP_REFERER']);
 	}
 
+	public function PromoterUpdateProfile($id)
+	{
+		$this->load->model('Vendor_model');
 
+		$data['getData'] = $this->Vendor_model->getSinglePromoterData($id);
+		$data['title'] = 'Update Promoter Profile';
+
+		$this->load->view('include/header', $data);
+		$this->load->view('Promoter/PromoterUpdateProfile', $data);
+		$this->load->view('include/footer');
+	}
+	public function SavePromoterProfile($id)
+	{
+		$post = $this->input->post();
+		$this->load->library('form_validation');
+
+		$this->form_validation->set_rules('name', 'Name', 'required');
+		$this->form_validation->set_rules('mobile', 'Mobile', 'required|exact_length[10]|numeric');
+		$this->form_validation->set_rules('pincode', 'Pincode', 'exact_length[6]|numeric');
+		$this->form_validation->set_rules('gst_number', 'GST Number', 'max_length[15]');
+		$this->form_validation->set_rules('account_no', 'Account Number', 'max_length[20]');
+		$this->form_validation->set_rules('ifsc_code', 'IFSC Code', 'max_length[20]');
+
+		if ($this->form_validation->run() == FALSE)
+		{
+			$this->PromoterUpdateProfile($id);
+			return;
+		}
+		// ---------------- Prepare data array ----------------
+		$data = [
+			'name' => $post['name'],
+			'email' => $post['email'],
+			'mobile' => $post['mobile'],
+			'role' => $post['role'],
+			'promoter_random_number' => $post['promoter_random_number'],
+			'shop_name' => $post['shop_name'],
+			'gst_number' => $post['gst_number'],
+			'wallet_amount' => $post['wallet_amount'],
+			'address' => $post['address'],
+			'city' => $post['city'],
+			'state' => $post['state'],
+			'pincode' => $post['pincode'],
+			'bank_name' => $post['bank_name'],
+			'aadhar_card' => $post['aadhar_card'] ?? null,
+			'pan_card' => $post['pan_card'] ?? null,
+			'account_no' => $post['account_no'],
+			'ifsc_code' => $post['ifsc_code'],
+			'reference_code' => $post['reference_code'],
+			'referred_by' => $post['referred_by'],
+			'status' => $post['status'],
+			'modify_date' => date('Y-m-d H:i:s')
+		];
+
+		// ---------------- Password update if entered ----------------
+		if (!empty($post['password']))
+		{
+			$data['password'] = password_hash($post['password'], PASSWORD_BCRYPT);
+		}
+
+		// ---------------- Handle file uploads ----------------
+		$files = [
+			'profile_pic' => PROMOTER_PROFILE_DIRECTORY,
+			'promoter_logo' => PROMOTER_PROFILE_DIRECTORY,
+			'aadhar_card' => PROMOTER_DOCUMENT_DIRECTORY,
+			'pan_card' => PROMOTER_DOCUMENT_DIRECTORY
+		];
+
+		foreach ($files as $inputName => $uploadDir)
+		{
+			if (isset($_FILES[$inputName]) && $_FILES[$inputName]['name'] != '')
+			{
+				if (!is_dir($uploadDir))
+					mkdir($uploadDir, 0777, true);
+
+				$filename = time() . '_' . basename($_FILES[$inputName]['name']);
+				$targetPath = $uploadDir . $filename;
+
+				if (move_uploaded_file($_FILES[$inputName]['tmp_name'], $targetPath))
+				{
+					$relativePath = str_replace(FCPATH, '', $targetPath);
+					$data[$inputName] = $relativePath;
+				}
+			}
+		}
+
+		// ---------------- Update promoter in DB ----------------
+		$this->db->where('id', $id);
+		$this->db->update('promoters', $data);
+
+		$this->session->set_flashdata('success', 'Promoter profile updated successfully.');
+		redirect('admin/Vendor/PromoterUpdateProfile/' . $id);
+	}
 
 
 
@@ -842,7 +973,7 @@ class Vendor extends CI_Controller
 		$data['title'] = 'Update Vendor Profile';
 
 		$this->load->view('include/header', $data);
-		$this->load->view('vendor/UpdateVendorProfile', $data);
+		$this->load->view('Vendor/UpdateVendorProfile', $data);
 		$this->load->view('include/footer');
 	}
 
@@ -1022,47 +1153,6 @@ class Vendor extends CI_Controller
 
 		redirect('admin/Vendor/UpdateVendorProfile/' . $id);
 	}
-
-
-
-	// public function UpdateVendorProfile($id = '')
-	// {
-	// 	$data = $this->input->post();
-	// 	$data['id'] = $this->uri->segment(4);
-
-	// 	$fileName = $_FILES["photo"]["name"];
-	// 	$extension = explode('.', $fileName);
-	// 	$extension = strtolower(end($extension));
-	// 	$uniqueName = 'Boy_Profile_' . uniqid() . '.' . $extension;
-	// 	$type = $_FILES["photo"]["type"];
-	// 	$size = $_FILES["photo"]["size"];
-	// 	$tmp_name = $_FILES['photo']['tmp_name'];
-	// 	$targetlocation = BOY_DIRECTORY . $uniqueName;
-
-	// 	if (!empty($fileName))
-	// 	{
-	// 		move_uploaded_file($tmp_name, $targetlocation);
-	// 		$data['pre_image'] = utf8_encode(trim($uniqueName));
-	// 	} else
-	// 	{
-	// 		$data['pre_image'] = $this->input->post('pre_image');
-	// 	}
-	// 	$check = $this->db->get_where('staff_master', array('email' => $data['email'], 'id !=' => $data['id']))->num_rows();
-	// 	if ($check == '0')
-	// 	{
-	// 		$row = $this->User_model->UpdateVendorData($data);
-	// 		if ($row > 0)
-	// 		{
-	// 			$this->session->set_flashdata('activate', getCustomAlert('S', ' Profile has been Updated Successfully.'));
-	// 			redirect('admin/Dashboard/');
-	// 		}
-
-	// 	} else
-	// 	{
-	// 		$this->session->set_flashdata('activate', getCustomAlert('D', '!Opps Email Id Already Exists.Please try again.'));
-	// 		redirect('admin/Dashboard/');
-	// 	}
-	// }
 
 
 
