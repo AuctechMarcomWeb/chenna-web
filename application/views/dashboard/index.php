@@ -24,6 +24,8 @@
     cursor: pointer;
     border-radius: 5px;
     transition: 0.2s;
+    text-align: center;
+    margin-top: 20px;
   }
 
 
@@ -33,7 +35,39 @@
   }
 
   #subscriptionModal .modal-dialog {
-    max-width: 600px;
+    max-width: 500px;
+  }
+
+  .btn-success {
+    background-color: #00a61a;
+    border-color: #00a61a;
+    margin-top: 20px;
+  }
+
+  /* Cursor pointer for boxes */
+  .cursor-pointer {
+    cursor: pointer;
+  }
+
+  /* Selected plan box */
+  .selected-plan {
+    border: 1px solid #dd4b3954 !important;
+    background-color: #dd4b3912 !important;
+    box-shadow: -1 0 15px rgba(40, 167, 69, 0.5) !important;
+    transition: all 0.3s;
+  }
+
+  .text-success {
+    color: #2c8f2e;
+    font-weight: bold;
+  }
+
+  .bg-primary {
+    color: #fff;
+    background-color: #dd4b39;
+    font-weight: bold;
+    text-align: center;
+    font-size: 24px;
   }
 </style>
 
@@ -48,11 +82,14 @@
   <section class="content-header">
     <h1>
       <?php
-      if ($adminData['Type'] == 1) {
+      if ($adminData['Type'] == 1)
+      {
         echo "Admin Dashboard";
-      } elseif ($adminData['Type'] == 2) {
+      } elseif ($adminData['Type'] == 2)
+      {
         echo "Vendor Dashboard";
-      } elseif ($adminData['Type'] == 3) {
+      } elseif ($adminData['Type'] == 3)
+      {
         echo "Promoter Dashboard";
       }
       ?>
@@ -62,7 +99,8 @@
 
 
   <!-- ======================== ADMIN DASHBOARD ======================== -->
-  <?php if ($adminData['Type'] == 1) { ?>
+  <?php if ($adminData['Type'] == 1)
+  { ?>
     <section class="content">
       <div class="row">
 
@@ -206,7 +244,8 @@
 
 
   <!-- ======================== VENDOR DASHBOARD ======================== -->
-  <?php if ($adminData['Type'] == 2) {
+  <?php if ($adminData['Type'] == 2)
+  {
 
 
     $per = 10;
@@ -220,31 +259,36 @@
     $shop = $this->db->get_where('shop_master', ['vendor_id' => $adminData['Id']])->result_array();
     $shop_id = array_column($shop, 'id');
 
-    if (!empty($shop_id)) {
+    if (!empty($shop_id))
+    {
       $this->db->select('id');
       $this->db->where_in('shop_id', $shop_id);
       $product = $this->db->get('sub_product_master')->result();
-      if (!empty($product)) {
+      if (!empty($product))
+      {
         $per += 15;
       }
     }
 
     // MOBILE VERIFY
-    if (!empty($staff['mobile_verify']) && $staff['mobile_verify'] == '1') {
+    if (!empty($staff['mobile_verify']) && $staff['mobile_verify'] == '1')
+    {
       $per += 15;
     }
 
     // EMAIL VERIFY
-    if (!empty($staff['email_verify']) && $staff['email_verify'] == '1') {
+    if (!empty($staff['email_verify']) && $staff['email_verify'] == '1')
+    {
       $per += 15;
     }
 
     // PROFILE PIC
-    if (!empty($staff['profile_pic'])) {
+    if (!empty($staff['profile_pic']))
+    {
       $per += 5;
     }
 
-  ?>
+    ?>
 
     <section class="content">
       <div class="admin-card">
@@ -344,154 +388,132 @@
 
 </div>
 
-<?php if ($adminData['Type'] == 2 && $show_subscription_popup == 1) { ?>
+<!-- Subscription Modal -->
+<?php if (in_array($adminData['Type'], [2, 3]) && $show_subscription_popup == 1)
+{ ?>
   <div id="subscriptionModal" class="modal fade" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
       <div class="modal-content shadow-lg border-0 rounded">
 
         <!-- HEADER -->
-        <div class="modal-header bg-primary text-white">
-          <h5 class="modal-title"><i class="fa fa-gift"></i> Choose Your Subscription Plan</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-header bg-primary text-white position-relative">
+          <h5 class="modal-title">Choose Your Subscription Plan</h5>
+
         </div>
 
         <!-- BODY -->
-        <div class="modal-body p-3">
+        <div class="modal-body p-5">
 
           <form id="subscriptionForm">
-            <input type="hidden" name="vendor_id" value="<?= $adminData['Id'] ?>">
+            <input type="hidden" name="user_id" value="<?= $adminData['Id'] ?>">
+            <input type="hidden" name="type" value="<?= $adminData['Type'] == 2 ? 'vendor' : 'promoter'; ?>">
 
-            <!-- DROPDOWN (optional) -->
-            <div class="mb-3">
-              <label class="fw-bold small">Select Plan (Optional)</label>
-              <select name="plan_id" id="plan_id" class="form-control form-control-sm shadow-sm">
-                <option value="">-- Select Plan --</option>
-                <?php foreach ($plans as $p) { ?>
-                  <option value="<?= $p['id']; ?>" data-type="<?= $p['plan_type']; ?>" data-price="<?= $p['price']; ?>"
-                    data-commission="<?= $p['commission_percent']; ?>">
-                    <?= $p['plan_name']; ?>
-                  </option>
-                <?php } ?>
-              </select>
-            </div>
-
-            <!-- PLAN CARDS -->
-            <div class="row g-3 mt-4">
-
-              <!-- LEFT: PER PRODUCT -->
+            <div class="row g-3">
               <div class="col-md-6">
-                <div class="card plan-box shadow-sm border-primary">
-                  <div class="card-body text-center">
+                <div class="card border-primary shadow-sm h-100 mt-3">
 
-                    <div id="perProductPlans"></div>
+                  <div class="card-body" id="perProductPlans">
+
                   </div>
                 </div>
               </div>
-
-              <!-- RIGHT: MONTHLY -->
               <div class="col-md-6">
-                <div class="card plan-box shadow-sm border-success">
-                  <div class="card-body text-center">
+                <div class="card border-success shadow-sm h-100 mt-3">
+                  <div class="card-body" id="monthlyPlans">
 
-                    <div id="monthlyPlans"></div>
                   </div>
                 </div>
               </div>
 
             </div>
 
-            <!-- SUBMIT BUTTON -->
-            <div class="text-center mt-4">
+            <!-- ACTION BUTTONS -->
+            <div class="d-flex justify-content-center text-center mt-5">
               <button type="submit" class="btn btn-success px-4">
-                <i class="fa fa-check-circle"></i> Proceed
+                <i class="fa fa-check-circle me-1"></i> Proceed
               </button>
             </div>
 
           </form>
+
         </div>
       </div>
     </div>
   </div>
 <?php } ?>
 
-
-
-
 <script>
-  $(document).ready(function() {
+$(document).ready(function () {
 
-    // SHOW MODAL ON LOGIN
-    $('#subscriptionModal').modal({
-      backdrop: 'static',
-      keyboard: false
-    });
-    $('#subscriptionModal').modal('show');
+  $('#subscriptionModal').modal({
+    backdrop: 'static',
+    keyboard: false
+  }).modal('show');
 
-    // LOAD PLANS
-    var plans = <?= json_encode($plans); ?>;
+  var plans = <?= json_encode($plans); ?>;
+  let perHtml = '', monHtml = '';
 
-    let perHtml = '',
-      monHtml = '';
-    plans.forEach(function(p) {
-      if (p.plan_type == 2) { // Per Product
-        perHtml += `<div class="plan-item" data-id="${p.id}">
-                            <strong>${p.plan_name}</strong><br>
-                            <span class="text-success">${p.commission_percent}% Per Product</span><br>
-                            <small>Per Product : ${p.commission_percent}</small>
-                        </div>`;
-      } else if (p.plan_type == 1) { // Monthly
-        monHtml += `<div class="plan-item" data-id="${p.id}">
-                            <strong>${p.plan_name}</strong><br>
-                            <span class="text-success">₹ ${p.price} / Month</span><br>
-                            <small>Product Limit: ${p.product_limit}</small>
-                        </div>`;
-      }
-    });
+  plans.forEach(function(p){
+    if(p.plan_type == 2){
+      perHtml += `<div class="plan-item p-3 mb-2 border rounded shadow-sm cursor-pointer"
+                        data-id="${p.id}"><strong>${p.plan_name}</strong><br>
+                        <span class="text-success">${p.commission_percent}% Per Product</span><br>
+                        <small>Product Limit: ${p.product_limit}</small></div>`;
+    } else {
+      monHtml += `<div class="plan-item p-3 mb-2 border rounded shadow-sm cursor-pointer"
+                        data-id="${p.id}"><strong>${p.plan_name}</strong><br>
+                        <span class="text-success">₹ ${p.price} / Month</span><br>
+                        <small>Product Limit: ${p.product_limit}</small></div>`;
+    }
+  });
 
-    $('#perProductPlans').html(perHtml);
-    $('#monthlyPlans').html(monHtml);
+  $('#perProductPlans').html(perHtml);
+  $('#monthlyPlans').html(monHtml);
 
-    // CLICK PLAN TO SELECT
-    $(document).on('click', '.plan-item', function() {
-      $('.plan-item').removeClass('active');
-      $(this).addClass('active');
-      $('#plan_id').val($(this).data('id'));
-    });
+  $(document).on('click', '.plan-item', function(){
+    $('.plan-item').removeClass('selected-plan border-primary');
+    $(this).addClass('selected-plan border-primary');
 
-    // DROPDOWN SELECT HIGHLIGHT BOX
-    $('#plan_id').change(function() {
-      let selected = $(this).val();
-      $('.plan-item').removeClass('active');
-      if (selected) {
-        $('.plan-item[data-id="' + selected + '"]').addClass('active');
-      }
-    });
+    if($('#plan_id').length === 0){
+      $('#subscriptionForm').append('<input type="hidden" id="plan_id" name="plan_id" />');
+    }
+    $('#plan_id').val($(this).data('id'));
+  });
 
-    // SUBMIT FORM
-    $('#subscriptionForm').submit(function(e) {
-      e.preventDefault();
-      if ($('#plan_id').val() == '') {
-        alert('Please select a plan!');
-        return;
-      }
+  $('#subscriptionForm').submit(function(e){
+    e.preventDefault();
 
-      $.post("<?= site_url('admin/Subscription/create'); ?>", $(this).serialize(), function(res) {
-        let data = JSON.parse(res);
-        alert(data.message);
+    $('#subscriptionMessage').remove();
 
-        if (data.status == 'success') {
+    if($('#plan_id').val() == ''){
+      $('#subscriptionForm').prepend('<div id="subscriptionMessage" class="alert alert-warning text-center">Please select a subscription plan!</div>');
+      return;
+    }
+
+    $('#subscriptionForm button[type="submit"]').prop('disabled', true).text('Processing...');
+
+    $.post("<?= site_url('admin/Subscription/create'); ?>", $(this).serialize(), function(res){
+      let data = JSON.parse(res);
+      let alertClass = data.status=='success' ? 'alert-success' : 'alert-danger';
+      let messageText = data.status=='success' ? 'Your subscription request has been sent successfully!' : data.message;
+
+      $('#subscriptionForm').prepend(`<div id="subscriptionMessage" class="alert ${alertClass} text-center">${messageText}</div>`);
+
+      if(data.status=='success'){
+        $('.selected-plan').addClass('bg-success text-white');
+        setTimeout(function(){
           $('#subscriptionModal').modal('hide');
           location.reload();
-        } else if (data.status == 'error') {
-          // Hide modal if request already sent
-          $('#subscriptionModal').modal('hide');
-        }
-      });
+        },2000);
+      } else {
+        $('#subscriptionForm button[type="submit"]').prop('disabled', false).text('Proceed');
+      }
     });
-
-
   });
+
+});
 </script>
+
 
 
 
@@ -505,7 +527,7 @@
 <script>
   $.widget.bridge('uibutton', $.ui.button);
 
-  $(document).ready(function() {
+  $(document).ready(function () {
     var flag = $('#login_success').val();
     if (flag == '1') {
       $('#vendor_login_succ_modal').modal('show');
