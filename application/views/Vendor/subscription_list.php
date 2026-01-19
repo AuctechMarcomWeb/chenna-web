@@ -41,6 +41,22 @@
     input:checked+.slider:before {
         transform: translateX(20px);
     }
+
+    .badge {
+        display: inline-block;
+
+        width: 80px;
+        height: 23px !important;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.5;
+        color: #fff;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        background-color: #00a613;
+        border-radius: 50px;
+    }
 </style>
 
 <div class="content-wrapper">
@@ -53,79 +69,118 @@
                         <thead>
                             <tr>
                                 <th>S.No.</th>
-                                <th>ID</th>
-                                <th>Vendor</th>
+                                <th>User Type</th>
+                                <th>Name</th>
                                 <th>Email</th>
-                                <th>Plan Name</th>
-                                <th>Type</th>
+
+                                <th>Plan Type</th>
                                 <th>Status</th>
                                 <th>Approval</th>
                                 <th>Product Limit</th>
-                                <th>Remaining Products</th>
+                                <th>Remaining</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
+
                         <tbody>
                             <?php $i = 1;
                             foreach ($subscriptions as $sub): ?>
                                 <tr>
                                     <td><?= $i++; ?></td>
-                                    <td><?= $sub['id'] ?></td>
-                                    <td><?= $sub['name'] . ' (' . $sub['shop_name'] . ')' ?></td>
-                                    <td><?= $sub['email'] ?></td>
-                                    <td><?= $sub['plan_name'] ?></td>
-                                    <td><?= ($sub['plan_type'] == 1 ? 'Monthly' : 'Per Product') ?></td>
+
+                                    <!-- USER TYPE -->
                                     <td>
-                                        <?php
-                                        if ($sub['status'] == 1)
-                                            echo 'Active';
-                                        elseif ($sub['status'] == 0)
-                                            echo 'Expired';
-                                        elseif ($sub['status'] == 2)
-                                            echo 'Blocked';
-                                        ?>
+                                        <span
+                                            class="badge <?= $sub['user_type'] == 'Vendor' ? 'bg-primary' : 'bg-success'; ?>">
+                                            <?= $sub['user_type']; ?>
+                                        </span>
                                     </td>
+
+                                    <!-- NAME -->
+                                    <td>
+                                        <?= $sub['user_name']; ?>
+                                        <?php if ($sub['user_type'] == 'Vendor' && !empty($sub['shop_name'])): ?>
+                                            <small class="text-muted">(<?= $sub['shop_name']; ?>)</small>
+                                        <?php endif; ?>
+                                    </td>
+
+                                    <!-- EMAIL -->
+                                    <td><?= $sub['email']; ?></td>
+
+                                    <!-- PLAN TYPE -->
+                                    <td>
+                                        <span class="badge <?= $sub['plan_type'] == 1 ? 'bg-info' : 'bg-warning'; ?>">
+                                            <?= $sub['plan_type'] == 1 ? 'Monthly' : 'Per Product'; ?>
+                                        </span>
+                                    </td>
+
+                                    <!-- STATUS -->
                                     <td>
                                         <?php
+                                        $today = date('Y-m-d');
+
                                         if ($sub['approval_status'] == 0)
-                                            echo 'Pending';
-                                        elseif ($sub['approval_status'] == 1)
-                                            echo 'Approved';
-                                        elseif ($sub['approval_status'] == 2)
-                                            echo 'Rejected';
-                                        ?>
-                                    </td>
-                                    <td><?= $sub['product_limit'] ?></td>
-                                    <td>
-                                        <?php
-                                        if ($sub['plan_type'] == 1)
-                                        { // Monthly
-                                            echo $sub['product_limit'] - $sub['products_used'];
+                                        {
+                                            echo '<span class="text-warning">Pending</span>';
+                                        } elseif ($sub['approval_status'] == 2)
+                                        {
+                                            echo '<span class="text-danger">Rejected</span>';
                                         } else
-                                        { // Per Product
-                                            echo '-';
+                                        {
+                                            // Approved: check if expired
+                                            if (!empty($sub['end_date']) && $sub['end_date'] < $today)
+                                            {
+                                                echo '<span class="text-danger">Expired</span>';
+                                            } else
+                                            {
+                                                echo '<span class="text-success">Active</span>';
+                                            }
                                         }
                                         ?>
                                     </td>
-                                    
-                                   <td style="white-space:nowrap;">
 
-                                    <div style="display:flex; align-items:center; gap:8px;">
+                                    <!-- APPROVAL -->
+                                    <td>
+                                        <?php
+                                        if ($sub['approval_status'] == 0)
+                                            echo '<span class="badge bg-warning">Pending</span>';
+                                        elseif ($sub['approval_status'] == 1)
+                                            echo '<span class="badge bg-success">Approved</span>';
+                                        else
+                                            echo '<span class="badge bg-danger">Rejected</span>';
+                                        ?>
+                                    </td>
 
-                                        <label class="switch mb-0">
-                                           <input type="checkbox"
-                                                id="toggle_<?= $sub['id']; ?>"
-                                                onchange="toggleApproval(this, <?= $sub['id']; ?>)"
-                                                <?php if ($sub['approval_status'] == 1 || $sub['approval_status'] == 2): ?>
-                                                    <?php if($sub['approval_status'] == 1) echo 'checked'; ?>
-                                                    disabled
-                                                <?php endif; ?>
-                                            >
+                                    <!-- PRODUCT LIMIT -->
+                                    <td><?= $sub['product_limit']; ?></td>
 
-                                            <span class="slider round"></span>
-                                        </label>
-                                    </div>
-                                </td>
+                                    <!-- REMAINING PRODUCTS -->
+                                    <td>
+                                        <?= ($sub['product_limit'] !== null) ? max(0, $sub['product_limit'] - $sub['products_used']) : '-'; ?>
+                                    </td>
+
+                                    <!-- ACTION -->
+                                    <td style="white-space:nowrap;">
+                                        <?php if ($sub['approval_status'] == 0): ?>
+                                            <!-- Pending -->
+                                            <label class="switch">
+                                                <input type="checkbox"
+                                                    onchange="toggleApproval(this, <?= $sub['id']; ?>, '<?= strtolower($sub['user_type']); ?>')">
+
+                                                <span class="slider round"></span>
+                                            </label>
+                                        <?php elseif ($sub['approval_status'] == 1): ?>
+                                            <!-- Approved -->
+                                            <label class="switch">
+                                                <input type="checkbox" checked disabled>
+                                                <span class="slider round"></span>
+                                            </label>
+                                        <?php else: ?>
+                                            <!-- Rejected -->
+                                            <span class="text-muted">—</span>
+                                        <?php endif; ?>
+                                    </td>
+
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -137,31 +192,52 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    function toggleApproval(el, id, user_type) {
+        let status = el.checked ? 1 : 2;
 
-function toggleApproval(el, id) {
-    let status = el.checked ? 1 : 2; // 1 = Approve, 2 = Reject
+        $.ajax({
+            url: "<?= site_url('admin/Subscription/approve_plan_status'); ?>",
+            type: "POST",
+            data: { id: id, status: status, user_type: user_type },
+            dataType: "json",
+            success: function (res) {
+                if (res.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: res.message,
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
 
-    $.ajax({
-        url: "<?= site_url('admin/Subscription/aprrove_plan_status'); ?>",
-        type: "POST",
-        data: { id: id, status: status },
-        dataType: "json",
-        success: function (res) {
-            if(res.status == 'success') {
-                Swal.fire({ icon:'success', title: res.message, timer:1500, showConfirmButton:false });
-                setTimeout(() => location.reload(), 1500);
-            } else {
-                Swal.fire({ icon:'error', title: res.message });
-                el.checked = !el.checked; // revert toggle on error
+                    el.checked = status === 1;
+                    el.disabled = true;
+
+                    const row = $(el).closest('tr');
+
+                   
+                    row.find('td:eq(5)').html(status === 1
+                        ? '<span class="badge bg-success">Approved</span>'
+                        : '<span class="badge bg-danger">Rejected</span>');
+
+                  
+                    row.find('td:eq(4)').html(status === 1
+                        ? '<span class="text-success">Active</span>'
+                        : '<span class="text-danger">Rejected</span>');
+                } else {
+                    Swal.fire({ icon: 'error', title: res.message });
+                    el.checked = !el.checked; 
+                }
+            },
+            error: function () {
+                Swal.fire({ icon: 'error', title: 'Server error' });
+                el.checked = !el.checked;
             }
-        },
-        error: function() {
-            Swal.fire({ icon:'error', title:'Something went wrong!' });
-            el.checked = !el.checked; 
-        }
-    });
-}
+        });
+    }
+
 </script>
+
+
 
 
 
