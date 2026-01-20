@@ -1209,19 +1209,16 @@ if (!empty($getData['image5']))
 
                     <?php if (!empty($vendorData)): ?>
 
-
+                        <!-- Vendor Info -->
                         <div class="vendor-box">
                             <div class="vendor-contain" style="display: flex; align-items: center; gap: 15px;">
-
 
                                 <div class="vendor-image" style="flex-shrink: 0;">
                                     <img src="<?= !empty($vendorData['vendor_logo'])
                                         ? base_url($vendorData['vendor_logo'])
-                                        : base_url('assets/images/no-image.png'); ?>"
-                                        alt="<?= $vendorData['name'] ?? 'Vendor'; ?>"
+                                        : base_url('assets/images/no-image.png'); ?>" alt="<?= $vendorData['shop_name'] ?? 'Vendor'; ?>"
                                         style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;">
                                 </div>
-
 
                                 <div class="vendor-name">
                                     <?php if (!empty($vendorData['shop_name'])): ?>
@@ -1233,29 +1230,60 @@ if (!empty($getData['image5']))
                                                 alt="marker--v1" />
                                             <?= !empty($vendorData['city']) ? $vendorData['city'] : 'N/A'; ?>,
                                             <?= !empty($vendorData['state']) ? $vendorData['state'] : 'N/A'; ?>
-
-
                                         </span>
                                     <?php endif; ?>
                                 </div>
 
                             </div>
-                           
+                        </div>
+
+                    <?php elseif (!empty($promoterData)): ?>
+
+                        <!-- Promoter Info -->
+                        <div class="vendor-box">
+                            <div class="vendor-contain" style="display: flex; align-items: center; gap: 15px;">
+
+                                <div class="vendor-image" style="flex-shrink: 0;">
+                                    <img src="<?= !empty($promoterData['promoter_logo'])
+                                        ? base_url($promoterData['promoter_logo'])
+                                        : base_url('assets/images/no-image.png'); ?>"
+                                        alt="<?= $promoterData['promoter_name'] ?? 'Promoter'; ?>"
+                                        style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;">
+                                </div>
+
+                                <div class="vendor-name">
+                                    <p class="text-content" style="margin: 0; font-weight: 600; font-size: 16px;">
+                                        <?= ucfirst($promoterData['promoter_name']); ?>
+                                    </p>
+                                    <span class="location">
+                                        <img width="20" height="20" src="https://img.icons8.com/color/48/marker--v1.png"
+                                            alt="marker--v1" />
+                                        <?= !empty($promoterData['city']) ? $promoterData['city'] : 'N/A'; ?>,
+                                        <?= !empty($promoterData['state']) ? $promoterData['state'] : 'N/A'; ?>
+                                    </span>
+                                </div>
+
+                            </div>
                         </div>
 
                     <?php else: ?>
+
+                        <!-- Default Fallback -->
                         <div class="vendor-box">
-                            <div class="vendor-contain">
-                                <div class="vendor-image">
+                            <div class="vendor-contain" style="display: flex; align-items: center; gap: 15px;">
+                                <div class="vendor-image" style="flex-shrink: 0;">
                                     <img src="<?= base_url('plugins/images/logo.png'); ?>" class="blur-up lazyload"
-                                        alt="Default Vendor">
+                                        alt="Default Vendor"
+                                        style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;">
                                 </div>
                                 <div class="vendor-name">
                                     <h5 class="fw-500">Chenna</h5>
                                 </div>
                             </div>
                         </div>
+
                     <?php endif; ?>
+
                     <div class="ratio_156 pt-2">
                         <div>
                             <h3 class="product-title product-warning">Special Offer</h3>

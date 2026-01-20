@@ -799,6 +799,41 @@ class Vendor extends CI_Controller
 		redirect('admin/Vendor/PromoterUpdateProfile/' . $id);
 	}
 
+	public function VendorPromoterPlans()
+	{
+		is_not_logged_in();
+		$user = $this->session->userdata('adminData');
+		if (!$user)
+			redirect('admin/Welcome');
+
+		$this->load->model('Subscription_model');
+
+		if ($user['Type'] == 1)
+		{
+			$data['subscriptions'] = $this->Subscription_model->subscription_list();
+			$data['title'] = 'All Subscription Plans';
+		}
+		
+		else if ($user['Type'] == 2)
+		{
+			$data['subscriptions'] = $this->Subscription_model
+				->getSingleVendorSubscription($user['Id']);
+			$data['title'] = 'Vendor Subscription Plan';
+		}
+		
+		else if ($user['Type'] == 3)
+		{
+			$data['subscriptions'] = $this->Subscription_model
+				->getSinglePromoterSubscription($user['Id']);
+			$data['title'] = 'Promoter Subscription Plan';
+		}
+
+		$this->load->view('include/header', $data);
+		$this->load->view('Vendor/VendorPromoterPlans', $data);
+		$this->load->view('include/footer');
+	}
+
+
 
 
 
