@@ -11,14 +11,14 @@
             <div class="box-body">
                 <table class="table table-bordered table-striped">
 
-                    <tr>
+                    <!-- <tr>
                         <th>ID</th>
                         <td><?= $vendor->id; ?></td>
                     </tr>
                     <tr>
                         <th>Role</th>
                         <td><?= $vendor->role; ?></td>
-                    </tr>
+                    </tr> -->
 
                     <tr>
                         <th>Name</th>
