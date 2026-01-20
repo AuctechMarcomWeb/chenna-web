@@ -30,21 +30,19 @@ class Vendor extends CI_Controller
 			show_404();
 		}
 
-		// ================= VALIDATION =================
+		/* ================= VALIDATION ================= */
 		$this->form_validation->set_rules('name', 'Full Name', 'required');
 		$this->form_validation->set_rules('email', 'Email', 'required|valid_email');
 		$this->form_validation->set_rules('mobile', 'Mobile', 'required|regex_match[/^[0-9]{10}$/]');
 		$this->form_validation->set_rules('pincode', 'Pincode', 'required|regex_match[/^[0-9]{6}$/]');
 
-
-		// GST Validation only if YES
-		if ($this->input->post('has_gst') == 'yes')
+		if ($this->input->post('has_gst') === 'yes')
 		{
 			$this->form_validation->set_rules(
 				'gst_number',
 				'GST Number',
 				'required|regex_match[/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/]',
-				['regex_match' => 'Please enter a valid GST number.']
+				['regex_match' => 'Invalid GST number']
 			);
 		}
 
@@ -57,74 +55,70 @@ class Vendor extends CI_Controller
 			return;
 		}
 
-		// ================= CHECK DUPLICATE =================
+		$email = $this->input->post('email');
 		$mobile = $this->input->post('mobile');
-		$aadhar = $_FILES['aadhar_card']['name'] ?? '';
-		$pan = $_FILES['pan_card']['name'] ?? '';
 
-		if ($this->Vendor_model->check_duplicate($mobile, $aadhar, $pan))
+		/* ================= CHECK VERIFIED EMAIL ================= */
+		$vendor = $this->db
+			->where('email', $email)
+			->where('verify_otp', 1)
+			->get('vendors')
+			->row();
+
+		if (!$vendor)
 		{
-			echo json_encode(['status' => 'error', 'msg' => 'Already Registered! Approval Pending.']);
+			echo json_encode([
+				'status' => 'error',
+				'msg' => 'Please verify your email first'
+			]);
 			return;
 		}
 
-		// ================= FILE UPLOAD =================
+		/* ================= FILE UPLOAD ================= */
 		$profile_pic = $this->_upload_file('profile_pic', VENDOR_PROFILE_DIRECTORY);
 		$vendor_logo = $this->_upload_file('vendor_logo', VENDOR_DOCUMENT_DIRECTORY);
 		$aadhar_card = $this->_upload_file('aadhar_card', VENDOR_DOCUMENT_DIRECTORY);
 		$pan_card = $this->_upload_file('pan_card', VENDOR_DOCUMENT_DIRECTORY);
 
-		// ================= RANDOM VENDOR NUMBER =================
-		$vendor_random_number = 'VENRGTS' . date('Y') . rand(100000, 999999);
-
-		// ================= GST CONDITION =================
+		/* ================= GST ================= */
 		$gst_number = null;
-		if ($this->input->post('has_gst') == 'yes')
+		if ($this->input->post('has_gst') === 'yes')
 		{
 			$gst_number = $this->input->post('gst_number');
 		}
 
-		// ================= DATA ARRAY =================
+		/* ================= UPDATE DATA ================= */
 		$data = [
-			'vendor_random_number' => $vendor_random_number,
 			'role' => 'vendor',
 			'name' => $this->input->post('name'),
 			'shop_name' => $this->input->post('shop_name'),
-			'email' => $this->input->post('email'),
 			'mobile' => $mobile,
-			'otp' => null,
-			'verify_otp' => 0,
-			'profile_pic' => $profile_pic,
-			'vendor_logo' => $vendor_logo,
-			'aadhar_card' => $aadhar_card,
-			'pan_card' => $pan_card,
+			'profile_pic' => $profile_pic ?: $vendor->profile_pic,
+			'vendor_logo' => $vendor_logo ?: $vendor->vendor_logo,
+			'aadhar_card' => $aadhar_card ?: $vendor->aadhar_card,
+			'pan_card' => $pan_card ?: $vendor->pan_card,
 			'address' => $this->input->post('address'),
-
 			'city' => $this->input->post('city'),
 			'state' => $this->input->post('state'),
 			'pincode' => $this->input->post('pincode'),
-			'gst_number' => $gst_number, // ✅ Only if YES
-			'promoter_id' => null,
+			'gst_number' => $gst_number,
 			'promoter_code_used' => $this->input->post('promoter_code_used'),
-			'wallet_amount' => 0.00,
 			'status' => 0,
-			'add_date' => date('Y-m-d H:i:s'),
-			'modify_date' => null
+			'modify_date' => date('Y-m-d H:i:s')
 		];
 
-		// ================= INSERT =================
-		$id = $this->Vendor_model->insert_user($data, 'vendors');
+		$this->db->where('email', $email);
+		$update = $this->db->update('vendors', $data);
 
-		if ($id)
+		if ($update)
 		{
-
-			// ================= EMAIL DATA =================
+			/* ================= EMAIL ================= */
 			$mail_data = [
-				'vendor_random_number' => $vendor_random_number,
+				'vendor_random_number' => $vendor->vendor_random_number,
 				'name' => $data['name'],
 				'shop_name' => $data['shop_name'],
-				'mobile' => $data['mobile'],
-				'email' => $data['email'],
+				'mobile' => $mobile,
+				'email' => $email,
 				'address' => $data['address'],
 				'city' => $data['city'],
 				'state' => $data['state'],
@@ -139,20 +133,24 @@ class Vendor extends CI_Controller
 			);
 
 			$this->email_send->send_email(
-				$data['email'],
+				$email,
 				$email_body,
 				"Vendor Registration - Chenna"
 			);
 
 			echo json_encode([
 				'status' => 'success',
-				'msg' => 'Registered successfully! Please check your email. Waiting for approval.'
+				'msg' => 'Registration successful! Waiting for approval.'
 			]);
 		} else
 		{
-			echo json_encode(['status' => 'error', 'msg' => 'Something went wrong!']);
+			echo json_encode([
+				'status' => 'error',
+				'msg' => 'Something went wrong!'
+			]);
 		}
 	}
+
 
 
 
@@ -197,6 +195,94 @@ class Vendor extends CI_Controller
 		return null;
 	}
 
+	public function vendor_send_email_otp()
+	{
+		$email = $this->input->post('email');
+
+		if (!$email)
+		{
+			echo json_encode(['status' => 'error', 'msg' => 'Email required']);
+			return;
+		}
+
+		$vendor = $this->db->get_where('vendors', ['email' => $email])->row();
+
+		if ($vendor && $vendor->verify_otp == 1)
+		{
+			echo json_encode(['status' => 'error', 'msg' => 'Email already verified']);
+			return;
+		}
+
+		$otp = rand(100000, 999999);
+
+		if ($vendor)
+		{
+			$this->db->where('email', $email)->update('vendors', ['otp' => $otp]);
+			$vendor_random_number = $vendor->vendor_random_number;
+			$name = $vendor->name ?: 'Vendor';
+		} else
+		{
+			$vendor_random_number = 'VENRGTS' . date('Y') . rand(100000, 999999);
+
+			$this->db->insert('vendors', [
+				'email' => $email,
+				'otp' => $otp,
+				'verify_otp' => 0,
+				'vendor_random_number' => $vendor_random_number,
+				'add_date' => date('Y-m-d H:i:s')
+			]);
+
+			$name = 'Vendor';
+		}
+
+		$message = $this->load->view(
+			'web/email/vendor_otp_verification',
+			['name' => $name, 'otp' => $otp],
+			true
+		);
+
+		if ($this->email_send->send_email($email, $message, 'OTP Verification - Chenna'))
+		{
+			echo json_encode(['status' => 'success']);
+		} else
+		{
+			echo json_encode(['status' => 'error', 'msg' => 'OTP send failed']);
+		}
+	}
+
+
+	// Verify OTP
+	public function vendor_verify_email_otp()
+	{
+		$email = $this->input->post('email');
+		$otp = $this->input->post('otp');
+
+		if (!$email || !$otp)
+		{
+			echo json_encode(['status' => 'error', 'msg' => 'Email & OTP required']);
+			return;
+		}
+
+		$vendor = $this->db->get_where('vendors', ['email' => $email])->row();
+
+		if (!$vendor)
+		{
+			echo json_encode(['status' => 'error', 'msg' => 'Email not found']);
+			return;
+		}
+
+		if ($vendor->otp == $otp)
+		{
+			$this->db->where('email', $email)->update('vendors', [
+				'verify_otp' => 1
+			]);
+
+			echo json_encode(['status' => 'success']);
+		} else
+		{
+			echo json_encode(['status' => 'error', 'msg' => 'Invalid OTP']);
+		}
+	}
 
 	public function vendor_list()
 	{
@@ -812,16 +898,12 @@ class Vendor extends CI_Controller
 		{
 			$data['subscriptions'] = $this->Subscription_model->subscription_list();
 			$data['title'] = 'All Subscription Plans';
-		}
-		
-		else if ($user['Type'] == 2)
+		} else if ($user['Type'] == 2)
 		{
 			$data['subscriptions'] = $this->Subscription_model
 				->getSingleVendorSubscription($user['Id']);
 			$data['title'] = 'Vendor Subscription Plan';
-		}
-		
-		else if ($user['Type'] == 3)
+		} else if ($user['Type'] == 3)
 		{
 			$data['subscriptions'] = $this->Subscription_model
 				->getSinglePromoterSubscription($user['Id']);

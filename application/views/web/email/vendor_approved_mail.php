@@ -105,7 +105,7 @@
         }
 
         .footer a{
-
+            color:#d54f0de3;
             text-decoration:none;
         }
     </style>
