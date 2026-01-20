@@ -16,6 +16,80 @@
     .form-control:focus {
         border: 1px solid #da45458a;
     }
+
+    .btn-outline-primary:hover {
+        color: #fff;
+        background-color: #43d311;
+        border-color: #43d311;
+    }
+
+    .btn-outline-primary {
+        color: #fff;
+        background-color: #2e920d;
+        border-color: #2e920d;
+    }
+
+    .btn-success {
+        color: #fff;
+        background-color: #157347;
+        border-color: #146c43;
+    }
+
+    .fa-check {
+        height: 20px;
+        width: 20px;
+        background: white;
+        color: #18a317;
+        line-height: 1.5;
+        border-radius: 50%;
+    }
+
+    .btn-success {
+        color: #fff;
+        background-color: #4ab70f;
+        border-color: #4ab70f;
+        ;
+    }
+
+    #verify_email_btn {
+        gap: 3px;
+    }
+
+    #loader {
+        display: none;
+
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.4);
+        backdrop-filter: blur(4px);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+        display: flex;
+    }
+
+    .spinner {
+        width: 60px;
+        height: 60px;
+        border: 6px solid #f3f3f3;
+        border-top: 6px solid #db7f34;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
 </style>
 <section class="breadcrumb-section pt-0">
     <div class="container-fluid-lg">
@@ -64,11 +138,27 @@
                         </div>
 
                         <!-- Email -->
-                        <div class="col-md-6">
+                        <div class="col-md-6 position-relative">
                             <label class="form-label">Email <span class="text-danger">*</span></label>
-                            <input type="email" class="form-control" name="email" placeholder="Email Address" required>
-                        </div>
 
+                            <!-- Email Input with inline verify button -->
+                            <div class="position-relative mb-2">
+                                <input type="email" class="form-control pe-5" id="email_input"
+                                    placeholder="Email Address" name="email" required>
+                                <button type="button"
+                                    class="btn btn-outline-primary btn-sm position-absolute top-0 end-0 mt-2 me-1 d-none"
+                                    id="verify_email_btn">Verify</button>
+                            </div>
+
+                            <!-- OTP Input with inline verify button -->
+                            <div class="position-relative d-none" id="otp_wrapper">
+                                <input type="text" class="form-control pe-5" id="otp_input" placeholder="Enter OTP"
+                                    maxlength="6">
+                                <button type="button"
+                                    class="btn btn-success btn-sm position-absolute top-0 end-0 mt-1 me-1"
+                                    id="verify_otp_btn">Verify</button>
+                            </div>
+                        </div>
                         <!-- Mobile -->
                         <div class="col-md-6">
                             <label class="form-label">Mobile <span class="text-danger">*</span></label>
@@ -80,23 +170,26 @@
                         <div class="col-md-6">
                             <label class="form-label">GST Number <span class="text-danger">*</span></label>
 
-                            <div class="mb-2" id="gst_choice">
-                                <div class="form-check form-check-inline">
+                            <div class="d-flex align-items-center gap-3" id="gst_choice">
+
+                                <!-- YES -->
+                                <div class="form-check form-check-inline m-0">
                                     <input class="form-check-input" type="radio" name="has_gst" id="gst_yes"
                                         value="yes">
                                     <label class="form-check-label" for="gst_yes">Yes</label>
                                 </div>
 
-                                <div class="form-check form-check-inline">
+                                <!-- NO -->
+                                <div class="form-check form-check-inline m-0">
                                     <input class="form-check-input" type="radio" name="has_gst" id="gst_no" value="no"
                                         checked>
                                     <label class="form-check-label" for="gst_no">No</label>
                                 </div>
-                            </div>
 
-                            <!-- GST INPUT -->
-                            <input type="text" class="form-control d-none" name="gst_number" id="gst_number"
-                                placeholder="Enter GST Number">
+                                <!-- GST INPUT (INLINE RIGHT SIDE) -->
+                                <input type="text" class="form-control d-none" name="gst_number" id="gst_number"
+                                    placeholder="Enter GST Number">
+                            </div>
                         </div>
 
 
@@ -114,13 +207,13 @@
 
                         <!-- Aadhaar -->
                         <div class="col-md-6">
-                            <label class="form-label">Aadhaar Card</label>
+                            <label class="form-label">Aadhaar Card <span class="text-dager">*</span></label>
                             <input type="file" class="form-control" name="aadhar_card" accept="image/*,application/pdf">
                         </div>
 
                         <!-- PAN -->
                         <div class="col-md-6">
-                            <label class="form-label">PAN Card</label>
+                            <label class="form-label">PAN Card <span class="text-dager">*</span></label>
                             <input type="file" class="form-control" name="pan_card" accept="image/*,application/pdf">
                         </div>
 
@@ -183,7 +276,10 @@
                         </div>
 
                     </form>
-
+                    <div id="loader">
+                        <div class="spinner"></div>
+                    </div>
+                    
                     <div class="sign-up-box text-center mt-3">
                         <h4>Already have an account?</h4>
                         <a href="<?= site_url('admin'); ?>">Log In</a>
@@ -199,8 +295,6 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-$(document).ready(function () {
-
     $('#promoter_registration_form').on('submit', function (e) {
         e.preventDefault();
 
@@ -254,37 +348,116 @@ $(document).ready(function () {
             }
         });
     });
-
-});
 </script>
-
 <script>
     document.addEventListener("DOMContentLoaded", function () {
 
         const gstYes = document.getElementById("gst_yes");
         const gstNo = document.getElementById("gst_no");
         const gstInput = document.getElementById("gst_number");
-        const gstChoice = document.getElementById("gst_choice");
 
-
+        // YES selected → GST field show
         gstYes.addEventListener("change", function () {
             if (this.checked) {
                 gstInput.classList.remove("d-none");
                 gstInput.setAttribute("required", "required");
-
-                gstChoice.classList.add("d-none");
             }
         });
 
+        // NO selected → GST field hide
         gstNo.addEventListener("change", function () {
             if (this.checked) {
                 gstInput.classList.add("d-none");
                 gstInput.removeAttribute("required");
                 gstInput.value = "";
-
-                gstChoice.classList.remove("d-none");
             }
         });
 
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('#loader').hide();
+        $('#email_input').on('input', function () {
+            let email = $(this).val().trim();
+            if (email.length > 5 && validateEmail(email)) {
+                $('#verify_email_btn').removeClass('d-none')
+                    .html('Verify')
+                    .removeClass('btn-success')
+                    .addClass('btn-outline-primary');
+            } else {
+                $('#verify_email_btn').addClass('d-none');
+            }
+        });
+
+        // Send OTP
+        $('#verify_email_btn').click(function () {
+            let email = $('#email_input').val().trim();
+            if (!email) return;
+            $('#loader').fadeIn(50);
+
+            $.post('<?= base_url("admin/Vendor/promoter_send_email_otp") ?>', { email: email }, function (res) {
+                res = JSON.parse(res);
+                $('#loader').fadeOut(50);
+
+                if (res.status === 'success') {
+                    $('#verify_email_btn').addClass('d-none');
+                    $('#otp_wrapper').removeClass('d-none');
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'OTP Sent!',
+                        text: 'OTP has been sent to your email. Please check and enter it below.',
+                        timer: 3000,
+                        showConfirmButton: true
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: res.msg,
+                        showConfirmButton: true
+                    });
+                }
+            });
+        });
+
+        // Verify OTP
+        $('#verify_otp_btn').click(function () {
+            let email = $('#email_input').val().trim();
+            let otp = $('#otp_input').val().trim();
+            if (!otp) return;
+
+            // Show loader
+            $('#loader').fadeIn(50);
+
+            $.post('<?= base_url("admin/Vendor/promoter_verify_email_otp") ?>', { email: email, otp: otp }, function (res) {
+                res = JSON.parse(res);
+                $('#loader').fadeOut(50);
+
+                if (res.status === 'success') {
+
+                    $('#otp_wrapper').addClass('d-none');
+                    $('#verify_email_btn').removeClass('d-none btn-outline-primary')
+                        .addClass('btn-success')
+                        .html('<i class="fa fa-check"></i> Verified');
+                    $('#email_input').val(email).prop('readonly', true);
+                    $('#otp_input').val('');
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid OTP',
+                        text: res.msg,
+                        showConfirmButton: true
+                    });
+                }
+            });
+        });
+
+        function validateEmail(email) {
+            let re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
     });
 </script>

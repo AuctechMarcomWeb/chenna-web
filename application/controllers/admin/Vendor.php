@@ -481,7 +481,7 @@ class Vendor extends CI_Controller
 			show_404();
 		}
 
-		// ================= VALIDATION =================
+		/* ================= VALIDATION ================= */
 		$this->form_validation->set_rules('name', 'Full Name', 'required');
 		$this->form_validation->set_rules('email', 'Email', 'required|valid_email');
 		$this->form_validation->set_rules('mobile', 'Mobile', 'required|regex_match[/^[0-9]{10}$/]');
@@ -490,18 +490,14 @@ class Vendor extends CI_Controller
 		$this->form_validation->set_rules(
 			'account_no',
 			'Account Number',
-			'trim|regex_match[/^[0-9]{9,18}$/]',
-			['regex_match' => 'Please enter a valid account number (9 to 18 digits).']
+			'trim|regex_match[/^[0-9]{9,18}$/]'
 		);
-
 
 		$this->form_validation->set_rules(
 			'ifsc_code',
 			'IFSC Code',
-			'trim|regex_match[/^[A-Z]{4}0[A-Z0-9]{6}$/]',
-			['regex_match' => 'Please enter a valid IFSC code.']
+			'trim|regex_match[/^[A-Z]{4}0[A-Z0-9]{6}$/]'
 		);
-
 
 		if ($this->form_validation->run() == false)
 		{
@@ -512,39 +508,42 @@ class Vendor extends CI_Controller
 			return;
 		}
 
-		// ================= CHECK DUPLICATE =================
-		$mobile = $this->input->post('mobile');
 		$email = $this->input->post('email');
+		$mobile = $this->input->post('mobile');
 
-		if ($this->Vendor_model->check_promoter_duplicate($mobile, $email))
+		/* ================= CHECK OTP VERIFIED ================= */
+		$promoter = $this->db
+			->where('email', $email)
+			->where('verify_otp', 1)
+			->get('promoters')
+			->row();
+
+		if (!$promoter)
 		{
-			echo json_encode(['status' => 'error', 'msg' => 'Already Registered! Approval Pending.']);
+			echo json_encode([
+				'status' => 'error',
+				'msg' => 'Please verify your email first'
+			]);
 			return;
 		}
 
-		// ================= FILE UPLOAD =================
+		/* ================= FILE UPLOAD ================= */
 		$profile_pic = $this->_promoter_upload_file('profile_pic', PROMOTER_PROFILE_DIRECTORY);
 		$promoter_logo = $this->_promoter_upload_file('promoter_logo', PROMOTER_DOCUMENT_DIRECTORY);
 		$aadhar_card = $this->_promoter_upload_file('aadhar_card', PROMOTER_DOCUMENT_DIRECTORY);
 		$pan_card = $this->_promoter_upload_file('pan_card', PROMOTER_DOCUMENT_DIRECTORY);
 
-		// ================= RANDOM PROMOTER NUMBER =================
-		$promoter_random_number = 'PTMRGTS' . date('Y') . rand(100000, 999999);
-
-		// ================= DATA ARRAY (MATCHING TABLE) =================
-		$data = [
-			'promoter_random_number' => $promoter_random_number,
+		/* ================= UPDATE DATA ================= */
+		$update_data = [
 			'role' => 'promoter',
 			'name' => $this->input->post('name'),
 			'shop_name' => $this->input->post('shop_name'),
-			'email' => $email,
-			'password' => null,
 			'mobile' => $mobile,
-			'otp' => null,
-			'verify_otp' => 0,
-			'gst_number' => $gst_number,
-			'profile_pic' => $profile_pic,
-			'promoter_logo' => $promoter_logo,
+			'gst_number' => $this->input->post('gst_number'), // ✅ CORRECT COLUMN
+			'profile_pic' => $profile_pic ?: $promoter->profile_pic,
+			'promoter_logo' => $promoter_logo ?: $promoter->promoter_logo,
+			'aadhar_card' => $aadhar_card ?: $promoter->aadhar_card,
+			'pan_card' => $pan_card ?: $promoter->pan_card,
 			'address' => $this->input->post('address'),
 			'city' => $this->input->post('city'),
 			'state' => $this->input->post('state'),
@@ -552,32 +551,28 @@ class Vendor extends CI_Controller
 			'bank_name' => $this->input->post('bank_name'),
 			'account_no' => $this->input->post('account_no'),
 			'ifsc_code' => $this->input->post('ifsc_code'),
-			'aadhar_card' => $aadhar_card,
-			'pan_card' => $pan_card,
-			'reference_code' => null,
 			'referred_by' => $this->input->post('promoter_code_used'),
-			'wallet_amount' => 0.00,
 			'status' => 0,
-			'add_date' => date('Y-m-d H:i:s'),
-			'modify_date' => null
+			'modify_date' => date('Y-m-d H:i:s')
 		];
 
-		// ================= INSERT =================
-		$id = $this->Vendor_model->insert_promoters_user($data, 'promoters');
+		$this->db->where('email', $email);
+		$update = $this->db->update('promoters', $update_data);
 
-		if ($id)
+		if ($update)
 		{
 
-			// ================= EMAIL DATA =================
+			/* ================= EMAIL ================= */
 			$mail_data = [
-				'promoter_id' => $promoter_random_number,
-				'name' => $data['name'],
-				'mobile' => $data['mobile'],
-				'email' => $data['email'],
-				'address' => $data['address'],
-				'city' => $data['city'],
-				'state' => $data['state'],
-				'pincode' => $data['pincode']
+				'promoter_id' => $promoter->promoter_random_number,
+				'name' => $update_data['name'],
+				'mobile' => $mobile,
+				'email' => $email,
+				'address' => $update_data['address'],
+				'city' => $update_data['city'],
+				'state' => $update_data['state'],
+				'pincode' => $update_data['pincode'],
+				'gst_number' => $update_data['gst_number']
 			];
 
 			$email_body = $this->load->view(
@@ -587,20 +582,24 @@ class Vendor extends CI_Controller
 			);
 
 			$this->email_send->send_email(
-				$data['email'],
+				$email,
 				$email_body,
-				"Promoter Registration - Chenna"
+				'Promoter Registration - Chenna'
 			);
 
 			echo json_encode([
 				'status' => 'success',
-				'msg' => 'Registered successfully! Please check your email. Waiting for approval.'
+				'msg' => 'Registration successful! Waiting for approval.'
 			]);
 		} else
 		{
-			echo json_encode(['status' => 'error', 'msg' => 'Something went wrong!']);
+			echo json_encode([
+				'status' => 'error',
+				'msg' => 'Something went wrong!'
+			]);
 		}
 	}
+
 
 	// ================= UPLOAD FUNCTION =================
 	private function _promoter_upload_file($field_name, $upload_dir)
@@ -639,6 +638,94 @@ class Vendor extends CI_Controller
 		}
 
 		return null;
+	}
+	public function promoter_send_email_otp()
+	{
+		$email = $this->input->post('email');
+
+		if (!$email)
+		{
+			echo json_encode(['status' => 'error', 'msg' => 'Email required']);
+			return;
+		}
+
+		$promoter = $this->db->get_where('promoters', ['email' => $email])->row();
+
+		if ($promoter && $promoter->verify_otp == 1)
+		{
+			echo json_encode(['status' => 'error', 'msg' => 'Email already verified']);
+			return;
+		}
+
+		$otp = rand(100000, 999999);
+
+		if ($promoter)
+		{
+			$this->db->where('email', $email)->update('promoters', ['otp' => $otp]);
+			$promoter_random_number = $promoter->promoter_random_number;
+			$name = $promoter->name ?: 'promoters';
+		} else
+		{
+			$promoter_random_number = 'VENRGTS' . date('Y') . rand(100000, 999999);
+
+			$this->db->insert('promoters', [
+				'email' => $email,
+				'otp' => $otp,
+				'verify_otp' => 0,
+				'promoter_random_number' => $promoter_random_number,
+				'add_date' => date('Y-m-d H:i:s')
+			]);
+
+			$name = 'Promoter';
+		}
+
+		$message = $this->load->view(
+			'web/email/promoter_otp_verification',
+			['name' => $name, 'otp' => $otp],
+			true
+		);
+
+		if ($this->email_send->send_email($email, $message, 'OTP Verification - Chenna'))
+		{
+			echo json_encode(['status' => 'success']);
+		} else
+		{
+			echo json_encode(['status' => 'error', 'msg' => 'OTP send failed']);
+		}
+	}
+
+
+	// Verify OTP
+	public function promoter_verify_email_otp()
+	{
+		$email = $this->input->post('email');
+		$otp = $this->input->post('otp');
+
+		if (!$email || !$otp)
+		{
+			echo json_encode(['status' => 'error', 'msg' => 'Email & OTP required']);
+			return;
+		}
+
+		$promoter = $this->db->get_where('promoters', ['email' => $email])->row();
+
+		if (!$promoter)
+		{
+			echo json_encode(['status' => 'error', 'msg' => 'Email not found']);
+			return;
+		}
+
+		if ($promoter->otp == $otp)
+		{
+			$this->db->where('email', $email)->update('promoters', [
+				'verify_otp' => 1
+			]);
+
+			echo json_encode(['status' => 'success']);
+		} else
+		{
+			echo json_encode(['status' => 'error', 'msg' => 'Invalid OTP']);
+		}
 	}
 
 
