@@ -62,9 +62,11 @@ class Subscription_model extends CI_Model
     // Get subscription by ID + type
     public function getSubscriptionByType($id, $user_type)
     {
-        if ($user_type == 'vendor') {
+        if ($user_type == 'vendor')
+        {
             return $this->db->get_where('vendor_subscriptions_master', ['id' => $id])->row_array();
-        } else {
+        } else
+        {
             return $this->db->get_where('promoter_subscriptions_master', ['id' => $id])->row_array();
         }
     }
@@ -79,7 +81,8 @@ class Subscription_model extends CI_Model
             ->get()
             ->row_array();
 
-        if ($vendor) return $vendor;
+        if ($vendor)
+            return $vendor;
 
         $promoter = $this->db
             ->select("ps.*, 'promoter' as user_type")
@@ -93,9 +96,11 @@ class Subscription_model extends CI_Model
 
     public function updateSubscription($id, $data, $user_type)
     {
-        if ($user_type == 'vendor') {
+        if ($user_type == 'vendor')
+        {
             return $this->db->where('id', $id)->update('vendor_subscriptions_master', $data);
-        } else {
+        } else
+        {
             return $this->db->where('id', $id)->update('promoter_subscriptions_master', $data);
         }
     }
@@ -108,19 +113,19 @@ class Subscription_model extends CI_Model
             ->row_array();
     }
 
-   public function getActiveSubscription($user_id, $user_type = 'vendor')
-{
-    $table = $user_type == 'vendor' 
-        ? 'vendor_subscriptions_master' 
-        : 'promoter_subscriptions_master';
+    public function getActiveSubscription($user_id, $user_type = 'vendor')
+    {
+        $table = $user_type == 'vendor'
+            ? 'vendor_subscriptions_master'
+            : 'promoter_subscriptions_master';
 
-    $col = $user_type == 'vendor' ? 'vendor_id' : 'promoter_id';
+        $col = $user_type == 'vendor' ? 'vendor_id' : 'promoter_id';
 
-    return $this->db
-        ->where([$col => $user_id, 'status' => 1, 'approval_status' => 1])
-        ->get($table)
-        ->row_array();
-}
+        return $this->db
+            ->where([$col => $user_id, 'status' => 1, 'approval_status' => 1])
+            ->get($table)
+            ->row_array();
+    }
 
 
     public function getPlan($plan_id)
@@ -150,4 +155,58 @@ class Subscription_model extends CI_Model
         $this->db->where('approval_status', 0); // pending
         return $this->db->get($table)->row_array();
     }
+
+    public function getSingleVendorSubscription($vendor_id)
+    {
+        return $this->db
+            ->select("
+            vs.id,
+            'Vendor' AS user_type,
+            v.name AS user_name,
+            v.email,
+            v.shop_name,
+            vs.plan_id,
+            vs.plan_type,
+            vs.product_limit,
+            vs.products_used,
+            vs.status,
+            vs.approval_status,
+            vs.end_date,
+            ap.plan_name
+        ")
+            ->from('vendor_subscriptions_master vs')
+            ->join('vendors v', 'v.id = vs.vendor_id', 'left')
+            ->join('admin_subscription_plans_master ap', 'ap.id = vs.plan_id', 'left')
+            ->where('vs.vendor_id', $vendor_id)
+            ->get()
+            ->result_array(); // table ke liye array
+    }
+    public function getSinglePromoterSubscription($promoter_id)
+    {
+        return $this->db
+            ->select("
+            ps.id,
+            'Promoter' AS user_type,
+            p.name AS user_name,
+            p.email,
+            '' AS shop_name,
+            ps.plan_id,
+            ps.plan_type,
+            ps.product_limit,
+            ps.products_used,
+            ps.status,
+            ps.approval_status,
+            ps.end_date,
+            ap.plan_name
+        ")
+            ->from('promoter_subscriptions_master ps')
+            ->join('promoters p', 'p.id = ps.promoter_id', 'left')
+            ->join('admin_subscription_plans_master ap', 'ap.id = ps.plan_id', 'left')
+            ->where('ps.promoter_id', $promoter_id)
+            ->get()
+            ->result_array();
+    }
+
+
+
 }
