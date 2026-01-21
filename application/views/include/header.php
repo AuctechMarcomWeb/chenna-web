@@ -117,9 +117,9 @@ defined('BASEPATH') or exit('No direct script access allowed'); ?>
 	<script src="<?php echo base_url('assets/admin/plugins/knob/jquery.knob.js'); ?>"></script>
 	<!-- DataTables -->
 	<!--<script src="<?php //echo base_url('assets/admin/plugins/datatables/jquery.dataTables.min.js'); 
-						?>"></script>-->
+	?>"></script>-->
 	<!--<script src="<?php //echo base_url('assets/admin/plugins/datatables/dataTables.bootstrap.min.js'); 
-						?>"></script>-->
+	?>"></script>-->
 
 	<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 	<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
@@ -205,34 +205,38 @@ defined('BASEPATH') or exit('No direct script access allowed'); ?>
 				$adminData = $this->session->userdata('adminData');
 
 				$profilePic = 'assets/school1.png';
-				$logoImage  = '/plugins/images/logo.png';
-				$name  = 'User';
+				$logoImage = '/plugins/images/logo.png';
+				$name = 'User';
 				$email = '';
 
 				// ================= ADMIN =================
-				if ($adminData['Type'] == '1') {
+				if ($adminData['Type'] == '1')
+				{
 					$userCheck = $this->db->get_where('admin_master', [
 						'id' => $adminData['Id']
 					])->row_array();
 
-					if (!empty($userCheck)) {
+					if (!empty($userCheck))
+					{
 						$profilePic = !empty($userCheck['profile_pic'])
 							? 'assets/profile_image/' . $userCheck['profile_pic']
 							: 'assets/school1.png';
 
 						$logoImage = '/plugins/images/logo.png';
-						$name  = $userCheck['username'] ?? 'Admin';
+						$name = $userCheck['username'] ?? 'Admin';
 						$email = $userCheck['email'] ?? '';
 					}
 				}
 
 				// ================= VENDOR =================
-				elseif ($adminData['Type'] == '2') {
+				elseif ($adminData['Type'] == '2')
+				{
 					$userCheck = $this->db->get_where('vendors', [
 						'id' => $adminData['Id']
 					])->row_array();
 
-					if (!empty($userCheck)) {
+					if (!empty($userCheck))
+					{
 						$profilePic = !empty($userCheck['profile_pic'])
 							? $userCheck['profile_pic']
 							: 'assets/school1.png';
@@ -241,18 +245,20 @@ defined('BASEPATH') or exit('No direct script access allowed'); ?>
 							? $userCheck['vendor_logo']
 							: '/plugins/images/logo.png';
 
-						$name  = $userCheck['name'] ?? 'Vendor';
+						$name = $userCheck['name'] ?? 'Vendor';
 						$email = $userCheck['email'] ?? '';
 					}
 				}
 
 				// ================= PROMOTER =================
-				elseif ($adminData['Type'] == '3') {
+				elseif ($adminData['Type'] == '3')
+				{
 					$userCheck = $this->db->get_where('promoters', [
 						'id' => $adminData['Id']
 					])->row_array();
 
-					if (!empty($userCheck)) {
+					if (!empty($userCheck))
+					{
 						$profilePic = !empty($userCheck['profile_pic'])
 							? $userCheck['profile_pic']
 							: 'assets/school1.png';
@@ -261,7 +267,7 @@ defined('BASEPATH') or exit('No direct script access allowed'); ?>
 							? $userCheck['promoter_logo']
 							: '/plugins/images/logo.png';
 
-						$name  = $userCheck['name'] ?? 'Promoter';
+						$name = $userCheck['name'] ?? 'Promoter';
 						$email = $userCheck['email'] ?? '';
 					}
 				}
@@ -310,7 +316,8 @@ defined('BASEPATH') or exit('No direct script access allowed'); ?>
 								<li class="user-footer">
 
 									<!-- ADMIN -->
-									<?php if ($adminData['Type'] == '1') { ?>
+									<?php if ($adminData['Type'] == '1')
+									{ ?>
 										<div class="pull-left">
 											<a href="<?php echo base_url('admin/Dashboard/GetAdminProfile/' . $adminData['Id']); ?>"
 												class="btn btn-default btn-flat">Edit Profile</a>
@@ -318,7 +325,8 @@ defined('BASEPATH') or exit('No direct script access allowed'); ?>
 									<?php } ?>
 
 									<!-- VENDOR -->
-									<?php if ($adminData['Type'] == '2') { ?>
+									<?php if ($adminData['Type'] == '2')
+									{ ?>
 										<div class="pull-left">
 											<a href="<?php echo base_url('admin/Vendor/UpdateVendorProfile/' . $adminData['Id']); ?>"
 												class="btn btn-default btn-flat">Edit Profile</a>
@@ -326,7 +334,8 @@ defined('BASEPATH') or exit('No direct script access allowed'); ?>
 									<?php } ?>
 
 									<!-- PROMOTER -->
-									<?php if ($adminData['Type'] == '3') { ?>
+									<?php if ($adminData['Type'] == '3')
+									{ ?>
 										<div class="pull-left">
 											<a href="<?php echo base_url('admin/Vendor/PromoterUpdateProfile/' . $adminData['Id']); ?>"
 												class="btn btn-default btn-flat">Edit Profile</a>
@@ -355,3 +364,4 @@ defined('BASEPATH') or exit('No direct script access allowed'); ?>
 			<?php include('sidebar2.php'); ?>
 			<!-- /.sidebar -->
 		</aside>
+		

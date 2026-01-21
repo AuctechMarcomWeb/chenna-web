@@ -13,55 +13,60 @@ class Subscription extends CI_Controller
     // ----------------------
     // Vendor/Promoter subscription request (AJAX)
     // ----------------------
-    public function create()
-    {
-        $user_id = $this->input->post('user_id');
-        $plan_id = $this->input->post('plan_id');
-        $type = $this->input->post('type');
+   public function create()
+{
+    $user_id = $this->input->post('user_id');
+    $plan_id = $this->input->post('plan_id');
+    $type = $this->input->post('type');
 
-        if (!$user_id || !$plan_id || !in_array($type, ['vendor', 'promoter'])) {
-            echo json_encode(['status' => 'error', 'message' => 'Invalid request']);
-            return;
-        }
+    if (!$user_id || !$plan_id || !in_array($type, ['vendor', 'promoter'])) {
+        return $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode(['status' => 'error', 'message' => 'Invalid request']));
+    }
 
-        if ($this->Subscription_model->getPendingSubscriptionRequest($user_id, $type)) {
-            echo json_encode(['status' => 'error', 'message' => 'You already submitted a subscription request']);
-            return;
-        }
+    if ($this->Subscription_model->getPendingSubscriptionRequest($user_id, $type)) {
+        return $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode(['status' => 'error', 'message' => 'You already submitted a subscription request']));
+    }
 
-        $plan = $this->Subscription_model->getPlan($plan_id);
-        if (!$plan) {
-            echo json_encode(['status' => 'error', 'message' => 'Invalid plan selected']);
-            return;
-        }
+    $plan = $this->Subscription_model->getPlan($plan_id);
+    if (!$plan) {
+        return $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode(['status' => 'error', 'message' => 'Invalid plan selected']));
+    }
 
-        $data = [
-            ($type == 'vendor') ? 'vendor_id' : 'promoter_id' => $user_id,
-            'plan_id' => $plan_id,
-            'plan_type' => $plan['plan_type'],
-            'price' => $plan['price'],
-            'commission_percent' => ($plan['plan_type'] == 2) ? $plan['commission_percent'] : null,
-            'product_limit' => (int) $plan['product_limit'],
-            'products_used' => 0,
-            'start_date' => date('Y-m-d'),
-            'end_date' => ($plan['plan_type'] == 1) ? date('Y-m-d', strtotime('+1 month')) : null,
-            'status' => 0,
-            'approval_status' => 0,
-            'created_at' => date('Y-m-d H:i:s')
-        ];
+    $data = [
+        ($type == 'vendor') ? 'vendor_id' : 'promoter_id' => $user_id,
+        'plan_id' => $plan_id,
+        'plan_type' => $plan['plan_type'],
+        'price' => $plan['price'],
+        'commission_percent' => ($plan['plan_type'] == 2) ? $plan['commission_percent'] : null,
+        'product_limit' => (int)$plan['product_limit'],
+        'products_used' => 0,
+        'start_date' => date('Y-m-d'),
+        'end_date' => ($plan['plan_type'] == 1) ? date('Y-m-d', strtotime('+1 month')) : null,
+        'status' => 0,
+        'approval_status' => 0,
+        'created_at' => date('Y-m-d H:i:s')
+    ];
 
-        if ($type == 'vendor') {
-            $id = $this->Subscription_model->createVendorSubscription($data);
-        } else {
-            $id = $this->Subscription_model->createPromoterSubscription($data);
-        }
+    if ($type == 'vendor') {
+        $id = $this->Subscription_model->createVendorSubscription($data);
+    } else {
+        $id = $this->Subscription_model->createPromoterSubscription($data);
+    }
 
-        echo json_encode([
+    return $this->output
+        ->set_content_type('application/json')
+        ->set_output(json_encode([
             'status' => 'success',
             'message' => 'Your subscription request has been sent successfully',
             'id' => $id
-        ]);
-    }
+        ]));
+}
 
     // ----------------------
     // Admin approve/reject subscription
