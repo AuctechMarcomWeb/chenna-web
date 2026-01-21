@@ -296,60 +296,74 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-    $('#vendor_registration_form').on('submit', function (e) {
-        e.preventDefault();
+$('#vendor_registration_form').on('submit', function (e) {
+    e.preventDefault();
 
-        var formData = new FormData(this);
+    var formData = new FormData(this);
 
-        $.ajax({
-            url: "<?= site_url('admin/Vendor/vendor_registration'); ?>",
-            type: "POST",
-            data: formData,
-            contentType: false,
-            processData: false,
-            dataType: "json",
+    $.ajax({
+        url: "<?= site_url('admin/Vendor/vendor_registration'); ?>",
+        type: "POST",
+        data: formData,
+        contentType: false,
+        processData: false,
+        dataType: "json",
 
-            beforeSend: function () {
-                Swal.fire({
-                    title: 'Please Wait...',
-                    text: 'Submitting your registration...',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading()
-                    }
-                });
-            },
-
-            success: function (res) {
-                Swal.close();
-
-                if (res.status == 'success') {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success',
-                        text: res.msg
-                    });
-                    $('#vendor_registration_form')[0].reset();
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        html: res.msg
-                    });
+        beforeSend: function () {
+            Swal.fire({
+                title: 'Please Wait...',
+                text: 'Submitting your registration...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading()
                 }
-            },
+            });
+        },
 
-            error: function () {
-                Swal.close();
+        success: function (res) {
+            Swal.close();
+
+            if (res.status === 'success') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: res.msg,
+                    confirmButtonText: 'OK'
+                }).then(() => {
+
+                    // ✅ FORM RESET AFTER OK CLICK
+                    $('#vendor_registration_form')[0].reset();
+
+                    // 🔄 Remove readonly referral if any
+                    const promoterInput = document.getElementById("promoter_code");
+                    if (promoterInput) {
+                        promoterInput.readOnly = false;
+                        promoterInput.classList.remove("bg-light");
+                        promoterInput.value = '';
+                    }
+
+                });
+            } else {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'Something went wrong! Please try again.'
+                    html: res.msg
                 });
             }
-        });
+        },
+
+        error: function () {
+            Swal.close();
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Something went wrong! Please try again.'
+            });
+        }
     });
+});
 </script>
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
 
@@ -470,13 +484,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const promoterInput = document.getElementById("promoter_code");
 
-    if (refCode) {
+    if (refCode && promoterInput) {
         promoterInput.value = refCode;
         promoterInput.readOnly = true;
         promoterInput.classList.add("bg-light");
-
         promoterInput.title = "Referral code applied from promoter link";
     }
 
 });
 </script>
+

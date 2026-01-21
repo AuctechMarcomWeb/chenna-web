@@ -295,7 +295,10 @@ class Dashboard extends CI_Controller
 
 			// FULL REFERRAL URL
 			$data['referral_url'] = base_url('web/vendor_registration?ref=' . $data['referral_code']);
-			// SUBSCRIPTION
+			$this->load->model('Vendor_model');
+			$promoter_id = $this->session->userdata('promoterData')['Id'] ?? 0;
+			$data['total_vendors'] = $this->Vendor_model->count_vendors_by_promoter($promoter_id);
+
 			$active_subscription = $this->Subscription_model->getActiveSubscription($user['Id'], 'promoter');
 			$pending_request = $this->Subscription_model->getPendingSubscriptionRequest($user['Id'], 'promoter');
 

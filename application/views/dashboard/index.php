@@ -735,6 +735,9 @@
           <!-- LEFT : WELCOME -->
           <div class="referral-left">
             <h3>Welcome, <?= ucwords($adminData['Name']); ?> 👋</h3>
+            <small style="margin-top:10px;display:block;">
+              Referral Code: <strong><?= $referral_code; ?></strong>
+            </small>
           </div>
 
           <!-- RIGHT : REFERRAL -->
@@ -757,18 +760,20 @@
 
       <div class="row">
         <!-- Total Products -->
-       
+
         <div class="col-lg-3 col-xs-6">
-          <div class="small-box bg-aqua">
+          <div class="small-box bg-green">
             <div class="inner">
-              <h3><?= $total_products ?? 0; ?></h3>
-              <p>Total Products</p>
+              <h3><?= $total_vendors ?? 0; ?></h3>
+              <p>Total Vendors Registered Through Me</p>
             </div>
-            <a href="<?= site_url('admin/Product/VendorProductList'); ?>" class="small-box-footer">
-              View Products <i class="fa fa-arrow-circle-right"></i>
+            <a href="<?= site_url('admin/Vendor/VendorsByPromoter'); ?>" class="small-box-footer">
+              View Vendors <i class="fa fa-arrow-circle-right"></i>
             </a>
           </div>
         </div>
+
+
 
         <!-- Total Orders -->
         <div class="col-lg-3 col-xs-6">
@@ -806,7 +811,7 @@
             </a>
           </div>
         </div>
-        
+
       </div>
     </section>
   <?php } ?>
@@ -961,7 +966,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-function copyReferralLink() {
+  function copyReferralLink() {
     const input = document.getElementById("referralLink");
     const btn = document.getElementById("copyBtn");
 
@@ -969,14 +974,14 @@ function copyReferralLink() {
     input.setSelectionRange(0, 99999);
 
     navigator.clipboard.writeText(input.value).then(() => {
-        btn.innerHTML = '<i class="fa fa-check"></i> Copied';
-        btn.title = "Referral link copied";
-        setTimeout(() => {
-            btn.innerHTML = '<i class="fa fa-copy"></i> Copy';
-            btn.title = "Copy referral link";
-        }, 2000);
+      btn.innerHTML = '<i class="fa fa-check"></i> Copied';
+      btn.title = "Referral link copied";
+      setTimeout(() => {
+        btn.innerHTML = '<i class="fa fa-copy"></i> Copy';
+        btn.title = "Copy referral link";
+      }, 2000);
     });
-}
+  }
 </script>
 
 

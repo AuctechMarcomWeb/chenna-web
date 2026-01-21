@@ -179,113 +179,107 @@
     }
 </style>
 <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
+
+    <!-- PAGE HEADER -->
     <section class="content-header">
-        <h1>Vendor List 
-            <!-- <a href="<?php echo base_url('admin/Product/AddProduct/'); ?>" class="btn btn-info"
-                style="float: right; padding-right: 10px; ">Add Product</a> -->
+        <h1>
+            Vendor List
+            <span class="badge bg-blue">
+                Total Vendors: <?= $total_vendors; ?>
+            </span>
         </h1>
     </section>
 
-    <!-- Main content -->
+    <!-- MAIN CONTENT -->
     <section class="content">
         <div class="row">
-            <div id="msg">
-                <div class="col-xs-12">
-                    <div class="box">
+            <div class="col-xs-12">
 
-
-                        <div class="box-body" style="overflow-x:auto;">
-                            
-
-                            <!-- TABLE -->
-                            <table class="table table-bordered table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>S NO.</th>
-                                        <th>Vendor Name</th>
-                                        <th>Shop Name</th>
-                                        <th>Mobile</th>
-                                        <th>Email</th>
-                                        <th>Status</th>
-                                        <th>Added Date</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php if (!empty($vendors)):
-                                        $count = 0;
-                                        foreach ($vendors as $v):
-                                            $count++;
-                                            ?>
-                                            <tr>
-                                                <td><?= $count; ?></td>
-                                                <td><?= $v['vendor_name']; ?></td>
-                                                <td><?= $v['vendor_shop']; ?></td>
-                                               
-                                                <td><?= $v['email'] ?? '-'; ?></td>
-                                                <td><?= $v['mobile']; ?></td>
-                                            
-                                                <td><?= ($v['vendor_status'] == 1) ? 'Active' : 'Inactive'; ?></td>
-                                                <td><?= date('d-m-Y', strtotime($v['vendor_added_date'])); ?></td>
-                                            </tr>
-                                        <?php endforeach;
-                                    else: ?>
-                                        <tr>
-                                            <td colspan="9" style="text-align:center;">No data found</td>
-                                        </tr>
-                                    <?php endif; ?>
-                                </tbody>
-
-                            </table>
-
-                            <!-- PAGINATION -->
-                            <div class="row">
-                                <div class="col-sm-6">
-                                    <?= @$entries; ?>
-                                </div>
-                                <div class="col-sm-6 text-right">
-                                    <ul class="pagination">
-                                        <?php foreach ($links as $link)
-                                        {
-                                            echo "<li>" . $link . "</li>";
-                                        } ?>
-                                    </ul>
-                                </div>
-                            </div>
-
-                        </div> <!-- /.box-body -->
-                    </div> <!-- /.box -->
-                </div> <!-- /.col -->
-            </div> <!-- /.row -->
-    </section>
-
-    <!-- /.content -->
-    <!-- Modal -->
-    <div class="modal fade" id="myModal" role="dialog">
-        <div class="modal-dialog" style="width:100%">
-
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Change Product Quantity</h4>
+                <!-- INFO CARD -->
+                <div class="alert alert-info">
+                    <strong>Total Vendors Registered Through You:</strong>
+                    <?= $total_vendors; ?>
                 </div>
-                <form action="<?php echo base_url(); ?>admin/product/changePassword" method="POST">
-                    <div class="modal-body" id="show_html">
+
+                <div class="box">
+                    <div class="box-body" style="overflow-x:auto;">
+
+                        <!-- TABLE -->
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>S.NO.</th>
+                                    <th>Vendor Name</th>
+                                    <th>Shop Name</th>
+                                    <th>Email</th>
+                                    <th>Mobile</th>
+                                    <th>GST Number</th>
+                                    <th>Profile Photo</th>
+                                    <th>Shop Photo</th>
+                                    <th>Address</th>
+                                    <th>city</th>
+                                    <th>State</th>
+                                    <th>Pincode</th>
+                                    <th>Status</th>
+                                    <th>Registered Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                <?php if (!empty($vendors)): ?>
+                                    <?php $i = 1;
+                                    foreach ($vendors as $v): ?>
+                                        <tr>
+                                            <td><?= $i++; ?></td>
+                                            <td><?= $v['name']; ?></td>
+                                            <td><?= $v['shop_name']; ?></td>
+                                            <td><?= $v['email'] ?: '---'; ?></td>
+                                            <td><?= $v['mobile']; ?></td>
+                                            <td><?= $v['gst_number'] ?: '---'; ?></td>
+                                            <td> <?php if (!empty($v['profile_pic']))
+                                            { ?>
+                                                    <img src="<?= base_url($v['profile_pic']) ?>" width="80">
+                                                <?php } ?>
+                                            </td>
+                                            <td> <?php if (!empty($v['vendor_logo']))
+                                            { ?>
+                                                    <img src="<?= base_url($v['vendor_logo']) ?>" width="80">
+                                                <?php } ?>
+                                            </td>
+                                            <td><?= $v['address']; ?></td>
+                                            <td><?= $v['city']; ?></td>
+                                            <td><?= $v['state']; ?></td>
+                                            <td><?= $v['pincode']; ?></td>
+                                            <td>
+                                                <?php if ($v['status'] == 1): ?>
+                                                    <span class="label label-success">Active</span>
+                                                <?php else: ?>
+                                                    <span class="label label-warning">Pending</span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <!-- <td><?= date('d-m-Y | h:i:s A', strtotime($v->add_date)); ?></td> -->
+                                            <td><?= date('d-m-Y | h:i:s A', strtotime($v['add_date'])); ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="7" class="text-center">
+                                            No vendors registered through you yet.
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
+
+                            </tbody>
+                        </table>
 
                     </div>
+                </div>
 
-                </form>
             </div>
-
         </div>
-    </div>
-
-
-
-
-
+    </section>
 </div>
+
 
 
 <script src="<?php echo base_url('assets/admin/plugins/select2/select2.full.min.js'); ?>"></script>
