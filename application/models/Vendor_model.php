@@ -196,9 +196,39 @@ class Vendor_model extends CI_Model
     return $this->db->where('id', $id)->delete('promoters');
   }
 
-   public function getSinglePromoterData($id)
+  public function getSinglePromoterData($id)
   {
     return $this->db->get_where('promoters', ['id' => $id])->row_array();
+  }
+
+  public function get_vendors_by_promoter($promoter_id) {
+        $this->db->select('
+            v.id as vendor_id,
+            v.name as vendor_name,
+            v.shop_name as vendor_shop,
+            v.mobile,
+            v.email,
+            v.status as vendor_status,
+            v.add_date as vendor_added_date,
+            p.name as promoter_name,
+            p.shop_name as promoter_shop
+        ');
+        $this->db->from('vendors v');
+        $this->db->join('promoters p', 'v.promoter_id = p.id', 'left');
+        $this->db->where('v.promoter_id', $promoter_id);
+        $this->db->where('v.promoter_code_used IS NOT NULL');
+        $this->db->where('v.promoter_code_used !=', '');
+        $this->db->order_by('v.add_date', 'desc');
+
+        return $this->db->get()->result_array();
+    }
+  public function count_vendors_by_promoter($promoter_id)
+  {
+    $this->db->from('vendors');
+    $this->db->where('promoter_id', $promoter_id);
+    $this->db->where('promoter_code_used IS NOT NULL');
+    $this->db->where('promoter_code_used !=', '');
+    return $this->db->count_all_results();
   }
   // End Registration
   // public function getVendotList()

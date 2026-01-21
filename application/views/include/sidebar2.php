@@ -216,16 +216,18 @@
           </li>
         </ul>
       </li>
-       <li class="<?php echo (($index == 'VendorPromoterPlans') ? 'active' : ''); ?>">
+      <li class="<?php echo (($index == 'VendorPromoterPlans') ? 'active' : ''); ?>">
         <a href="<?php echo site_url('admin/Vendor/VendorPromoterPlans'); ?>">
           <i class="fa fa-id-card"></i> <span>Subsciption Plans</span>
         </a>
       </li>
-      <li class="<?php echo (($index == 'VendorListByPromoter') ? 'active' : ''); ?>">
-        <a href="<?php echo site_url('admin/Vendor/VendorsByPromoter/'); ?>">
-          <i class="fa fa-user-plus"></i> <span>Vendor List</span>
+      <li class="<?= (($index == 'VendorListByPromoter') ? 'active' : ''); ?>">
+        <a href="<?= site_url('admin/Vendor/VendorsByPromoter'); ?>">
+          <i class="fa fa-user-plus"></i>
+          <span>Vendor List</span>
         </a>
       </li>
+
 
       <li class="<?php echo (($index == 'PromoterSetting') ? 'active' : ''); ?>">
         <a href="<?php echo site_url('admin/Vendor/PromoterUpdateProfile/' . $adminData['Id']); ?>">

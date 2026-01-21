@@ -968,40 +968,58 @@ class Vendor extends CI_Controller
 
 	public function VendorsByPromoter()
 	{
-		// Get promoter session data
-		$promoterData = $this->session->userdata('promoterData');
-		$promoter_id = $promoterData['Id']; // Current promoter ID
+		// 🔐 LOGIN CHECK
+		is_not_logged_in();
 
-		// Fetch vendors who came through this promoter using promoter code
+		$adminData = $this->session->userdata('adminData');
+		if (empty($adminData) || $adminData['Type'] != 3)
+		{
+			redirect('admin/Welcome');
+		}
+
+		$promoter_id = $adminData['Id'];
+
+		/* ================= TOTAL COUNT ================= */
+		$this->db->from('vendors');
+		$this->db->where('promoter_id', $promoter_id);
+		$this->db->where('promoter_code_used IS NOT NULL');
+		$this->db->where('promoter_code_used !=', '');
+		$data['total_vendors'] = $this->db->count_all_results();
+
+		/* ================= VENDOR LIST ================= */
 		$this->db->select('
-        v.id as vendor_id,
-        v.name as vendor_name,
-        v.shop_name as vendor_shop,
-        v.mobile,
-        v.email,
-        v.status as vendor_status,
-        v.add_date as vendor_added_date,
-        p.name as promoter_name,
-        p.shop_name as promoter_shop
+        id,
+        name,
+        shop_name,
+        email,
+        mobile,
+		profile_pic,
+		vendor_logo,
+		address,
+		city,
+		state,
+		pincode,
+		gst_number,
+        status,
+        add_date
     ');
-		$this->db->from('vendors v');
-		$this->db->join('promoters p', 'v.promoter_id = p.id', 'left');
-
-		// Filter: only vendors under this promoter AND used promoter code
-		$this->db->where('v.promoter_id', $promoter_id);
-		$this->db->where('v.promoter_code_used IS NOT NULL');
-		$this->db->where('v.promoter_code_used !=', '');
-
-		$this->db->order_by('v.add_date', 'desc');
+		$this->db->from('vendors');
+		$this->db->where('promoter_id', $promoter_id);
+		$this->db->where('promoter_code_used IS NOT NULL');
+		$this->db->where('promoter_code_used !=', '');
+		$this->db->order_by('add_date', 'DESC');
 
 		$data['vendors'] = $this->db->get()->result_array();
 
-		// Load views
-		$data['title'] = 'All Vendor List';
+		$data['title'] = 'Vendor List';
+		$data['index'] = 'VendorListByPromoter';
+
 		$this->load->view('include/header', $data);
 		$this->load->view('Promoter/VendorsByPromoter', $data);
 		$this->load->view('include/footer');
 	}
+
+
 
 
 
