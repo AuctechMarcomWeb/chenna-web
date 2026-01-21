@@ -23,6 +23,134 @@ class Vendor extends CI_Controller
 
 
 	// Registration
+	// public function vendor_registration()
+	// {
+	// 	if (!$this->input->is_ajax_request())
+	// 	{
+	// 		show_404();
+	// 	}
+
+	// 	/* ================= VALIDATION ================= */
+	// 	$this->form_validation->set_rules('name', 'Full Name', 'required');
+	// 	$this->form_validation->set_rules('email', 'Email', 'required|valid_email');
+	// 	$this->form_validation->set_rules('mobile', 'Mobile', 'required|regex_match[/^[0-9]{10}$/]');
+	// 	$this->form_validation->set_rules('pincode', 'Pincode', 'required|regex_match[/^[0-9]{6}$/]');
+
+	// 	if ($this->input->post('has_gst') === 'yes')
+	// 	{
+	// 		$this->form_validation->set_rules(
+	// 			'gst_number',
+	// 			'GST Number',
+	// 			'required|regex_match[/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/]',
+	// 			['regex_match' => 'Invalid GST number']
+	// 		);
+	// 	}
+
+	// 	if ($this->form_validation->run() == false)
+	// 	{
+	// 		echo json_encode([
+	// 			'status' => 'error',
+	// 			'msg' => strip_tags(validation_errors())
+	// 		]);
+	// 		return;
+	// 	}
+
+	// 	$email = $this->input->post('email');
+	// 	$mobile = $this->input->post('mobile');
+
+	// 	/* ================= CHECK VERIFIED EMAIL ================= */
+	// 	$vendor = $this->db
+	// 		->where('email', $email)
+	// 		->where('verify_otp', 1)
+	// 		->get('vendors')
+	// 		->row();
+
+	// 	if (!$vendor)
+	// 	{
+	// 		echo json_encode([
+	// 			'status' => 'error',
+	// 			'msg' => 'Please verify your email first'
+	// 		]);
+	// 		return;
+	// 	}
+
+	// 	/* ================= FILE UPLOAD ================= */
+	// 	$profile_pic = $this->_upload_file('profile_pic', VENDOR_PROFILE_DIRECTORY);
+	// 	$vendor_logo = $this->_upload_file('vendor_logo', VENDOR_DOCUMENT_DIRECTORY);
+	// 	$aadhar_card = $this->_upload_file('aadhar_card', VENDOR_DOCUMENT_DIRECTORY);
+	// 	$pan_card = $this->_upload_file('pan_card', VENDOR_DOCUMENT_DIRECTORY);
+
+	// 	/* ================= GST ================= */
+	// 	$gst_number = null;
+	// 	if ($this->input->post('has_gst') === 'yes')
+	// 	{
+	// 		$gst_number = $this->input->post('gst_number');
+	// 	}
+
+	// 	/* ================= UPDATE DATA ================= */
+	// 	$data = [
+	// 		'role' => 'vendor',
+	// 		'name' => $this->input->post('name'),
+	// 		'shop_name' => $this->input->post('shop_name'),
+	// 		'mobile' => $mobile,
+	// 		'profile_pic' => $profile_pic ?: $vendor->profile_pic,
+	// 		'vendor_logo' => $vendor_logo ?: $vendor->vendor_logo,
+	// 		'aadhar_card' => $aadhar_card ?: $vendor->aadhar_card,
+	// 		'pan_card' => $pan_card ?: $vendor->pan_card,
+	// 		'address' => $this->input->post('address'),
+	// 		'city' => $this->input->post('city'),
+	// 		'state' => $this->input->post('state'),
+	// 		'pincode' => $this->input->post('pincode'),
+	// 		'gst_number' => $gst_number,
+	// 		'promoter_code_used' => $this->input->post('promoter_code_used'),
+	// 		'status' => 0,
+	// 		'modify_date' => date('Y-m-d H:i:s')
+	// 	];
+
+	// 	$this->db->where('email', $email);
+	// 	$update = $this->db->update('vendors', $data);
+
+	// 	if ($update)
+	// 	{
+	// 		/* ================= EMAIL ================= */
+	// 		$mail_data = [
+	// 			'vendor_random_number' => $vendor->vendor_random_number,
+	// 			'name' => $data['name'],
+	// 			'shop_name' => $data['shop_name'],
+	// 			'mobile' => $mobile,
+	// 			'email' => $email,
+	// 			'address' => $data['address'],
+	// 			'city' => $data['city'],
+	// 			'state' => $data['state'],
+	// 			'pincode' => $data['pincode'],
+	// 			'gst_number' => $gst_number
+	// 		];
+
+	// 		$email_body = $this->load->view(
+	// 			'web/email/vendor_registration_mail',
+	// 			$mail_data,
+	// 			true
+	// 		);
+
+	// 		$this->email_send->send_email(
+	// 			$email,
+	// 			$email_body,
+	// 			"Vendor Registration - Chenna"
+	// 		);
+
+	// 		echo json_encode([
+	// 			'status' => 'success',
+	// 			'msg' => 'Registration successful! Waiting for approval.'
+	// 		]);
+	// 	} else
+	// 	{
+	// 		echo json_encode([
+	// 			'status' => 'error',
+	// 			'msg' => 'Something went wrong!'
+	// 		]);
+	// 	}
+	// }
+
 	public function vendor_registration()
 	{
 		if (!$this->input->is_ajax_request())
@@ -58,7 +186,7 @@ class Vendor extends CI_Controller
 		$email = $this->input->post('email');
 		$mobile = $this->input->post('mobile');
 
-		/* ================= CHECK VERIFIED EMAIL ================= */
+		/* ================= CHECK EMAIL VERIFIED ================= */
 		$vendor = $this->db
 			->where('email', $email)
 			->where('verify_otp', 1)
@@ -87,6 +215,30 @@ class Vendor extends CI_Controller
 			$gst_number = $this->input->post('gst_number');
 		}
 
+		/* ================= PROMOTER REFERRAL LOGIC ================= */
+		$promoter_code = trim($this->input->post('promoter_code_used'));
+		$promoter_id = null;
+		$referred_by = null;
+
+		if (!empty($promoter_code))
+		{
+			$promoter = $this->db
+				->where('reference_code', $promoter_code)
+				->where('status', 1)
+				->get('promoters')
+				->row();
+
+			if ($promoter)
+			{
+				$promoter_id = $promoter->id;
+				$referred_by = 'promoter';
+			} else
+			{
+				// invalid code → ignore safely
+				$promoter_code = null;
+			}
+		}
+
 		/* ================= UPDATE DATA ================= */
 		$data = [
 			'role' => 'vendor',
@@ -102,7 +254,9 @@ class Vendor extends CI_Controller
 			'state' => $this->input->post('state'),
 			'pincode' => $this->input->post('pincode'),
 			'gst_number' => $gst_number,
-			'promoter_code_used' => $this->input->post('promoter_code_used'),
+			'promoter_id' => $promoter_id,
+			'referred_by' => $referred_by,
+			'promoter_code_used' => $promoter_code,
 			'status' => 0,
 			'modify_date' => date('Y-m-d H:i:s')
 		];
@@ -142,6 +296,7 @@ class Vendor extends CI_Controller
 				'status' => 'success',
 				'msg' => 'Registration successful! Waiting for approval.'
 			]);
+
 		} else
 		{
 			echo json_encode([
@@ -150,7 +305,6 @@ class Vendor extends CI_Controller
 			]);
 		}
 	}
-
 
 
 
@@ -750,18 +904,34 @@ class Vendor extends CI_Controller
 			echo json_encode(['status' => 'error', 'msg' => 'Invalid request']);
 			return;
 		}
+
 		if ($status == 1)
 		{
 
+			// 🔑 Generate referral code (unique)
+			$ref_code = 'PROMO' . strtoupper(substr(md5(time() . $id), 0, 6));
+
+			// Password
 			$plain_password = str_pad(rand(0, 99999999), 8, '0', STR_PAD_LEFT);
 			$hashed_password = password_hash($plain_password, PASSWORD_BCRYPT);
-			$this->Vendor_model->admin_approve_and_update_promoter_password($id, $role, $hashed_password);
-			$user = $this->Vendor_model->get_user($id, $role);
+
+			// Update promoter
+			$this->db->where('id', $id)->update('promoters', [
+				'password' => $hashed_password,
+				'reference_code' => $ref_code,
+				'status' => 1
+			]);
+
+			// Send mail
+			$user = $this->db->get_where('promoters', ['id' => $id])->row();
+
 			$data = [
 				'name' => $user->name,
 				'mobile' => $user->mobile,
-				'password' => $plain_password
+				'password' => $plain_password,
+				'ref_code' => $ref_code
 			];
+
 			$msg = $this->load->view('web/email/promoter_approved_mail', $data, true);
 			$this->email_send->send_email(
 				$user->email,
@@ -769,15 +939,10 @@ class Vendor extends CI_Controller
 				"Your Promoter Account Approved - Chenna"
 			);
 
-			echo json_encode(['status' => 'success', 'msg' => 'Promoter approved and credentials sent']);
-		} else
-		{
-
-			$this->Vendor_model->admin_update_promoter_status($id, $role, 0);
-
-			echo json_encode(['status' => 'success', 'msg' => 'Promoter moved to pending']);
+			echo json_encode(['status' => 'success', 'msg' => 'Promoter approved & referral code generated']);
 		}
 	}
+
 
 	public function PromoteViewDetails($id)
 	{

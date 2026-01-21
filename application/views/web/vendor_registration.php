@@ -252,10 +252,11 @@
                                 placeholder="Pincode">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Promoter Code</label>
-                            <input type="number" class="form-control" name="promoter_code_used" maxlength="6"
-                                minlength="6" placeholder="Code">
+                            <label class="form-label">Referal Code</label>
+                            <input type="text" class="form-control" id="promoter_code" name="promoter_code_used"
+                                placeholder="Enter Promoter Code (optional)">
                         </div>
+
                         <!-- Terms -->
                         <div class="col-12 mt-3">
                             <div class="form-check">
@@ -460,4 +461,22 @@
             return re.test(email);
         }
     });
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const params = new URLSearchParams(window.location.search);
+    const refCode = params.get("ref");
+
+    const promoterInput = document.getElementById("promoter_code");
+
+    if (refCode) {
+        promoterInput.value = refCode;
+        promoterInput.readOnly = true;
+        promoterInput.classList.add("bg-light");
+
+        promoterInput.title = "Referral code applied from promoter link";
+    }
+
+});
 </script>
