@@ -28,55 +28,7 @@
         background: aliceblue;
     }
 
-    .modal {
-        display: none;
-        /* Hidden by default */
-        position: fixed;
-        /* Stay in place */
-        z-index: 9999;
-        /* Sit on top */
-        padding-top: 100px;
-        /* Location of the box */
-        left: 0;
-        top: 0;
-        width: 100%;
-        /* Full width */
-        height: 100%;
-        /* Full height */
-        overflow: auto;
-        /* Enable scroll if needed */
-        background-color: rgb(0, 0, 0);
-        /* Fallback color */
-        background-color: rgba(0, 0, 0, 0.4);
-        /* Black w/ opacity */
-    }
-
-    /* Modal Content */
-    .modal-content {
-        background-color: #fefefe;
-        margin: auto;
-
-        /*padding: 23px;*/
-        border: 1px solid #888;
-        width: 37%;
-    }
-
-    /* The Close Button */
-    .close {
-        color: #820505;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-        padding-right: 13px;
-    }
-
-    .close:hover,
-    .close:focus {
-        color: #000;
-        text-decoration: none;
-        cursor: pointer;
-    }
-
+    
     .pagination.pull-right a {
         background: #337ab7;
         color: #fff;
@@ -177,13 +129,350 @@
     height: 50px;
     object-fit: contain;
   }
+
+  /* Progress bar styling */
+  .progress-xs {
+    height: 20px;
+  }
+
+  .progress-bar-custom {
+    background-color: #28a745;
+  }
+
+  .pricing-range {
+    width: 100%;
+    height: 6px;
+    background: #ffd6d6;
+    border-radius: 10px;
+    outline: none;
+    -webkit-appearance: none;
+    margin: 20px 0;
+  }
+
+  /* Track for Chrome/Safari */
+  .pricing-range::-webkit-slider-runnable-track {
+    height: 6px;
+    background: #ffd6d6;
+    border-radius: 10px;
+  }
+
+  /* Thumb for Chrome/Safari */
+  .pricing-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    background: #ff6b6b;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    margin-top: -6px;
+    /* center thumb on track */
+  }
+
+  /* Track for Firefox */
+  .pricing-range::-moz-range-track {
+    height: 6px;
+    background: #ffd6d6;
+    border-radius: 10px;
+  }
+
+  /* Thumb for Firefox */
+  .pricing-range::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: #ff6b6b;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  }
+
+  /* Track for IE/Edge */
+  .pricing-range::-ms-track {
+    height: 6px;
+    background: transparent;
+    border-color: transparent;
+    color: transparent;
+  }
+
+  .pricing-range::-ms-fill-lower {
+    background: #ffd6d6;
+    border-radius: 10px;
+  }
+
+  .pricing-range::-ms-fill-upper {
+    background: #ffd6d6;
+    border-radius: 10px;
+  }
+
+  .pricing-range::-ms-thumb {
+    width: 18px;
+    height: 18px;
+    background: #ff6b6b;
+    border-radius: 50%;
+    border: 2px solid #fff;
+  }
+
+  /* MODAL BACKGROUND FEEL */
+
+  .modal-content.pricing-modal {
+    border-radius: 15px;
+    border: none;
+    background: #ffffff;
+    box-shadow: 0 10px 30px rgb(217 184 184 / 64%);
+  }
+
+  .text-muted {
+    color: #444;
+    font-size: 15px;
+  }
+
+  /* TITLE */
+  .pricing-modal h4 {
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  .plan-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 5px;
+    border-bottom: 3px solid #ffd6d6;
+
+    padding-top: 38px;
+  }
+
+  .heading-text {
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .heading-icon {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ff6b6b;
+    cursor: pointer;
+  }
+
+
+  /* RANGE SLIDER */
+  .pricing-range {
+    width: 60% !important;
+    margin: 10px auto 23px;
+  }
+
+  .pricing-range::-webkit-slider-runnable-track {
+    height: 6px;
+    background: #ffd6d6;
+    border-radius: 10px;
+  }
+
+  .pricing-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    background: #ff6b6b;
+    border-radius: 50%;
+    margin-top: -5px;
+  }
+
+  /* LEFT SECTION */
+  .plan-box {
+
+    padding: 10px 1px;
+    border-radius: 14px;
+    background: #fff;
+  }
+
+  /* PRICE TAG LEFT */
+  .price-tag {
+    background: #ffe6e6;
+    color: #ff5a5a;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 4px;
+    border-radius: 5px;
+  }
+
+  /* FEATURES */
+  .feature-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .feature-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 14px;
+    margin-bottom: 14px;
+    text-align: left;
+  }
+
+  .feature-list .dot {
+    width: 8px;
+    height: 8px;
+    background: #ff6b6b;
+    border-radius: 50%;
+    margin-right: 8px;
+  }
+
+  .cross {
+    background: #ffe6e6;
+    color: #ff6b6b;
+    font-weight: bold;
+    border-radius: 6px;
+    padding: 2px 8px;
+  }
+
+  /* PRICING CARDS */
+  .pricing-card {
+    border: 1px solid #f1f1f1;
+    border-radius: 7px;
+    padding: 20px 15px;
+    text-align: center;
+    background: #fff;
+    transition: all 0.3s ease;
+    margin-top: 11px;
+    cursor: pointer;
+  }
+
+  /* CARD TITLE */
+  .pricing-card h6 {
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  /* PRICE */
+  .card-price {
+    position: relative;
+    font-size: 14px;
+    font-weight: 800;
+    color: #ff6b6b;
+    margin: 18px 0;
+    padding: 8px 0px 8px 0px;
+    border-top: 1px solid #ffd6d6;
+    border-left: 1px solid #ffd6d6;
+    border-radius: 10px;
+    overflow: hidden;
+
+    /* important */
+  }
+
+  /* bottom line */
+  .card-price::after {
+    content: "";
+    position: absolute;
+    left: 1px;
+    bottom: 0;
+    width: 60%;
+    height: 1px;
+    background: #ffd6d6;
+    border-bottom-left-radius: 40px;
+  }
+
+  /* right line */
+  .card-price::before {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 1px;
+    height: 60%;
+    width: 1px;
+    background: #ffd6d6;
+    border-top-right-radius: 40px;
+  }
+
+
+  /* CARD FEATURES */
+  .pricing-card ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .pricing-card ul li {
+    font-size: 14px;
+    margin-bottom: 12px;
+    color: #666;
+    text-align: left;
+  }
+
+  /* MODAL BODY SPACING */
+  .modal-body {
+    padding: 29px 30px;
+  }
+
+  .plan-inline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .plan-inline h6 {
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  #selectedPlanBox button#proceedPlan {
+    background-color: #ff6b6b;
+    border: none;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 12px;
+    padding: 10px 0;
+    transition: 0.3s;
+  }
+
+  #selectedPlanBox button#proceedPlan:hover {
+    background-color: #ff3b3b;
+  }
+
+  .pricing-card.active {
+    border: 1px solid #ff6b6b6e;
+    box-shadow: 0 0px 5px rgba(255, 107, 107, 0.35);
+    position: relative;
+    cursor: pointer;
+  }
+
+  .btn-proceed {
+    background: #ff6b6b;
+    color: #fff;
+    font-weight: 600;
+    font-size: 16px;
+    padding: 10px 30px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 15px rgba(255, 107, 107, 0.4);
+  }
+
+  .btn-proceed:hover {
+    background: #35c708;
+    box-shadow: 0 8px 20px rgba(136, 199, 107, 0.5);
+    transform: translateY(-2px);
+    color: white;
+  }
 </style>
 <div class="content-wrapper">
      
     <section class="content-header">
         <h1>Manage Products
-            <a href="<?php echo base_url('admin/Product/AddProduct/'); ?>" class="btn btn-info"
-                style="float: right; padding-right: 10px; ">Add Product</a>
+           <!-- Add Product Button -->
+<a href="javascript:void(0);" 
+   class="btn btn-info" 
+   style="float: right; padding-right: 10px;" 
+   id="addProductBtn">
+   Add Product
+</a>
+
+<!-- Pass PHP subscription info to JS -->
+<script>
+    var showSubscriptionPopup = <?= isset($show_subscription_popup) ? json_encode($show_subscription_popup) : '0'; ?>;
+</script>
+
         </h1>
     </section>
 
@@ -410,3 +699,182 @@
 
 
 </script>
+
+
+
+<!-- Add Product Button -->
+<a href="javascript:void(0);" class="btn btn-info float-right" id="addProductBtn">Add Product</a>
+
+<!-- Subscription Modal -->
+<div class="modal fade" id="pricingModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content pricing-modal">
+      <div class="modal-body p-5">
+
+        <div class="text-center mb-4">
+          <h4 class="fw-bold">Pricing Plans</h4>
+          <p class="text-muted small">Select the best plan for your needs</p>
+        </div>
+
+        <div class="row align-items-start mt-4">
+          <!-- LEFT: Selected Plan -->
+          <div class="col-md-4">
+            <h6 class="fw-semibold plan-heading">Your Selected Plan</h6>
+            <div class="plan-box mt-3" id="selectedPlanBox">
+              <?php if(!empty($default_plan)): ?>
+                <div class="plan-inline">
+                  <div><h6><?= $default_plan['plan_name'] ?></h6></div>
+                  <div class="price-tag">
+                    <?= $default_plan['plan_type']==1 ? '₹'.$default_plan['price'] : $default_plan['commission_percent'].'%' ?>
+                    <small>/<?= $default_plan['plan_type']==1?'Month':'Per Product' ?></small>
+                  </div>
+                </div>
+                <small>Product Limit: <?= $default_plan['product_limit'] ?></small>
+              <?php else: ?>
+                <small>No plan selected</small>
+              <?php endif; ?>
+            </div>
+          </div>
+
+          <!-- RIGHT: All Plans -->
+          <div class="col-md-8">
+            <div class="row">
+              <?php foreach($plans as $plan): 
+                $is_active = (!empty($default_plan) && $plan['id']==$default_plan['id']) ? 'active' : ''; ?>
+                <div class="col-md-6 mb-3">
+                  <div class="card pricing-card select-plan <?= $is_active ?>" 
+                       style="cursor:pointer;"
+                       data-id="<?= $plan['id'] ?>"
+                       data-name="<?= $plan['plan_name'] ?>"
+                       data-price="<?= $plan['price'] ?>"
+                       data-type="<?= $plan['plan_type'] ?>"
+                       data-commission="<?= $plan['commission_percent'] ?>"
+                       data-limit="<?= $plan['product_limit'] ?>">
+                    <div class="card-body">
+                      <h6><?= $plan['plan_name'] ?></h6>
+                      <div class="card-price">
+                        <?= $plan['plan_type']==1 ? '₹'.$plan['price'] : $plan['commission_percent'].'%' ?>
+                        <small>/<?= $plan['plan_type']==1 ? 'Month' : 'Per Product' ?></small>
+                      </div>
+                      <ul>
+                        <li>Product Limit: <?= $plan['product_limit'] ?></li>
+                        <?php if($plan['plan_type']==1): ?>
+                          <li>Price: ₹<?= $plan['price'] ?></li>
+                        <?php else: ?>
+                          <li>Commission: <?= $plan['commission_percent'] ?>%</li>
+                        <?php endif; ?>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              <?php endforeach; ?>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mt-4">
+          <button class="btn btn-proceed" id="proceedPlanBtn">Proceed</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Pass PHP vars to JS -->
+<script>
+    var showSubscriptionPopup = <?= !empty($show_subscription_popup)?1:0 ?>;
+    <?php if(!empty($adminData['Id'])): ?>
+        var user_id = <?= $adminData['Id'] ?>;
+        var user_type = <?= ($adminData['Type']==2 ? "'vendor'" : "'promoter'") ?>;
+    <?php else: ?>
+        var user_id = 0;
+        var user_type = '';
+        console.error('Admin session not found');
+    <?php endif; ?>
+</script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+
+    // Update selected plan box on default
+    var defaultPlanCard = document.querySelector('.select-plan.active');
+    if(defaultPlanCard){
+        document.getElementById('selectedPlanBox').innerHTML = `
+            <div class="plan-inline">
+                <div><h6>${defaultPlanCard.getAttribute('data-name')}</h6></div>
+                <div class="price-tag">
+                    ${defaultPlanCard.getAttribute('data-type')==1?'₹'+defaultPlanCard.getAttribute('data-price'):
+                      defaultPlanCard.getAttribute('data-commission')+'%'}
+                    <small>/${defaultPlanCard.getAttribute('data-type')==1?'Month':'Per Product'}</small>
+                </div>
+            </div>
+            <small>Product Limit: ${defaultPlanCard.getAttribute('data-limit')}</small>
+        `;
+    }
+
+    // Add Product button click
+    document.getElementById('addProductBtn').addEventListener('click', function() {
+        if(showSubscriptionPopup == 1){
+            $('#pricingModal').modal('show');
+        } else {
+            window.location.href = "<?= base_url('admin/Product/AddProduct'); ?>";
+        }
+    });
+
+    // Plan selection
+    document.querySelectorAll('.select-plan').forEach(function(card){
+        card.addEventListener('click', function(){
+            document.querySelectorAll('.select-plan').forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+
+            document.getElementById('selectedPlanBox').innerHTML = `
+                <div class="plan-inline">
+                    <div><h6>${card.getAttribute('data-name')}</h6></div>
+                    <div class="price-tag">
+                        ${card.getAttribute('data-type')==1?'₹'+card.getAttribute('data-price'):
+                          card.getAttribute('data-commission')+'%'}
+                        <small>/${card.getAttribute('data-type')==1?'Month':'Per Product'}</small>
+                    </div>
+                </div>
+                <small>Product Limit: ${card.getAttribute('data-limit')}</small>
+            `;
+        });
+    });
+
+    // Proceed button click
+    document.getElementById('proceedPlanBtn').addEventListener('click', function(){
+        var selectedPlan = document.querySelector('.select-plan.active');
+        if(!selectedPlan){
+            alert('Please select a plan first.');
+            return;
+        }
+
+        var plan_id = selectedPlan.getAttribute('data-id');
+
+        $.ajax({
+            url: '<?= base_url("admin/Subscription/create") ?>',
+            type: 'POST',
+            data: {user_id: user_id, plan_id: plan_id, type: user_type},
+            dataType: 'json',
+            success: function(res){
+                if(res.status=='success'){
+                    alert(res.message);
+                    $('#pricingModal').modal('hide');
+                    window.location.href = "<?= base_url('admin/Product/AddProduct'); ?>";
+                } else {
+                    alert(res.message + "\nData received: " + JSON.stringify(res.received || {}));
+                }
+            },
+            error: function(xhr){
+                console.error(xhr.responseText);
+                alert('Something went wrong. Check console.');
+            }
+        });
+    });
+
+});
+</script>
+
+
+
