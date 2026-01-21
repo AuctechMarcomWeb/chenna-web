@@ -3516,12 +3516,28 @@ class Product extends CI_Controller
         return;
       }
     }
-     $data['adminData'] = $adminData;
-
-        // Promoter Subscription popup
+     if ($adminData['Type'] == 3) // Promoter
+    {
         $active_subscription = $this->Subscription_model->getActiveSubscription($adminData['Id'], 'promoter');
         $pending_request = $this->Subscription_model->getPendingSubscriptionRequest($adminData['Id'], 'promoter');
+
+        if (empty($active_subscription) && !empty($pending_request))
+        {
+            // Subscription requested but not approved yet
+            $this->session->set_flashdata('error', 'Your subscription request is pending. You cannot add products until Admin approves your plan.');
+            redirect('admin/Dashboard');
+            return;
+        }
+        elseif (empty($active_subscription) && empty($pending_request))
+        {
+            // No subscription at all
+            $this->session->set_flashdata('error', 'You must select a subscription plan before adding products.');
+            redirect('admin/Dashboard');
+            return;
+        }
+
         $data['show_subscription_popup'] = (empty($active_subscription) && empty($pending_request)) ? 1 : 0;
+    }
 
 
     /* ===============================
@@ -3607,7 +3623,7 @@ class Product extends CI_Controller
         $vendorsShops = $this->db
           ->select('id, shop_name')
           ->from('vendors')
-          ->where('promoter_id', $adminData['Id'])
+          ->where('promoter_referd_id', $adminData['Id'])
           ->where('status', '1')
           ->get()
           ->result_array();

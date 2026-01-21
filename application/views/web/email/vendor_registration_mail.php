@@ -109,9 +109,7 @@
             text-decoration: none;
         }
 
-        .footer p {
-            color: #ffffff;
-        }
+     
     </style>
 </head>
 
@@ -215,9 +213,9 @@
             <p>
                 <a href="https://www.chenna.co">www.chenna.co</a>
             </p>
-            <p>New Jiamau, Hazratganj, Lucknow, UP – 226001</p>
-            <p>📞 +91 98380 75493 | ✉ info@auctech.in</p>
-            <p style="margin-top:10px;">© 2026 <b>Chenna.co</b>. All rights reserved.</p>
+            <p style="color:white">New Jiamau, Hazratganj, Lucknow, UP – 226001</p>
+            <p style="color:white">📞 +91 98380 75493 | ✉ info@auctech.in</p>
+            <p style="margin-top:10px;color:white">© 2026 <b>Chenna.co</b>. All rights reserved.</p>
         </div>
 
     </div>

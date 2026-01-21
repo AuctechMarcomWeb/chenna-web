@@ -703,7 +703,7 @@
 
 
 <!-- Add Product Button -->
-<a href="javascript:void(0);" class="btn btn-info float-right" id="addProductBtn">Add Product</a>
+
 
 <!-- Subscription Modal -->
 <div class="modal fade" id="pricingModal" tabindex="-1">
@@ -719,7 +719,10 @@
         <div class="row align-items-start mt-4">
           <!-- LEFT: Selected Plan -->
           <div class="col-md-4">
-            <h6 class="fw-semibold plan-heading">Your Selected Plan</h6>
+           <h6 class="fw-semibold plan-heading">
+              <span class="heading-text">Your Selected Plan</span>
+              <span class="heading-icon">+</span>
+            </h6>
             <div class="plan-box mt-3" id="selectedPlanBox">
               <?php if(!empty($default_plan)): ?>
                 <div class="plan-inline">
@@ -768,7 +771,7 @@
                   </div>
                 </div>
               <?php endforeach; ?>
-            </div>
+            </div><br>
           </div>
         </div>
 
@@ -781,37 +784,35 @@
 </div>
 
 <!-- Pass PHP vars to JS -->
-<script>
-    var showSubscriptionPopup = <?= !empty($show_subscription_popup)?1:0 ?>;
-    <?php if(!empty($adminData['Id'])): ?>
-        var user_id = <?= $adminData['Id'] ?>;
-        var user_type = <?= ($adminData['Type']==2 ? "'vendor'" : "'promoter'") ?>;
-    <?php else: ?>
-        var user_id = 0;
-        var user_type = '';
-        console.error('Admin session not found');
-    <?php endif; ?>
-</script>
-
 
 <script>
-document.addEventListener('DOMContentLoaded', function(){
+    // Pass PHP vars to JS
+var showSubscriptionPopup = <?= !empty($show_subscription_popup)?1:0 ?>;
+<?php if(!empty($adminData['Id'])): ?>
+    var user_id = <?= $adminData['Id'] ?>;
+    var user_type = <?= ($adminData['Type']==2 ? "'vendor'" : "'promoter'") ?>;
+<?php else: ?>
+    var user_id = 0;
+    var user_type = '';
+    console.error('Admin session not found');
+<?php endif; ?>
 
-    // Update selected plan box on default
-    var defaultPlanCard = document.querySelector('.select-plan.active');
-    if(defaultPlanCard){
-        document.getElementById('selectedPlanBox').innerHTML = `
-            <div class="plan-inline">
-                <div><h6>${defaultPlanCard.getAttribute('data-name')}</h6></div>
-                <div class="price-tag">
-                    ${defaultPlanCard.getAttribute('data-type')==1?'₹'+defaultPlanCard.getAttribute('data-price'):
-                      defaultPlanCard.getAttribute('data-commission')+'%'}
-                    <small>/${defaultPlanCard.getAttribute('data-type')==1?'Month':'Per Product'}</small>
-                </div>
+// Function to update left box
+function updateSelectedPlanBox(card){
+    document.getElementById('selectedPlanBox').innerHTML = `
+        <div class="plan-inline">
+            <div><h6>${card.getAttribute('data-name')}</h6></div>
+            <div class="price-tag">
+                ${card.getAttribute('data-type')==1?'₹'+card.getAttribute('data-price'):
+                  card.getAttribute('data-commission')+'%'}
+                <small>/${card.getAttribute('data-type')==1?'Month':'Per Product'}</small>
             </div>
-            <small>Product Limit: ${defaultPlanCard.getAttribute('data-limit')}</small>
-        `;
-    }
+        </div>
+        <small>Product Limit: ${card.getAttribute('data-limit')}</small>
+    `;
+}
+
+document.addEventListener('DOMContentLoaded', function(){
 
     // Add Product button click
     document.getElementById('addProductBtn').addEventListener('click', function() {
@@ -822,24 +823,23 @@ document.addEventListener('DOMContentLoaded', function(){
         }
     });
 
-    // Plan selection
-    document.querySelectorAll('.select-plan').forEach(function(card){
-        card.addEventListener('click', function(){
-            document.querySelectorAll('.select-plan').forEach(c => c.classList.remove('active'));
-            card.classList.add('active');
+    // Plan selection click
+    $(document).on('click', '.select-plan', function(){
+        $('.select-plan').removeClass('active');
+        $(this).addClass('active');
+        updateSelectedPlanBox(this);
+    });
 
-            document.getElementById('selectedPlanBox').innerHTML = `
-                <div class="plan-inline">
-                    <div><h6>${card.getAttribute('data-name')}</h6></div>
-                    <div class="price-tag">
-                        ${card.getAttribute('data-type')==1?'₹'+card.getAttribute('data-price'):
-                          card.getAttribute('data-commission')+'%'}
-                        <small>/${card.getAttribute('data-type')==1?'Month':'Per Product'}</small>
-                    </div>
-                </div>
-                <small>Product Limit: ${card.getAttribute('data-limit')}</small>
-            `;
-        });
+    // Modal shown event → set default plan
+    $('#pricingModal').on('shown.bs.modal', function(){
+        <?php if(!empty($default_plan)): ?>
+            var defaultPlanId = <?= $default_plan['id'] ?>;
+            var defaultPlanCard = document.querySelector('.select-plan[data-id="'+defaultPlanId+'"]');
+            if(defaultPlanCard){
+                defaultPlanCard.classList.add('active');
+                updateSelectedPlanBox(defaultPlanCard);
+            }
+        <?php endif; ?>
     });
 
     // Proceed button click
@@ -874,6 +874,7 @@ document.addEventListener('DOMContentLoaded', function(){
     });
 
 });
+
 </script>
 
 

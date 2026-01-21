@@ -245,56 +245,69 @@ class Dashboard extends CI_Controller
 
 
 
-public function index()
-{
-    is_not_logged_in();
+	public function index()
+	{
+		is_not_logged_in();
 
-    $user = $this->session->userdata('adminData');
-    if (!$user)
-        redirect('admin/Welcome');
+		$user = $this->session->userdata('adminData');
+		if (!$user)
+			redirect('admin/Welcome');
 
-    $this->load->model('Subscription_model');
-    $this->load->model('Order_model');
-    $this->load->model('Vendor_model');
+		$this->load->model('Subscription_model');
+		$this->load->model('Order_model');
+		$this->load->model('Vendor_model');
 
-    $data = [];
-    $data['index'] = 'index';
-    $data['adminData'] = $user;
+		$data = [];
+		$data['index'] = 'index';
+		$data['adminData'] = $user;
 
-    if ($user['Type'] == 1) {
-        // ================= ADMIN =================
-        $data['title'] = 'Admin Dashboard';
-        $data['order_summary'] = $this->Order_model->getOrderSummary();
-        $data['total_vendors'] = count($this->Vendor_model->get_all_vendors());
-    } else if ($user['Type'] == 2) {
-        // ================= VENDOR =================
-        $data['title'] = 'Vendor Dashboard';
-        $data['order_summary'] = $this->Order_model->getPurchaseSummary($user['Id']);
-        $data['total_products'] = $this->Order_model->TotalGetProducts($user['Id']);
+		if ($user['Type'] == 1)
+		{
+			// ================= ADMIN =================
+			$data['title'] = 'Admin Dashboard';
+			$data['order_summary'] = $this->Order_model->getOrderSummary();
+			$data['total_vendors'] = count($this->Vendor_model->get_all_vendors());
+		} else if ($user['Type'] == 2)
+		{
+			// ================= VENDOR =================
+			$data['title'] = 'Vendor Dashboard';
+			$data['order_summary'] = $this->Order_model->getPurchaseSummary($user['Id']);
+			$data['total_products'] = $this->Order_model->TotalGetProducts($user['Id']);
 
-        $active_subscription = $this->Subscription_model->getActiveSubscription($user['Id']);
-        $pending_request = $this->Subscription_model->getPendingSubscriptionRequest($user['Id'], 'vendor');
+			$active_subscription = $this->Subscription_model->getActiveSubscription($user['Id']);
+			$pending_request = $this->Subscription_model->getPendingSubscriptionRequest($user['Id'], 'vendor');
 
-        $data['show_subscription_popup'] = (empty($active_subscription) && empty($pending_request)) ? 1 : 0;
-        $data['active_subscription'] = $active_subscription;
-        $data['plans'] = $this->db->where('status', 1)->get('admin_subscription_plans_master')->result_array();
+			$data['show_subscription_popup'] = (empty($active_subscription) && empty($pending_request)) ? 1 : 0;
+			$data['active_subscription'] = $active_subscription;
+			$data['plans'] = $this->db->where('status', 1)->get('admin_subscription_plans_master')->result_array();
 
-    } else if ($user['Type'] == 3) {
-        // ================= PROMOTER =================
-        $data['title'] = 'Promoter Dashboard';
+		} else if ($user['Type'] == 3)
+		{
+			// ================= PROMOTER =================
+			$data['title'] = 'Promoter Dashboard';
 
-        $active_subscription = $this->Subscription_model->getActiveSubscription($user['Id'], 'promoter');
-        $pending_request = $this->Subscription_model->getPendingSubscriptionRequest($user['Id'], 'promoter');
+			// 🔑 PROMOTER DATA FETCH
+			$promoter = $this->db->where('status', 1)->group_start()->where('email', $user['Email'])->or_where('mobile', $user['Mobile'])
+				->group_end()->get('promoters')->row_array();
 
-        // $data['show_subscription_popup'] = (empty($active_subscription) && empty($pending_request)) ? 1 : 0;
-        $data['active_subscription'] = $active_subscription;
-        $data['plans'] = $this->db->where('status', 1)->get('admin_subscription_plans_master')->result_array();
-    }
+			// REFERRAL CODE
+			$data['referral_code'] = (!empty($promoter['reference_code'])) ? $promoter['reference_code'] : 'NA';
 
-    $this->load->view('include/header', $data);
-    $this->load->view('dashboard/index', $data);
-    $this->load->view('include/footer');
-}
+			// FULL REFERRAL URL
+			$data['referral_url'] = base_url('web/vendor_registration?ref=' . $data['referral_code']);
+			// SUBSCRIPTION
+			$active_subscription = $this->Subscription_model->getActiveSubscription($user['Id'], 'promoter');
+			$pending_request = $this->Subscription_model->getPendingSubscriptionRequest($user['Id'], 'promoter');
+
+			$data['active_subscription'] = $active_subscription;
+			$data['plans'] = $this->db->where('status', 1)->get('admin_subscription_plans_master')->result_array();
+		}
+
+
+		$this->load->view('include/header', $data);
+		$this->load->view('dashboard/index', $data);
+		$this->load->view('include/footer');
+	}
 
 
 	public function change_password($id = '')
