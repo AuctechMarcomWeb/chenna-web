@@ -13,60 +13,65 @@ class Subscription extends CI_Controller
     // ----------------------
     // Vendor/Promoter subscription request (AJAX)
     // ----------------------
-   public function create()
-{
-    $user_id = $this->input->post('user_id');
-    $plan_id = $this->input->post('plan_id');
-    $type = $this->input->post('type');
+    public function create()
+    {
+        $user_id = $this->input->post('user_id');
+        $plan_id = $this->input->post('plan_id');
+        $type = $this->input->post('type');
 
-    if (!$user_id || !$plan_id || !in_array($type, ['vendor', 'promoter'])) {
+        if (!$user_id || !$plan_id || !in_array($type, ['vendor', 'promoter']))
+        {
+            return $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode(['status' => 'error', 'message' => 'Invalid request']));
+        }
+
+        if ($this->Subscription_model->getPendingSubscriptionRequest($user_id, $type))
+        {
+            return $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode(['status' => 'error', 'message' => 'You already submitted a subscription request']));
+        }
+
+        $plan = $this->Subscription_model->getPlan($plan_id);
+        if (!$plan)
+        {
+            return $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode(['status' => 'error', 'message' => 'Invalid plan selected']));
+        }
+
+        $data = [
+            ($type == 'vendor') ? 'vendor_id' : 'promoter_id' => $user_id,
+            'plan_id' => $plan_id,
+            'plan_type' => $plan['plan_type'],
+            'price' => $plan['price'],
+            'commission_percent' => ($plan['plan_type'] == 2) ? $plan['commission_percent'] : null,
+            'product_limit' => (int) $plan['product_limit'],
+            'products_used' => 0,
+            'start_date' => date('Y-m-d'),
+            'end_date' => ($plan['plan_type'] == 1) ? date('Y-m-d', strtotime('+1 month')) : null,
+            'status' => 0,
+            'approval_status' => 0,
+            'created_at' => date('Y-m-d H:i:s')
+        ];
+
+        if ($type == 'vendor')
+        {
+            $id = $this->Subscription_model->createVendorSubscription($data);
+        } else
+        {
+            $id = $this->Subscription_model->createPromoterSubscription($data);
+        }
+
         return $this->output
             ->set_content_type('application/json')
-            ->set_output(json_encode(['status' => 'error', 'message' => 'Invalid request']));
+            ->set_output(json_encode([
+                'status' => 'success',
+                'message' => 'Your subscription request has been sent successfully',
+                'id' => $id
+            ]));
     }
-
-    if ($this->Subscription_model->getPendingSubscriptionRequest($user_id, $type)) {
-        return $this->output
-            ->set_content_type('application/json')
-            ->set_output(json_encode(['status' => 'error', 'message' => 'You already submitted a subscription request']));
-    }
-
-    $plan = $this->Subscription_model->getPlan($plan_id);
-    if (!$plan) {
-        return $this->output
-            ->set_content_type('application/json')
-            ->set_output(json_encode(['status' => 'error', 'message' => 'Invalid plan selected']));
-    }
-
-    $data = [
-        ($type == 'vendor') ? 'vendor_id' : 'promoter_id' => $user_id,
-        'plan_id' => $plan_id,
-        'plan_type' => $plan['plan_type'],
-        'price' => $plan['price'],
-        'commission_percent' => ($plan['plan_type'] == 2) ? $plan['commission_percent'] : null,
-        'product_limit' => (int)$plan['product_limit'],
-        'products_used' => 0,
-        'start_date' => date('Y-m-d'),
-        'end_date' => ($plan['plan_type'] == 1) ? date('Y-m-d', strtotime('+1 month')) : null,
-        'status' => 0,
-        'approval_status' => 0,
-        'created_at' => date('Y-m-d H:i:s')
-    ];
-
-    if ($type == 'vendor') {
-        $id = $this->Subscription_model->createVendorSubscription($data);
-    } else {
-        $id = $this->Subscription_model->createPromoterSubscription($data);
-    }
-
-    return $this->output
-        ->set_content_type('application/json')
-        ->set_output(json_encode([
-            'status' => 'success',
-            'message' => 'Your subscription request has been sent successfully',
-            'id' => $id
-        ]));
-}
 
     // ----------------------
     // Admin approve/reject subscription
@@ -77,46 +82,57 @@ class Subscription extends CI_Controller
         $status = $this->input->post('status');
         $user_type = $this->input->post('user_type');
 
-        if (!$id || !in_array($status, [1, 2]) || !in_array($user_type, ['vendor', 'promoter'])) {
+        if (!$id || !in_array($status, [1, 2]) || !in_array($user_type, ['vendor', 'promoter']))
+        {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request']);
             return;
         }
-
+        // Fetch subscription
         $sub = $this->Subscription_model->getSubscriptionByType($id, $user_type);
-        if (!$sub) {
+        if (!$sub)
+        {
             echo json_encode(['status' => 'error', 'message' => 'Subscription not found']);
             return;
         }
+        // Fetch plan details
+        $plan = $this->Subscription_model->getPlan($sub['plan_id']);
 
         $update = [
             'approval_status' => $status,
             'status' => ($status == 1 ? 1 : 0),
             'updated_at' => date('Y-m-d H:i:s')
         ];
-
-        $this->Subscription_model->updateSubscription($id, $update, $user_type);
-
-        // ================= EMAIL SEND =================
-        if ($user_type == 'vendor') {
-            $user = $this->db->get_where('vendors', ['id' => $sub['vendor_id']])->row_array();
-        } else {
-            $user = $this->db->get_where('promoters', ['id' => $sub['promoter_id']])->row_array();
+        if ($status == 1)
+        {
+            $today = date('Y-m-d');
+            $current_end = isset($sub['end_date']) && strtotime($sub['end_date']) >= strtotime($today)
+                ? $sub['end_date']
+                : $today;
+            $update['end_date'] = date('Y-m-d', strtotime('+1 month', strtotime($current_end)));
         }
 
-        $plan = $this->Subscription_model->getPlan($sub['plan_id']);
-
-        if ($user && $status == 1) {
-            $message = "Dear {$user['name']}, your subscription plan '{$plan['plan_name']}' has been approved and is now ACTIVE. Your plan ends on " . ($sub['end_date'] ?? 'N/A') . ".";
+        $this->Subscription_model->updateSubscription($id, $update, $user_type);
+        if ($user_type == 'vendor')
+        {
+            $user = $this->db->get_where('vendors', ['id' => $sub['vendor_id']])->row_array();
+        } else
+        {
+            $user = $this->db->get_where('promoters', ['id' => $sub['promoter_id']])->row_array();
+        }
+        if ($user && $status == 1)
+        {
+            $message = "Dear {$user['name']}, your subscription plan '{$plan['plan_name']}' has been approved and is now ACTIVE. Your plan ends on " . $update['end_date'] . ".";
             $this->email_send->send_email($user['email'], $message, 'Subscription Approved');
         }
 
         echo json_encode([
             'status' => 'success',
-            'message' => $status == 1
-                ? 'Subscription approved successfully'
-                : 'Subscription rejected successfully'
+            'message' => $status == 1 ? 'Subscription approved successfully' : 'Subscription rejected successfully',
+            'end_date' => $update['end_date']
         ]);
     }
+
+
 
     // ----------------------
     // Check if vendor has subscription
@@ -134,7 +150,8 @@ class Subscription extends CI_Controller
     // ----------------------
     public function addPlan()
     {
-        if ($this->input->post()) {
+        if ($this->input->post())
+        {
             $data = [
                 'plan_name' => $this->input->post('plan_name'),
                 'plan_type' => $this->input->post('plan_type'),
@@ -167,7 +184,8 @@ class Subscription extends CI_Controller
         $id = $this->input->post('id');
         $plan_type = $this->input->post('plan_type');
 
-        if (empty($id) || empty($plan_type)) {
+        if (empty($id) || empty($plan_type))
+        {
             $this->session->set_flashdata('error', 'Invalid Request');
             redirect('Vendor/AddPlan');
         }
@@ -177,12 +195,14 @@ class Subscription extends CI_Controller
             'status' => $this->input->post('status')
         ];
 
-        if ($plan_type == 1) {
+        if ($plan_type == 1)
+        {
             $updateData['price'] = (float) $this->input->post('price');
             $updateData['product_limit'] = (int) $this->input->post('product_limit');
             $updateData['commission_percent'] = NULL;
         }
-        if ($plan_type == 2) {
+        if ($plan_type == 2)
+        {
             $updateData['price'] = NULL;
             $updateData['product_limit'] = NULL;
             $updateData['commission_percent'] = (float) $this->input->post('commission_percent');

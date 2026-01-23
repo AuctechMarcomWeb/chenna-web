@@ -60,16 +60,34 @@ class Subscription_model extends CI_Model
     }
 
     // Get subscription by ID + type
-    public function getSubscriptionByType($id, $user_type)
-    {
-        if ($user_type == 'vendor')
-        {
-            return $this->db->get_where('vendor_subscriptions_master', ['id' => $id])->row_array();
-        } else
-        {
-            return $this->db->get_where('promoter_subscriptions_master', ['id' => $id])->row_array();
-        }
+
+// Get subscription by ID and type
+public function getSubscriptionByType($id, $user_type)
+{
+    if ($user_type == 'vendor') {
+        return $this->db->get_where('vendor_subscriptions_master', ['id'=>$id])->row_array();
+    } else {
+        return $this->db->get_where('promoter_subscriptions_master', ['id'=>$id])->row_array();
     }
+}
+
+// Update subscription
+public function updateSubscription($id, $data, $user_type)
+{
+    if ($user_type == 'vendor') {
+        return $this->db->where('id',$id)->update('vendor_subscriptions_master',$data);
+    } else {
+        return $this->db->where('id',$id)->update('promoter_subscriptions_master',$data);
+    }
+}
+
+// Fetch plan details
+public function getPlan($plan_id)
+{
+    return $this->db->get_where('admin_subscription_plans_master', ['id'=>$plan_id])->row_array();
+}
+
+
 
     // Get subscription by ID (original, fallback)
     public function getSubscription($id)
@@ -94,16 +112,16 @@ class Subscription_model extends CI_Model
         return $promoter;
     }
 
-    public function updateSubscription($id, $data, $user_type)
-    {
-        if ($user_type == 'vendor')
-        {
-            return $this->db->where('id', $id)->update('vendor_subscriptions_master', $data);
-        } else
-        {
-            return $this->db->where('id', $id)->update('promoter_subscriptions_master', $data);
-        }
-    }
+    // public function updateSubscription($id, $data, $user_type)
+    // {
+    //     if ($user_type == 'vendor')
+    //     {
+    //         return $this->db->where('id', $id)->update('vendor_subscriptions_master', $data);
+    //     } else
+    //     {
+    //         return $this->db->where('id', $id)->update('promoter_subscriptions_master', $data);
+    //     }
+    // }
 
     public function getVendorSubscription($vendor_id)
     {
@@ -124,14 +142,6 @@ class Subscription_model extends CI_Model
         return $this->db
             ->where([$col => $user_id, 'status' => 1, 'approval_status' => 1])
             ->get($table)
-            ->row_array();
-    }
-
-
-    public function getPlan($plan_id)
-    {
-        return $this->db
-            ->get_where('admin_subscription_plans_master', ['id' => $plan_id])
             ->row_array();
     }
 

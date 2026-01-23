@@ -967,59 +967,42 @@ class Vendor extends CI_Controller
 	}
 
 	public function VendorsByPromoter()
-	{
-		// 🔐 LOGIN CHECK
-		is_not_logged_in();
+    {
+        is_not_logged_in();
+        $adminData = $this->session->userdata('adminData');
+        if ($adminData['Type'] != 3) {
+            redirect('admin/Welcome');
+        }
 
-		$adminData = $this->session->userdata('adminData');
-		if (empty($adminData) || $adminData['Type'] != 3)
-		{
-			redirect('admin/Welcome');
-		}
+        $promoter_id = $adminData['Id'];
 
-		$promoter_id = $adminData['Id'];
+        $data['total_vendors'] = $this->Vendor_model->total_vendors_by_promoter($promoter_id);
+        $data['vendors'] = $this->Vendor_model->vendors_with_plan_status($promoter_id);
 
-		/* ================= TOTAL COUNT ================= */
-		$this->db->from('vendors');
-		$this->db->where('promoter_id', $promoter_id);
-		$this->db->where('promoter_code_used IS NOT NULL');
-		$this->db->where('promoter_code_used !=', '');
-		$data['total_vendors'] = $this->db->count_all_results();
+        $data['title'] = 'My Vendors';
+        $data['index'] = 'VendorListByPromoter';
 
-		/* ================= VENDOR LIST ================= */
-		$this->db->select('
-        id,
-        name,
-        shop_name,
-        email,
-        mobile,
-		profile_pic,
-		vendor_logo,
-		address,
-		city,
-		state,
-		pincode,
-		gst_number,
-        status,
-        add_date
-    ');
-		$this->db->from('vendors');
-		$this->db->where('promoter_id', $promoter_id);
-		$this->db->where('promoter_code_used IS NOT NULL');
-		$this->db->where('promoter_code_used !=', '');
-		$this->db->order_by('add_date', 'DESC');
+        $this->load->view('include/header', $data);
+        $this->load->view('Promoter/VendorsByPromoter', $data);
+        $this->load->view('include/footer');
+    }
 
-		$data['vendors'] = $this->db->get()->result_array();
+    // Renew vendor plan by promoter
+    public function renew_vendor_plan()
+    {
+        $vendor_id = $this->input->post('vendor_id');
+        $promoter_id = $this->session->userdata('adminData')['Id'];
 
-		$data['title'] = 'Vendor List';
-		$data['index'] = 'VendorListByPromoter';
+        // Example: Extend subscription 1 month from today
+        $new_end_date = date('Y-m-d', strtotime('+1 month'));
+        $this->db->where('vendor_id', $vendor_id)->update('vendor_subscriptions_master', ['end_date' => $new_end_date,
+                     'status' => 1,'updated_at' => date('Y-m-d H:i:s')]);
 
-		$this->load->view('include/header', $data);
-		$this->load->view('Promoter/VendorsByPromoter', $data);
-		$this->load->view('include/footer');
-	}
+        // Assign vendor to current promoter
+        $this->Vendor_model->assign_vendor_to_promoter($vendor_id, $promoter_id);
 
-
+        echo json_encode(['status' => 'success', 'message' => 'Plan renewed successfully']);
+    }
 
 
 

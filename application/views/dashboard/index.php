@@ -326,7 +326,7 @@
   }
 
   .referral-card {
-    border-left: 5px solid #6f42c1;
+   background-color:white;
     padding: 20px;
   }
 
@@ -731,12 +731,11 @@
     <section class="content">
       <div class="admin-card referral-card">
         <div class="referral-row">
-
           <!-- LEFT : WELCOME -->
           <div class="referral-left">
             <h3>Welcome, <?= ucwords($adminData['Name']); ?> 👋</h3>
-            <small style="margin-top:10px;display:block;">
-              Referral Code: <strong><?= $referral_code; ?></strong>
+            <small style="margin-top:20px;display:block;font-size:15px;">
+             <b class="fs-1"> Referral Code: </b> <strong class="text-success"><?= $referral_code; ?></strong>
             </small>
           </div>
 
@@ -752,11 +751,9 @@
               </button>
             </div>
           </div>
-
-
         </div>
       </div>
-
+      <br><br>
 
       <div class="row">
         <!-- Total Products -->
@@ -772,9 +769,6 @@
             </a>
           </div>
         </div>
-
-
-
         <!-- Total Orders -->
         <div class="col-lg-3 col-xs-6">
           <div class="small-box bg-blue">

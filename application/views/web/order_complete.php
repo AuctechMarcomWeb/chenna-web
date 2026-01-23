@@ -51,35 +51,57 @@
                 shortly.</p>
         </div>
 
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
-                <div class="table-responsive shadow-sm rounded-4 border overflow-hidden">
-                    <table class="table table-border m-0">
-                        <tbody>
-                            <tr class="bg-light">
-                                <th class="p-3">Order ID:</th>
-                                <td class="p-3 text-danger fw-bold"><?= $order_data['order_number']; ?></td>
-                            </tr>
-                            <tr>
-                                <th class="p-3">Shipping Address:</th>
-                                <td class="p-3">
-                                    <?= $address_data['title']; ?> <?= $address_data['contact_person']; ?><br>
-                                    <?= $address_data['address']; ?>, <?= $address_data['localty']; ?>
-                                    <?= $address_data['landmark']; ?>,
-                                    <?= $address_data['city']; ?>, <?= $address_data['state']; ?><br>
-                                    Phone: +91 <?= $address_data['mobile_number']; ?><br>
-                                    Pincode: <?= $address_data['pincode']; ?>
-                                </td>
-                            </tr>
-                            <tr class="bg-light">
-                                <th class="p-3">Payment Method:</th>
-                                <td class="p-3"><?= $paymentTypeName; ?></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+       <div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="table-responsive shadow-sm rounded-4 border overflow-hidden">
+            <table class="table table-border m-0">
+                <tbody>
+
+                    <!-- Order ID -->
+                    <tr class="bg-light">
+                        <th class="p-3">Order ID:</th>
+                        <td class="p-3 text-danger fw-bold">
+                            <?= !empty($order_data['order_number']) 
+                                ? $order_data['order_number'] 
+                                : 'N/A'; ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="p-3">Shipping Address:</th>
+                        <td class="p-3">
+                            <?php if (!empty($address_data)) { ?>
+                                <?= $address_data['title'] ?? ''; ?>
+                                <?= $address_data['contact_person'] ?? ''; ?><br>
+
+                                <?= $address_data['address'] ?? ''; ?>,
+                                <?= $address_data['localty'] ?? ''; ?>
+                                <?= $address_data['landmark'] ?? ''; ?><br>
+
+                                <?= $address_data['city'] ?? ''; ?>,
+                                <?= $address_data['state'] ?? ''; ?><br>
+
+                                Phone: +91 <?= $address_data['mobile_number'] ?? 'N/A'; ?><br>
+                                Pincode: <?= $address_data['pincode'] ?? 'N/A'; ?>
+                            <?php } else { ?>
+                                <span class="text-muted">Address not available</span>
+                            <?php } ?>
+                        </td>
+                    </tr>
+
+                    <tr class="bg-light">
+                        <th class="p-3">Payment Method:</th>
+                        <td class="p-3">
+                            <?= !empty($paymentTypeName) 
+                                ? $paymentTypeName 
+                                : 'Unknown'; ?>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
         </div>
+    </div>
+</div>
 
 
 
