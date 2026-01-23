@@ -177,6 +177,56 @@
         height: 50px;
         object-fit: contain;
     }
+
+    .status-badge {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 5px 10px;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.85rem;
+        min-width: 120px;
+    }
+
+    .status-badge span {
+        margin-bottom: 5px;
+        background: #f38612;
+        padding: 3px 10px;
+        border-radius: 17px;
+           font-size: 10px;
+        color: white;
+    }
+
+    .status-badge.no-plan {
+        background-color: #f44336;
+        color: #fff;
+        min-width: 50px;
+        font-size: small;
+        padding: 4px 10px;
+        align-items: center;
+    }
+
+   .status-badge.active {
+    background-color: #2c9d0e;
+    color: #fff;
+    text-align: center;
+    min-width: 24px;
+    font-size: small;
+    align-items: center;
+    }
+
+
+    .status-badge.expired {
+        background-color: #9e9e9e;
+        color: #fff;
+    }
+
+    .status-badge button.renewBtn {
+        font-size: small;
+        padding: 4px 21px;
+        border-radius: 6px;
+    }
 </style>
 <div class="content-wrapper">
 
@@ -195,16 +245,12 @@
         <div class="row">
             <div class="col-xs-12">
 
-                <!-- INFO CARD -->
                 <div class="alert alert-info">
-                    <strong>Total Vendors Registered Through You:</strong>
-                    <?= $total_vendors; ?>
+                    <strong>Total Vendors Registered Through You:</strong> <?= $total_vendors; ?>
                 </div>
 
                 <div class="box">
                     <div class="box-body" style="overflow-x:auto;">
-
-                        <!-- TABLE -->
                         <table class="table table-bordered table-striped">
                             <thead>
                                 <tr>
@@ -217,15 +263,15 @@
                                     <th>Profile Photo</th>
                                     <th>Shop Photo</th>
                                     <th>Address</th>
-                                    <th>city</th>
+                                    <th>City</th>
                                     <th>State</th>
                                     <th>Pincode</th>
+                                    <th>Plan Name</th>
                                     <th>Status</th>
                                     <th>Registered Date</th>
                                 </tr>
                             </thead>
                             <tbody>
-
                                 <?php if (!empty($vendors)): ?>
                                     <?php $i = 1;
                                     foreach ($vendors as $v): ?>
@@ -236,50 +282,90 @@
                                             <td><?= $v['email'] ?: '---'; ?></td>
                                             <td><?= $v['mobile']; ?></td>
                                             <td><?= $v['gst_number'] ?: '---'; ?></td>
-                                            <td> <?php if (!empty($v['profile_pic']))
-                                            { ?>
+                                            <td><?php if (!empty($v['profile_pic'])): ?>
                                                     <img src="<?= base_url($v['profile_pic']) ?>" width="80">
-                                                <?php } ?>
+                                                <?php endif; ?>
                                             </td>
-                                            <td> <?php if (!empty($v['vendor_logo']))
-                                            { ?>
+                                            <td><?php if (!empty($v['vendor_logo'])): ?>
                                                     <img src="<?= base_url($v['vendor_logo']) ?>" width="80">
-                                                <?php } ?>
+                                                <?php endif; ?>
                                             </td>
                                             <td><?= $v['address']; ?></td>
                                             <td><?= $v['city']; ?></td>
                                             <td><?= $v['state']; ?></td>
                                             <td><?= $v['pincode']; ?></td>
+                                            <td><?= $v['plan_type'] == 1 ? 'Monthly' : ($v['plan_type'] == 2 ? 'Per Product' : 'N/A'); ?></td>
+
                                             <td>
-                                                <?php if ($v['status'] == 1): ?>
-                                                    <span class="label label-success">Active</span>
+                                                <?php
+                                                if (empty($v['end_date'])): ?>
+                                                    <div class="status-badge no-plan">
+                                                        No Plan
+                                                    </div>
+
+                                                <?php elseif ($v['plan_status'] == 1 && $v['days_left'] > 5): ?>
+                                                    <div class="status-badge active">
+                                                        Active
+                                                    </div>
+
+                                                <?php elseif ($v['plan_status'] == 1 && $v['days_left'] >= 0 && $v['days_left'] <= 7): ?>
+                                                    <div class="status-badge expiring">
+                                                        <span>Expiring in <?= $v['days_left']; ?>
+                                                            day<?= $v['days_left'] > 1 ? 's' : ''; ?></span>
+                                                        <button class="btn btn-sm btn-danger" id="addProductBtn"
+                                                            data-id="<?= $v['id']; ?>">Renew Now</button>
+                                                    </div>
+
                                                 <?php else: ?>
-                                                    <span class="label label-warning">Pending</span>
+                                                    <div class="status-badge expired">
+                                                        <span>Expired – Open for All Promoters</span>
+                                                        <button class="btn btn-sm btn-primary renewBtn"
+                                                            data-id="<?= $v['id']; ?>">Subscribe</button>
+                                                    </div>
                                                 <?php endif; ?>
                                             </td>
-                                            <!-- <td><?= date('d-m-Y | h:i:s A', strtotime($v->add_date)); ?></td> -->
+
+
                                             <td><?= date('d-m-Y | h:i:s A', strtotime($v['add_date'])); ?></td>
                                         </tr>
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <td colspan="7" class="text-center">
-                                            No vendors registered through you yet.
-                                        </td>
+                                        <td colspan="14" class="text-center">No vendors registered through you yet.</td>
                                     </tr>
                                 <?php endif; ?>
-
                             </tbody>
                         </table>
-
                     </div>
                 </div>
 
             </div>
         </div>
     </section>
-</div>
 
+    <script>
+        $(document).on('click', '.renewBtn', function () {
+            var vendor_id = $(this).data('id');
+            if (confirm('Are you sure you want to renew this vendor plan?')) {
+                $.ajax({
+                    url: '<?= base_url("Vendor/renew_vendor_plan") ?>',
+                    type: 'POST',
+                    data: { vendor_id: vendor_id },
+                    dataType: 'json',
+                    success: function (res) {
+                        if (res.status == 'success') {
+                            alert(res.message);
+                            location.reload();
+                        } else {
+                            alert('Something went wrong!');
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+
+</div>
 
 
 <script src="<?php echo base_url('assets/admin/plugins/select2/select2.full.min.js'); ?>"></script>

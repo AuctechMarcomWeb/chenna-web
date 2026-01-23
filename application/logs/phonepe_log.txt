@@ -1,0 +1,7 @@
+2026-01-23 00:26:48 - Response:  - Error: URL rejected: Malformed input to a URL function
+2026-01-23 00:31:37 - Response: Auth header 'Authorization' is missing or invalid. - Error: 
+2026-01-23 00:41:52 - Response: Auth header 'Authorization' is missing or invalid. - Error: 
+2026-01-23 00:42:04 - Response: Auth header 'Authorization' is missing or invalid. - Error: 
+2026-01-23 01:03:37 - Response: Auth header 'Authorization' is missing or invalid. - Error: 
+2026-01-23 01:11:45 - Response: Auth header 'Authorization' is missing or invalid. - Error: 
+2026-01-23 01:13:54 - Response: Auth header 'Authorization' is missing or invalid. - Error: 

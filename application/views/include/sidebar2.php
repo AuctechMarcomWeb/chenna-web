@@ -221,12 +221,25 @@
           <i class="fa fa-id-card"></i> <span>Subsciption Plans</span>
         </a>
       </li>
-      <li class="<?= (($index == 'VendorListByPromoter') ? 'active' : ''); ?>">
-        <a href="<?= site_url('admin/Vendor/VendorsByPromoter'); ?>">
-          <i class="fa fa-user-plus"></i>
-          <span>Vendor List</span>
+      <li class="treeview <?php echo (($index == 'VendorSetting') ? 'active' : ''); ?>">
+        <a href="#">
+          <i class="fa fa-user-plus"></i> <span>Vendor Setting</span>
+          <span class="pull-right-container">
+            <i class="fa fa-angle-left pull-right"></i>
+          </span>
         </a>
+
+        <ul class="treeview-menu">
+          <li class="<?= (($index == 'VendorListByPromoter') ? 'active' : ''); ?>">
+            <a href="<?= site_url('admin/Vendor/VendorsByPromoter'); ?>">
+              <i class="fa fa-circle-o"></i> 
+              <span>Vendor List</span>
+            </a>
+          </li>
+
+        </ul>
       </li>
+
 
 
       <li class="<?php echo (($index == 'PromoterSetting') ? 'active' : ''); ?>">

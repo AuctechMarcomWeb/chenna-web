@@ -192,48 +192,50 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    function toggleApproval(el, id, user_type) {
-        let status = el.checked ? 1 : 2;
+function toggleApproval(el, id, user_type) {
+    let status = el.checked ? 1 : 2;
 
-        $.ajax({
-            url: "<?= site_url('admin/Subscription/approve_plan_status'); ?>",
-            type: "POST",
-            data: { id: id, status: status, user_type: user_type },
-            dataType: "json",
-            success: function (res) {
-                if (res.status === 'success') {
-                    Swal.fire({
-                        icon: 'success',
-                        title: res.message,
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
+    $.ajax({
+        url: "<?= site_url('admin/Subscription/approve_plan_status'); ?>",
+        type: "POST",
+        data: {id:id, status:status, user_type:user_type},
+        dataType: "json",
+        success: function(res) {
+            if(res.status === 'success') {
+                Swal.fire({icon:'success', title: res.message, timer:1500, showConfirmButton:false});
+                el.checked = status === 1;
+                el.disabled = true;
 
-                    el.checked = status === 1;
-                    el.disabled = true;
+                const row = $(el).closest('tr');
 
-                    const row = $(el).closest('tr');
+                // Approval badge
+                row.find('td:eq(5)').html(status===1 
+                    ? '<span class="badge bg-success">Approved</span>' 
+                    : '<span class="badge bg-danger">Rejected</span>');
 
-                   
-                    row.find('td:eq(5)').html(status === 1
-                        ? '<span class="badge bg-success">Approved</span>'
-                        : '<span class="badge bg-danger">Rejected</span>');
-
-                  
-                    row.find('td:eq(4)').html(status === 1
-                        ? '<span class="text-success">Active</span>'
-                        : '<span class="text-danger">Rejected</span>');
-                } else {
-                    Swal.fire({ icon: 'error', title: res.message });
-                    el.checked = !el.checked; 
+                // Plan status column
+                let planStatus = '';
+                if(status === 2) planStatus = '<span class="text-danger">Rejected</span>';
+                else if(status === 1 && res.end_date){
+                    let today = new Date();
+                    let endDate = new Date(res.end_date);
+                    if(endDate >= today) planStatus = '<span class="text-success">Active</span>';
+                    else planStatus = '<span class="text-warning">Expired</span>';
                 }
-            },
-            error: function () {
-                Swal.fire({ icon: 'error', title: 'Server error' });
+
+                row.find('td:eq(4)').html(planStatus);
+                row.find('td:eq(9)').html(res.end_date);
+            } else {
+                Swal.fire({icon:'error', title:res.message});
                 el.checked = !el.checked;
             }
-        });
-    }
+        },
+        error: function() {
+            Swal.fire({icon:'error', title:'Server error'});
+            el.checked = !el.checked;
+        }
+    });
+}
 
 </script>
 

@@ -461,12 +461,12 @@
     <section class="content-header">
         <h1>Manage Products
            <!-- Add Product Button -->
-<a href="javascript:void(0);" 
-   class="btn btn-info" 
-   style="float: right; padding-right: 10px;" 
-   id="addProductBtn">
-   Add Product
-</a>
+        <a href="javascript:void(0);" 
+          class="btn btn-info" 
+          style="float: right; padding-right: 10px;" 
+          id="addProductBtn">
+          Add Product
+        </a>
 
 <!-- Pass PHP subscription info to JS -->
 <script>

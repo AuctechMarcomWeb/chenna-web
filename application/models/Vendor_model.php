@@ -201,35 +201,55 @@ class Vendor_model extends CI_Model
     return $this->db->get_where('promoters', ['id' => $id])->row_array();
   }
 
-  public function get_vendors_by_promoter($promoter_id) {
-        $this->db->select('
-            v.id as vendor_id,
-            v.name as vendor_name,
-            v.shop_name as vendor_shop,
-            v.mobile,
-            v.email,
-            v.status as vendor_status,
-            v.add_date as vendor_added_date,
-            p.name as promoter_name,
-            p.shop_name as promoter_shop
-        ');
-        $this->db->from('vendors v');
-        $this->db->join('promoters p', 'v.promoter_id = p.id', 'left');
-        $this->db->where('v.promoter_id', $promoter_id);
-        $this->db->where('v.promoter_code_used IS NOT NULL');
-        $this->db->where('v.promoter_code_used !=', '');
-        $this->db->order_by('v.add_date', 'desc');
+  public function total_vendors_by_promoter($promoter_id)
+  {
+    return $this->db->where('promoter_id', $promoter_id)->where('promoter_code_used IS NOT NULL')->count_all_results('vendors');
+  }
+  /* Vendor list with subscription status */
+public function vendors_with_plan_status($promoter_id)
+{
+    $today = date('Y-m-d');
 
+    $this->db->select("
+        v.*,
+        vs.id AS subscription_id,
+        vs.end_date,
+        vs.plan_type,
+       
+        vs.price,
+        vs.commission_percent,
+        vs.product_limit,
+        vs.products_used,
+        vs.status AS plan_status,
+        vs.approval_status,
+        DATEDIFF(vs.end_date, '$today') AS days_left
+    ");
+    $this->db->from('vendors v');
+    $this->db->join('(SELECT * FROM vendor_subscriptions_master ORDER BY id DESC) vs', 'vs.vendor_id = v.id', 'left');
+
+    $this->db->where('v.promoter_id', $promoter_id);
+    $this->db->where('v.promoter_code_used IS NOT NULL');
+    $this->db->group_by('v.id');
+
+    return $this->db->get()->result_array();
+}
+
+  /*Vendors whose plan expired & grace over */
+ public function expired_vendors_open_for_all()
+    {
+        $this->db->select('v.*');
+        $this->db->from('vendors v');
+        $this->db->join('vendor_subscriptions_master vs', 'vs.vendor_id=v.id', 'left');
+        $this->db->where('vs.end_date < DATE_SUB(CURDATE(), INTERVAL 7 DAY)');
+        $this->db->where('vs.status', 0);
         return $this->db->get()->result_array();
     }
-  public function count_vendors_by_promoter($promoter_id)
-  {
-    $this->db->from('vendors');
-    $this->db->where('promoter_id', $promoter_id);
-    $this->db->where('promoter_code_used IS NOT NULL');
-    $this->db->where('promoter_code_used !=', '');
-    return $this->db->count_all_results();
-  }
+
+   /* Assign vendor to new promoter after renewal */
+  public function assign_vendor_to_promoter($vendor_id, $promoter_id)
+    {
+        return $this->db->where('id', $vendor_id)->update('vendors', ['promoter_id' => $promoter_id]);
+    }
   // End Registration
   // public function getVendotList()
   // {
