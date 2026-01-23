@@ -60,7 +60,10 @@
             <div class="col-lg-9">
                 <div class="order-contain">
                     <h3><b style="color:#c6a258" class="fw-bold fs-3">Order Date:</b>
-                        <?= date('d-m-Y', $order['add_date']); ?></h3>
+                       <?= !empty($order['add_date']) && $order['add_date'] != '0000-00-00 00:00:00'
+    ? date('d-m-Y', strtotime($order['add_date']))
+    : 'N/A'; ?>
+</h3>
                 </div>
             </div>
         </div>
@@ -104,7 +107,11 @@
                             <ul class="summery-total">
                                 <li class="list-total">
                                     <h4>Expected Delivery Date</h4>
-                                    <h4 class="price"><?= date('d-m-Y', strtotime('+5 days', $order['add_date'])); ?>
+                                    <h4 class="price"><?= (!empty($order['add_date']) && $order['add_date'] != '0000-00-00 00:00:00')
+    ? date('d-m-Y', strtotime('+5 days', strtotime($order['add_date'])))
+    : 'N/A'; ?>
+
+
                                     </h4>
                                 </li>
                             </ul>

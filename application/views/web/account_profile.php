@@ -465,7 +465,7 @@ if (empty($userInfo['profile_pic']))
                                         foreach ($getData as $order)
                                         {
 
-                                           
+
                                             $products = $this->db->get_where('purchase_master', ['order_master_id' => $order['id']])->result_array();
                                             if (empty($products))
                                                 continue;
@@ -523,18 +523,18 @@ if (empty($userInfo['profile_pic']))
                                                             <?php
                                                             $grandTotal = 0;
                                                             $coupon_discount_value = floatval($order['coupon_discount'] ?? 0);
-                                                            $coupon_discount_type = $order['discount_type'] ?? 'fixed'; 
-                                                    
+                                                            $coupon_discount_type = $order['discount_type'] ?? 'fixed';
+
                                                             foreach ($products as $prod):
                                                                 $price = $prod['final_price'] ?? 0;
                                                                 $quantity = $prod['quantity'] ?? 1;
 
-                                                               
+
                                                                 $sub_product_id = $prod['product_master_id'];
                                                                 $gst_row = $this->db->get_where('sub_product_master', ['id' => $sub_product_id])->row_array();
                                                                 $gst_percent = $gst_row['gst'] ?? 0;
 
-                                                              
+
                                                                 if ($coupon_discount_value > 0)
                                                                 {
                                                                     if ($coupon_discount_type === 'percent')
@@ -542,7 +542,7 @@ if (empty($userInfo['profile_pic']))
                                                                         $discounted_price = $price - ($price * $coupon_discount_value / 100);
                                                                     } else
                                                                     {
-                                                                      
+
                                                                         $discounted_price = $price - ($coupon_discount_value / count($products));
                                                                     }
                                                                 } else
@@ -550,16 +550,16 @@ if (empty($userInfo['profile_pic']))
                                                                     $discounted_price = $price;
                                                                 }
 
-                                                              
+
                                                                 $discounted_price = max($discounted_price, 0);
 
-                                                              
+
                                                                 $item_gst = ($discounted_price * $gst_percent / 100);
 
-                                                               
+
                                                                 $item_total = ($discounted_price + $item_gst) * $quantity;
 
-                                                              
+
                                                                 $grandTotal += $item_total;
 
                                                                 $main_image = !empty($prod['main_image']) ? base_url('assets/product_images/' . $prod['main_image']) : base_url('assets/product_images/no-image.jpg');
@@ -571,14 +571,14 @@ if (empty($userInfo['profile_pic']))
                                                                             style="width: 90px; height: 90px; object-fit: cover;">
                                                                     </td>
                                                                     <td><?= htmlspecialchars($prod['product_name']); ?></td>
-                                                                     <td><?= htmlspecialchars($prod['size']); ?></td>
+                                                                    <td><?= htmlspecialchars($prod['size']); ?></td>
                                                                     <td><?= $quantity; ?></td>
                                                                     <td>₹ <?= number_format($discounted_price, 2); ?></td>
                                                                     <td>₹ <?= number_format($item_total, 2); ?></td>
                                                                 </tr>
                                                             <?php endforeach; ?>
                                                         </tbody>
-                                                       
+
                                                     </table>
                                                 </div>
 
