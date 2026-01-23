@@ -114,7 +114,8 @@
 
             <tr>
                 <td><strong>Date</strong></td>
-                <td><?= !empty($order['add_date']) ? date('d-M-Y', $order['add_date']) : 'N/A'; ?></td>
+                <td><?= $order['order_date']; ?>
+</td>
             </tr>
 
             <tr>
@@ -328,7 +329,7 @@
                 <td class="signature bold" style="text-align: right; vertical-align: bottom;">
                     <div style="display: inline-block; text-align: center;">
                         <!-- Signature Image -->
-                        <img src="<?= base_url('plugins/images/signature.png'); ?>" alt="Authorized Sign"
+                        <img src="<?php echo base_url('plugins/images/logo.png'); ?>" alt="Authorized Sign"
                             style="width: 80px; height: 100; margin-bottom: 5px;">
 
                         <!-- Text Below Image -->
