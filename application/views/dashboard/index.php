@@ -147,13 +147,7 @@
     margin-top: -5px;
   }
 
-  /* LEFT SECTION */
-  .plan-box {
 
-    padding: 10px 1px;
-    border-radius: 14px;
-    background: #fff;
-  }
 
   /* PRICE TAG LEFT */
   .price-tag {
@@ -161,8 +155,10 @@
     color: #ff5a5a;
     font-size: 11px;
     font-weight: 700;
-    padding: 4px 4px;
+    padding: 4px 8px;
     border-radius: 5px;
+    display: inline-block;
+    white-space: nowrap;
   }
 
   /* FEATURES */
@@ -255,7 +251,7 @@
   }
 
 
-  /* CARD FEATURES */
+
   .pricing-card ul {
     list-style: none;
     padding: 0;
@@ -326,7 +322,7 @@
   }
 
   .referral-card {
-   background-color:white;
+    background-color: white;
     padding: 20px;
   }
 
@@ -363,6 +359,74 @@
   .hint {
     font-size: 12px;
     color: #666;
+  }
+
+  .pricing-modal {
+    border-radius: 16px;
+  }
+
+  .pricing-card {
+    border: 1px solid #eee;
+    border-radius: 14px;
+    padding: 13px;
+    cursor: pointer;
+    transition: all .25s ease;
+    height: auto;
+    background: #fff;
+  }
+
+  .pricing-card.active {
+    border-color: #ffe4e4;
+    background: linear-gradient(135deg, #ffffff, #fff);
+    box-shadow: 0 11px 24px rgb(255 234 234);
+  }
+
+  .card-price {
+    font-size: 13px;
+    font-weight: 700;
+    color: #e7331d;
+  }
+
+  .card-price small {
+    font-size: 13px;
+    font-weight: 500;
+    color: #6c757d;
+  }
+
+
+
+  .btn-proceed {
+    padding: 10px 21px;
+    font-size: 16px;
+    margin-top: 40px;
+    border-radius: 50px;
+    background: linear-gradient(135deg, #dd4b39, #f38f12);
+    color: #fff;
+    border: none;
+    margin-bottom: 10px;
+  }
+
+  .btn-proceed:hover {
+    background: linear-gradient(135deg, #17af27, #238522);
+  }
+
+  .section-title {
+    position: relative;
+    padding-bottom: 8px;
+    margin-bottom: 15px;
+    margin-top: 44px;
+    font-weight: 600;
+  }
+
+  .section-title::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 50%;
+    height: 2px;
+    background: #dd4b394f;
+    border-radius: 10px;
   }
 </style>
 
@@ -735,7 +799,7 @@
           <div class="referral-left">
             <h3>Welcome, <?= ucwords($adminData['Name']); ?> 👋</h3>
             <small style="margin-top:20px;display:block;font-size:15px;">
-             <b class="fs-1"> Referral Code: </b> <strong class="text-success"><?= $referral_code; ?></strong>
+              <b class="fs-1"> Referral Code: </b> <strong class="text-success"><?= $referral_code; ?></strong>
             </small>
           </div>
 
@@ -811,151 +875,146 @@
   <?php } ?>
 </div>
 
+
+
+
 <!-- Subscription Modal -->
 
-
-<!-- Subscription Modal -->
-<?php if (in_array($adminData['Type'], [2, 3]) && $show_subscription_popup == 1 && !empty($plans)): ?>
-
-  <?php $default_plan = !empty($active_subscription) ? $active_subscription : $plans[0]; ?>
-
-  <div class="modal fade" id="pricingModal" tabindex="-1">
+<?php if (!empty($plans) && !empty($show_subscription_popup) && $show_subscription_popup == 1): ?>
+  <div class="modal fade" id="subscriptionModal" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-centered">
       <div class="modal-content pricing-modal">
-
         <div class="modal-body p-5">
 
           <div class="text-center mb-5">
-            <h4 class="fw-bold mt-5">Pricing Plans</h4>
-            <p class="text-muted small">Select the best plan for your needs</p>
-          </div>
+            <h3 class="fw-bold">Choose Your Plan</h3>
+            <p class="text-muted">Select the best plan for your needs</p>
+          </div><br>
 
-          <div class="row align-items-start mt-5">
-
-            <!-- LEFT: Selected Plan -->
+          <div class="row g-4">
+            <!-- LEFT : Selected Plan -->
             <div class="col-md-4">
-              <h6 class="fw-semibold plan-heading">
-                <span class="heading-text">Your Selected Plan</span>
-                <span class="heading-icon">+</span>
-              </h6>
+              <h6 class="fw-semibold mb-3 section-title">Selected Plan</h6>
 
-              <div class="plan-box mt-3" id="selectedPlanBox">
-                <div class="plan-inline">
-                  <div>
-                    <h6><?= $default_plan['plan_name'] ?></h6>
-                  </div>
-                  <div class="price-tag" id="selectedPlanPrice">
-                    <?= $default_plan['plan_type'] == 1 ? '₹' . $default_plan['price'] : $default_plan['commission_percent'] . '%' ?>
-                    <small>/<?= $default_plan['plan_type'] == 1 ? 'Month' : 'Per Product' ?></small>
-                  </div>
-                </div>
-                <small>Product Limit: <?= $default_plan['product_limit'] ?></small><br>
+              <div class="plan-box" id="selectedPlanBox">
+                <h6><?= $plans[0]['plan_name'] ?></h6>
+                <div class="price-tag" id="selectedPlanPrice">
+                  <?= $plans[0]['plan_type'] == 1 ? '₹' . $plans[0]['price'] : $plans[0]['commission_percent'] . '%' ?>
+                  <small>/<?= $plans[0]['plan_type'] == 1 ? 'Month' : 'Per Product' ?></small>
+                </div><br>
+                <small class="text-muted mt-3">Product Limit: <?= $plans[0]['product_limit'] ?></small>
               </div>
             </div>
 
-            <!-- RIGHT: All Plans -->
+            <!-- RIGHT : Plans -->
             <div class="col-md-8">
-              <div class="row">
-                <?php foreach ($plans as $plan):
-                  $is_active = ($plan['id'] == $default_plan['id']) ? 'active' : ''; ?>
-                  <div class="col-md-6 mb-3">
-                    <div class="pricing-card select-plan <?= $is_active ?>" data-id="<?= $plan['id'] ?>"
-                      data-name="<?= $plan['plan_name'] ?>" data-price="<?= $plan['price'] ?>"
-                      data-type="<?= $plan['plan_type'] ?>" data-commission="<?= $plan['commission_percent'] ?>"
-                      data-limit="<?= $plan['product_limit'] ?>">
-
-                      <h6><?= $plan['plan_name'] ?></h6>
-                      <div class="card-price">
+              <div class="row g-3">
+                <?php foreach ($plans as $plan): ?>
+                  <div class="col-md-6">
+                    <div class="pricing-card select-plan" data-id="<?= $plan['id'] ?>" data-name="<?= $plan['plan_name'] ?>"
+                      data-price="<?= $plan['price'] ?>" data-type="<?= $plan['plan_type'] ?>"
+                      data-commission="<?= $plan['commission_percent'] ?>" data-limit="<?= $plan['product_limit'] ?>">
+                      <h6 class="fw-semibold"><?= $plan['plan_name'] ?></h6>
+                      <div class="card-price mt-2">
                         <?= $plan['plan_type'] == 1 ? '₹' . $plan['price'] : $plan['commission_percent'] . '%' ?>
                         <small>/<?= $plan['plan_type'] == 1 ? 'Month' : 'Per Product' ?></small>
                       </div>
-                      <ul>
-                        <li>Product Limit: <?= $plan['product_limit'] ?></li>
-                        <?php if ($plan['plan_type'] == 1): ?>
-                          <li>Price: ₹<?= $plan['price'] ?></li>
-                        <?php else: ?>
-                          <li>Commission: <?= $plan['commission_percent'] ?>%</li>
-                        <?php endif; ?>
-                      </ul>
+                      <small class="text-muted">Product Limit: <?= $plan['product_limit'] ?></small>
                     </div>
                   </div>
                 <?php endforeach; ?>
-              </div><br>
-            </div><br>
-
-            <div class="text-center mt-3">
-              <button class="btn btn-proceed" id="proceedPlanBtn">Proceed</button>
+              </div>
             </div>
-
           </div>
-        </div>
 
+          <div class="text-center mt-5">
+            <button class="btn btn-proceed" id="proceedPlanBtn">
+              Proceed to Payment →
+            </button>
+          </div>
+
+        </div>
       </div>
     </div>
   </div>
 
+
   <script>
     $(document).ready(function () {
-      $('#pricingModal').modal({ backdrop: 'static', keyboard: false }).modal('show');
 
-      // Detect user type
-      let type = <?= $adminData['Type'] == 2 ? "'vendor'" : "'promoter'" ?>;
-      let user_id = <?= isset($adminData['Id']) ? (int) $adminData['Id'] : 0 ?>;
+      $('#subscriptionModal').modal({
+        backdrop: 'static',
+        keyboard: false
+      }).modal('show');
 
-      // Select plan
-      $(document).on('click', '.select-plan', function () {
-        $('.pricing-card').removeClass('active');
+      let user_type = <?= $adminData['Type'] == 2 ? "'vendor'" : "'promoter'" ?>;
+      let user_id = <?= $adminData['Id'] ?>;
+
+      // Set default selected plan (first one)
+      const defaultPlan = $('.select-plan').first();
+      defaultPlan.addClass('active');
+      updateSelectedPlanBox(defaultPlan);
+
+      // Plan click
+      $('.select-plan').on('click', function () {
+        $('.select-plan').removeClass('active');
         $(this).addClass('active');
-
-        let name = $(this).data('name');
-        let plan_type = $(this).data('type');
-        let price = plan_type == 1 ? '₹' + $(this).data('price') : $(this).data('commission') + '%';
-        let period = plan_type == 1 ? 'Month' : 'Per Product';
-        let limit = $(this).data('limit');
-
-        // Update left box
-        $('#selectedPlanBox h6').text(name);
-        $('#selectedPlanBox small').text('Product Limit: ' + limit);
-        $('#selectedPlanPrice').html(price + ' <small>/' + period + '</small>');
-
-        // Store plan data
-        $('#proceedPlanBtn').data('plan-id', $(this).data('id'));
-        $('#proceedPlanBtn').data('type', plan_type);
+        updateSelectedPlanBox(this);
       });
 
+      function updateSelectedPlanBox(card) {
+        let price = $(card).data('type') == 1 ? '₹' + $(card).data('price') : $(card).data('commission') + '%';
+        let period = $(card).data('type') == 1 ? 'Month' : 'Per Product';
+        $('#selectedPlanBox').html(`
+      <h6>${$(card).data('name')}</h6>
+      <div class="price-tag">${price} <small>/${period}</small></div><br>
+      <small class="text-muted">Product Limit: ${$(card).data('limit')}</small>
+    `);
+        $('#proceedPlanBtn').data('plan-id', $(card).data('id'));
+      }
+
       // Proceed button
-      $(document).on('click', '#proceedPlanBtn', function () {
+      $('#proceedPlanBtn').on('click', function () {
         let plan_id = $(this).data('plan-id');
-        let plan_type = $(this).data('type');
+        if (!plan_id) { alert('Please select a plan'); return; }
 
-        if (!plan_id) {
-          alert('Please select a plan first.');
-          return;
-        }
+        let plan_type = $('.select-plan.active').data('type');
 
-        $.ajax({
-          url: '<?= base_url("admin/Subscription/create") ?>',
-          type: 'POST',
-          data: { user_id: user_id, plan_id: plan_id, type: type },
-          dataType: 'json',
-          success: function (res) {
-            if (res.status == 'success') {
-              alert(res.message);
-              $('#pricingModal').modal('hide');
+        $.post(
+          '<?= base_url("admin/Subscription/create_subscription") ?>',
+          { user_id, plan_id, user_type },
+          function (res) {
+            if (res.status === 'success') {
+              if (plan_type == 1) {
+                // Monthly plan → redirect to PhonePe
+                $('body').append(`
+              <form id="phonepeForm" action="<?= base_url('phonepe/pay') ?>" method="POST">
+                <input type="hidden" name="order_id" value="${res.merchant_txn_id}">
+                <input type="hidden" name="amount" value="${res.amount}">
+              </form>
+            `);
+                $('#phonepeForm').submit();
+              } else {
+                // Per-product plan → approve immediately
+                alert("Per-product plan activated. You can now add products.");
+                $('#subscriptionModal').modal('hide');
+                window.location.href = "<?= base_url('admin/Product/AddProduct'); ?>";
+              }
             } else {
               alert(res.message);
             }
           },
-          error: function () {
-            alert('Something went wrong. Please try again.');
-          }
-        });
+          'json'
+        );
       });
 
     });
   </script>
 
+
+
 <?php endif; ?>
+
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 

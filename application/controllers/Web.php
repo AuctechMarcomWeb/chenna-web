@@ -1057,93 +1057,94 @@ class Web extends CI_Controller
     $this->load->view('web/order_details');
     $this->load->view('web/include/footer');
   }
-  public function order_invoice($order_id_encoded)
-  {
+public function order_invoice($order_id_encoded)
+{
     $order_id = base64_decode($order_id_encoded);
+
+    // First try offline
     $order = $this->db->get_where('order_master', ['id' => $order_id])->row_array();
+    $is_online = false;
+
+    // If not found, try online
+    if (!$order)
+    {
+        $order = $this->db->get_where('order_master2', ['id' => $order_id])->row_array();
+        $is_online = true;
+    }
 
     if (!$order)
     {
-      $order = $this->db->get_where('order_master2', ['id' => $order_id])->row_array();
+        log_message('error', 'Order not found: ' . $order_id);
+        show_404();
+        return;
     }
-    if (!$order)
-    {
-      log_message('error', 'Order not found: ' . $order_id);
-      show_404();
-      return;
-    }
+
+    // Set tables based on online/offline
+    $purchase_table = $is_online ? 'purchase_master2' : 'purchase_master';
+    $address_table  = $is_online ? 'order_address_master2' : 'order_address_master';
+
+    // Fetch purchase items
     $this->db->select('p.*, s.product_name, s.main_image, s.product_hsn, s.gst, s.sku_code, s.color, s.size');
-    $this->db->from('purchase_master as p');
+    $this->db->from("$purchase_table as p");
     $this->db->join('sub_product_master as s', 's.id = p.product_master_id', 'left');
     $this->db->where('p.order_master_id', $order_id);
     $purchase_items = $this->db->get()->result_array();
 
     if (empty($purchase_items))
     {
-      log_message('error', 'No purchase items found for order: ' . $order_id);
-    }
-    $address = $this->db->get_where(
-      'order_address_master',
-      ['order_master_id' => $order_id]
-    )->row_array();
-
-    if (!$address)
-    {
-      log_message('error', 'No shipping address found for order: ' . $order_id);
-    }
-    $order['order_date'] =
-      (!empty($order['add_date']) && $order['add_date'] != '0000-00-00 00:00:00')
-      ? date('d-m-Y', strtotime($order['add_date']))
-      : 'N/A';
-    $data = [
-      'order' => $order,
-      'purchase_items' => $purchase_items,
-      'address' => $address,
-      'order_id_encoded' => $order_id_encoded,
-      'title' => 'Order Invoice | Dukekart'
-    ];
-
-    $this->load->view('web/order_invoice', $data);
-  }
-
-  public function order_details($order_id_encoded)
-  {
-    $order_id = base64_decode($order_id_encoded);
-    $order = $this->db->get_where('order_master', ['id' => $order_id])->row_array();
-    $purchase_table = 'purchase_master';
-    $address_table = 'order_address_master';
-    if (!$order)
-    {
-      $order = $this->db->get_where('order_master2', ['id' => $order_id])->row_array();
-      $purchase_table = 'purchase_master';
-      $address_table = 'order_address_master';
-    }
-    if (!$order)
-    {
-      show_404();
-      return;
+        log_message('error', 'No purchase items found for order: ' . $order_id);
     }
 
-    $order_gst_percent = !empty($order['gst']) ? $order['gst'] : 18;
-    $purchase_items = $this->db->get_where($purchase_table, ['order_master_id' => $order_id])->result_array();
-
-    if (empty($purchase_items))
-    {
-      log_message('error', 'No purchase items found for order: ' . $order_id);
-    }
+    // Fetch address
     $address = $this->db->get_where($address_table, ['order_master_id' => $order_id])->row_array();
     if (!$address)
     {
-      log_message('error', 'No shipping address found for order: ' . $order_id);
+        log_message('error', 'No shipping address found for order: ' . $order_id);
     }
 
+    $order['order_date'] = (!empty($order['add_date']) && $order['add_date'] != '0000-00-00 00:00:00')
+        ? date('d-m-Y', strtotime($order['add_date']))
+        : 'N/A';
+
     $data = [
-      'order' => $order,
-      'purchase_items' => $purchase_items,
-      'address' => $address,
-      'order_gst_percent' => $order_gst_percent,
-      'order_id_encoded' => $order_id_encoded,
-      'title' => 'Order Details | Chenna'
+        'order' => $order,
+        'purchase_items' => $purchase_items,
+        'address' => $address,
+        'order_id_encoded' => $order_id_encoded,
+        'title' => 'Order Invoice | Dukekart'
+    ];
+
+    $this->load->view('web/order_invoice', $data);
+}
+
+
+public function order_details($order_id_encoded)
+{
+    $order_id = base64_decode($order_id_encoded);
+    $order = $this->db->get_where('order_master', ['id' => $order_id])->row_array();
+    $purchase_table = 'purchase_master';
+    $address_table  = 'order_address_master';
+
+    if (!$order) {
+        $order = $this->db->get_where('order_master2', ['id' => $order_id])->row_array();
+        $purchase_table = 'purchase_master2';
+        $address_table  = 'order_address_master2';
+    }
+
+    if (!$order) {
+        show_404();
+        return;
+    }
+
+    $purchase_items = $this->db->get_where($purchase_table, ['order_master_id' => $order_id])->result_array();
+    $address        = $this->db->get_where($address_table, ['order_master_id' => $order_id])->row_array();
+
+    $data = [
+        'order'           => $order,
+        'purchase_items'  => $purchase_items,
+        'address'         => $address,
+        'order_id_encoded'=> $order_id_encoded,
+        'title'           => 'Order Details | Chenna'
     ];
 
     $data['order']['add_date_timestamp'] = strtotime($order['add_date']);
@@ -1151,7 +1152,7 @@ class Web extends CI_Controller
     $this->load->view('web/include/header', $data);
     $this->load->view('web/order_details', $data);
     $this->load->view('web/include/footer');
-  }
+}
 
   // public function product_detail()
   // {
@@ -1786,7 +1787,13 @@ class Web extends CI_Controller
       $onlineOrders = $this->db->get()->result_array();
 
       // Merge both orders
-      $data['getData'] = array_merge($offlineOrders, $onlineOrders);
+    // Merge both orders with a 'type' flag
+$offlineOrders = array_map(fn($o) => array_merge($o, ['order_type' => 'offline']), $offlineOrders);
+$onlineOrders  = array_map(fn($o) => array_merge($o, ['order_type' => 'online']), $onlineOrders);
+
+// Merge them
+$data['getData'] = array_merge($offlineOrders, $onlineOrders);
+
 
       // User addresses
       $data['address_data'] = $this->db->get_where('user_address_master', ['user_master_id' => $userData['id']])->result_array();
@@ -3301,469 +3308,481 @@ class Web extends CI_Controller
 
 
 
-  // public function order_complete()
-// {
-//     $tid  = $this->input->post('tid');
-//     $data = $this->input->post();
-//     $userData = $this->session->userdata('User');
-
-  //     if (empty($userData)) {
-//         redirect('web/login');
-//         return;
-//     }
-
-  //     $userId = $userData['id'];
-//     $buyNow = $this->session->userdata('buy_now');
-//     $applied_coupon = $this->session->userdata('applied_coupon');
-//     $coupon_discount_amount = 0;
-
-  //     /* ================= GET ITEMS ================= */
-//     if (!empty($buyNow['pro_id'])) {
-
-  //         $prod = $this->db->get_where(
-//             'sub_product_master',
-//             ['id' => $buyNow['pro_id']]
-//         )->row_array();
-
-  //         $total_items[] = [
-//             'id' => $prod['id'],
-//             'name' => $prod['product_name'],
-//             'price' => $prod['price'] ?? $prod['final_price'],
-//             'final_price' => $prod['final_price'],
-//             'gst' => $prod['gst'],
-//             'qty' => (int)$buyNow['qty'],
-//             'size' => $prod['size'] ?? '',
-//             'color' => $prod['color'] ?? '',
-//             'image' => $prod['main_image'] ?? '',
-//             'vendor_id' => $prod['vendor_id'] ?? null,
-//             'promoter_id' => $prod['promoter_id'] ?? null
-//         ];
-
-  //     } else {
-
-  //         $cart_contents = $this->cart->contents();
-//         if (empty($cart_contents)) {
-//             redirect(base_url());
-//             return;
-//         }
-
-  //         $total_items = [];
-//         foreach ($cart_contents as $c) {
-//             $prod = $this->db->get_where(
-//                 'sub_product_master',
-//                 ['id' => $c['id']]
-//             )->row_array();
-
-  //             $total_items[] = [
-//                 'id' => $c['id'],
-//                 'name' => $c['name'],
-//                 'price' => $c['price'],
-//                 'final_price' => $c['final_price'],
-//                 'gst' => $c['gst'],
-//                 'qty' => $c['qty'],
-//                 'size' => $c['size'] ?? '',
-//                 'color' => $c['color'] ?? '',
-//                 'image' => $c['image'] ?? '',
-//                 'vendor_id' => $prod['vendor_id'] ?? null,
-//                 'promoter_id' => $prod['promoter_id'] ?? null
-//             ];
-//         }
-//     }
-
-  //     /* ================= TOTAL ================= */
-//     $total_price = 0;
-//     foreach ($total_items as $itm) {
-//         $total_price += $itm['final_price'] * $itm['qty'];
-//     }
-
-  //     /* ================= COUPON ================= */
-//     if (!empty($applied_coupon)) {
-//         if ($applied_coupon['discount_type'] == 'percent') {
-//             $coupon_discount_amount =
-//                 ($applied_coupon['discount_value'] / 100) * $total_price;
-
-  //             if (!empty($applied_coupon['max_discount_amount']) &&
-//                 $coupon_discount_amount > $applied_coupon['max_discount_amount']) {
-//                 $coupon_discount_amount = $applied_coupon['max_discount_amount'];
-//             }
-//         } else {
-//             $coupon_discount_amount = $applied_coupon['discount_value'];
-//         }
-//     }
-
-  //     $subtotal_after_coupon = $total_price - $coupon_discount_amount;
-
-  //     /* ================= GST ================= */
-//     $gst_total = 0;
-//     foreach ($total_items as $itm) {
-
-  //         $item_total = $itm['final_price'] * $itm['qty'];
-//         $item_discount = ($total_price > 0)
-//             ? ($item_total / $total_price) * $coupon_discount_amount
-//             : 0;
-
-  //         $prodInfo = $this->db->select('gst')
-//             ->get_where('sub_product_master', ['id' => $itm['id']])
-//             ->row_array();
-
-  //         $gst_rate = (float)($prodInfo['gst'] ?? 0);
-//         $gst_total += (($item_total - $item_discount) * $gst_rate / 100);
-//     }
-
-  //     /* ================= SHIPPING ================= */
-//     $settings = $this->db->get_where('settings', ['id' => 1])->row_array();
-//     $shipping = ($subtotal_after_coupon > $settings['min_order_bal'])
-//         ? 0
-//         : $settings['shipping_amount'];
-
-  //     $grand_total = $subtotal_after_coupon + $gst_total + $shipping;
-
-  //     /* ================= PAYMENT TYPE ================= */
-//     $paymentType = (int)($data['paymentType'] ?? 1);
-
-  //     $transaction_id = '';
-//     if ($paymentType == 2) {
-//         $transaction_id = $tid; // JS se aaya hua TID
-//     }
-
-  //     /* ================= ORDER INSERT ================= */
-//     $order_number = 'ORD' . time();
-
-  //     $order = [
-//         'order_number' => $order_number,
-//         'transaction_id' => $transaction_id,
-//         'user_master_id' => $userId,
-//         'total_price' => $grand_total,
-//         'final_price' => $grand_total,
-//         'payment_type' => $paymentType,
-//         'address_master_id' => $data['address_id'],
-//         'action_payment' => ($paymentType == 1) ? 'Yes' : 'No',
-//         'shippment_charge' => $shipping,
-//         'gst' => $gst_total,
-//         'coupon_code_id' => $applied_coupon['id'] ?? null,
-//         'coupon_discount' => $coupon_discount_amount,
-//         'status' => 1,
-//         'add_date' => time(),
-//         'modify_date' => time()
-//     ];
-
-  //     $this->db->insert('order_master', $order);
-//     $lastId = $this->db->insert_id();
-
-  //     /* ================= PURCHASE ================= */
-//     foreach ($total_items as $itm) {
-
-  //         $this->db->query(
-//             "UPDATE sub_product_master 
-//              SET quantity = quantity - {$itm['qty']} 
-//              WHERE id = {$itm['id']}"
-//         );
-
-  //         $purchase = [
-//             'order_master_id' => $lastId,
-//             'vendor_id' => $itm['vendor_id'],
-//             'promoter_id' => $itm['promoter_id'],
-//             'product_master_id' => $itm['id'],
-//             'product_name' => $itm['name'],
-//             'price' => $itm['price'],
-//             'final_price' => $itm['final_price'],
-//             'quantity' => $itm['qty'],
-//             'size' => $itm['size'],
-//             'color' => $itm['color'],
-//             'gst' => $itm['gst'],
-//             'status' => 1,
-//             'add_date' => time()
-//         ];
-
-  //         $this->db->insert('purchase_master', $purchase);
-//     }
-
-  //     /* ================= ADDRESS ================= */
-//     $address = $this->db->get_where(
-//         'user_address_master',
-//         ['id' => $data['address_id']]
-//     )->row_array();
-
-  //     $this->db->insert('order_address_master', [
-//         'order_master_id' => $lastId,
-//         'title' => $address['title'],
-//         'contact_person' => $address['contact_person'],
-//         'mobile_number' => $address['mobile_number'],
-//         'address' => $address['address'],
-//         'city' => $address['city'],
-//         'state' => $address['state'],
-//         'pincode' => $address['pincode'],
-//         'add_date' => time()
-//     ]);
-
-  //     /* ================= PHONEPE REDIRECT ================= */
-//     if ($paymentType == 2) {
-
-  //         $phonepeData = [
-//             'order_id' => $order_number,
-//            'amount'   => round($grand_total * 100)
-//         ];
-
-  //         // cart abhi clear NAHI karna
-//         $this->load->view('payment/phonepe_redirect', $phonepeData);
-//         return;
-//     }
-
-  //     /* ================= COD SUCCESS ================= */
-//     $this->cart->destroy();
-//     $this->session->unset_userdata(['buy_now', 'checkout_items']);
-//     redirect('web/order_success/' . base64_encode($lastId));
-// }
-
-
-
-  public function order_complete()
-  {
-    $tid = $this->input->post('tid');
-    $data = $this->input->post();
+public function order_complete()
+{
+    $data     = $this->input->post();
     $userData = $this->session->userdata('User');
 
     /* ================= USER CHECK ================= */
-    if (empty($userData))
-    {
-      redirect('web/login');
-      return;
+    if (empty($userData)) {
+        redirect('web/login');
+        return;
     }
 
-    $userId = $userData['id'];
-    $buyNow = $this->session->userdata('buy_now');
-    $applied_coupon = $this->session->userdata('applied_coupon');
+    $userId          = $userData['id'];
+    $buyNow          = $this->session->userdata('buy_now');
+    $applied_coupon  = $this->session->userdata('applied_coupon');
     $coupon_discount_amount = 0;
+
+    /* ================= PAYMENT TYPE ================= */
+    $paymentType = (int)($data['paymentType'] ?? 1); // 1 = COD, 2 = Online
+
+    /* ================= TABLE SELECTION ================= */
+    $order_table    = ($paymentType === 2) ? 'order_master2' : 'order_master';
+    $purchase_table = ($paymentType === 2) ? 'purchase_master2' : 'purchase_master';
+    $address_table  = ($paymentType === 2) ? 'order_address_master2' : 'order_address_master';
 
     /* ================= GET ITEMS ================= */
     $total_items = [];
 
-    if (!empty($buyNow['pro_id']))
-    {
-      $prod = $this->db->get_where('sub_product_master', ['id' => $buyNow['pro_id']])->row_array();
+    if (!empty($buyNow['pro_id'])) {
 
-      if (empty($prod))
-      {
-        $this->session->set_flashdata('error', 'Product not found.');
-        redirect('web/cart');
-        return;
-      }
-
-      $total_items[] = [
-        'id' => $prod['id'],
-        'name' => $prod['product_name'],
-        'price' => $prod['price'],
-        'final_price' => $prod['final_price'],
-        'gst' => $prod['gst'],
-        'qty' => (int) $buyNow['qty'],
-        'size' => $prod['size'],
-        'color' => $prod['color'],
-        'main_image' => $prod['main_image'],
-        'product_hsn' => $prod['product_hsn'],
-        'sku_code' => $prod['sku_code'],
-        'vendor_id' => $prod['vendor_id'],
-        'promoter_id' => $prod['promoter_id']
-      ];
-
-    } else
-    {
-      $cart_contents = $this->cart->contents();
-      if (empty($cart_contents))
-      {
-        redirect(base_url());
-        return;
-      }
-
-      foreach ($cart_contents as $c)
-      {
-        $prod = $this->db->get_where('sub_product_master', ['id' => $c['id']])->row_array();
-
-        if (empty($prod))
-        {
-          $this->session->set_flashdata('error', 'One or more products not found.');
-          redirect('web/cart');
-          return;
+        $prod = $this->db->get_where('sub_product_master', ['id' => $buyNow['pro_id']])->row_array();
+        if (empty($prod)) {
+            redirect('web/cart');
+            return;
         }
 
-              $total_items[] = [
-          'id'          => $c['id'],
-          'name'        => $c['name'],
-          'price'       => $c['price'],
-          'final_price' => $c['final_price'],
-          'gst'         => $prod['gst'],
-          'qty'         => $c['qty'],
-          'size'        => $c['size'],
-          'color'       => $c['color'],
-          'main_image'  => $prod['main_image'],
-          'product_hsn'=> $prod['product_hsn'],
-          'sku_code'   => $prod['sku_code'],
-          'vendor_id'  => $prod['vendor_id'],
-          'promoter_id'=> $prod['promoter_id']
-      ];
+        $total_items[] = [
+            'id'          => $prod['id'],
+            'name'        => $prod['product_name'],
+            'price'       => $prod['price'],
+            'final_price' => $prod['final_price'],
+            'gst'         => $prod['gst'],
+            'qty'         => (int)$buyNow['qty'],
+            'size'        => $prod['size'],
+            'color'       => $prod['color'],
+            'main_image'  => $prod['main_image'],
+            'product_hsn' => $prod['product_hsn'],
+            'sku_code'    => $prod['sku_code'],
+            'vendor_id'   => $prod['vendor_id'],
+            'promoter_id' => $prod['promoter_id']
+        ];
 
-      }
+    } else {
+
+        $cart_contents = $this->cart->contents();
+        if (empty($cart_contents)) {
+            redirect(base_url());
+            return;
+        }
+
+        foreach ($cart_contents as $c) {
+            $prod = $this->db->get_where('sub_product_master', ['id' => $c['id']])->row_array();
+            if (empty($prod)) {
+                redirect('web/cart');
+                return;
+            }
+
+            $total_items[] = [
+                'id'          => $c['id'],
+                'name'        => $c['name'],
+                'price'       => $c['price'],
+                'final_price' => $c['final_price'],
+                'gst'         => $prod['gst'],
+                'qty'         => $c['qty'],
+                'size'        => $c['size'],
+                'color'       => $c['color'],
+                'main_image'  => $prod['main_image'],
+                'product_hsn' => $prod['product_hsn'],
+                'sku_code'    => $prod['sku_code'],
+                'vendor_id'   => $prod['vendor_id'],
+                'promoter_id' => $prod['promoter_id']
+            ];
+        }
     }
 
     /* ================= TOTAL ================= */
     $total_price = 0;
-    foreach ($total_items as $itm)
-    {
-      $total_price += $itm['final_price'] * $itm['qty'];
+    foreach ($total_items as $itm) {
+        $total_price += $itm['final_price'] * $itm['qty'];
     }
 
     /* ================= COUPON ================= */
-    if (!empty($applied_coupon))
-    {
-      if ($applied_coupon['discount_type'] === 'percent')
-      {
-        $coupon_discount_amount = ($applied_coupon['discount_value'] / 100) * $total_price;
-        if (!empty($applied_coupon['max_discount_amount']) && $coupon_discount_amount > $applied_coupon['max_discount_amount'])
-        {
-          $coupon_discount_amount = $applied_coupon['max_discount_amount'];
+    if (!empty($applied_coupon)) {
+        if ($applied_coupon['discount_type'] === 'percent') {
+            $coupon_discount_amount = ($applied_coupon['discount_value'] / 100) * $total_price;
+            if (!empty($applied_coupon['max_discount_amount']) &&
+                $coupon_discount_amount > $applied_coupon['max_discount_amount']) {
+                $coupon_discount_amount = $applied_coupon['max_discount_amount'];
+            }
+        } else {
+            $coupon_discount_amount = $applied_coupon['discount_value'];
         }
-      } else
-      {
-        $coupon_discount_amount = $applied_coupon['discount_value'];
-      }
     }
 
     $subtotal_after_coupon = $total_price - $coupon_discount_amount;
 
     /* ================= GST ================= */
     $gst_total = 0;
-    foreach ($total_items as $itm)
-    {
-      $item_total = $itm['final_price'] * $itm['qty'];
-      $item_discount = ($total_price > 0) ? ($item_total / $total_price) * $coupon_discount_amount : 0;
+    foreach ($total_items as $itm) {
+        $item_total    = $itm['final_price'] * $itm['qty'];
+        $item_discount = ($total_price > 0)
+            ? ($item_total / $total_price) * $coupon_discount_amount
+            : 0;
 
-      $gst_rate = (float) ($itm['gst'] ?? 0);
-      $gst_total += (($item_total - $item_discount) * $gst_rate / 100);
+        $gst_total += (($item_total - $item_discount) * $itm['gst'] / 100);
     }
 
     /* ================= SHIPPING ================= */
     $settings = $this->db->get_where('settings', ['id' => 1])->row_array();
-    $shipping = ($subtotal_after_coupon > $settings['min_order_bal']) ? 0 : $settings['shipping_amount'];
+    $shipping = ($subtotal_after_coupon > $settings['min_order_bal'])
+        ? 0
+        : $settings['shipping_amount'];
 
     $grand_total = $subtotal_after_coupon + $gst_total + $shipping;
-
-    /* ================= PAYMENT TYPE ================= */
-    $paymentType = (int) ($data['paymentType'] ?? 1);
 
     /* ================= TRANSACTION ID ================= */
     $transaction_id = '';
     $phonepe_merchant_txn_id = '';
 
-    if ($paymentType === 2)
-    {
-      $phonepe_merchant_txn_id = 'DN' . date('YmdHis') . strtoupper(bin2hex(random_bytes(5)));
-      $this->session->set_userdata('phonepe_merchant_txn_id', $phonepe_merchant_txn_id);
-      // DEBUG: Browser mein dikhao (temporary, production mein remove kar do)
-      // echo "<pre style='background:#e0ffe0; padding:15px; border:2px solid green; font-size:16px;'>";
-      // echo "<h3>Generated PhonePe Merchant Transaction ID:</h3>";
-      // print_r($phonepe_merchant_txn_id);
-      // echo "</pre>";
-
-      $transaction_id = $phonepe_merchant_txn_id;
+    if ($paymentType === 2) {
+        $phonepe_merchant_txn_id = 'DN' . date('YmdHis') . strtoupper(bin2hex(random_bytes(5)));
+        $this->session->set_userdata('phonepe_merchant_txn_id', $phonepe_merchant_txn_id);
+        $transaction_id = $phonepe_merchant_txn_id;
     }
 
     /* ================= ORDER INSERT ================= */
     $order_number = 'ORD' . time();
 
-    // Table choose karo
-    $order_table = ($paymentType === 2) ? 'order_master2' : 'order_master';
-
     $order = [
-      'order_number' => $order_number,
-      'transaction_id' => $transaction_id,
-      'phonepe_merchant_txn_id' => $phonepe_merchant_txn_id,
-      'user_master_id' => $userId,
-      'total_price' => $grand_total,
-      'final_price' => $grand_total,
-      'payment_type' => $paymentType,
-      'address_master_id' => $data['address_id'],
-      'action_payment' => ($paymentType == 1) ? 'Yes' : 'No',
-      'shippment_charge' => $shipping,
-      'gst' => $gst_total,
-      'coupon_code_id' => $applied_coupon['id'] ?? null,
-      'coupon_discount' => $coupon_discount_amount,
-      'payment_status' => ($paymentType == 1) ? 'SUCCESS' : 'PENDING',
-      'status' => ($paymentType == 1) ? 1 : 0,
-      'add_date'          => date('Y-m-d H:i:s'),
-      'modify_date'       => date('Y-m-d H:i:s')
+        'order_number'              => $order_number,
+        'transaction_id'            => $transaction_id,
+        'phonepe_merchant_txn_id'   => $phonepe_merchant_txn_id,
+        'user_master_id'            => $userId,
+        'total_price'               => $grand_total,
+        'final_price'               => $grand_total,
+        'payment_type'              => $paymentType,
+        'address_master_id'         => $data['address_id'],
+        'action_payment'            => ($paymentType == 1) ? 'Yes' : 'No',
+        'shippment_charge'          => $shipping,
+        'gst'                       => $gst_total,
+        'coupon_code_id'            => $applied_coupon['id'] ?? null,
+        'coupon_discount'           => $coupon_discount_amount,
+        'payment_status'            => ($paymentType == 1) ? 'SUCCESS' : 'PENDING',
+        'status'                    => ($paymentType == 1) ? 1 : 0,
+        'add_date'                  => date('Y-m-d H:i:s'),
+        'modify_date'               => date('Y-m-d H:i:s')
     ];
 
     $this->db->insert($order_table, $order);
     $lastId = $this->db->insert_id();
 
-    /* ================= PURCHASE ================= */
-    foreach ($total_items as $itm)
-    {
-      $this->db->query(
-        "UPDATE sub_product_master 
-             SET quantity = quantity - {$itm['qty']} 
-             WHERE id = {$itm['id']}"
-      );
+    /* ================= PURCHASE INSERT ================= */
+    foreach ($total_items as $itm) {
 
-      $this->db->insert('purchase_master', [
-      'order_master_id'   => $lastId,
-      'vendor_id'         => $itm['vendor_id'],
-      'promoter_id'       => $itm['promoter_id'],
-      'product_master_id' => $itm['id'],
-      'product_name'      => $itm['name'],
-      'price'             => $itm['price'],
-      'final_price'       => $itm['final_price'],
-      'quantity'          => $itm['qty'],
-      'size'              => $itm['size'],
-      'color'             => $itm['color'],
-      'gst'               => $itm['gst'],
-      'main_image'        => $itm['main_image'],
-      'product_hsn'       => $itm['product_hsn'],
-      'sku_code'          => $itm['sku_code'],
-      'add_date'          => date('Y-m-d H:i:s'),
-      'modify_date'       => date('Y-m-d H:i:s'),
-      'status'            => 1
-    ]);
+        $this->db->query("
+            UPDATE sub_product_master 
+            SET quantity = quantity - {$itm['qty']} 
+            WHERE id = {$itm['id']}
+        ");
 
+        $this->db->insert($purchase_table, [
+            'order_master_id'   => $lastId,
+            'vendor_id'         => $itm['vendor_id'],
+            'promoter_id'       => $itm['promoter_id'],
+            'product_master_id' => $itm['id'],
+            'product_name'      => $itm['name'],
+            'price'             => $itm['price'],
+            'final_price'       => $itm['final_price'],
+            'quantity'          => $itm['qty'],
+            'size'              => $itm['size'],
+            'color'             => $itm['color'],
+            'gst'               => $itm['gst'],
+            'main_image'        => $itm['main_image'],
+            'product_hsn'       => $itm['product_hsn'],
+            'sku_code'          => $itm['sku_code'],
+            'add_date'          => date('Y-m-d H:i:s'),
+            'modify_date'       => date('Y-m-d H:i:s'),
+            'status'            => 1
+        ]);
     }
 
-    /* ================= ADDRESS ================= */
+    /* ================= ADDRESS INSERT ================= */
     $address = $this->db->get_where('user_address_master', ['id' => $data['address_id']])->row_array();
-
-    if (empty($address))
-    {
-      $this->session->set_flashdata('error', 'Invalid address.');
-      redirect('web/checkout');
-      return;
+    if (empty($address)) {
+        redirect('web/checkout');
+        return;
     }
 
-    $this->db->insert('order_address_master', [
-      'order_master_id' => $lastId,
-      'title' => $address['title'],
-      'contact_person' => $address['contact_person'],
-      'mobile_number' => $address['mobile_number'],
-      'address' => $address['address'],
-      'city' => $address['city'],
-      'state' => $address['state'],
-      'pincode' => $address['pincode'],
-      'add_date' => time()
+    $this->db->insert($address_table, [
+        'order_master_id' => $lastId,
+        'title'           => $address['title'],
+        'contact_person'  => $address['contact_person'],
+        'mobile_number'   => $address['mobile_number'],
+        'address'         => $address['address'],
+        'city'            => $address['city'],
+        'state'           => $address['state'],
+        'pincode'         => $address['pincode'],
+        'add_date'        => date('Y-m-d H:i:s')
     ]);
 
     /* ================= PHONEPE REDIRECT ================= */
-    if ($paymentType === 2)
-    {
-      $phonepeData = [
-        'order_id' => $phonepe_merchant_txn_id,
-        'amount' => round($grand_total, 2)
-      ];
-      $this->load->view('payment/phonepe_redirect', $phonepeData);
-      return;
+    if ($paymentType === 2) {
+        $this->load->view('payment/phonepe_redirect', [
+            'order_id' => $phonepe_merchant_txn_id,
+            'amount'   => round($grand_total, 2)
+        ]);
+        return;
     }
+
     /* ================= COD SUCCESS ================= */
     $this->cart->destroy();
-    $this->session->unset_userdata(['buy_now', 'checkout_items', 'applied_coupon']);
+    $this->session->unset_userdata(['buy_now', 'applied_coupon']);
 
     redirect('web/order_success/' . base64_encode($lastId));
-  }
+}
+
+
+
+
+  // public function order_complete()
+  // {
+  //   $tid = $this->input->post('tid');
+  //   $data = $this->input->post();
+  //   $userData = $this->session->userdata('User');
+
+  //   /* ================= USER CHECK ================= */
+  //   if (empty($userData))
+  //   {
+  //     redirect('web/login');
+  //     return;
+  //   }
+
+  //   $userId = $userData['id'];
+  //   $buyNow = $this->session->userdata('buy_now');
+  //   $applied_coupon = $this->session->userdata('applied_coupon');
+  //   $coupon_discount_amount = 0;
+
+  //   /* ================= GET ITEMS ================= */
+  //   $total_items = [];
+
+  //   if (!empty($buyNow['pro_id']))
+  //   {
+  //     $prod = $this->db->get_where('sub_product_master', ['id' => $buyNow['pro_id']])->row_array();
+
+  //     if (empty($prod))
+  //     {
+  //       $this->session->set_flashdata('error', 'Product not found.');
+  //       redirect('web/cart');
+  //       return;
+  //     }
+
+  //     $total_items[] = [
+  //       'id' => $prod['id'],
+  //       'name' => $prod['product_name'],
+  //       'price' => $prod['price'],
+  //       'final_price' => $prod['final_price'],
+  //       'gst' => $prod['gst'],
+  //       'qty' => (int) $buyNow['qty'],
+  //       'size' => $prod['size'],
+  //       'color' => $prod['color'],
+  //       'main_image' => $prod['main_image'],
+  //       'product_hsn' => $prod['product_hsn'],
+  //       'sku_code' => $prod['sku_code'],
+  //       'vendor_id' => $prod['vendor_id'],
+  //       'promoter_id' => $prod['promoter_id']
+  //     ];
+
+  //   } else
+  //   {
+  //     $cart_contents = $this->cart->contents();
+  //     if (empty($cart_contents))
+  //     {
+  //       redirect(base_url());
+  //       return;
+  //     }
+
+  //     foreach ($cart_contents as $c)
+  //     {
+  //       $prod = $this->db->get_where('sub_product_master', ['id' => $c['id']])->row_array();
+
+  //       if (empty($prod))
+  //       {
+  //         $this->session->set_flashdata('error', 'One or more products not found.');
+  //         redirect('web/cart');
+  //         return;
+  //       }
+
+  //             $total_items[] = [
+  //         'id'          => $c['id'],
+  //         'name'        => $c['name'],
+  //         'price'       => $c['price'],
+  //         'final_price' => $c['final_price'],
+  //         'gst'         => $prod['gst'],
+  //         'qty'         => $c['qty'],
+  //         'size'        => $c['size'],
+  //         'color'       => $c['color'],
+  //         'main_image'  => $prod['main_image'],
+  //         'product_hsn'=> $prod['product_hsn'],
+  //         'sku_code'   => $prod['sku_code'],
+  //         'vendor_id'  => $prod['vendor_id'],
+  //         'promoter_id'=> $prod['promoter_id']
+  //     ];
+
+  //     }
+  //   }
+
+  //   /* ================= TOTAL ================= */
+  //   $total_price = 0;
+  //   foreach ($total_items as $itm)
+  //   {
+  //     $total_price += $itm['final_price'] * $itm['qty'];
+  //   }
+
+  //   /* ================= COUPON ================= */
+  //   if (!empty($applied_coupon))
+  //   {
+  //     if ($applied_coupon['discount_type'] === 'percent')
+  //     {
+  //       $coupon_discount_amount = ($applied_coupon['discount_value'] / 100) * $total_price;
+  //       if (!empty($applied_coupon['max_discount_amount']) && $coupon_discount_amount > $applied_coupon['max_discount_amount'])
+  //       {
+  //         $coupon_discount_amount = $applied_coupon['max_discount_amount'];
+  //       }
+  //     } else
+  //     {
+  //       $coupon_discount_amount = $applied_coupon['discount_value'];
+  //     }
+  //   }
+
+  //   $subtotal_after_coupon = $total_price - $coupon_discount_amount;
+
+  //   /* ================= GST ================= */
+  //   $gst_total = 0;
+  //   foreach ($total_items as $itm)
+  //   {
+  //     $item_total = $itm['final_price'] * $itm['qty'];
+  //     $item_discount = ($total_price > 0) ? ($item_total / $total_price) * $coupon_discount_amount : 0;
+
+  //     $gst_rate = (float) ($itm['gst'] ?? 0);
+  //     $gst_total += (($item_total - $item_discount) * $gst_rate / 100);
+  //   }
+
+  //   /* ================= SHIPPING ================= */
+  //   $settings = $this->db->get_where('settings', ['id' => 1])->row_array();
+  //   $shipping = ($subtotal_after_coupon > $settings['min_order_bal']) ? 0 : $settings['shipping_amount'];
+
+  //   $grand_total = $subtotal_after_coupon + $gst_total + $shipping;
+
+  //   /* ================= PAYMENT TYPE ================= */
+  //   $paymentType = (int) ($data['paymentType'] ?? 1);
+
+  //   /* ================= TRANSACTION ID ================= */
+  //   $transaction_id = '';
+  //   $phonepe_merchant_txn_id = '';
+
+  //   if ($paymentType === 2)
+  //   {
+  //     $phonepe_merchant_txn_id = 'DN' . date('YmdHis') . strtoupper(bin2hex(random_bytes(5)));
+  //     $this->session->set_userdata('phonepe_merchant_txn_id', $phonepe_merchant_txn_id);
+  //     // DEBUG: Browser mein dikhao (temporary, production mein remove kar do)
+  //     // echo "<pre style='background:#e0ffe0; padding:15px; border:2px solid green; font-size:16px;'>";
+  //     // echo "<h3>Generated PhonePe Merchant Transaction ID:</h3>";
+  //     // print_r($phonepe_merchant_txn_id);
+  //     // echo "</pre>";
+
+  //     $transaction_id = $phonepe_merchant_txn_id;
+  //   }
+
+  //   /* ================= ORDER INSERT ================= */
+  //   $order_number = 'ORD' . time();
+
+  //   // Table choose karo
+  //   $order_table = ($paymentType === 2) ? 'order_master2' : 'order_master';
+
+  //   $order = [
+  //     'order_number' => $order_number,
+  //     'transaction_id' => $transaction_id,
+  //     'phonepe_merchant_txn_id' => $phonepe_merchant_txn_id,
+  //     'user_master_id' => $userId,
+  //     'total_price' => $grand_total,
+  //     'final_price' => $grand_total,
+  //     'payment_type' => $paymentType,
+  //     'address_master_id' => $data['address_id'],
+  //     'action_payment' => ($paymentType == 1) ? 'Yes' : 'No',
+  //     'shippment_charge' => $shipping,
+  //     'gst' => $gst_total,
+  //     'coupon_code_id' => $applied_coupon['id'] ?? null,
+  //     'coupon_discount' => $coupon_discount_amount,
+  //     'payment_status' => ($paymentType == 1) ? 'SUCCESS' : 'PENDING',
+  //     'status' => ($paymentType == 1) ? 1 : 0,
+  //     'add_date'          => date('Y-m-d H:i:s'),
+  //     'modify_date'       => date('Y-m-d H:i:s')
+  //   ];
+
+  //   $this->db->insert($order_table, $order);
+  //   $lastId = $this->db->insert_id();
+
+  //   /* ================= PURCHASE ================= */
+  //   foreach ($total_items as $itm)
+  //   {
+  //     $this->db->query(
+  //       "UPDATE sub_product_master 
+  //            SET quantity = quantity - {$itm['qty']} 
+  //            WHERE id = {$itm['id']}"
+  //     );
+
+  //     $this->db->insert('purchase_master', [
+  //     'order_master_id'   => $lastId,
+  //     'vendor_id'         => $itm['vendor_id'],
+  //     'promoter_id'       => $itm['promoter_id'],
+  //     'product_master_id' => $itm['id'],
+  //     'product_name'      => $itm['name'],
+  //     'price'             => $itm['price'],
+  //     'final_price'       => $itm['final_price'],
+  //     'quantity'          => $itm['qty'],
+  //     'size'              => $itm['size'],
+  //     'color'             => $itm['color'],
+  //     'gst'               => $itm['gst'],
+  //     'main_image'        => $itm['main_image'],
+  //     'product_hsn'       => $itm['product_hsn'],
+  //     'sku_code'          => $itm['sku_code'],
+  //     'add_date'          => date('Y-m-d H:i:s'),
+  //     'modify_date'       => date('Y-m-d H:i:s'),
+  //     'status'            => 1
+  //   ]);
+
+  //   }
+
+  //   /* ================= ADDRESS ================= */
+  //   $address = $this->db->get_where('user_address_master', ['id' => $data['address_id']])->row_array();
+
+  //   if (empty($address))
+  //   {
+  //     $this->session->set_flashdata('error', 'Invalid address.');
+  //     redirect('web/checkout');
+  //     return;
+  //   }
+
+  //   $this->db->insert('order_address_master', [
+  //     'order_master_id' => $lastId,
+  //     'title' => $address['title'],
+  //     'contact_person' => $address['contact_person'],
+  //     'mobile_number' => $address['mobile_number'],
+  //     'address' => $address['address'],
+  //     'city' => $address['city'],
+  //     'state' => $address['state'],
+  //     'pincode' => $address['pincode'],
+  //     'add_date' => time()
+  //   ]);
+
+  //   /* ================= PHONEPE REDIRECT ================= */
+  //   if ($paymentType === 2)
+  //   {
+  //     $phonepeData = [
+  //       'order_id' => $phonepe_merchant_txn_id,
+  //       'amount' => round($grand_total, 2)
+  //     ];
+  //     $this->load->view('payment/phonepe_redirect', $phonepeData);
+  //     return;
+  //   }
+  //   /* ================= COD SUCCESS ================= */
+  //   $this->cart->destroy();
+  //   $this->session->unset_userdata(['buy_now', 'checkout_items', 'applied_coupon']);
+
+  //   redirect('web/order_success/' . base64_encode($lastId));
+  // }
 
   public function cancel_order()
   {
@@ -4067,8 +4086,8 @@ class Web extends CI_Controller
     if (empty($order))
     {
       $tables['order'] = 'order_master2';
-      $tables['address'] = 'order_address_master';
-      $tables['purchase'] = 'purchase_master';
+      $tables['address'] = 'order_address_master2';
+      $tables['purchase'] = 'purchase_master2';
       $order = $this->db->get_where($tables['order'], ['id' => $decoded_order_id])->row_array();
     }
 

@@ -60,10 +60,10 @@
             <div class="col-lg-9">
                 <div class="order-contain">
                     <h3><b style="color:#c6a258" class="fw-bold fs-3">Order Date:</b>
-                       <?= !empty($order['add_date']) && $order['add_date'] != '0000-00-00 00:00:00'
-    ? date('d-m-Y', strtotime($order['add_date']))
-    : 'N/A'; ?>
-</h3>
+                        <?= !empty($order['add_date']) && $order['add_date'] != '0000-00-00 00:00:00'
+                            ? date('d-m-Y', strtotime($order['add_date']))
+                            : 'N/A'; ?>
+                    </h3>
                 </div>
             </div>
         </div>
@@ -71,10 +71,11 @@
 </section>
 
 
-<!-- Cart Section Start -->
 <section class="cart-section section-b-space">
     <div class="container-fluid-lg">
         <div class="row g-sm-4 g-3">
+
+            <!-- Left Sidebar: Shipping & Summary -->
             <div class="col-xxl-3 col-lg-4">
                 <div class="row g-4">
 
@@ -87,31 +88,30 @@
                             <ul class="summery-contain">
                                 <li>
                                     <h4 class="fw-bold">Recipient Name</h4>
-                                    <h4 class="price"><?= $address['contact_person']; ?></h4>
+                                    <h4 class="price"><?= htmlspecialchars($address['contact_person']); ?></h4>
                                 </li>
                                 <li>
                                     <h4 class="fw-bold">Address</h4>
-                                    <h4 class="price theme-color"><?= $address['address']; ?></h4>
+                                    <h4 class="price theme-color"><?= htmlspecialchars($address['address']); ?></h4>
                                 </li>
                                 <li>
                                     <h4 class="fw-bold">City</h4>
-                                    <h4 class="price"><?= $address['city']; ?>, <?= $address['state']; ?> -
-                                        <?= $address['pincode']; ?>
-                                    </h4>
+                                    <h4 class="price"><?= htmlspecialchars($address['city']); ?>,
+                                        <?= htmlspecialchars($address['state']); ?> -
+                                        <?= htmlspecialchars($address['pincode']); ?></h4>
                                 </li>
                                 <li>
                                     <h4 class="fw-bold">Mobile Number</h4>
-                                    <h4 class="price"><?= $address['mobile_number']; ?></h4>
+                                    <h4 class="price"><?= htmlspecialchars($address['mobile_number']); ?></h4>
                                 </li>
                             </ul>
                             <ul class="summery-total">
                                 <li class="list-total">
                                     <h4>Expected Delivery Date</h4>
-                                    <h4 class="price"><?= (!empty($order['add_date']) && $order['add_date'] != '0000-00-00 00:00:00')
-    ? date('d-m-Y', strtotime('+5 days', strtotime($order['add_date'])))
-    : 'N/A'; ?>
-
-
+                                    <h4 class="price">
+                                        <?= (!empty($order['add_date']) && $order['add_date'] != '0000-00-00 00:00:00')
+                                            ? date('d-m-Y', strtotime('+5 days', strtotime($order['add_date'])))
+                                            : 'N/A'; ?>
                                     </h4>
                                 </li>
                             </ul>
@@ -123,11 +123,6 @@
                         <div class="summery-box">
                             <div class="summery-header d-flex align-items-center">
                                 <h4 style="color:#c6a258" class="fw-bold fs-3">Order Summary</h4>
-                                <?php
-                                $purchase_items = $this->db
-                                    ->get_where('purchase_master', ['order_master_id' => $order['id']])
-                                    ->result_array();
-                                ?>
                                 <h5 class="ms-auto theme-color">(<?= count($purchase_items); ?> items)</h5>
                             </div>
 
@@ -140,52 +135,32 @@
                             {
                                 $qty = (int) ($item['quantity'] ?? 1);
                                 $price = (float) ($item['final_price'] ?? 0);
+                                $gst_percent = (float) ($item['gst'] ?? 0);
 
-                                $sub_product_id = $item['product_master_id'];
-                                $gst_row = $this->db
-                                    ->get_where('sub_product_master', ['id' => $sub_product_id])
-                                    ->row_array();
-
-                                $gst_percent = (float) ($gst_row['gst'] ?? 0);
-
+                                $items_total += $price * $qty;
+                                $total_gst_amount += ($price * $qty) * $gst_percent / 100;
                                 if ($gst_percent > 0)
-                                {
                                     $gst_list[] = $gst_percent;
-                                }
-
-                                $subtotal = $price * $qty;
-                                $items_total += $subtotal;
-
-                                $total_gst_amount += ($subtotal * $gst_percent) / 100;
                             }
 
                             $gst_list = array_unique($gst_list);
-
                             $shipping_charge = (float) ($order['shippment_charge'] ?? 0);
 
-                            // ---------- COUPON ----------
+                            // Coupon discount
                             $discount_amount = 0;
                             $coupon_text = '';
-
                             if (!empty($order['coupon_code_id']))
                             {
-                                $coupon = $this->db
-                                    ->get_where('coupon_manager_master', [
-                                        'id' => $order['coupon_code_id'],
-                                        'status' => 1
-                                    ])
-                                    ->row_array();
-
+                                $coupon = $this->db->get_where('coupon_manager_master', ['id' => $order['coupon_code_id'], 'status' => 1])->row_array();
                                 if ($coupon)
                                 {
-                                    if ($coupon['discount_type'] == 'fixed')
+                                    if ($coupon['discount_type'] === 'fixed')
                                     {
                                         $discount_amount = (float) $coupon['discount_value'];
                                         $coupon_text = '₹ ' . number_format($discount_amount, 2);
                                     } else
                                     {
-                                        $discount_amount = (($items_total + $total_gst_amount + $shipping_charge)
-                                            * $coupon['discount_value']) / 100;
+                                        $discount_amount = ($items_total + $total_gst_amount + $shipping_charge) * $coupon['discount_value'] / 100;
                                         $coupon_text = number_format($coupon['discount_value'], 2) . '%';
                                     }
                                 }
@@ -199,33 +174,20 @@
                                     <h4 class="fw-bold">Subtotal</h4>
                                     <h4 class="price">₹ <?= number_format($items_total, 2); ?></h4>
                                 </li>
-
                                 <li>
-                                    <h4 class="fw-bold">
-                                        Tax (
-                                        <?= !empty($gst_list)
-                                            ? implode(', ', array_map(
-                                                fn($g) => number_format($g, 2) . '%',
-                                                $gst_list
-                                            ))
-                                            : '0.00%' ?>
-
-                                        )
+                                    <h4 class="fw-bold">Tax
+                                        (<?= !empty($gst_list) ? implode(', ', array_map(fn($g) => number_format($g, 2) . "%", $gst_list)) : '0.00%' ?>)
                                     </h4>
                                     <h4 class="price theme-color">₹ <?= number_format($total_gst_amount, 2); ?></h4>
                                 </li>
-
                                 <li>
                                     <h4 class="fw-bold">Shipping Charges</h4>
                                     <h4 class="price">₹ <?= number_format($shipping_charge, 2); ?></h4>
                                 </li>
-
                                 <?php if ($discount_amount > 0): ?>
                                     <li>
                                         <h4 class="fw-bold">Discount (<?= $coupon_text; ?>)</h4>
-                                        <h4 class="price text-danger">
-                                            − ₹ <?= number_format($discount_amount, 2); ?>
-                                        </h4>
+                                        <h4 class="price text-danger">− ₹ <?= number_format($discount_amount, 2); ?></h4>
                                     </li>
                                 <?php endif; ?>
                             </ul>
@@ -236,11 +198,8 @@
                                     <h4 class="price">₹ <?= number_format($grand_total, 2); ?></h4>
                                 </li>
                             </ul>
-
                         </div>
                     </div>
-
-
 
                     <!-- Payment Method -->
                     <div class="col-12">
@@ -261,7 +220,7 @@
                 </div>
             </div>
 
-            <!-- Items Table -->
+            <!-- Right Sidebar: Items Table -->
             <div class="col-xxl-9 col-lg-8">
                 <div class="cart-table order-table order-table-2">
                     <div class="table-responsive">
@@ -271,93 +230,38 @@
                                     <th>Image</th>
                                     <th>Product Name</th>
                                     <th>Size</th>
-                                    <th>Price </th>
+                                    <th>Price</th>
                                     <th>Qty</th>
                                     <th>Total</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php
-                                $grand_total = 0;
-                                $total_gst = 0;
-
-
-                                $cart_total = 0;
-                                foreach ($purchase_items as $i)
-                                {
-                                    $cart_total += ($i['final_price'] ?? 0) * ($i['quantity'] ?? 1);
-                                }
-
-
-                                $coupon_discount = 0;
-
-                                if (!empty($order['coupon_code_id']))
-                                {
-                                    $coupon = $this->db
-                                        ->get_where('coupon_manager_master', [
-                                            'id' => $order['coupon_code_id'],
-                                            'status' => 1
-                                        ])->row_array();
-
-                                    if ($coupon)
-                                    {
-                                        if ($coupon['discount_type'] == 'fixed')
-                                        {
-                                            $coupon_discount = (float) $coupon['discount_value'];
-                                        } else
-                                        {
-                                            $coupon_discount = ($cart_total * $coupon['discount_value']) / 100;
-                                        }
-                                    }
-                                }
-
-                                /* -------- PRODUCTS LOOP -------- */
-                                foreach ($purchase_items as $item):
-
-                                    $qty = (float) ($item['quantity'] ?? 1);
+                                <?php foreach ($purchase_items as $item):
+                                    $qty = (int) ($item['quantity'] ?? 1);
                                     $price = (float) ($item['final_price'] ?? 0);
                                     $gst_percent = (float) ($item['gst'] ?? 0);
-
-
                                     $base_amount = $price * $qty;
 
-
-                                    $item_coupon = ($cart_total > 0)
-                                        ? ($base_amount / $cart_total) * $coupon_discount
-                                        : 0;
-
-
+                                    // Coupon allocation
+                                    $item_coupon = ($items_total > 0) ? ($base_amount / $items_total) * $discount_amount : 0;
                                     $discounted_amount = $base_amount - $item_coupon;
-
-
-                                    $gst_amount = ($gst_percent > 0)
-                                        ? ($discounted_amount * $gst_percent) / 100
-                                        : 0;
-
-
+                                    $gst_amount = ($gst_percent > 0) ? ($discounted_amount * $gst_percent) / 100 : 0;
                                     $item_total = $discounted_amount + $gst_amount;
 
-
                                     $grand_total += $item_total;
-                                    $total_gst += $gst_amount;
-
-                                    $img_url = !empty($item['main_image'])
-                                        ? base_url('assets/product_images/' . $item['main_image'])
-                                        : base_url('assets/images/no_image.png');
+                                    $img_url = !empty($item['main_image']) ? base_url('assets/product_images/' . $item['main_image']) : base_url('assets/images/no_image.png');
                                     ?>
                                     <tr class="text-center align-middle">
                                         <td>
                                             <img src="<?= htmlspecialchars($img_url); ?>" class="img-fluid rounded"
                                                 style="width:90px;height:90px;object-fit:cover;">
                                         </td>
-
                                         <td>
-                                            <a href="<?= site_url('product_detail/' . $item['id']); ?>"
+                                            <a href="<?= site_url('product_detail/' . $item['product_master_id']); ?>"
                                                 class="text-decoration-none">
                                                 <?= htmlspecialchars($item['product_name']); ?>
                                             </a>
                                         </td>
-
                                         <td><?= htmlspecialchars($item['size']); ?></td>
                                         <td>
                                             ₹ <?= number_format($price, 2); ?><br>
@@ -365,20 +269,15 @@
                                                 <small class="text-muted">GST <?= number_format($gst_percent, 2); ?>%</small>
                                             <?php endif; ?>
                                         </td>
-
                                         <td><?= $qty; ?></td>
-
                                         <td>₹ <?= number_format($item_total, 2); ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
-
                         </table>
                     </div>
                 </div>
             </div>
-
-
 
         </div>
     </div>
