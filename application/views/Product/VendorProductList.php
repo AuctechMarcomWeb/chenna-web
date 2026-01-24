@@ -3,8 +3,7 @@
         $("#hiddenSms").fadeOut(5000);
     }
 </script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
-    />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
 <style type="text/css">
     .ratingpoint {
         color: red;
@@ -172,6 +171,11 @@
         width: 0;
         height: 0;
     }
+      .vendor-logo {
+    width: 80px;
+    height: 50px;
+    object-fit: contain;
+  }
 </style>
 <div class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -230,6 +234,7 @@
                                         <th>Category</th>
                                         <th>Sub-Category</th>
                                         <th>Product Name</th>
+                                        <th>Shop Photo</th>
                                         <th>Shop</th>
                                         <th>Vendor</th>
                                         <th>Rate / MRP</th>
@@ -249,7 +254,22 @@
                                             <td><?= $value['sub_category_name'] ?? ''; ?></td>
                                             <td><?= $value['product_name']; ?><br>Color: <?= $value['color'] ?? ''; ?> |
                                                 Size: <?= $value['size'] ?? ''; ?></td>
+                                            <td class="text-center text-blue">
+                                                <?php
+                                                if ($value['added_type'] == '2')
+                                                {
+                                                  
+                                                    $img = !empty($value['vendor_logo']) ? base_url($value['vendor_logo']) : base_url('plugins/images/logo.png');
+                                                    $shop_name = $value['shop_logo'] ?? $value['promoter_name'];
+                                                } 
+                                                ?>
+                                                <img src="<?= $img; ?>" alt="Shop Logo" class="vendor-logo"
+                                                    onerror="this.src='<?= base_url('plugins/images/logo.png'); ?>'">
+                                                <br>
+                                                <!-- <span><?= $shop_name; ?></span> -->
+                                            </td>
                                             <td><?= $value['shop_name'] ?? ''; ?></td>
+
                                             <td><?= $value['vendor_name'] ?? ''; ?></td>
                                             <td><?= $value['final_price']; ?> / <?= $value['price']; ?></td>
                                             <td><?= $value['quantity']; ?></td>

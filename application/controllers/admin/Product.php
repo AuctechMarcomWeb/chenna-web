@@ -1214,7 +1214,7 @@ class Product extends CI_Controller
     $this->db->from('sub_product_master as sp');
     $this->db->select('sp.id, sp.shop_id, sp.vendor_id, sp.promoter_id, sp.sub_category_id, sp.category_id, sp.product_code, sp.sku_code, 
                        sp.product_name, sp.price, sp.size, sp.color, sp.final_price, sp.quantity, sp.verify_status, sp.added_type, sp.addedBy,
-                       s.name as shop_name, v.name as vendor_name,v.shop_name, sc.sub_category_name, cc.category_name, pc.name');
+                       s.name as shop_name, v.name as vendor_name,v.shop_name, v.vendor_logo, sc.sub_category_name, cc.category_name, pc.name');
 
     // Join shops and vendors
     $this->db->join('shop_master as s', 's.id = sp.shop_id', 'left');
@@ -1222,10 +1222,6 @@ class Product extends CI_Controller
     $this->db->join('parent_category_master as pc', 'pc.id = sp.parent_category_id', 'left');
     $this->db->join('sub_category_master as sc', 'sc.id = sp.sub_category_id', 'left');
     $this->db->join('category_master as cc', 'cc.id = sp.category_id', 'left');
-
-    /* ===============================
-       ROLE BASED FILTERING
-       =============================== */
 
     // ================= ADMIN =================
     if ($adminData['Type'] == '1')
@@ -1300,7 +1296,7 @@ class Product extends CI_Controller
     /* ===============================
        TOTAL COUNT
        =============================== */
-    $totalRecords = $this->db->count_all_results('', false); // Keep query for pagination
+    $totalRecords = $this->db->count_all_results('', false);
 
     /* ===============================
        PAGINATION
@@ -2452,12 +2448,12 @@ class Product extends CI_Controller
   // }
 
 
-  // public function final_submit()
+//   public function final_submit()
 // {
 //     $adminData = $this->session->userdata('adminData');
 //     $data = $this->input->post();
 
-  //     // ===== GET BASIC PRODUCT INFO =====
+//       // ===== GET BASIC PRODUCT INFO =====
 //     $basic_info = $this->db->get_where('tab_general_information', ['type' => '1'])->row_array();
 //     if (empty($basic_info)) {
 //         $this->session->set_flashdata('activate', getCustomAlert('E', 'Basic product information not found.'));
@@ -2465,7 +2461,7 @@ class Product extends CI_Controller
 //         exit;
 //     }
 
-  //     // ===== GET COLOR-SIZE INFO =====
+//       // ===== GET COLOR-SIZE INFO =====
 //     $sizeArray = $this->db->get_where('tab_color_size_master', ['type' => '1'])->result_array();
 //     if (empty($sizeArray)) {
 //         $this->session->set_flashdata('activate', getCustomAlert('E', 'Please add at least one color & size.'));
@@ -2473,7 +2469,7 @@ class Product extends CI_Controller
 //         exit;
 //     }
 
-  //     // ===== GET VENDOR =====
+//       // ===== GET VENDOR =====
 //     $vendor_id = 0;
 //     $promoter_id = 0;
 //     if (!empty($basic_info['shop_id'])) {
@@ -2487,28 +2483,28 @@ class Product extends CI_Controller
 //         }
 //     }
 
-  //     // ===== GET ACTIVE SUBSCRIPTION =====
+//       // ===== GET ACTIVE SUBSCRIPTION =====
 //     $subscription = $this->db->get_where('vendor_subscriptions_master', [
 //         'vendor_id' => $vendor_id,
 //         'status' => 1,
 //         'approval_status' => 1
 //     ])->row_array();
 
-  //     if (empty($subscription)) {
+//       if (empty($subscription)) {
 //         $this->session->set_flashdata('activate', getCustomAlert('E', 'No active subscription found. Please purchase a plan.'));
 //         redirect('admin/Product');
 //         exit;
 //     }
 
-  //     // ===== SKU numeric part =====
+//       // ===== SKU numeric part =====
 //     $str = preg_replace('/\D/', '', $basic_info['sku_code']);
 
-  //     foreach ($sizeArray as $value) {
+//       foreach ($sizeArray as $value) {
 
-  //         // ===== GET IMAGES BY COLOR =====
+//           // ===== GET IMAGES BY COLOR =====
 //         $image_info = $this->db->get_where('tab_color_master', ['color' => $value['color']])->row_array();
 
-  //         $common = [];
+//           $common = [];
 //         $common['sku_code'] = $basic_info['sku_code'];
 //         $common['color_code'] = $str . '_' . $basic_info['shop_id'] . '_' . $value['color'];
 //         $common['shop_id'] = $basic_info['shop_id'];
@@ -2523,11 +2519,11 @@ class Product extends CI_Controller
 //         $common['packet_height'] = $basic_info['packet_height'];
 //         $common['product_code'] = $str . '_' . $basic_info['shop_id'];
 
-  //         // Extra Fields
+//           // Extra Fields
 //         $extraFields = ['brand','occasion','fit','fabric','pack_of','length','ideal_for','product_hsn'];
 //         foreach ($extraFields as $f) $common[$f] = @$data[$f];
 
-  //         // Price / Size / Color
+//           // Price / Size / Color
 //         $common['color'] = $value['color'];
 //         $common['price'] = $value['price'];
 //         $common['final_price'] = $value['final_price'];
@@ -2535,7 +2531,7 @@ class Product extends CI_Controller
 //         $common['size'] = $value['size'];
 //         $common['gst'] = $value['gst'];
 
-  //         // Images
+//           // Images
 //         $common['main_image'] = @$image_info['main_image'];
 //         $common['image1'] = @$image_info['image1'];
 //         $common['image2'] = @$image_info['image2'];
@@ -2543,14 +2539,14 @@ class Product extends CI_Controller
 //         $common['image4'] = @$image_info['image4'];
 //         $common['image5'] = @$image_info['image5'];
 
-  //         // Status & Dates
+//           // Status & Dates
 //         $common['status'] = 1;
 //         $common['add_date'] = date('Y-m-d H:i:s');
 //         $common['modify_date'] = date('Y-m-d H:i:s');
 //         $common['unique_id'] = $this->generate_unique_id('PRD');
 //         $common['subscription_type'] = $subscription['plan_type'];
 
-  //         // User Type
+//           // User Type
 //         switch ($adminData['Type']) {
 //             case '1': // Admin
 //                 $common['added_type'] = 1;
@@ -2575,17 +2571,17 @@ class Product extends CI_Controller
 //                 break;
 //         }
 
-  //         // ===== INSERT PRODUCT =====
+//           // ===== INSERT PRODUCT =====
 //         $this->db->insert('sub_product_master', $common);
 //         $product_id = $this->db->insert_id();
 
-  //         // ===== UPDATE Subscription =====
+//           // ===== UPDATE Subscription =====
 //         if ($subscription['plan_type'] == 1) { // Monthly → increment products_used
 //             $this->db->set('products_used', 'products_used+1', FALSE)
 //                 ->where('id', $subscription['id'])
 //                 ->update('vendor_subscriptions_master');
 
-  //             // If products_used reaches product_limit → set status expired
+//               // If products_used reaches product_limit → set status expired
 //             $sub = $this->db->get_where('vendor_subscriptions_master',['id'=>$subscription['id']])->row_array();
 //             if ($sub['products_used'] >= $sub['product_limit']) {
 //                 $this->db->update('vendor_subscriptions_master',['status'=>0],['id'=>$subscription['id']]);
@@ -2594,17 +2590,17 @@ class Product extends CI_Controller
 //             $commission = $value['final_price'] * 0.10; // 10%
 //             $vendor_earning = $value['final_price'] - $commission;
 
-  //             $this->db->insert('admin_earnings_master', [
+//               $this->db->insert('admin_earnings_master', [
 //                 'vendor_id' => $vendor_id,
 //                 'product_id' => $product_id,
 //                 'commission_amount' => $commission,
 //                 'created_at' => date('Y-m-d H:i:s')
 //             ]);
 
-  //             $common['vendor_earning'] = $vendor_earning;
+//               $common['vendor_earning'] = $vendor_earning;
 //         }
 
-  //         // ===== INSERT EXTRA FIELDS =====
+//           // ===== INSERT EXTRA FIELDS =====
 //         if (!empty($data['pro_description'])) {
 //             foreach ($data['pro_description'] as $desc) {
 //                 if (!empty(trim($desc))) {
@@ -2617,7 +2613,7 @@ class Product extends CI_Controller
 //             }
 //         }
 
-  //         if (!empty($data['field_name']) && !empty($data['field_value'])) {
+//           if (!empty($data['field_name']) && !empty($data['field_value'])) {
 //             foreach ($data['field_name'] as $index => $field) {
 //                 $f_name = trim($field);
 //                 $f_value = trim($data['field_value'][$index]);
@@ -2632,246 +2628,227 @@ class Product extends CI_Controller
 //         }
 //     }
 
-  //     // Clear temp tables
+//       // Clear temp tables
 //     $this->db->truncate('tab_color_master');
 //     $this->db->truncate('tab_color_size_master');
 //     $this->db->truncate('tab_general_information');
 //     $this->db->truncate('tab_size_master');
 
-  //     $this->session->set_flashdata('activate', getCustomAlert('S','Product added successfully. Waiting for admin approval.'));
+//       $this->session->set_flashdata('activate', getCustomAlert('S','Product added successfully. Waiting for admin approval.'));
 //     redirect('admin/Product');
 // }
-
-
-  public function final_submit()
-  {
+public function final_submit()
+{
     $adminData = $this->session->userdata('adminData');
     $data = $this->input->post();
 
     // ===== GET BASIC PRODUCT INFO =====
     $basic_info = $this->db->get_where('tab_general_information', ['type' => '1'])->row_array();
-    if (empty($basic_info))
-    {
-      $this->session->set_flashdata('activate', getCustomAlert('E', 'Basic product information not found.'));
-      redirect('admin/Product');
-      exit;
+    if (empty($basic_info)) {
+        $this->session->set_flashdata('activate', getCustomAlert('E', 'Basic product information not found.'));
+        redirect('admin/Product');
+        exit;
     }
 
     // ===== GET COLOR-SIZE INFO =====
     $sizeArray = $this->db->get_where('tab_color_size_master', ['type' => '1'])->result_array();
-    if (empty($sizeArray))
-    {
-      $this->session->set_flashdata('activate', getCustomAlert('E', 'Please add at least one color & size.'));
-      redirect('admin/Product');
-      exit;
+    if (empty($sizeArray)) {
+        $this->session->set_flashdata('activate', getCustomAlert('E', 'Please add at least one color & size.'));
+        redirect('admin/Product');
+        exit;
     }
 
-    // ===== SET SHOP / VENDOR / PROMOTER =====
+    // ===== GET VENDOR / PROMOTER =====
     $vendor_id = 0;
     $promoter_id = 0;
     $shop_id = $basic_info['shop_id'] ?? null;
     $promoter_shop_name = null;
 
-    if ($adminData['Type'] == 3)
-    { // Promoter
-      $promoter_id = $adminData['Id'];
-      $promoter = $this->db
-        ->select('shop_name')
-        ->from('promoters')
-        ->where('id', $promoter_id)
-        ->where('status', 1)
-        ->get()
-        ->row_array();
+    if ($adminData['Type'] == 3) { // Promoter
+        $promoter_id = $adminData['Id'];
+        $promoter = $this->db->select('shop_name')->from('promoters')->where('id', $promoter_id)->get()->row_array();
+        $promoter_shop_name = $promoter['shop_name'] ?? null;
+        $shop_id = null; // promoter product
+    } else { // Vendor / Admin
+        if (!empty($shop_id)) {
+            $shop = $this->db->get_where('shop_master', ['id' => $shop_id])->row_array();
+            $vendor_id = $shop['vendor_id'] ?? 0;
 
-      $promoter_shop_name = $promoter['shop_name'] ?? null;
-      $shop_id = null; // promoter products may not have a shop_master
-    } else
-    { // Vendor or Admin
-      if (!empty($shop_id))
-      {
-        $shop = $this->db->get_where('shop_master', ['id' => $shop_id])->row_array();
-        $vendor_id = $shop['vendor_id'] ?? 0;
+            if ($vendor_id) {
+                $vendor = $this->db->select('promoter_id')->from('vendors')->where('id', $vendor_id)->get()->row_array();
+                $promoter_id = $vendor['promoter_id'] ?? 0;
 
-        if ($vendor_id)
-        {
-          $vendor = $this->db->select('promoter_id')->from('vendors')->where('id', $vendor_id)->get()->row_array();
-          $promoter_id = $vendor['promoter_id'] ?? 0;
-
-          if ($promoter_id)
-          {
-            $promoter = $this->db->select('shop_name')->from('promoters')->where('id', $promoter_id)->get()->row_array();
-            $promoter_shop_name = $promoter['shop_name'] ?? null;
-          }
+                if ($promoter_id) {
+                    $promoter = $this->db->select('shop_name')->from('promoters')->where('id', $promoter_id)->get()->row_array();
+                    $promoter_shop_name = $promoter['shop_name'] ?? null;
+                }
+            }
         }
-      }
     }
 
-    // ===== GET ACTIVE SUBSCRIPTION (VENDOR ONLY) =====
+    // ===== GET ACTIVE SUBSCRIPTION (Vendor Only) =====
     $subscription = null;
-    if ($adminData['Type'] == 2)
-    { // Vendor
-      $subscription = $this->db
-        ->where('vendor_id', $vendor_id)
-        ->where('status', 1)
-        ->where('approval_status', 1)
-        ->order_by('id', 'DESC')
-        ->get('vendor_subscriptions_master')
-        ->row_array();
+    if ($adminData['Type'] == 2) { // Vendor
+        $subscription = $this->db
+            ->where('vendor_id', $vendor_id)
+            ->where('status', 1)
+            ->where('approval_status', 1)
+            ->order_by('id', 'DESC')
+            ->get('vendor_subscriptions_master')
+            ->row_array();
 
-      if (empty($subscription))
-      {
-        $this->session->set_flashdata('activate', getCustomAlert('E', 'No active subscription found. Please purchase a plan.'));
-        redirect('admin/Product');
-        exit;
-      }
+        if (empty($subscription)) {
+            $this->session->set_flashdata('activate', getCustomAlert('E', 'No active subscription found. Please purchase a plan.'));
+            redirect('admin/Product');
+            exit;
+        }
     }
 
     // ===== SKU numeric part =====
     $str = preg_replace('/\D/', '', $basic_info['sku_code']);
 
-    foreach ($sizeArray as $value)
-    {
+    // ===== START TRANSACTION =====
+    $this->db->trans_start();
 
-      // ===== GET IMAGES BY COLOR =====
-      $image_info = $this->db->get_where('tab_color_master', ['color' => $value['color']])->row_array();
+    foreach ($sizeArray as $value) {
 
-      // ===== COMMON PRODUCT DATA =====
-      $common = [];
-      $common['sku_code'] = $basic_info['sku_code'];
-      $common['color_code'] = $str . '_' . ($shop_id ?? 0) . '_' . $value['color'];
-      $common['shop_id'] = $shop_id ?? 0;
-      $common['vendor_id'] = $vendor_id ?? 0;
-      $common['promoter_id'] = $promoter_id ?? 0;
-      $common['promoter_shop_name'] = $promoter_shop_name;
-      $common['parent_category_id'] = $basic_info['parent_id'];
-      $common['category_id'] = $basic_info['category_id'];
-      $common['sub_category_id'] = $basic_info['sub_category_id'];
-      $common['product_name'] = $basic_info['product_name'];
-      $common['product_description'] = $basic_info['product_description'];
-      $common['weight'] = $basic_info['weight'];
-      $common['packet_length'] = $basic_info['packet_length'];
-      $common['packet_weight'] = $basic_info['packet_weight'];
-      $common['packet_height'] = $basic_info['packet_height'];
-      $common['product_code'] = $str . '_' . ($shop_id ?? 0);
+        // ===== GET IMAGES BY COLOR =====
+        $image_info = $this->db->get_where('tab_color_master', ['color' => $value['color']])->row_array();
 
-      // Extra Fields
-      $extraFields = ['brand', 'occasion', 'fit', 'fabric', 'pack_of', 'length', 'ideal_for', 'product_hsn'];
-      foreach ($extraFields as $f)
-        $common[$f] = @$data[$f];
+        // ===== COMMON PRODUCT DATA =====
+        $common = [];
+        $common['sku_code'] = $basic_info['sku_code'];
+        $common['color_code'] = $str . '_' . ($shop_id ?? 0) . '_' . $value['color'];
+        $common['shop_id'] = $shop_id ?? 0;
+        $common['vendor_id'] = $vendor_id ?? 0;
+        $common['promoter_id'] = $promoter_id ?? 0;
+        $common['promoter_shop_name'] = $promoter_shop_name;
+        $common['parent_category_id'] = $basic_info['parent_id'];
+        $common['category_id'] = $basic_info['category_id'];
+        $common['sub_category_id'] = $basic_info['sub_category_id'];
+        $common['product_name'] = $basic_info['product_name'];
+        $common['product_description'] = $basic_info['product_description'];
+        $common['weight'] = $basic_info['weight'];
+        $common['packet_length'] = $basic_info['packet_length'];
+        $common['packet_weight'] = $basic_info['packet_weight'];
+        $common['packet_height'] = $basic_info['packet_height'];
+        $common['product_code'] = $str . '_' . ($shop_id ?? 0);
 
-      // Price / Size / Color
-      $common['color'] = $value['color'];
-      $common['price'] = $value['price'];
-      $common['final_price'] = $value['final_price'];
-      $common['quantity'] = $value['qty'];
-      $common['size'] = $value['size'];
-      $common['gst'] = $value['gst'];
+        // Extra Fields
+        $extraFields = ['brand','occasion','fit','fabric','pack_of','length','ideal_for','product_hsn'];
+        foreach ($extraFields as $f) $common[$f] = $data[$f] ?? null;
 
-      // Images
-      $common['main_image'] = @$image_info['main_image'];
-      $common['image1'] = @$image_info['image1'];
-      $common['image2'] = @$image_info['image2'];
-      $common['image3'] = @$image_info['image3'];
-      $common['image4'] = @$image_info['image4'];
-      $common['image5'] = @$image_info['image5'];
+        // Price / Size / Color
+        $common['color'] = $value['color'];
+        $common['price'] = $value['price'];
+        $common['final_price'] = $value['final_price'];
+        $common['quantity'] = $value['qty'];
+        $common['size'] = $value['size'];
+        $common['gst'] = $value['gst'];
 
-      // Status & Dates
-      $common['status'] = 1;
-      $common['add_date'] = date('Y-m-d H:i:s');
-      $common['modify_date'] = date('Y-m-d H:i:s');
-      $common['unique_id'] = $this->generate_unique_id('PRD');
-      $common['subscription_type'] = $subscription['plan_type'] ?? 0; // 0 if promoter
+        // Images
+        $common['main_image'] = $image_info['main_image'] ?? null;
+        $common['image1'] = $image_info['image1'] ?? null;
+        $common['image2'] = $image_info['image2'] ?? null;
+        $common['image3'] = $image_info['image3'] ?? null;
+        $common['image4'] = $image_info['image4'] ?? null;
+        $common['image5'] = $image_info['image5'] ?? null;
 
-      // ===== USER TYPE =====
-      switch ($adminData['Type'])
-      {
-        case '1': // Admin
-          $common['added_type'] = 1;
-          $common['addedBy'] = $adminData['Id'] ?? 0;
-          $common['verify_status'] = 1;
-          break;
-        case '2': // Vendor
-          $common['added_type'] = 2;
-          $common['addedBy'] = $vendor_id;
-          $common['verify_status'] = 0;
-          break;
-        case '3': // Promoter
-          $common['added_type'] = 3;
-          $common['addedBy'] = $promoter_id;
-          $common['verify_status'] = 0;
-          break;
-      }
+        // Status & Dates
+        $common['status'] = 1;
+        $common['add_date'] = date('Y-m-d H:i:s');
+        $common['modify_date'] = date('Y-m-d H:i:s');
+        $common['unique_id'] = $this->generate_unique_id('PRD');
+        $common['subscription_type'] = $subscription['plan_type'] ?? 0;
 
-      // ===== INSERT PRODUCT =====
-      $this->db->insert('sub_product_master', $common);
-      $product_id = $this->db->insert_id();
-
-      // ===== UPDATE SUBSCRIPTION =====
-      if (!empty($subscription))
-      {
-        if ($subscription['plan_type'] == 1)
-        { // Monthly
-          $this->db->set('products_used', 'products_used+1', FALSE)
-            ->where('id', $subscription['id'])
-            ->update('vendor_subscriptions_master');
-
-          $sub = $this->db->get_where('vendor_subscriptions_master', ['id' => $subscription['id']])->row_array();
-          if ($sub['products_used'] >= $sub['product_limit'])
-          {
-            $this->db->update('vendor_subscriptions_master', ['status' => 0], ['id' => $subscription['id']]);
-          }
-        } else
-        { // Per Product
-          $commission_percent = $subscription['commission_percent'] ?? 10;
-          $commission = $value['final_price'] * ($commission_percent / 100);
-          $vendor_earning = $value['final_price'] - $commission;
-
-          $this->db->insert('admin_earnings_master', [
-            'vendor_id' => $vendor_id,
-            'product_id' => $product_id,
-            'commission_amount' => $commission,
-            'created_at' => date('Y-m-d H:i:s')
-          ]);
-
-          $this->db->set('vendor_earning', $vendor_earning)
-            ->where('id', $product_id)
-            ->update('sub_product_master');
+        // ===== USER TYPE =====
+        switch ($adminData['Type']) {
+            case 1: // Admin
+                $common['added_type'] = 1;
+                $common['addedBy'] = $adminData['Id'];
+                $common['verify_status'] = 1;
+                break;
+            case 2: // Vendor
+                $common['added_type'] = 2;
+                $common['addedBy'] = $vendor_id;
+                $common['verify_status'] = 0;
+                break;
+            case 3: // Promoter
+                $common['added_type'] = 3;
+                $common['addedBy'] = $promoter_id;
+                $common['verify_status'] = 0;
+                break;
         }
-      }
 
-      // ===== INSERT EXTRA FIELDS =====
-      if (!empty($data['pro_description']))
-      {
-        foreach ($data['pro_description'] as $desc)
-        {
-          if (!empty(trim($desc)))
-          {
-            $this->db->insert('product_extra_fields', [
-              'product_id' => $product_id,
-              'field_name' => 'pro_description',
-              'field_value' => trim($desc)
-            ]);
-          }
-        }
-      }
+        // ===== INSERT PRODUCT =====
+        $this->db->insert('sub_product_master', $common);
+        $product_id = $this->db->insert_id();
 
-      if (!empty($data['field_name']) && !empty($data['field_value']))
-      {
-        foreach ($data['field_name'] as $index => $field)
-        {
-          $f_name = trim($field);
-          $f_value = trim($data['field_value'][$index]);
-          if ($f_name && $f_value)
-          {
-            $this->db->insert('product_extra_fields', [
-              'product_id' => $product_id,
-              'field_name' => $f_name,
-              'field_value' => $f_value
-            ]);
-          }
+        // ===== UPDATE SUBSCRIPTION =====
+        if (!empty($subscription)) {
+            if ($subscription['plan_type'] == 1) { // Monthly
+                $this->db->set('products_used', 'products_used+1', FALSE)
+                    ->where('id', $subscription['id'])
+                    ->update('vendor_subscriptions_master');
+
+                // If products_used >= limit → expire
+                $sub = $this->db->get_where('vendor_subscriptions_master', ['id' => $subscription['id']])->row_array();
+                if ($sub['products_used'] >= $sub['product_limit']) {
+                    $this->db->update('vendor_subscriptions_master', ['status' => 0], ['id' => $subscription['id']]);
+                }
+            } else { // Per Product
+                $commission_percent = $subscription['commission_percent'] ?? 10;
+                $commission = $value['final_price'] * ($commission_percent/100);
+                $vendor_earning = $value['final_price'] - $commission;
+
+                $this->db->insert('admin_earnings_master', [
+                    'vendor_id' => $vendor_id,
+                    'product_id' => $product_id,
+                    'commission_amount' => $commission,
+                    'created_at' => date('Y-m-d H:i:s')
+                ]);
+
+                $this->db->set('vendor_earning', $vendor_earning)
+                    ->where('id', $product_id)
+                    ->update('sub_product_master');
+            }
         }
-      }
+
+        // ===== EXTRA FIELDS =====
+        // 1️⃣ Product Description
+        if (!empty($data['pro_description']) && is_array($data['pro_description'])) {
+            foreach ($data['pro_description'] as $desc) {
+                $desc = trim($desc);
+                if ($desc !== '') {
+                    $this->db->insert('product_extra_fields', [
+                        'product_id'  => $product_id,
+                        'field_name'  => 'pro_description',
+                        'field_value' => $desc,
+                        'created_at'  => date('Y-m-d H:i:s')
+                    ]);
+                }
+            }
+        }
+
+        // 2️⃣ Custom Fields
+        if (!empty($data['field_name']) && !empty($data['field_value'])) {
+            foreach ($data['field_name'] as $key => $field) {
+                $field = trim($field);
+                $value = trim($data['field_value'][$key] ?? '');
+                if ($field !== '' && $value !== '') {
+                    $this->db->insert('product_extra_fields', [
+                        'product_id'  => $product_id,
+                        'field_name'  => $field,
+                        'field_value' => $value,
+                        'created_at'  => date('Y-m-d H:i:s')
+                    ]);
+                }
+            }
+        }
     }
+
+    // ===== COMMIT =====
+    $this->db->trans_complete();
 
     // ===== CLEAR TEMP TABLES =====
     $this->db->truncate('tab_color_master');
@@ -2879,9 +2856,250 @@ class Product extends CI_Controller
     $this->db->truncate('tab_general_information');
     $this->db->truncate('tab_size_master');
 
-    $this->session->set_flashdata('activate', getCustomAlert('S', 'Product added successfully. Waiting for admin approval.'));
+    $this->session->set_flashdata('activate', getCustomAlert('S','Product added successfully. Waiting for admin approval.'));
     redirect('admin/Product');
-  }
+}
+
+
+  // public function final_submit()
+  // {
+  //   $adminData = $this->session->userdata('adminData');
+  //   $data = $this->input->post();
+
+  //   // ===== GET BASIC PRODUCT INFO =====
+  //   $basic_info = $this->db->get_where('tab_general_information', ['type' => '1'])->row_array();
+  //   if (empty($basic_info))
+  //   {
+  //     $this->session->set_flashdata('activate', getCustomAlert('E', 'Basic product information not found.'));
+  //     redirect('admin/Product');
+  //     exit;
+  //   }
+
+  //   // ===== GET COLOR-SIZE INFO =====
+  //   $sizeArray = $this->db->get_where('tab_color_size_master', ['type' => '1'])->result_array();
+  //   if (empty($sizeArray))
+  //   {
+  //     $this->session->set_flashdata('activate', getCustomAlert('E', 'Please add at least one color & size.'));
+  //     redirect('admin/Product');
+  //     exit;
+  //   }
+
+  //   // ===== SET SHOP / VENDOR / PROMOTER =====
+  //   $vendor_id = 0;
+  //   $promoter_id = 0;
+  //   $shop_id = $basic_info['shop_id'] ?? null;
+  //   $promoter_shop_name = null;
+
+  //   if ($adminData['Type'] == 3)
+  //   { // Promoter
+  //     $promoter_id = $adminData['Id'];
+  //     $promoter = $this->db
+  //       ->select('shop_name')
+  //       ->from('promoters')
+  //       ->where('id', $promoter_id)
+  //       ->where('status', 1)
+  //       ->get()
+  //       ->row_array();
+
+  //     $promoter_shop_name = $promoter['shop_name'] ?? null;
+  //     $shop_id = null; // promoter products may not have a shop_master
+  //   } else
+  //   { // Vendor or Admin
+  //     if (!empty($shop_id))
+  //     {
+  //       $shop = $this->db->get_where('shop_master', ['id' => $shop_id])->row_array();
+  //       $vendor_id = $shop['vendor_id'] ?? 0;
+
+  //       if ($vendor_id)
+  //       {
+  //         $vendor = $this->db->select('promoter_id')->from('vendors')->where('id', $vendor_id)->get()->row_array();
+  //         $promoter_id = $vendor['promoter_id'] ?? 0;
+
+  //         if ($promoter_id)
+  //         {
+  //           $promoter = $this->db->select('shop_name')->from('promoters')->where('id', $promoter_id)->get()->row_array();
+  //           $promoter_shop_name = $promoter['shop_name'] ?? null;
+  //         }
+  //       }
+  //     }
+  //   }
+
+  //   // ===== GET ACTIVE SUBSCRIPTION (VENDOR ONLY) =====
+  //   $subscription = null;
+  //   if ($adminData['Type'] == 2)
+  //   { // Vendor
+  //     $subscription = $this->db
+  //       ->where('vendor_id', $vendor_id)
+  //       ->where('status', 1)
+  //       ->where('approval_status', 1)
+  //       ->order_by('id', 'DESC')
+  //       ->get('vendor_subscriptions_master')
+  //       ->row_array();
+
+  //     if (empty($subscription))
+  //     {
+  //       $this->session->set_flashdata('activate', getCustomAlert('E', 'No active subscription found. Please purchase a plan.'));
+  //       redirect('admin/Product');
+  //       exit;
+  //     }
+  //   }
+
+  //   // ===== SKU numeric part =====
+  //   $str = preg_replace('/\D/', '', $basic_info['sku_code']);
+
+  //   foreach ($sizeArray as $value)
+  //   {
+
+  //     // ===== GET IMAGES BY COLOR =====
+  //     $image_info = $this->db->get_where('tab_color_master', ['color' => $value['color']])->row_array();
+
+  //     // ===== COMMON PRODUCT DATA =====
+  //     $common = [];
+  //     $common['sku_code'] = $basic_info['sku_code'];
+  //     $common['color_code'] = $str . '_' . ($shop_id ?? 0) . '_' . $value['color'];
+  //     $common['shop_id'] = $shop_id ?? 0;
+  //     $common['vendor_id'] = $vendor_id ?? 0;
+  //     $common['promoter_id'] = $promoter_id ?? 0;
+  //     $common['promoter_shop_name'] = $promoter_shop_name;
+  //     $common['parent_category_id'] = $basic_info['parent_id'];
+  //     $common['category_id'] = $basic_info['category_id'];
+  //     $common['sub_category_id'] = $basic_info['sub_category_id'];
+  //     $common['product_name'] = $basic_info['product_name'];
+  //     $common['product_description'] = $basic_info['product_description'];
+  //     $common['weight'] = $basic_info['weight'];
+  //     $common['packet_length'] = $basic_info['packet_length'];
+  //     $common['packet_weight'] = $basic_info['packet_weight'];
+  //     $common['packet_height'] = $basic_info['packet_height'];
+  //     $common['product_code'] = $str . '_' . ($shop_id ?? 0);
+
+  //     // Extra Fields
+  //     $extraFields = ['brand', 'occasion', 'fit', 'fabric', 'pack_of', 'length', 'ideal_for', 'product_hsn'];
+  //     foreach ($extraFields as $f)
+  //       $common[$f] = @$data[$f];
+
+  //     // Price / Size / Color
+  //     $common['color'] = $value['color'];
+  //     $common['price'] = $value['price'];
+  //     $common['final_price'] = $value['final_price'];
+  //     $common['quantity'] = $value['qty'];
+  //     $common['size'] = $value['size'];
+  //     $common['gst'] = $value['gst'];
+
+  //     // Images
+  //     $common['main_image'] = @$image_info['main_image'];
+  //     $common['image1'] = @$image_info['image1'];
+  //     $common['image2'] = @$image_info['image2'];
+  //     $common['image3'] = @$image_info['image3'];
+  //     $common['image4'] = @$image_info['image4'];
+  //     $common['image5'] = @$image_info['image5'];
+
+  //     // Status & Dates
+  //     $common['status'] = 1;
+  //     $common['add_date'] = date('Y-m-d H:i:s');
+  //     $common['modify_date'] = date('Y-m-d H:i:s');
+  //     $common['unique_id'] = $this->generate_unique_id('PRD');
+  //     $common['subscription_type'] = $subscription['plan_type'] ?? 0; // 0 if promoter
+
+  //     // ===== USER TYPE =====
+  //     switch ($adminData['Type'])
+  //     {
+  //       case '1': // Admin
+  //         $common['added_type'] = 1;
+  //         $common['addedBy'] = $adminData['Id'] ?? 0;
+  //         $common['verify_status'] = 1;
+  //         break;
+  //       case '2': // Vendor
+  //         $common['added_type'] = 2;
+  //         $common['addedBy'] = $vendor_id;
+  //         $common['verify_status'] = 0;
+  //         break;
+  //       case '3': // Promoter
+  //         $common['added_type'] = 3;
+  //         $common['addedBy'] = $promoter_id;
+  //         $common['verify_status'] = 0;
+  //         break;
+  //     }
+
+  //     // ===== INSERT PRODUCT =====
+  //     $this->db->insert('sub_product_master', $common);
+  //     $product_id = $this->db->insert_id();
+
+  //     // ===== UPDATE SUBSCRIPTION =====
+  //     if (!empty($subscription))
+  //     {
+  //       if ($subscription['plan_type'] == 1)
+  //       { // Monthly
+  //         $this->db->set('products_used', 'products_used+1', FALSE)
+  //           ->where('id', $subscription['id'])
+  //           ->update('vendor_subscriptions_master');
+
+  //         $sub = $this->db->get_where('vendor_subscriptions_master', ['id' => $subscription['id']])->row_array();
+  //         if ($sub['products_used'] >= $sub['product_limit'])
+  //         {
+  //           $this->db->update('vendor_subscriptions_master', ['status' => 0], ['id' => $subscription['id']]);
+  //         }
+  //       } else
+  //       { // Per Product
+  //         $commission_percent = $subscription['commission_percent'] ?? 10;
+  //         $commission = $value['final_price'] * ($commission_percent / 100);
+  //         $vendor_earning = $value['final_price'] - $commission;
+
+  //         $this->db->insert('admin_earnings_master', [
+  //           'vendor_id' => $vendor_id,
+  //           'product_id' => $product_id,
+  //           'commission_amount' => $commission,
+  //           'created_at' => date('Y-m-d H:i:s')
+  //         ]);
+
+  //         $this->db->set('vendor_earning', $vendor_earning)
+  //           ->where('id', $product_id)
+  //           ->update('sub_product_master');
+  //       }
+  //     }
+
+  //     // ===== INSERT EXTRA FIELDS =====
+  //     if (!empty($data['pro_description']))
+  //     {
+  //       foreach ($data['pro_description'] as $desc)
+  //       {
+  //         if (!empty(trim($desc)))
+  //         {
+  //           $this->db->insert('product_extra_fields', [
+  //             'product_id' => $product_id,
+  //             'field_name' => 'pro_description',
+  //             'field_value' => trim($desc)
+  //           ]);
+  //         }
+  //       }
+  //     }
+
+  //     if (!empty($data['field_name']) && !empty($data['field_value']))
+  //     {
+  //       foreach ($data['field_name'] as $index => $field)
+  //       {
+  //         $f_name = trim($field);
+  //         $f_value = trim($data['field_value'][$index]);
+  //         if ($f_name && $f_value)
+  //         {
+  //           $this->db->insert('product_extra_fields', [
+  //             'product_id' => $product_id,
+  //             'field_name' => $f_name,
+  //             'field_value' => $f_value
+  //           ]);
+  //         }
+  //       }
+  //     }
+  //   }
+
+  //   // ===== CLEAR TEMP TABLES =====
+  //   $this->db->truncate('tab_color_master');
+  //   $this->db->truncate('tab_color_size_master');
+  //   $this->db->truncate('tab_general_information');
+  //   $this->db->truncate('tab_size_master');
+
+  //   $this->session->set_flashdata('activate', getCustomAlert('S', 'Product added successfully. Waiting for admin approval.'));
+  //   redirect('admin/Product');
+  // }
 
 
 
@@ -3264,153 +3482,531 @@ class Product extends CI_Controller
   // }
 
 
-  public function final_submit2($id)
-  {
+  // public function final_submit2($id)
+  // {
+  //   $adminData = $this->session->userdata('adminData');
+  //   $data = $this->input->post();
+
+  //   // 1️⃣ Product check
+  //   $productInfo = $this->db
+  //     ->get_where('sub_product_master', ['id' => $id])
+  //     ->row_array();
+
+  //   if (empty($productInfo))
+  //   {
+  //     $this->session->set_flashdata('activate', getCustomAlert('E', 'Product not found'));
+  //     redirect('admin/Product');
+  //     return;
+  //   }
+
+  //   // ===============================
+  //   // 2️⃣ SHOP / VENDOR / PROMOTER SETUP
+  //   // ===============================
+
+  //   $shop_id = 0;
+  //   $vendor_id = null;
+  //   $promoter_id = null;
+  //   $promoter_shop_name = null;
+
+  //   // 🔴 CASE 1: PROMOTER LOGIN
+  //   if ($adminData['Type'] == 3)
+  //   {
+
+  //     // promoter apna product update kar raha hai
+  //     $promoter_id = $adminData['Id'];
+
+  //     $promoter = $this->db
+  //       ->select('shop_name')
+  //       ->from('promoters')
+  //       ->where('id', $promoter_id)
+  //       ->get()
+  //       ->row_array();
+
+  //     $promoter_shop_name = $promoter['shop_name'] ?? null;
+
+  //     $shop_id = 0;
+  //     $vendor_id = null;
+  //   }
+
+  //   // 🔵 CASE 2: ADMIN / VENDOR LOGIN
+  //   else
+  //   {
+
+  //     $shop_input = $data['shop_id'] ?? null;
+
+  //     if (!empty($shop_input))
+  //     {
+
+  //       // 🔴 PROMOTER PRODUCT (Admin ne promoter select kiya)
+  //       if (strpos($shop_input, 'p_') === 0)
+  //       {
+
+  //         $promoter_id = (int) str_replace('p_', '', $shop_input);
+
+  //         $promoter = $this->db
+  //           ->select('shop_name')
+  //           ->from('promoters')
+  //           ->where('id', $promoter_id)
+  //           ->get()
+  //           ->row_array();
+
+  //         $promoter_shop_name = $promoter['shop_name'] ?? null;
+
+  //         $shop_id = 0;
+  //         $vendor_id = null;
+  //       }
+  //       // 🔵 VENDOR PRODUCT
+  //       else
+  //       {
+
+  //         $shop_id = (int) $shop_input;
+
+  //         $shop = $this->db
+  //           ->select('vendor_id')
+  //           ->from('shop_master')
+  //           ->where('id', $shop_id)
+  //           ->get()
+  //           ->row_array();
+
+  //         $vendor_id = $shop['vendor_id'] ?? null;
+
+  //         if ($vendor_id)
+  //         {
+  //           $vendor = $this->db
+  //             ->select('promoter_id')
+  //             ->from('vendors')
+  //             ->where('id', $vendor_id)
+  //             ->get()
+  //             ->row_array();
+
+  //           $promoter_id = $vendor['promoter_id'] ?? null;
+
+  //           if ($promoter_id)
+  //           {
+  //             $promoter = $this->db
+  //               ->select('shop_name')
+  //               ->from('promoters')
+  //               ->where('id', $promoter_id)
+  //               ->get()
+  //               ->row_array();
+
+  //             $promoter_shop_name = $promoter['shop_name'] ?? null;
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+
+  //   // ===============================
+  //   // 3️⃣ SIZE / COLOR CHECK
+  //   // ===============================
+  //   $sizeArray = $this->db
+  //     ->get_where('tab_color_size_master', ['product_id' => $id])
+  //     ->result_array();
+
+  //   if (empty($sizeArray))
+  //   {
+  //     $this->session->set_flashdata('activate', getCustomAlert('E', 'Please add color & size'));
+  //     redirect('admin/Product');
+  //     return;
+  //   }
+
+  //   // ===============================
+  //   // 4️⃣ BASIC INFO
+  //   // ===============================
+  //   $basic_info = $this->db
+  //     ->get_where('tab_general_information', ['product_id' => $id])
+  //     ->row_array();
+
+  //   // ===============================
+  //   // 5️⃣ VENDOR SUBSCRIPTION
+  //   // ===============================
+  //   $subscription = null;
+  //   if ($vendor_id)
+  //   {
+  //     $subscription = $this->db->get_where('vendor_subscriptions_master', [
+  //       'vendor_id' => $vendor_id,
+  //       'status' => 1,
+  //       'approval_status' => 1
+  //     ])->row_array();
+  //   }
+
+  //   // ===============================
+  //   // 6️⃣ UPDATE PRODUCTS
+  //   // ===============================
+  //   $this->db->trans_start();
+  //   $unique_id = $this->generate_unique_id('PRD');
+
+  //   foreach ($sizeArray as $value)
+  //   {
+
+  //     $image_info = $this->db
+  //       ->get_where('tab_color_master', [
+  //         'product_id' => $id,
+  //         'color' => $value['color']
+  //       ])->row_array();
+
+  //     $updateData = [
+  //       'shop_id' => $shop_id,
+  //       'vendor_id' => $vendor_id,
+  //       'promoter_id' => $promoter_id,
+  //       'promoter_shop_name' => $promoter_shop_name,
+  //       'added_type' => $adminData['Type'],
+  //       'addedBy' => $adminData['Id'],
+  //       'parent_category_id' => $basic_info['parent_id'],
+  //       'category_id' => $basic_info['category_id'],
+  //       'sub_category_id' => $basic_info['sub_category_id'],
+  //       'product_name' => $basic_info['product_name'],
+  //       'product_description' => $basic_info['product_description'],
+  //       'price' => $value['price'],
+  //       'final_price' => $value['final_price'],
+  //       'quantity' => $value['qty'],
+  //       'gst' => $value['gst'],
+  //       'color' => $value['color'],
+  //       'size' => $value['size'],
+  //       'main_image' => $image_info['main_image'] ?? null,
+  //       'image1' => $image_info['image1'] ?? null,
+  //       'image2' => $image_info['image2'] ?? null,
+  //       'image3' => $image_info['image3'] ?? null,
+  //       'image4' => $image_info['image4'] ?? null,
+  //       'image5' => $image_info['image5'] ?? null,
+  //       'unique_id' => $unique_id,
+  //       'status' => 3,
+  //       'verify_status' => 2,
+  //       'modify_date' => date('Y-m-d H:i:s')
+  //     ];
+
+  //     $this->db->where('id', $value['pro_id'])
+  //       ->update('sub_product_master', $updateData);
+
+  //     // 💰 Commission
+  //     if (!empty($subscription) && $subscription['plan_type'] == 2)
+  //     {
+  //       $commission = $value['final_price'] * ($subscription['commission_percent'] ?? 10) / 100;
+  //       $vendor_earning = $value['final_price'] - $commission;
+
+  //       $this->db->set('vendor_earning', $vendor_earning)
+  //         ->where('id', $value['pro_id'])
+  //         ->update('sub_product_master');
+  //     }
+  //   }
+
+  //   $this->db->trans_complete();
+
+  //   $this->session->set_flashdata('activate', getCustomAlert('S', 'Product updated successfully'));
+  //   redirect('admin/Product');
+  // }
+
+// public function final_submit2($id)
+// {
+//     $adminData = $this->session->userdata('adminData');
+//     $data = $this->input->post();
+
+//     // ===============================
+//     // 1️⃣ Product Check
+//     // ===============================
+//     $productInfo = $this->db
+//         ->get_where('sub_product_master', ['id' => $id])
+//         ->row_array();
+
+//     if (empty($productInfo)) {
+//         $this->session->set_flashdata('activate', getCustomAlert('E', 'Product not found'));
+//         redirect('admin/Product');
+//         return;
+//     }
+
+//     // ===============================
+//     // 2️⃣ SHOP / VENDOR / PROMOTER SETUP
+//     // ===============================
+//     $shop_id = 0;
+//     $vendor_id = null;
+//     $promoter_id = null;
+//     $promoter_shop_name = null;
+
+//     // 🔴 PROMOTER LOGIN
+//     if ($adminData['Type'] == 3) {
+
+//         $promoter_id = $adminData['Id'];
+
+//         $promoter = $this->db->select('shop_name')
+//             ->from('promoters')
+//             ->where('id', $promoter_id)
+//             ->get()->row_array();
+
+//         $promoter_shop_name = $promoter['shop_name'] ?? null;
+
+//     } else {
+
+//         // 🔵 ADMIN / VENDOR
+//         $shop_input = $data['shop_id'] ?? null;
+
+//         if ($shop_input) {
+
+//             // 🔴 PROMOTER PRODUCT SELECTED
+//             if (strpos($shop_input, 'p_') === 0) {
+
+//                 $promoter_id = (int)str_replace('p_', '', $shop_input);
+
+//                 $promoter = $this->db->select('shop_name')
+//                     ->from('promoters')
+//                     ->where('id', $promoter_id)
+//                     ->get()->row_array();
+
+//                 $promoter_shop_name = $promoter['shop_name'] ?? null;
+
+//             } else {
+
+//                 // 🔵 VENDOR PRODUCT
+//                 $shop_id = (int)$shop_input;
+
+//                 $shop = $this->db->select('vendor_id')
+//                     ->from('shop_master')
+//                     ->where('id', $shop_id)
+//                     ->get()->row_array();
+
+//                 $vendor_id = $shop['vendor_id'] ?? null;
+
+//                 if ($vendor_id) {
+//                     $vendor = $this->db->select('promoter_id')
+//                         ->from('vendors')
+//                         ->where('id', $vendor_id)
+//                         ->get()->row_array();
+
+//                     $promoter_id = $vendor['promoter_id'] ?? null;
+
+//                     if ($promoter_id) {
+//                         $promoter = $this->db->select('shop_name')
+//                             ->from('promoters')
+//                             ->where('id', $promoter_id)
+//                             ->get()->row_array();
+
+//                         $promoter_shop_name = $promoter['shop_name'] ?? null;
+//                     }
+//                 }
+//             }
+//         }
+//     }
+
+//     // 🔒 Promoter → Vendor Update Lock
+//     $isPromoterUpdatingVendor = ($adminData['Type'] == 3 && !empty($vendor_id));
+
+//     // ===============================
+//     // 3️⃣ SIZE / COLOR CHECK
+//     // ===============================
+//     $sizeArray = $this->db
+//         ->get_where('tab_color_size_master', ['product_id' => $id])
+//         ->result_array();
+
+//     if (empty($sizeArray)) {
+//         $this->session->set_flashdata('activate', getCustomAlert('E', 'Please add color & size'));
+//         redirect('admin/Product');
+//         return;
+//     }
+
+//     // ===============================
+//     // 4️⃣ BASIC INFO
+//     // ===============================
+//     $basic_info = $this->db
+//         ->get_where('tab_general_information', ['product_id' => $id])
+//         ->row_array();
+
+//     // ===============================
+//     // 5️⃣ Vendor Subscription
+//     // ===============================
+//     $subscription = null;
+//     if ($vendor_id) {
+//         $subscription = $this->db->get_where('vendor_subscriptions_master', [
+//             'vendor_id' => $vendor_id,
+//             'status' => 1,
+//             'approval_status' => 1
+//         ])->row_array();
+//     }
+
+//     // ===============================
+//     // 6️⃣ UPDATE PRODUCTS
+//     // ===============================
+//     $this->db->trans_start();
+//     $unique_id = $this->generate_unique_id('PRD');
+
+//     foreach ($sizeArray as $value) {
+
+//         $image_info = $this->db->get_where('tab_color_master', [
+//             'product_id' => $id,
+//             'color' => $value['color']
+//         ])->row_array();
+
+//         // 🔒 PRICE CONTROL
+//         if ($isPromoterUpdatingVendor) {
+//             $price = $productInfo['price'];
+//             $final_price = $productInfo['final_price'];
+//         } else {
+//             $price = $value['price'];
+//             $final_price = $value['final_price'];
+//         }
+
+//         // 💰 COMMISSION % ONLY (NO EARNING HERE)
+//         $commission_percent = 0;
+//         if (!empty($subscription) && $subscription['plan_type'] == 2) {
+//             $commission_percent = $subscription['commission_percent'] ?? 0;
+//         }
+
+//         $updateData = [
+//             'shop_id' => $shop_id,
+//             'vendor_id' => $vendor_id,
+//             'promoter_id' => $promoter_id,
+//             'promoter_shop_name' => $promoter_shop_name,
+
+//             'added_type' => $adminData['Type'],
+//             'addedBy' => $adminData['Id'],
+
+//             'parent_category_id' => $basic_info['parent_id'],
+//             'category_id' => $basic_info['category_id'],
+//             'sub_category_id' => $basic_info['sub_category_id'],
+
+//             'product_name' => $basic_info['product_name'],
+//             'product_description' => $basic_info['product_description'],
+
+//             'price' => $price,
+//             'final_price' => $final_price,
+
+//             'quantity' => $value['qty'],
+//             'gst' => $value['gst'],
+//             'color' => $value['color'],
+//             'size' => $value['size'],
+
+//             'main_image' => $image_info['main_image'] ?? null,
+//             'image1' => $image_info['image1'] ?? null,
+//             'image2' => $image_info['image2'] ?? null,
+//             'image3' => $image_info['image3'] ?? null,
+//             'image4' => $image_info['image4'] ?? null,
+//             'image5' => $image_info['image5'] ?? null,
+
+//             'commission_percent' => $commission_percent,
+//             'unique_id' => $unique_id,
+//             'status' => 3,
+//             'verify_status' => 2,
+//             'modify_date' => date('Y-m-d H:i:s')
+//         ];
+
+//         $this->db->where('id', $value['pro_id'])
+//                  ->update('sub_product_master', $updateData);
+//     }
+//     if (!empty($data['field_name']) && !empty($data['field_value']))
+//     {
+//       foreach ($data['field_name'] as $k => $field_name)
+//       {
+//         $field_value = $data['field_value'][$k] ?? null;
+//         if (empty($field_name))
+//           continue;
+
+//         $existing = $this->db->get_where('product_extra_fields', [
+//           'product_id' => $id,
+//           'field_name' => $field_name
+//         ])->row_array();
+
+//         if ($existing)
+//         {
+//           $this->db->where('id', $existing['id'])->update('product_extra_fields', [
+//             'field_value' => $field_value
+//           ]);
+//         } else
+//         {
+//           $this->db->insert('product_extra_fields', [
+//             'product_id' => $id,
+//             'field_name' => $field_name,
+//             'field_value' => $field_value
+//           ]);
+//         }
+//       }
+//     }
+
+//     $this->db->trans_complete();
+
+//     $this->session->set_flashdata('activate', getCustomAlert('S', 'Product updated successfully'));
+//     redirect('admin/Product');
+// }
+
+public function final_submit2($id)
+{
     $adminData = $this->session->userdata('adminData');
     $data = $this->input->post();
 
-    // 1️⃣ Product check
-    $productInfo = $this->db
-      ->get_where('sub_product_master', ['id' => $id])
-      ->row_array();
-
-    if (empty($productInfo))
-    {
-      $this->session->set_flashdata('activate', getCustomAlert('E', 'Product not found'));
-      redirect('admin/Product');
-      return;
+    // ===============================
+    // 1️⃣ Product Check
+    // ===============================
+    $productInfo = $this->db->get_where('sub_product_master', ['id' => $id])->row_array();
+    if (empty($productInfo)) {
+        $this->session->set_flashdata('activate', getCustomAlert('E', 'Product not found'));
+        redirect('admin/Product');
+        return;
     }
 
     // ===============================
     // 2️⃣ SHOP / VENDOR / PROMOTER SETUP
     // ===============================
+    $shop_id = $productInfo['shop_id']; // default = existing product
+    $vendor_id = $productInfo['vendor_id']; 
+    $promoter_id = $productInfo['promoter_id'];
+    $promoter_shop_name = $productInfo['promoter_shop_name'];
 
-    $shop_id = 0;
-    $vendor_id = null;
-    $promoter_id = null;
-    $promoter_shop_name = null;
-
-    // 🔴 CASE 1: PROMOTER LOGIN
-    if ($adminData['Type'] == 3)
-    {
-
-      // promoter apna product update kar raha hai
-      $promoter_id = $adminData['Id'];
-
-      $promoter = $this->db
-        ->select('shop_name')
-        ->from('promoters')
-        ->where('id', $promoter_id)
-        ->get()
-        ->row_array();
-
-      $promoter_shop_name = $promoter['shop_name'] ?? null;
-
-      $shop_id = 0;
-      $vendor_id = null;
-    }
-
-    // 🔵 CASE 2: ADMIN / VENDOR LOGIN
-    else
-    {
-
-      $shop_input = $data['shop_id'] ?? null;
-
-      if (!empty($shop_input))
-      {
-
-        // 🔴 PROMOTER PRODUCT (Admin ne promoter select kiya)
-        if (strpos($shop_input, 'p_') === 0)
-        {
-
-          $promoter_id = (int) str_replace('p_', '', $shop_input);
-
-          $promoter = $this->db
-            ->select('shop_name')
-            ->from('promoters')
-            ->where('id', $promoter_id)
-            ->get()
-            ->row_array();
-
-          $promoter_shop_name = $promoter['shop_name'] ?? null;
-
-          $shop_id = 0;
-          $vendor_id = null;
-        }
-        // 🔵 VENDOR PRODUCT
-        else
-        {
-
-          $shop_id = (int) $shop_input;
-
-          $shop = $this->db
-            ->select('vendor_id')
-            ->from('shop_master')
-            ->where('id', $shop_id)
-            ->get()
-            ->row_array();
-
-          $vendor_id = $shop['vendor_id'] ?? null;
-
-          if ($vendor_id)
-          {
-            $vendor = $this->db
-              ->select('promoter_id')
-              ->from('vendors')
-              ->where('id', $vendor_id)
-              ->get()
-              ->row_array();
-
-            $promoter_id = $vendor['promoter_id'] ?? null;
-
-            if ($promoter_id)
-            {
-              $promoter = $this->db
-                ->select('shop_name')
-                ->from('promoters')
-                ->where('id', $promoter_id)
-                ->get()
-                ->row_array();
-
-              $promoter_shop_name = $promoter['shop_name'] ?? null;
+    if ($adminData['Type'] == 3) { // Promoter
+        $promoter_id = $adminData['Id'];
+        $promoter = $this->db->select('shop_name')->from('promoters')->where('id', $promoter_id)->get()->row_array();
+        $promoter_shop_name = $promoter['shop_name'] ?? null;
+        $shop_id = 0; // promoter products may not have shop
+        $vendor_id = 0;
+    } else { // Admin / Vendor
+        if (!empty($data['shop_id'])) {
+            $shop_input = $data['shop_id'];
+            if (strpos($shop_input, 'p_') === 0) { // promoter product selected
+                $promoter_id = (int)str_replace('p_', '', $shop_input);
+                $promoter = $this->db->select('shop_name')->from('promoters')->where('id', $promoter_id)->get()->row_array();
+                $promoter_shop_name = $promoter['shop_name'] ?? null;
+                $shop_id = 0;
+                $vendor_id = 0;
+            } else { // vendor product
+                $shop_id = (int)$shop_input;
+                $shop = $this->db->select('vendor_id')->from('shop_master')->where('id', $shop_id)->get()->row_array();
+                $vendor_id = $shop['vendor_id'] ?? 0;
+                if ($vendor_id) {
+                    $vendor = $this->db->select('promoter_id')->from('vendors')->where('id', $vendor_id)->get()->row_array();
+                    $promoter_id = $vendor['promoter_id'] ?? 0;
+                    if ($promoter_id) {
+                        $promoter = $this->db->select('shop_name')->from('promoters')->where('id', $promoter_id)->get()->row_array();
+                        $promoter_shop_name = $promoter['shop_name'] ?? null;
+                    }
+                }
             }
-          }
         }
-      }
     }
+
+    $isPromoterUpdatingVendor = ($adminData['Type'] == 3 && !empty($vendor_id));
 
     // ===============================
     // 3️⃣ SIZE / COLOR CHECK
     // ===============================
-    $sizeArray = $this->db
-      ->get_where('tab_color_size_master', ['product_id' => $id])
-      ->result_array();
-
-    if (empty($sizeArray))
-    {
-      $this->session->set_flashdata('activate', getCustomAlert('E', 'Please add color & size'));
-      redirect('admin/Product');
-      return;
+    $sizeArray = $this->db->get_where('tab_color_size_master', ['product_id' => $id])->result_array();
+    if (empty($sizeArray)) {
+        $this->session->set_flashdata('activate', getCustomAlert('E', 'Please add color & size'));
+        redirect('admin/Product');
+        return;
     }
 
     // ===============================
     // 4️⃣ BASIC INFO
     // ===============================
-    $basic_info = $this->db
-      ->get_where('tab_general_information', ['product_id' => $id])
-      ->row_array();
+    $basic_info = $this->db->get_where('tab_general_information', ['product_id' => $id])->row_array();
 
     // ===============================
-    // 5️⃣ VENDOR SUBSCRIPTION
+    // 5️⃣ Vendor Subscription
     // ===============================
     $subscription = null;
-    if ($vendor_id)
-    {
-      $subscription = $this->db->get_where('vendor_subscriptions_master', [
-        'vendor_id' => $vendor_id,
-        'status' => 1,
-        'approval_status' => 1
-      ])->row_array();
+    if ($vendor_id) {
+        $subscription = $this->db->get_where('vendor_subscriptions_master', [
+            'vendor_id' => $vendor_id,
+            'status' => 1,
+            'approval_status' => 1
+        ])->row_array();
     }
 
     // ===============================
@@ -3419,67 +4015,101 @@ class Product extends CI_Controller
     $this->db->trans_start();
     $unique_id = $this->generate_unique_id('PRD');
 
-    foreach ($sizeArray as $value)
-    {
+    foreach ($sizeArray as $value) {
 
-      $image_info = $this->db
-        ->get_where('tab_color_master', [
-          'product_id' => $id,
-          'color' => $value['color']
+        $image_info = $this->db->get_where('tab_color_master', [
+            'product_id' => $id,
+            'color' => $value['color']
         ])->row_array();
 
-      $updateData = [
-        'shop_id' => $shop_id,
-        'vendor_id' => $vendor_id,
-        'promoter_id' => $promoter_id,
-        'promoter_shop_name' => $promoter_shop_name,
-        'added_type' => $adminData['Type'],
-        'addedBy' => $adminData['Id'],
-        'parent_category_id' => $basic_info['parent_id'],
-        'category_id' => $basic_info['category_id'],
-        'sub_category_id' => $basic_info['sub_category_id'],
-        'product_name' => $basic_info['product_name'],
-        'product_description' => $basic_info['product_description'],
-        'price' => $value['price'],
-        'final_price' => $value['final_price'],
-        'quantity' => $value['qty'],
-        'gst' => $value['gst'],
-        'color' => $value['color'],
-        'size' => $value['size'],
-        'main_image' => $image_info['main_image'] ?? null,
-        'image1' => $image_info['image1'] ?? null,
-        'image2' => $image_info['image2'] ?? null,
-        'image3' => $image_info['image3'] ?? null,
-        'image4' => $image_info['image4'] ?? null,
-        'image5' => $image_info['image5'] ?? null,
-        'unique_id' => $unique_id,
-        'status' => 3,
-        'verify_status' => 2,
-        'modify_date' => date('Y-m-d H:i:s')
-      ];
+        // 🔒 PRICE CONTROL
+        if ($isPromoterUpdatingVendor) {
+            $price = $productInfo['price'];
+            $final_price = $productInfo['final_price'];
+        } else {
+            $price = $value['price'];
+            $final_price = $value['final_price'];
+        }
 
-      $this->db->where('id', $value['pro_id'])
-        ->update('sub_product_master', $updateData);
+        // 💰 COMMISSION
+        $commission_percent = 0;
+        if (!empty($subscription) && $subscription['plan_type'] == 2) {
+            $commission_percent = $subscription['commission_percent'] ?? 0;
+        }
 
-      // 💰 Commission
-      if (!empty($subscription) && $subscription['plan_type'] == 2)
-      {
-        $commission = $value['final_price'] * ($subscription['commission_percent'] ?? 10) / 100;
-        $vendor_earning = $value['final_price'] - $commission;
+        $updateData = [
+            'shop_id' => $shop_id,
+            'vendor_id' => $vendor_id,
+            'promoter_id' => $promoter_id,
+            'promoter_shop_name' => $promoter_shop_name,
 
-        $this->db->set('vendor_earning', $vendor_earning)
-          ->where('id', $value['pro_id'])
-          ->update('sub_product_master');
-      }
+            'added_type' => $adminData['Type'],
+            'addedBy' => $adminData['Id'],
+
+            'parent_category_id' => $basic_info['parent_id'],
+            'category_id' => $basic_info['category_id'],
+            'sub_category_id' => $basic_info['sub_category_id'],
+
+            'product_name' => $basic_info['product_name'],
+            'product_description' => $basic_info['product_description'],
+
+            'price' => $price,
+            'final_price' => $final_price,
+
+            'quantity' => $value['qty'],
+            'gst' => $value['gst'],
+            'color' => $value['color'],
+            'size' => $value['size'],
+
+            'main_image' => $image_info['main_image'] ?? null,
+            'image1' => $image_info['image1'] ?? null,
+            'image2' => $image_info['image2'] ?? null,
+            'image3' => $image_info['image3'] ?? null,
+            'image4' => $image_info['image4'] ?? null,
+            'image5' => $image_info['image5'] ?? null,
+
+            'commission_percent' => $commission_percent,
+            'unique_id' => $unique_id,
+            'status' => 3,
+            'verify_status' => 2,
+            'modify_date' => date('Y-m-d H:i:s')
+        ];
+
+        $this->db->where('id', $value['pro_id'])->update('sub_product_master', $updateData);
+    }
+
+    // ===============================
+    // 7️⃣ EXTRA FIELDS UPDATE
+    // ===============================
+    if (!empty($data['field_name']) && !empty($data['field_value'])) {
+        foreach ($data['field_name'] as $k => $field_name) {
+            $field_value = $data['field_value'][$k] ?? null;
+            if (empty($field_name)) continue;
+
+            $existing = $this->db->get_where('product_extra_fields', [
+                'product_id' => $id,
+                'field_name' => $field_name
+            ])->row_array();
+
+            if ($existing) {
+                $this->db->where('id', $existing['id'])->update('product_extra_fields', [
+                    'field_value' => $field_value
+                ]);
+            } else {
+                $this->db->insert('product_extra_fields', [
+                    'product_id' => $id,
+                    'field_name' => $field_name,
+                    'field_value' => $field_value
+                ]);
+            }
+        }
     }
 
     $this->db->trans_complete();
 
     $this->session->set_flashdata('activate', getCustomAlert('S', 'Product updated successfully'));
     redirect('admin/Product');
-  }
-
-
+}
 
   public function AddProduct()
   {
@@ -3623,7 +4253,7 @@ class Product extends CI_Controller
         $vendorsShops = $this->db
           ->select('id, shop_name')
           ->from('vendors')
-          ->where('promoter_referd_id', $adminData['Id'])
+          ->where('promoter_id', $adminData['Id'])
           ->where('status', '1')
           ->get()
           ->result_array();
