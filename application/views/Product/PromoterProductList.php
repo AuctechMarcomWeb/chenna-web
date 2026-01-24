@@ -1,130 +1,130 @@
 <script type="text/javascript">
-    window.onload = function () {
-        $("#hiddenSms").fadeOut(5000);
-    }
+  window.onload = function () {
+    $("#hiddenSms").fadeOut(5000);
+  }
 </script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
-    />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
 <style type="text/css">
-    .ratingpoint {
-        color: red;
-    }
+  .ratingpoint {
+    color: red;
+  }
 
-    i.fa.fa-fw.fa-trash {
-        font-size: 30px;
-        color: darkred;
-        top: 5px;
-        position: relative;
-    }
+  i.fa.fa-fw.fa-trash {
+    font-size: 30px;
+    color: darkred;
+    top: 5px;
+    position: relative;
+  }
 
-    .set_li {
-        position: absolute;
-        width: 70%;
-        top: 41px;
-        list-style: none;
-        z-index: 9999;
-        height: 0px;
-        overflow: auto;
-        background: aliceblue;
-    }
+  .set_li {
+    position: absolute;
+    width: 70%;
+    top: 41px;
+    list-style: none;
+    z-index: 9999;
+    height: 0px;
+    overflow: auto;
+    background: aliceblue;
+  }
 
-    
-    .pagination.pull-right a {
-        background: #337ab7;
-        color: #fff;
-        font-size: 14px;
-        padding: 11px 10px;
-        top: -12px;
-        margin-right: 5px;
-    }
 
-    .btn-cash {
-        background: #339933;
-        color: #fff;
-    }
+  .pagination.pull-right a {
+    background: #337ab7;
+    color: #fff;
+    font-size: 14px;
+    padding: 11px 10px;
+    top: -12px;
+    margin-right: 5px;
+  }
 
-    .pagination>.active>a {
-        background: red;
-        padding: 11px;
-        border: red;
-        margin-right: 5px;
-        color: #fff;
+  .btn-cash {
+    background: #339933;
+    color: #fff;
+  }
 
-    }
+  .pagination>.active>a {
+    background: red;
+    padding: 11px;
+    border: red;
+    margin-right: 5px;
+    color: #fff;
 
-    .pagination>.active>a:hover {
-        background: red;
-        padding: 11px;
-        border: red;
-        margin-right: 5px;
-        color: #fff;
+  }
 
-    }
+  .pagination>.active>a:hover {
+    background: red;
+    padding: 11px;
+    border: red;
+    margin-right: 5px;
+    color: #fff;
 
-    .b:hover {
-        cursor: pointer;
-    }
+  }
 
-    .slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #ccc;
-        -webkit-transition: .4s;
-        transition: .4s;
-    }
+  .b:hover {
+    cursor: pointer;
+  }
 
-    .slider:before {
-        position: absolute;
-        content: "";
-        height: 26px;
-        width: 26px;
-        left: 4px;
-        bottom: 4px;
-        background-color: white;
-        -webkit-transition: .4s;
-        transition: .4s;
-    }
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+  }
 
-    input:checked+.slider {
-        background-color: #2196F3;
-    }
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+  }
 
-    input:focus+.slider {
-        box-shadow: 0 0 1px #2196F3;
-    }
+  input:checked+.slider {
+    background-color: #2196F3;
+  }
 
-    input:checked+.slider:before {
-        -webkit-transform: translateX(26px);
-        -ms-transform: translateX(26px);
-        transform: translateX(26px);
-    }
+  input:focus+.slider {
+    box-shadow: 0 0 1px #2196F3;
+  }
 
-    /* Rounded sliders */
-    .slider.round {
-        border-radius: 34px;
-    }
+  input:checked+.slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+  }
 
-    .slider.round:before {
-        border-radius: 50%;
-    }
+  /* Rounded sliders */
+  .slider.round {
+    border-radius: 34px;
+  }
 
-    .switch {
-        position: relative;
-        display: inline-block;
-        width: 60px;
-        height: 34px;
-    }
+  .slider.round:before {
+    border-radius: 50%;
+  }
 
-    .switch input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-    }
-    .vendor-logo {
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+  }
+
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .vendor-logo {
     width: 80px;
     height: 50px;
     object-fit: contain;
@@ -455,247 +455,295 @@
     transform: translateY(-2px);
     color: white;
   }
+  .pricing-modal {
+    border-radius: 16px;
+  }
+
+  .pricing-card {
+    border: 1px solid #eee;
+    border-radius: 14px;
+    padding: 13px;
+    cursor: pointer;
+    transition: all .25s ease;
+    height: auto;
+    background: #fff;
+  }
+
+  .pricing-card.active {
+    border-color: #ffe4e4;
+    background: linear-gradient(135deg, #ffffff, #fff);
+    box-shadow: 0 11px 24px rgb(255 234 234);
+  }
+
+  .card-price {
+    font-size: 13px;
+    font-weight: 700;
+    color: #e7331d;
+  }
+
+  .card-price small {
+    font-size: 13px;
+    font-weight: 500;
+    color: #6c757d;
+  }
+  .btn-proceed {
+    padding: 10px 21px;
+    font-size: 16px;
+    margin-top: 40px;
+    border-radius: 50px;
+    background: linear-gradient(135deg, #dd4b39, #f38f12);
+    color: #fff;
+    border: none;
+     margin-bottom: 10px;
+  }
+
+  .btn-proceed:hover {
+    background: linear-gradient(135deg, #17af27, #238522);
+  }
+
+  .section-title {
+    position: relative;
+    padding-bottom: 8px;
+    margin-bottom: 15px;
+    margin-top: 44px;
+    font-weight: 600;
+}
+
+  .section-title::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 50%;
+    height: 2px;
+    background: #dd4b394f;
+    border-radius: 10px;
+  }
 </style>
 <div class="content-wrapper">
-     
-    <section class="content-header">
-        <h1>Manage Products
-           <!-- Add Product Button -->
-        <a href="javascript:void(0);" 
-          class="btn btn-info" 
-          style="float: right; padding-right: 10px;" 
-          id="addProductBtn">
-          Add Product
-        </a>
 
-<!-- Pass PHP subscription info to JS -->
-<script>
-    var showSubscriptionPopup = <?= isset($show_subscription_popup) ? json_encode($show_subscription_popup) : '0'; ?>;
-</script>
+  <section class="content-header">
+    <h1>Manage Products
+      <!-- Add Product Button -->
+      <a href="javascript:void(0);" class="btn btn-info" style="float: right; padding-right: 10px;" id="addProductBtn">
+        Add Product
+      </a>
+    </h1>
+  </section>
 
-        </h1>
-    </section>
-
-    <!-- Main content -->
-    <section class="content">
-        <div class="row">
-            <div id="msg">
-                <div class="col-xs-12">
-                    <div class="box">
+  <!-- Main content -->
+  <section class="content">
+    <div class="row">
+      <div id="msg">
+        <div class="col-xs-12">
+          <div class="box">
 
 
-                        <div class="box-body" style="overflow-x:auto;">
-                            <br>
-                            <!-- FILTER FORM -->
-                            <div class="col-sm-12">
-                                <div class="col-md-12" id="hiddenSms">
-                                    <?php
-                                    if ($this->session->flashdata('activate'))
-                                    {
-                                        echo $this->session->flashdata('activate');
-                                        $this->session->unset_userdata('activate'); // Clear after showing
-                                    }
-                                    ?>
-                                </div>
-
-
-                                <form method="POST">
-                                    <div class="row" style="margin-top: -19px;">
-
-                                        <div class="col-sm-3">
-                                            <input type="text" class="form-control" name="keywords"
-                                                placeholder="Enter Product Name" value="<?= @$_POST['keywords']; ?>">
-                                        </div>
-
-                                        <div class="col-sm-1">
-                                            <input type="submit" class="btn btn-info" value="GET PRODUCTS">
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                            <br><br><br>
-
-                            <!-- TABLE -->
-                            <table class="table table-bordered table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Sr No.</th>
-                                        <th>Parent Category</th>
-                                        <th>Category</th>
-                                        <th>Sub-Category</th>
-                                        <th>Product Name</th>
-                                        <th>Shop</th>
-                                        <th>Shop Name</th>
-                                        <th>Name</th>
-                                        <th>Rate / MRP</th>
-                                        <th>Stock</th>
-                                        <th>Date</th>
-                                        <th>Verify</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                               <tbody>
-                                    <?php $counter = ($pano - 1) * 20 + 1; ?>
-                                    <?php foreach ($results as $value): ?>
-                                        <tr>
-                                            <td><?= $counter; ?></td>
-                                            <td><?= $value['parent_category_name'] ?? ''; ?></td>
-                                            <td><?= $value['category_name'] ?? ''; ?></td>
-                                            <td><?= $value['sub_category_name'] ?? ''; ?></td>
-                                            <td>
-                                                <?= $value['product_name']; ?><br>
-                                                Color: <?= $value['color'] ?? ''; ?> | Size: <?= $value['size'] ?? ''; ?>
-                                            </td>
-                                             <td class="text-center text-blue">
-                                                <?php
-                                                if ($value['added_type'] == '3')
-                                                {
-                                                // Promoter product
-                                                $img = !empty($value['promoter_logo']) ? base_url($value['promoter_logo']) : base_url('plugins/images/logo.png');
-                                                $shop_name = $value['promoter_shop_name'] ?? $value['promoter_name'];
-                                                } else
-                                                {
-                                                // Vendor product
-                                                $img = !empty($value['vendor_logo']) ? base_url($value['vendor_logo']) : base_url('plugins/images/logo.png');
-                                                $shop_name = $value['vendor_shop_name'] ?? $value['shop_name'] ?? '';
-                                                }
-                                                ?>
-                                                <img src="<?= $img; ?>" alt="Shop Logo" class="vendor-logo"
-                                                onerror="this.src='<?= base_url('plugins/images/logo.png'); ?>'">
-                                                <br>
-                                                <span><?= $shop_name; ?></span>
-                                            </td>
-                                            <td><?= $value['promoter_shop_name'] ?? 'N/A'; ?></td>
-                                            <td><?= $value['promoter_name'] ?? 'N/A'; ?></td>
-                                            <td><?= $value['final_price']; ?> / <?= $value['price']; ?></td>
-                                            <td><?= $value['quantity']; ?></td>
-                                            <td><?= date('d-m-Y | h:i:s A', strtotime($value['add_date'] ?? date('Y-m-d H:i:s'))); ?></td>
-                                            <td>
-                                                <?php if ($promoterData['Type'] == 3) { ?>
-                                                    <label class="switch">
-                                                        <input type="checkbox" <?= ($value['verify_status'] == 1) ? 'checked' : ''; ?> 
-                                                            onclick="verify_product(this.value, <?= $value['id']; ?>);">
-                                                        <span class="slider round"></span>
-                                                    </label>
-                                                <?php } else { ?>
-                                                    <span class="label <?= ($value['verify_status'] == 1) ? 'label-success' : 'label-danger'; ?>">
-                                                        <?= ($value['verify_status'] == 1) ? 'VERIFY' : 'NOT VERIFY'; ?>
-                                                    </span>
-                                                <?php } ?>
-                                            </td>
-                                            <td>
-                                                <a href="<?= base_url('admin/Product/UpdateProduct/' . $value['id']); ?>" class="btn btn-info">
-                                                    <i class="fa-solid fa-pen-to-square"></i>
-                                                </a>
-                                                <a href="<?= base_url('admin/product/delete_product/' . $value['id']); ?>" class="btn btn-danger"
-                                                onclick="return confirm('Are you sure?');">
-                                                    <i class="fa-solid fa-trash"></i>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        <?php $counter++; ?>
-                                    <?php endforeach; ?>
-                                </tbody>
-
-                            </table>
-
-                            <!-- PAGINATION -->
-                            <div class="row">
-                                <div class="col-sm-6">
-                                    <?= @$entries; ?>
-                                </div>
-                                <div class="col-sm-6 text-right">
-                                    <ul class="pagination">
-                                        <?php foreach ($links as $link)
-                                        {
-                                            echo "<li>" . $link . "</li>";
-                                        } ?>
-                                    </ul>
-                                </div>
-                            </div>
-
-                        </div> <!-- /.box-body -->
-                    </div> <!-- /.box -->
-                </div> <!-- /.col -->
-            </div> <!-- /.row -->
-    </section>
-
-    <!-- /.content -->
-    <!-- Modal -->
-    <div class="modal fade" id="myModal" role="dialog">
-        <div class="modal-dialog" style="width:100%">
-
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Change Product Quantity</h4>
+            <div class="box-body" style="overflow-x:auto;">
+              <br>
+              <!-- FILTER FORM -->
+              <div class="col-sm-12">
+                <div class="col-md-12" id="hiddenSms">
+                  <?php
+                  if ($this->session->flashdata('activate'))
+                  {
+                    echo $this->session->flashdata('activate');
+                    $this->session->unset_userdata('activate'); // Clear after showing
+                  }
+                  ?>
                 </div>
-                <form action="<?php echo base_url(); ?>admin/product/changePassword" method="POST">
-                    <div class="modal-body" id="show_html">
 
+
+                <form method="POST">
+                  <div class="row" style="margin-top: -19px;">
+
+                    <div class="col-sm-3">
+                      <input type="text" class="form-control" name="keywords" placeholder="Enter Product Name"
+                        value="<?= @$_POST['keywords']; ?>">
                     </div>
 
+                    <div class="col-sm-1">
+                      <input type="submit" class="btn btn-info" value="GET PRODUCTS">
+                    </div>
+                  </div>
                 </form>
-            </div>
+              </div>
+              <br><br><br>
 
+              <!-- TABLE -->
+              <table class="table table-bordered table-striped">
+                <thead>
+                  <tr>
+                    <th>Sr No.</th>
+                    <th>Parent Category</th>
+                    <th>Category</th>
+                    <th>Sub-Category</th>
+                    <th>Product Name</th>
+                    <th>Shop</th>
+                    <th>Shop Name</th>
+                    <th>Name</th>
+                    <th>Rate / MRP</th>
+                    <th>Stock</th>
+                    <th>Date</th>
+                    <th>Verify</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <?php $counter = ($pano - 1) * 20 + 1; ?>
+                  <?php foreach ($results as $value): ?>
+                    <tr>
+                      <td><?= $counter; ?></td>
+                      <td><?= $value['parent_category_name'] ?? ''; ?></td>
+                      <td><?= $value['category_name'] ?? ''; ?></td>
+                      <td><?= $value['sub_category_name'] ?? ''; ?></td>
+                      <td>
+                        <?= $value['product_name']; ?><br>
+                        Color: <?= $value['color'] ?? ''; ?> | Size: <?= $value['size'] ?? ''; ?>
+                      </td>
+                      <td class="text-center text-blue">
+                        <?php
+                        if ($value['added_type'] == '3')
+                        {
+                          // Promoter product
+                          $img = !empty($value['promoter_logo']) ? base_url($value['promoter_logo']) : base_url('plugins/images/logo.png');
+                          $shop_name = $value['promoter_shop_name'] ?? $value['promoter_name'];
+                        } else
+                        {
+                          // Vendor product
+                          $img = !empty($value['vendor_logo']) ? base_url($value['vendor_logo']) : base_url('plugins/images/logo.png');
+                          $shop_name = $value['vendor_shop_name'] ?? $value['shop_name'] ?? '';
+                        }
+                        ?>
+                        <img src="<?= $img; ?>" alt="Shop Logo" class="vendor-logo"
+                          onerror="this.src='<?= base_url('plugins/images/logo.png'); ?>'">
+                        <br>
+                        <span><?= $shop_name; ?></span>
+                      </td>
+                      <td><?= $value['promoter_shop_name'] ?? 'N/A'; ?></td>
+                      <td><?= $value['promoter_name'] ?? 'N/A'; ?></td>
+                      <td><?= $value['final_price']; ?> / <?= $value['price']; ?></td>
+                      <td><?= $value['quantity']; ?></td>
+                      <td><?= date('d-m-Y | h:i:s A', strtotime($value['add_date'] ?? date('Y-m-d H:i:s'))); ?></td>
+                      <td>
+                        <?php if ($promoterData['Type'] == 3)
+                        { ?>
+                          <label class="switch">
+                            <input type="checkbox" <?= ($value['verify_status'] == 1) ? 'checked' : ''; ?>
+                              onclick="verify_product(this.value, <?= $value['id']; ?>);">
+                            <span class="slider round"></span>
+                          </label>
+                        <?php } else
+                        { ?>
+                          <span class="label <?= ($value['verify_status'] == 1) ? 'label-success' : 'label-danger'; ?>">
+                            <?= ($value['verify_status'] == 1) ? 'VERIFY' : 'NOT VERIFY'; ?>
+                          </span>
+                        <?php } ?>
+                      </td>
+                      <td>
+                        <a href="<?= base_url('admin/Product/UpdateProduct/' . $value['id']); ?>" class="btn btn-info">
+                          <i class="fa-solid fa-pen-to-square"></i>
+                        </a>
+                        <a href="<?= base_url('admin/product/delete_product/' . $value['id']); ?>" class="btn btn-danger"
+                          onclick="return confirm('Are you sure?');">
+                          <i class="fa-solid fa-trash"></i>
+                        </a>
+                      </td>
+                    </tr>
+                    <?php $counter++; ?>
+                  <?php endforeach; ?>
+                </tbody>
+
+              </table>
+
+              <!-- PAGINATION -->
+              <div class="row">
+                <div class="col-sm-6">
+                  <?= @$entries; ?>
+                </div>
+                <div class="col-sm-6 text-right">
+                  <ul class="pagination">
+                    <?php foreach ($links as $link)
+                    {
+                      echo "<li>" . $link . "</li>";
+                    } ?>
+                  </ul>
+                </div>
+              </div>
+
+            </div> <!-- /.box-body -->
+          </div> <!-- /.box -->
+        </div> <!-- /.col -->
+      </div> <!-- /.row -->
+  </section>
+
+  <!-- /.content -->
+  <!-- Modal -->
+  <div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog" style="width:100%">
+
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Change Product Quantity</h4>
         </div>
+        <form action="<?php echo base_url(); ?>admin/product/changePassword" method="POST">
+          <div class="modal-body" id="show_html">
+
+          </div>
+
+        </form>
+      </div>
+
     </div>
-
-
-
-
-
+  </div>
 </div>
-
-
 <script src="<?php echo base_url('assets/admin/plugins/select2/select2.full.min.js'); ?>"></script>
-
-
 <script type="text/javascript">
 
-    function get_product_idss(id) {
-        var val = [];
-        $(':checkbox:checked').each(function (i) {
-            val[i] = $(this).val();
-        });
+  function get_product_idss(id) {
+    var val = [];
+    $(':checkbox:checked').each(function (i) {
+      val[i] = $(this).val();
+    });
 
-        $('#set_checked_id').val(val);
+    $('#set_checked_id').val(val);
 
-    }
+  }
 
-    function change_quantity(product_code, qty) {
-        $.ajax({
-            url: '<?php echo base_url('admin/product/changeQty'); ?>',
-            type: 'POST',
-            data: { 'product_code': product_code, 'quantity': qty },
-            dataType: 'HTML',
-            success: function (response) {
-                $('#show_html').html(response);
-                $('#myModal').modal('show');
-            }
-        });
+  function change_quantity(product_code, qty) {
+    $.ajax({
+      url: '<?php echo base_url('admin/product/changeQty'); ?>',
+      type: 'POST',
+      data: { 'product_code': product_code, 'quantity': qty },
+      dataType: 'HTML',
+      success: function (response) {
+        $('#show_html').html(response);
+        $('#myModal').modal('show');
+      }
+    });
 
 
-    }
+  }
 
-    function verify_product(value, product_id) {
-        $.ajax({
-            url: '<?php echo base_url('admin/product/verify_product'); ?>',
-            type: 'POST',
-            data: { 'value': value, 'product_id': product_id },
-            dataType: 'text',
-            success: function (response) {
-                if (response == '1') {
-                    alert('Product Verify Successfully.');
-                    location.reload();
-                } else {
-                    alert('Product Unverify Successfully.');
-                    location.reload();
-                }
-            }
-        });
-    }
+  function verify_product(value, product_id) {
+    $.ajax({
+      url: '<?php echo base_url('admin/product/verify_product'); ?>',
+      type: 'POST',
+      data: { 'value': value, 'product_id': product_id },
+      dataType: 'text',
+      success: function (response) {
+        if (response == '1') {
+          alert('Product Verify Successfully.');
+          location.reload();
+        } else {
+          alert('Product Unverify Successfully.');
+          location.reload();
+        }
+      }
+    });
+  }
 
 
 </script>
@@ -704,178 +752,160 @@
 
 <!-- Add Product Button -->
 
+<!-- Subscription / Pricing Modal -->
+ <div class="modal fade" id="subscriptionModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="modal-content pricing-modal">
+        <div class="modal-body p-5">
 
-<!-- Subscription Modal -->
-<div class="modal fade" id="pricingModal" tabindex="-1">
-  <div class="modal-dialog modal-xl modal-dialog-centered">
-    <div class="modal-content pricing-modal">
-      <div class="modal-body p-5">
+          <div class="text-center mb-5">
+            <h3 class="fw-bold">Choose Your Plan</h3>
+            <p class="text-muted">Upgrade to unlock premium features</p>
+          </div><br>
 
-        <div class="text-center mb-4">
-          <h4 class="fw-bold">Pricing Plans</h4>
-          <p class="text-muted small">Select the best plan for your needs</p>
-        </div>
+          <div class="row g-4">
+            <!-- LEFT : Selected Plan -->
+            <div class="col-md-4">
+              <h6 class="fw-semibold mb-3 section-title">Selected Plan</h6>
 
-        <div class="row align-items-start mt-4">
-          <!-- LEFT: Selected Plan -->
-          <div class="col-md-4">
-           <h6 class="fw-semibold plan-heading">
-              <span class="heading-text">Your Selected Plan</span>
-              <span class="heading-icon">+</span>
-            </h6>
-            <div class="plan-box mt-3" id="selectedPlanBox">
-              <?php if(!empty($default_plan)): ?>
-                <div class="plan-inline">
-                  <div><h6><?= $default_plan['plan_name'] ?></h6></div>
-                  <div class="price-tag">
-                    <?= $default_plan['plan_type']==1 ? '₹'.$default_plan['price'] : $default_plan['commission_percent'].'%' ?>
-                    <small>/<?= $default_plan['plan_type']==1?'Month':'Per Product' ?></small>
+              <div class="plan-box" id="selectedPlanBox">
+                <h6><?= $plans[0]['plan_name'] ?></h6>
+                <div class="price-tag" id="selectedPlanPrice">
+                  <?= $plans[0]['plan_type'] == 1 ? '₹' . $plans[0]['price'] : $plans[0]['commission_percent'] . '%' ?>
+                  <small>/<?= $plans[0]['plan_type'] == 1 ? 'Month' : 'Per Product' ?></small>
+                </div><br>
+                <small class="text-muted mt-3">Product Limit: <?= $plans[0]['product_limit'] ?></small>
+              </div>
+            </div>
+
+            <!-- RIGHT : Plans -->
+            <div class="col-md-8">
+              <div class="row g-3">
+                <?php foreach ($plans as $plan): ?>
+                  <div class="col-md-6">
+                    <div class="pricing-card select-plan" data-id="<?= $plan['id'] ?>" data-name="<?= $plan['plan_name'] ?>"
+                      data-price="<?= $plan['price'] ?>" data-type="<?= $plan['plan_type'] ?>"
+                      data-commission="<?= $plan['commission_percent'] ?>" data-limit="<?= $plan['product_limit'] ?>">
+                      <h6 class="fw-semibold"><?= $plan['plan_name'] ?></h6>
+                      <div class="card-price mt-2">
+                        <?= $plan['plan_type'] == 1 ? '₹' . $plan['price'] : $plan['commission_percent'] . '%' ?>
+                        <small>/<?= $plan['plan_type'] == 1 ? 'Month' : 'Per Product' ?></small>
+                      </div>
+                      <small class="text-muted">Product Limit: <?= $plan['product_limit'] ?></small>
+                    </div>
                   </div>
-                </div>
-                <small>Product Limit: <?= $default_plan['product_limit'] ?></small>
-              <?php else: ?>
-                <small>No plan selected</small>
-              <?php endif; ?>
+                <?php endforeach; ?>
+              </div>
             </div>
           </div>
 
-          <!-- RIGHT: All Plans -->
-          <div class="col-md-8">
-            <div class="row">
-              <?php foreach($plans as $plan): 
-                $is_active = (!empty($default_plan) && $plan['id']==$default_plan['id']) ? 'active' : ''; ?>
-                <div class="col-md-6 mb-3">
-                  <div class="card pricing-card select-plan <?= $is_active ?>" 
-                       style="cursor:pointer;"
-                       data-id="<?= $plan['id'] ?>"
-                       data-name="<?= $plan['plan_name'] ?>"
-                       data-price="<?= $plan['price'] ?>"
-                       data-type="<?= $plan['plan_type'] ?>"
-                       data-commission="<?= $plan['commission_percent'] ?>"
-                       data-limit="<?= $plan['product_limit'] ?>">
-                    <div class="card-body">
-                      <h6><?= $plan['plan_name'] ?></h6>
-                      <div class="card-price">
-                        <?= $plan['plan_type']==1 ? '₹'.$plan['price'] : $plan['commission_percent'].'%' ?>
-                        <small>/<?= $plan['plan_type']==1 ? 'Month' : 'Per Product' ?></small>
-                      </div>
-                      <ul>
-                        <li>Product Limit: <?= $plan['product_limit'] ?></li>
-                        <?php if($plan['plan_type']==1): ?>
-                          <li>Price: ₹<?= $plan['price'] ?></li>
-                        <?php else: ?>
-                          <li>Commission: <?= $plan['commission_percent'] ?>%</li>
-                        <?php endif; ?>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              <?php endforeach; ?>
-            </div><br>
+          <div class="text-center mt-5">
+            <button class="btn btn-proceed" id="proceedPlanBtn">
+              Proceed to Payment →
+            </button>
           </div>
-        </div>
 
-        <div class="text-center mt-4">
-          <button class="btn btn-proceed" id="proceedPlanBtn">Proceed</button>
         </div>
       </div>
     </div>
   </div>
-</div>
-
-<!-- Pass PHP vars to JS -->
 
 <script>
-    // Pass PHP vars to JS
-var showSubscriptionPopup = <?= !empty($show_subscription_popup)?1:0 ?>;
-<?php if(!empty($adminData['Id'])): ?>
-    var user_id = <?= $adminData['Id'] ?>;
-    var user_type = <?= ($adminData['Type']==2 ? "'vendor'" : "'promoter'") ?>;
-<?php else: ?>
-    var user_id = 0;
-    var user_type = '';
-    console.error('Admin session not found');
-<?php endif; ?>
+  document.addEventListener('DOMContentLoaded', function () {
 
-// Function to update left box
-function updateSelectedPlanBox(card){
-    document.getElementById('selectedPlanBox').innerHTML = `
-        <div class="plan-inline">
-            <div><h6>${card.getAttribute('data-name')}</h6></div>
-            <div class="price-tag">
-                ${card.getAttribute('data-type')==1?'₹'+card.getAttribute('data-price'):
-                  card.getAttribute('data-commission')+'%'}
-                <small>/${card.getAttribute('data-type')==1?'Month':'Per Product'}</small>
-            </div>
-        </div>
-        <small>Product Limit: ${card.getAttribute('data-limit')}</small>
-    `;
-}
+    var user_id = <?= $adminData['Id'] ?? 0 ?>;
+    var user_type = <?= ($adminData['Type'] == 2 ? "'vendor'" : "'promoter'") ?>;
 
-document.addEventListener('DOMContentLoaded', function(){
-
-    // Add Product button click
-    document.getElementById('addProductBtn').addEventListener('click', function() {
-        if(showSubscriptionPopup == 1){
-            $('#pricingModal').modal('show');
-        } else {
+    document.getElementById('addProductBtn').addEventListener('click', function () {
+      $.ajax({
+        url: '<?= base_url("admin/Subscription/check_active_plan") ?>',
+        type: 'POST',
+        data: { user_id, user_type },
+        dataType: 'json',
+        success: function (res) {
+          if (res.has_plan) {
+           
             window.location.href = "<?= base_url('admin/Product/AddProduct'); ?>";
+          } else {
+           
+            $('#subscriptionModal').modal('show');
+            var defaultPlanCard = document.querySelector('.select-plan');
+            if (defaultPlanCard) {
+              $('.select-plan').removeClass('active');
+              defaultPlanCard.classList.add('active');
+              updateSelectedPlanBox(defaultPlanCard);
+            }
+          }
+        },
+        error: function (xhr) {
+          console.error(xhr.responseText);
+          alert('Could not verify plan status.');
         }
+      });
+
     });
 
     // Plan selection click
-    $(document).on('click', '.select-plan', function(){
-        $('.select-plan').removeClass('active');
-        $(this).addClass('active');
-        updateSelectedPlanBox(this);
+    $(document).on('click', '.select-plan', function () {
+      $('.select-plan').removeClass('active');
+      $(this).addClass('active');
+      updateSelectedPlanBox(this);
     });
 
-    // Modal shown event → set default plan
-    $('#pricingModal').on('shown.bs.modal', function(){
-        <?php if(!empty($default_plan)): ?>
-            var defaultPlanId = <?= $default_plan['id'] ?>;
-            var defaultPlanCard = document.querySelector('.select-plan[data-id="'+defaultPlanId+'"]');
-            if(defaultPlanCard){
-                defaultPlanCard.classList.add('active');
-                updateSelectedPlanBox(defaultPlanCard);
+    // Update left box
+    function updateSelectedPlanBox(card) {
+      document.getElementById('selectedPlanBox').innerHTML = `
+      <div class="plan-inline d-flex justify-content-between align-items-center">
+        <div><h6>${card.dataset.name}</h6></div>
+        <div class="price-tag">
+          ${card.dataset.type == 1 ? '₹' + card.dataset.price : card.dataset.commission + '%'}
+          <small>/${card.dataset.type == 1 ? 'Month' : 'Per Product'}</small>
+        </div>
+      </div>
+      <small>Product Limit: ${card.dataset.limit}</small>
+    `;
+    }
+    document.getElementById('proceedPlanBtn').addEventListener('click', function () {
+      var selectedPlan = document.querySelector('.select-plan.active');
+      if (!selectedPlan) { alert('Please select a plan first.'); return; }
+
+      var plan_id = selectedPlan.dataset.id;
+      var plan_type = selectedPlan.dataset.type;
+
+      $.ajax({
+        url: '<?= base_url("admin/Subscription/create_subscription") ?>',
+        type: 'POST',
+        data: { user_id, plan_id, user_type },
+        dataType: 'json',
+        success: function (res) {
+          if (res.status == 'success') {
+            if (plan_type == 1) {
+             
+              var form = document.createElement('form');
+              form.method = 'POST';
+              form.action = '<?= base_url("phonepe/pay") ?>';
+              form.innerHTML = `
+              <input type="hidden" name="order_id" value="${res.merchant_txn_id}">
+              <input type="hidden" name="amount" value="${res.amount}">
+            `;
+              document.body.appendChild(form);
+              form.submit();
+            } else {
+             
+              alert("Per-product plan activated. You can now add products.");
+              $('#pricingModal').modal('hide');
+              window.location.href = "<?= base_url('admin/Product/AddProduct'); ?>";
             }
-        <?php endif; ?>
-    });
-
-    // Proceed button click
-    document.getElementById('proceedPlanBtn').addEventListener('click', function(){
-        var selectedPlan = document.querySelector('.select-plan.active');
-        if(!selectedPlan){
-            alert('Please select a plan first.');
-            return;
+          } else {
+            alert(res.message);
+          }
+        },
+        error: function (xhr) {
+          console.error(xhr.responseText);
+          alert('Something went wrong.');
         }
-
-        var plan_id = selectedPlan.getAttribute('data-id');
-
-        $.ajax({
-            url: '<?= base_url("admin/Subscription/create") ?>',
-            type: 'POST',
-            data: {user_id: user_id, plan_id: plan_id, type: user_type},
-            dataType: 'json',
-            success: function(res){
-                if(res.status=='success'){
-                    alert(res.message);
-                    $('#pricingModal').modal('hide');
-                    window.location.href = "<?= base_url('admin/Product/AddProduct'); ?>";
-                } else {
-                    alert(res.message + "\nData received: " + JSON.stringify(res.received || {}));
-                }
-            },
-            error: function(xhr){
-                console.error(xhr.responseText);
-                alert('Something went wrong. Check console.');
-            }
-        });
+      });
     });
 
-});
-
+  });
 </script>
-
-
-

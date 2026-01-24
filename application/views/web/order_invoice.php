@@ -115,7 +115,7 @@
             <tr>
                 <td><strong>Date</strong></td>
                 <td><?= $order['order_date']; ?>
-</td>
+            </td>
             </tr>
 
             <tr>
@@ -315,9 +315,6 @@
                <td class="right bold">₹ <?= number_format($grand_total_after_discount, 2); ?></td>
             </tr>
         </table>
-
-
-
         <!-- Declaration and Signature -->
         <table>
             <tr>

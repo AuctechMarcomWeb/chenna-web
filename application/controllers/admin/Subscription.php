@@ -7,56 +7,67 @@ class Subscription extends CI_Controller
     {
         parent::__construct();
         $this->load->model('Subscription_model');
-        $this->load->library('Email_send'); // custom email library
+        $this->load->helper('url');
+        $this->load->library('session');
     }
 
-    // ----------------------
-    // Vendor/Promoter subscription request (AJAX)
-    // ----------------------
-    public function create()
+    public function create_subscription()
     {
         $user_id = $this->input->post('user_id');
         $plan_id = $this->input->post('plan_id');
-        $type = $this->input->post('type');
+        $user_type = $this->input->post('user_type'); 
 
-        if (!$user_id || !$plan_id || !in_array($type, ['vendor', 'promoter']))
+        if (!$user_id || !$plan_id)
         {
-            return $this->output
-                ->set_content_type('application/json')
-                ->set_output(json_encode(['status' => 'error', 'message' => 'Invalid request']));
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request']);
+            return;
         }
 
-        if ($this->Subscription_model->getPendingSubscriptionRequest($user_id, $type))
+        if ($this->Subscription_model->getPendingSubscriptionRequest($user_id, $user_type))
         {
-            return $this->output
-                ->set_content_type('application/json')
-                ->set_output(json_encode(['status' => 'error', 'message' => 'You already submitted a subscription request']));
+            echo json_encode(['status' => 'error', 'message' => 'You already have a pending request']);
+            return;
         }
 
         $plan = $this->Subscription_model->getPlan($plan_id);
         if (!$plan)
         {
-            return $this->output
-                ->set_content_type('application/json')
-                ->set_output(json_encode(['status' => 'error', 'message' => 'Invalid plan selected']));
+            echo json_encode(['status' => 'error', 'message' => 'Invalid plan selected']);
+            return;
+        }
+
+        $merchant_txn_id = 'SUB' . date('YmdHis') . rand(1000, 9999);
+        if ($plan['plan_type'] == 2)
+        {
+            $status = 1;          
+            $approval_status = 1; 
+            $payment_status = 'activated'; 
+        } else
+        {
+            $status = 0;           
+            $approval_status = 0;  
+            $payment_status = 'pending'; 
         }
 
         $data = [
-            ($type == 'vendor') ? 'vendor_id' : 'promoter_id' => $user_id,
+            ($user_type == 'vendor') ? 'vendor_id' : 'promoter_id' => $user_id,
             'plan_id' => $plan_id,
             'plan_type' => $plan['plan_type'],
             'price' => $plan['price'],
-            'commission_percent' => ($plan['plan_type'] == 2) ? $plan['commission_percent'] : null,
-            'product_limit' => (int) $plan['product_limit'],
+            'commission_percent' => $plan['plan_type'] == 2 ? $plan['commission_percent'] : null,
+            'product_limit' => $plan['product_limit'],
             'products_used' => 0,
             'start_date' => date('Y-m-d'),
-            'end_date' => ($plan['plan_type'] == 1) ? date('Y-m-d', strtotime('+1 month')) : null,
-            'status' => 0,
-            'approval_status' => 0,
+            'end_date' => $plan['plan_type'] == 1 ? date('Y-m-d', strtotime('+1 month')) : null,
+            'status' => $status,
+            'approval_status' => $approval_status,
+            'transaction_id' => $merchant_txn_id,
+            'payment_status' => $payment_status,
+            'payment_type' => 2,
             'created_at' => date('Y-m-d H:i:s')
         ];
 
-        if ($type == 'vendor')
+        if ($user_type == 'vendor')
         {
             $id = $this->Subscription_model->createVendorSubscription($data);
         } else
@@ -64,15 +75,131 @@ class Subscription extends CI_Controller
             $id = $this->Subscription_model->createPromoterSubscription($data);
         }
 
-        return $this->output
-            ->set_content_type('application/json')
-            ->set_output(json_encode([
-                'status' => 'success',
-                'message' => 'Your subscription request has been sent successfully',
-                'id' => $id
-            ]));
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'Subscription initiated successfully',
+            'merchant_txn_id' => $merchant_txn_id,
+            'amount' => $plan['price']
+        ]);
     }
 
+    public function response()
+    {
+        $this->session->set_flashdata(
+            'success',
+            'Payment processed. Subscription will be activated shortly.'
+        );
+
+        redirect('admin/dashboard');
+    }
+
+
+    public function phonepe_callback()
+    {
+        $rawData = file_get_contents("php://input");
+        $response = json_decode($rawData, true);
+
+        log_message('error', 'PhonePe Callback: ' . $rawData);
+
+        if (empty($response['data']['merchantTransactionId']))
+        {
+            return;
+        }
+
+        $merchantTxnId = $response['data']['merchantTransactionId'];
+        $code = $response['code'];
+        $state = $response['data']['state'];
+
+        $isSuccess = ($code === 'PAYMENT_SUCCESS' && $state === 'COMPLETED');
+
+        // ===== Vendor Subscription =====
+        $vendor_sub = $this->db
+            ->where('transaction_id', $merchantTxnId)
+            ->get('vendor_subscriptions_master')
+            ->row_array();
+
+        if ($vendor_sub)
+        {
+            $updateData = [
+                'updated_at' => date('Y-m-d H:i:s'),
+            ];
+
+            if ($isSuccess)
+            {
+                $updateData['status'] = 1;
+                $updateData['payment_status'] = 'paid';
+                $updateData['approval_status'] = 1;
+            } else
+            {
+                $updateData['payment_status'] = 'failed';
+            }
+
+            $this->db->where('id', $vendor_sub['id'])
+                ->update('vendor_subscriptions_master', $updateData);
+
+            return;
+        }
+
+        // ===== Promoter Subscription =====
+        $promoter_sub = $this->db
+            ->where('transaction_id', $merchantTxnId)
+            ->get('promoter_subscriptions_master')
+            ->row_array();
+
+        if ($promoter_sub)
+        {
+            $updateData = [
+                'updated_at' => date('Y-m-d H:i:s'),
+            ];
+
+            if ($isSuccess)
+            {
+                $updateData['status'] = 1;
+                $updateData['payment_status'] = 'paid';
+                $updateData['approval_status'] = 1;
+            } else
+            {
+                $updateData['payment_status'] = 'failed';
+            }
+
+            $this->db->where('id', $promoter_sub['id'])
+                ->update('promoter_subscriptions_master', $updateData);
+        }
+        if (strpos($merchantTxnId, 'PERPROD') === 0)
+        {
+            $perProdSub = $this->db
+                ->where('transaction_id', $merchantTxnId)
+                ->get('vendor_subscriptions_master')
+                ->row_array();
+
+            if (!$perProdSub)
+            {
+                $perProdSub = $this->db
+                    ->where('transaction_id', $merchantTxnId)
+                    ->get('promoter_subscriptions_master')
+                    ->row_array();
+            }
+
+            if ($perProdSub)
+            {
+                $this->db->where('id', $perProdSub['id'])
+                    ->update(isset($perProdSub['vendor_id']) ? 'vendor_subscriptions_master' : 'promoter_subscriptions_master', [
+                        'status' => 1,
+                        'approval_status' => 1,
+                        'payment_status' => 'activated',
+                        'updated_at' => date('Y-m-d H:i:s')
+                    ]);
+            }
+        }
+    }
+
+
+    // Agar payment fail ho jaye
+    public function fail()
+    {
+        $this->session->set_flashdata('error', 'Payment failed. Please try again.');
+        redirect('admin/dashboard');
+    }
     // ----------------------
     // Admin approve/reject subscription
     // ----------------------
@@ -239,4 +366,20 @@ class Subscription extends CI_Controller
         $this->load->view('Vendor/subscription_list', $data);
         $this->load->view('include/footer');
     }
+    public function check_active_plan()
+    {
+        $user_id = $this->input->post('user_id');
+        $user_type = $this->input->post('user_type');
+
+        if ($user_type == 'vendor')
+        {
+            $plan = $this->db->where(['vendor_id' => $user_id, 'status' => 1])->get('vendor_subscriptions_master')->row_array();
+        } else
+        {
+            $plan = $this->db->where(['promoter_id' => $user_id, 'status' => 1])->get('promoter_subscriptions_master')->row_array();
+        }
+
+        echo json_encode(['has_plan' => !empty($plan)]);
+    }
+
 }
