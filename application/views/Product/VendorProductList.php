@@ -192,8 +192,6 @@
             <div id="msg">
                 <div class="col-xs-12">
                     <div class="box">
-
-
                         <div class="box-body" style="overflow-x:auto;">
                             <br>
                             <!-- FILTER FORM -->
@@ -207,8 +205,6 @@
                                     }
                                     ?>
                                 </div>
-
-
                                 <form method="POST">
                                     <div class="row" style="margin-top: -19px;">
 
