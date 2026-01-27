@@ -492,5 +492,86 @@ class Website_model extends CI_Model
     }
 
 
+    public function get_all_states()
+    {
+        $vendorStates = $this->db->select('state')->where('state IS NOT NULL')->group_by('state')->get('vendors')->result_array();
+        $promoterStates = $this->db->select('state')->where('state IS NOT NULL')->group_by('state')->get('promoters')->result_array();
+
+        $states = array_unique(array_merge(
+            array_column($vendorStates, 'state'),
+            array_column($promoterStates, 'state')
+        ));
+
+        $final = [];
+        foreach ($states as $st)
+        {
+            $final[] = ['state' => $st];
+        }
+        return $final;
+    }
+
+    // Get cities by state
+    public function get_city_by_state($state)
+    {
+        $vendorCity = $this->db->select('city')->where('state', $state)->where('city IS NOT NULL')->group_by('city')->get('vendors')->result_array();
+        $promoterCity = $this->db->select('city')->where('state', $state)->where('city IS NOT NULL')->group_by('city')->get('promoters')->result_array();
+
+        $cities = array_unique(array_merge(
+            array_column($vendorCity, 'city'),
+            array_column($promoterCity, 'city')
+        ));
+
+        return $cities;
+    }
+
+
+    public function get_state_city_products($state, $city)
+    {
+        $this->db->select('spm.*, spm.added_type, spm.addedBy');
+        $this->db->from('sub_product_master spm');
+
+        $this->db->join('vendors v', 'spm.added_type = 2 AND spm.addedBy = v.id', 'left');
+        $this->db->join('promoters p', 'spm.added_type = 3 AND spm.addedBy = p.id', 'left');
+
+        $this->db->where(['spm.status' => 1, 'spm.verify_status' => 1]);
+
+        $this->db->group_start()
+            ->group_start()
+            ->where('spm.added_type', 2)
+            ->where('v.state', $state)
+            ->where('v.city', $city)
+            ->group_end()
+            ->or_group_start()
+            ->where('spm.added_type', 3)
+            ->where('p.state', $state)
+            ->where('p.city', $city)
+            ->group_end()
+            ->group_end();
+
+        // One product per vendor/promoter
+        $this->db->group_by(['spm.added_type', 'spm.addedBy']);
+        $this->db->order_by('spm.id', 'DESC');
+        $this->db->limit(10);
+
+        return $this->db->get()->result_array();
+    }
+
+    public function get_default_home_products()
+    {
+        $this->db->select('spm.*');
+        $this->db->from('sub_product_master spm');
+        $this->db->join('vendors v', 'spm.added_type = 2 AND spm.addedBy = v.id', 'left');
+        $this->db->join('promoters p', 'spm.added_type = 3 AND spm.addedBy = p.id', 'left');
+        $this->db->where(['spm.status' => 1, 'spm.verify_status' => 1]);
+        $this->db->group_by(['spm.added_type', 'spm.addedBy']);
+        $this->db->order_by('spm.id', 'DESC');
+        $this->db->limit(10);
+
+        return $this->db->get()->result_array();
+    }
+
+
+
+
 }
 ?>

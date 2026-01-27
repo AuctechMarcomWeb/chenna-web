@@ -160,7 +160,7 @@ $categoryList = $this->db->query("Select* from `category_master` where (status=1
         margin-top: 10px;
     }
 
-  
+
 
     .section-b-space {
         padding-bottom: calc(30px + 30 * (100vw - 320px) / 1600);
@@ -494,6 +494,13 @@ $categoryList = $this->db->query("Select* from `category_master` where (status=1
         width: 100%;
         margin: 0px !important;
     }
+    .product-box-4 .special-box img.special-box {
+        width: 65%;
+        height: auto;
+        -o-object-fit: unset;
+        object-fit: unset;
+        margin: 74px auto 0 !important;
+    }
 </style>
 <!-- Left Side Ad -->
 <div class="ad-wrapper">
@@ -648,22 +655,187 @@ $categoryList = $this->db->query("Select* from `category_master` where (status=1
         </div>
     </div>
 </section>
-
-
 <!-- Category Section End -->
 
 
 <!-- Deal Section Start -->
 <?php
 
-if (!empty($sections) && count($sections) > 0) {
+if (!empty($sections) && count($sections) > 0)
+{
     $section = $sections[$tagIndex % count($sections)];
     $tagIndex++;
-} else {
+} else
+{
     $section = null;
 }
 ?>
 
+<?php if (!empty($section)): ?>
+    <section class="product-section product-section-3">
+        <div class="container-fluid-lg">
+            <div class="title">
+                <h2><?= $section['tag_name']; ?></h2>
+            </div>
+
+            <div class="row g-sm-4 g-3" style="flex-wrap: wrap-reverse;">
+
+                <div class="col-xxl-4 col-lg-5 order-lg-2">
+                    <div class="product-bg-image wow fadeInUp">
+                        <div class="product-title product-warning">
+                            <div class="row g-5">
+                                <!-- State -->
+                                <div class="col-6">
+                                    <select class="form-select" id="stateFilter">
+                                        <option value="">All State</option>
+                                        <?php foreach ($states as $st)
+                                        { ?>
+                                            <option value="<?= $st['state'] ?>">
+                                                <?= $st['state'] ?>
+                                            </option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+
+                                <!-- City -->
+                                <div class="col-6">
+                                    <select class="form-select" id="cityFilter">
+                                        <option value="">All City</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="product-box-4 product-box-3 rounded-0">
+                            <div class="deal-box">
+                                <div class="circle-box">
+                                    <div class="shape-circle">
+                                        <img src="https://themes.pixelstrap.com/fastkart/assets/images/grocery/circle.svg"
+                                            class="blur-up lazyloaded" alt="">
+                                        <div class="shape-text">
+                                            <h6>Hot <br> Deal</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="top-selling-slider product-arrow" id="homeProductSlider">
+                                <?php if (!empty($products))
+                                {
+                                    foreach ($products as $pro)
+                                    { ?>
+                                        <div>
+                                            <div class="product-image special-box" id="special-box">
+                                                <a href="<?= base_url('product/' . $pro['id']); ?>">
+                                                    <img src="<?= base_url('assets/product_images/' . $pro['main_image']) ?>"
+                                                        class="img-fluid special-box blur-up lazyloaded" alt="">
+                                                </a>
+                                            </div>
+
+                                            <div class="product-detail text-center">
+                                               
+
+                                                <a href="<?= base_url('product/' . $pro['id']); ?>">
+                                                    <h3 class="name w-100 mx-auto text-center text-title"><?= $pro['product_name'] ?></h3>
+                                                </a>
+
+                                                <h3 class="price theme-color">
+                                                    ₹<?= $pro['final_price'] ?>
+                                                    <?php if (!empty($pro['price']) && $pro['price'] > $pro['final_price'])
+                                                    { ?>
+                                                        <del class="delete-price">₹<?= $pro['price'] ?></del>
+                                                    <?php } ?>
+                                                </h3>
+                                            </div>
+                                        </div>
+                                    <?php }
+                                } ?>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xxl-8 col-lg-7 order-lg-1">
+                    <div class="slider-5_2 img-slider">
+                        <?php foreach (array_chunk($section['products'], 2) as $productChunk): ?>
+                            <div>
+                                <?php foreach ($productChunk as $product): ?>
+                                    <div class="product-box-4 wow fadeInUp">
+                                        <div class="product-image product-image-2">
+                                            <a href="<?= base_url('product/' . $product['id']); ?>">
+                                                <img src="<?= base_url('assets/product_images/' . $product['main_image']); ?>"
+                                                    class="img-fluid blur-up lazyload" alt="<?= $product['product_name']; ?>">
+                                            </a>
+                                            <div class="label-flex" title="Add to Wishlist" style="z-index:1;">
+                                                <?php if (empty($userData)): ?>
+                                                    <button class="btn p-0 wishlist btn-wishlist text-danger" data-bs-toggle="modal"
+                                                        data-bs-target="#login-popup">
+                                                        <i class="iconly-Heart icli" id="iconly-Heart"></i>
+                                                    </button>
+                                                <?php else: ?>
+                                                    <button class="btn p-0 wishlist btn-wishlist text-danger"
+                                                        onclick="add_wishlist('<?= $product['id']; ?>', '<?= $user_id ?>')">
+                                                        <i class="iconly-Heart icli" id="iconly-Heart"></i>
+                                                    </button>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+
+                                        <div class="product-detail">
+                                            <ul class="rating">
+                                                <?php
+                                                $rating = round($product['average_rating']);
+                                                for ($i = 1; $i <= 5; $i++):
+                                                    ?>
+                                                    <li>
+                                                        <i data-feather="star" class="<?= ($i <= $rating) ? 'fill' : ''; ?>"></i>
+                                                    </li>
+                                                <?php endfor; ?>
+                                            </ul>
+
+                                            <a href="<?= base_url('product/' . $product['id']); ?>">
+                                                <h5 class="name text-title"><?= $product['product_name']; ?></h5>
+                                            </a>
+
+                                            <h5 class="price theme-color">
+                                                ₹<?= number_format($product['final_price'], 2); ?>
+                                                <?php if ($product['price'] > $product['final_price']): ?>
+                                                    <del>₹<?= number_format($product['price'], 2); ?></del>
+                                                <?php endif; ?>
+                                            </h5>
+
+                                            <div class="addtocart_btn">
+                                                <button class="add-button addcart-button btn buy-button text-light"
+                                                    onclick="add_cart('<?= $product['id']; ?>', this)">
+                                                    <i class="iconly-Buy icli text-white m-0"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+<?php endif; ?>
+
+
+
+<!-- Deal Section Start -->
+<?php
+if (!empty($sections) && count($sections) > 0)
+{
+    $section = $sections[$tagIndex % count($sections)];
+    $tagIndex++;
+} else
+{
+    $section = null;
+}
+?>
 <?php if (!empty($section)): ?>
     <section class="product-section product-section-3">
         <div class="container-fluid-lg">
@@ -774,18 +946,15 @@ if (!empty($sections) && count($sections) > 0) {
     </section>
 <?php endif; ?>
 
-
-
-<!-- Deal Section End -->
-
-
 <!-- Product Section Start -->
 <?php
-// Agar tags available hain tabhi section lo
-if (!empty($sections) && count($sections) > 0) {
+
+if (!empty($sections) && count($sections) > 0)
+{
     $section = $sections[$tagIndex % count($sections)];
     $tagIndex++;
-} else {
+} else
+{
     $section = null;
 }
 ?>
@@ -910,13 +1079,15 @@ if (!empty($sections) && count($sections) > 0) {
 </section>
 <!-- Banner Section End -->
 
-<!-- Product Section Start -->
+
 <?php
-// Agar tags available hain tabhi section lo
-if (!empty($sections) && count($sections) > 0) {
+
+if (!empty($sections) && count($sections) > 0)
+{
     $section = $sections[$tagIndex % count($sections)];
     $tagIndex++;
-} else {
+} else
+{
     $section = null;
 }
 ?>
@@ -1059,7 +1230,7 @@ if (!empty($sections) && count($sections) > 0) {
             <div class="col-lg-4">
                 <div class="banner-contain-3 pt-lg-4 h-100 hover-effect">
                     <?php if (!empty($bottomAds)): ?>
-                        <?php $ad = array_values($bottomAds)[0];?>
+                        <?php $ad = array_values($bottomAds)[0]; ?>
                         <a href="<?= htmlspecialchars($ad['url']) ?>" target="_blank">
                             <img src="<?= base_url('uploads/advertisement/' . $ad['image']) ?>"
                                 class="img-fluid social-image blur-up lazyload w-100" alt="Advertisement">
@@ -1083,13 +1254,12 @@ if (!empty($sections) && count($sections) > 0) {
 <!-- Banner Section End -->
 
 <?php
-for ($i = 3; $i < count($sections); $i++)
+for ($i = 4; $i < count($sections); $i++)
 {
     $section = $sections[$i];
-
     if (empty($section) || empty($section['products']))
-        continue; // skip empty sections
-?>
+        continue;
+    ?>
     <section>
         <div class="container-fluid-lg">
             <div class="title">
@@ -1139,9 +1309,10 @@ for ($i = 3; $i < count($sections); $i++)
                                                         <?php
                                                         $rating = round($product['average_rating']);
                                                         for ($j = 1; $j <= 5; $j++):
-                                                        ?>
+                                                            ?>
                                                             <li>
-                                                                <i data-feather="star" class="<?= ($j <= $rating) ? 'fill' : ''; ?>"></i>
+                                                                <i data-feather="star"
+                                                                    class="<?= ($j <= $rating) ? 'fill' : ''; ?>"></i>
                                                             </li>
                                                         <?php endfor; ?>
                                                     </ul>
@@ -1358,4 +1529,51 @@ for ($i = 3; $i < count($sections); $i++)
             dots: true
         });
     });
+</script>
+<script>
+$(document).ready(function(){
+
+    // Load cities when state changes
+    $('#stateFilter').on('change', function(){
+        var state = $(this).val();
+        if(state != ''){
+            $.ajax({
+                url: "<?= base_url('Web/get_city') ?>",
+                type: "POST",
+                data: {state: state},
+                success: function(res){
+                    $('#cityFilter').html(res);
+                }
+            });
+        } else {
+            $('#cityFilter').html('<option value="">Select City</option>');
+        }
+    });
+
+    // Fetch products when state or city changes
+    $('#stateFilter, #cityFilter').on('change', function(){
+        var state = $('#stateFilter').val();
+        var city  = $('#cityFilter').val();
+        if(state != '' && city != ''){
+            $.ajax({
+                url: "<?= base_url('Web/get_home_products') ?>",
+                type: "POST",
+                data: {state: state, city: city},
+                success: function(res){
+                    $('.top-selling-slider').slick('unslick'); // destroy old slider
+                    $('.top-selling-slider').html(res); // append filtered products
+                    $('.top-selling-slider').slick({  // re-init slick
+                        slidesToShow: 1,
+                        slidesToScroll: 1,
+                        arrows: true,
+                        dots: false,
+                        autoplay: false,
+                        infinite: false
+                    });
+                }
+            });
+        }
+    });
+
+});
 </script>
