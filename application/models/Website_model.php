@@ -570,8 +570,63 @@ class Website_model extends CI_Model
         return $this->db->get()->result_array();
     }
 
+    public function get_vendors_with_product_count($state = null, $city = null, $search = null)
+    {
+        $this->db->select('v.id, v.name, v.city, v.state, v.profile_pic, COUNT(sp.id) as total_products');
+        $this->db->from('vendors v');
+        $this->db->join('sub_product_master sp', 'sp.vendor_id = v.id', 'left');
+        $this->db->where('v.status', 1);
+        $this->db->group_by('v.id');
+        if (!empty($state))
+        {
+            $this->db->where('v.state', $state);
+        }
+        if (!empty($city))
+        {
+            $this->db->where('v.city', $city);
+        }
+        if (!empty($search))
+        {
+            $this->db->like('v.name', $search);
+        }
+        return $this->db->get()->result_array();
+    }
 
 
+
+    public function get_products_by_vendor($vendor_id)
+    {
+        $this->db->select('sp.*, scm.sub_category_name, cm.category_name, pcm.name as parent_category_name');
+        $this->db->from('sub_product_master sp');
+        $this->db->join('sub_category_master scm', 'sp.sub_category_id = scm.id', 'left');
+        $this->db->join('category_master cm', 'sp.category_id = cm.id', 'left');
+        $this->db->join('parent_category_master pcm', 'sp.parent_category_id = pcm.id', 'left');
+        $this->db->where('sp.vendor_id', $vendor_id);
+        $this->db->where('sp.status', 1);
+        return $this->db->get()->result_array();
+    }
+
+    public function get_categories()
+    {
+        return $this->db->get_where('category_master', ['status' => 1])->result_array();
+    }
+
+    public function get_sub_categories()
+    {
+        return $this->db->get_where('sub_category_master', ['status' => 1])->result_array();
+    }
+
+    public function filter_products($vendor_id, $category=null, $sub_category=null, $price=null, $rating=null)
+    {
+        $this->db->select('*')->from('sub_product_master')->where('vendor_id', $vendor_id)->where('status',1);
+
+        if($category) $this->db->where('category_id', $category);
+        if($sub_category) $this->db->where('sub_category_id', $sub_category);
+        if($price) $this->db->where('final_price <=', $price);
+        if($rating) $this->db->where('rating >=', $rating);
+
+        return $this->db->get()->result_array();
+    }
 
 }
 ?>

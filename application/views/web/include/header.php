@@ -659,13 +659,13 @@
                                             <?php endforeach; ?>
                                         <?php endif; ?>
 
-                                        <!-- Static Pages
+                                       
                                         <li class="nav-item">
                                             <a class="nav-link ps-xl-2 ps-0 no-dropdown"
-                                                href="<?= base_url('web/about'); ?>">About Us</a>
+                                                href="<?= base_url('web/vendorlist'); ?>">Vendor List</a>
                                         </li>
 
-                                        <li class="nav-item">
+                                        <!-- <li class="nav-item">
                                             <a class="nav-link ps-xl-2 ps-0 no-dropdown"
                                                 href="<?= base_url('web/contact'); ?>">Contact Us</a>
                                         </li> -->

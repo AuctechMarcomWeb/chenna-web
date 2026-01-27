@@ -2843,6 +2843,76 @@ class Web extends CI_Controller
     echo json_encode(['count' => $count]);
   }
 
+public function vendorlist()
+{
+    $data['bannerList'] = $this->web_model->getBannerList();
+    $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
+    $data['vendors'] = $this->web_model->get_vendors_with_product_count();
+
+    // ✅ Correct DISTINCT usage
+    $states = $this->db->distinct()->select('state')->from('vendors')->where('status', 1)->get()->result_array();
+    $cities = $this->db->distinct()->select('city')->from('vendors')->where('status', 1)->get()->result_array();
+
+    $data['states'] = array_column($states, 'state');
+    $data['cities'] = array_column($cities, 'city');
+
+    $data['title'] = 'Vendor-List | Chenna';
+    $this->load->view('web/include/header', $data);
+    $this->load->view('web/vendorlist', $data);
+    $this->load->view('web/include/footer');
+}
+
+public function filter_vendors()
+{
+    $state  = $this->input->post('state');
+    $city   = $this->input->post('city');
+    $search = $this->input->post('search');
+    $vendors = $this->web_model->get_vendors_with_product_count($state, $city, $search);
+    $html = $this->load->view('web/vendorsingle', ['vendors' => $vendors], true);
+
+    echo json_encode(['html' => $html]);
+}
+
+
+
+    // AJAX: Get vendor products + filters
+ public function get_vendor_products()
+    {
+        $vendor_id = $this->input->post('vendor_id');
+        if (!$vendor_id) {
+            echo "Invalid vendor";
+            return;
+        }
+
+        // ✅ Now the model is loaded, this will work
+        $data['products'] = $this->Web_model->get_products_by_vendor($vendor_id);
+        $data['categories'] = $this->Web_model->get_categories();
+        $data['sub_categories'] = $this->Web_model->get_sub_categories();
+
+        $this->load->view('web/vendor_products_section', $data);
+    }
+
+
+    // AJAX: Filter products
+    public function filter_vendor_products()
+    {
+        $vendor_id = $this->input->post('vendor_id');
+        $category = $this->input->post('category');
+        $sub_category = $this->input->post('sub_category');
+        $price = $this->input->post('price');
+        $rating = $this->input->post('rating');
+
+        $data['products'] = $this->Web_model->filter_products($vendor_id, $category, $sub_category, $price, $rating);
+        $this->load->view('filtered_products_only', $data);
+    }
+  public function tersms_conditions()
+  {
+    $data['title'] = 'Terms & Conditions | Chenna';
+    $this->load->view('web/include/header', $data);
+    $this->load->view('web/tersms_conditions');
+    $this->load->view('web/include/footer');
+  }
+
   public function about()
   {
     $data['bannerList'] = $this->web_model->getBannerList();
@@ -2850,13 +2920,6 @@ class Web extends CI_Controller
     $data['title'] = 'About-Us | Chenna';
     $this->load->view('web/include/header', $data);
     $this->load->view('web/about');
-    $this->load->view('web/include/footer');
-  }
-  public function tersms_conditions()
-  {
-    $data['title'] = 'Terms & Conditions | Chenna';
-    $this->load->view('web/include/header', $data);
-    $this->load->view('web/tersms_conditions');
     $this->load->view('web/include/footer');
   }
   public function contact()
