@@ -460,98 +460,154 @@ if (empty($userInfo['profile_pic']))
                                 </div>
 
                                 <?php if (!empty($getData)): ?>
-                                <?php foreach ($getData as $order):
-                                   
-                                    $purchase_table = ($order['order_type'] === 'online') ? 'purchase_master2' : 'purchase_master';
+                                    <?php foreach ($getData as $order):
 
-                                    $products = $this->db->get_where($purchase_table, ['order_master_id' => $order['id']])->result_array();
-                                    if (empty($products)) continue;
+                                        $purchase_table = ($order['order_type'] === 'online') ? 'purchase_master2' : 'purchase_master';
 
-                                    $grandTotal = 0;
-                                ?>
-                                <div class="order-box dashboard-bg-box mb-4 p-3 rounded shadow-sm bg-light">
-                                    <div class="order-container mb-3 d-flex flex-wrap justify-content-between align-items-center gap-3">
-                                        <div class="order-detail">
-                                            <h5 class="mb-0" style="font-size:15px">
-                                                <i data-feather="box"></i> Order Status:
+                                        $products = $this->db->get_where($purchase_table, ['order_master_id' => $order['id']])->result_array();
+                                        if (empty($products))
+                                            continue;
+
+                                        $grandTotal = 0;
+                                        ?>
+                                        <div class="order-box dashboard-bg-box mb-4 p-3 rounded shadow-sm bg-light">
+                                            <div
+                                                class="order-container mb-3 d-flex flex-wrap justify-content-between align-items-center gap-3">
+                                                <div class="order-detail">
+                                                    <h5 class="mb-0" style="font-size:15px">
+                                                        <i data-feather="box"></i> Order Status:
+                                                        <?php
+                                                        $statusMap = [
+                                                            1 => ['text' => 'Order waiting for Seller approval', 'color' => '#ffc107'],
+                                                            2 => ['text' => 'Order Shipped', 'color' => '#17a2b8'],
+                                                            3 => ['text' => 'Order Delivered', 'color' => '#28a745'],
+                                                            4 => ['text' => 'Order Cancelled by Customer', 'color' => '#a81e23'],
+                                                            5 => ['text' => 'Order Confirmed by Store', 'color' => '#28a745'],
+                                                            6 => ['text' => 'Order Rejected by Store', 'color' => '#dc3545'],
+                                                            7 => ['text' => 'Return Requested', 'color' => '#ebb923'],
+                                                            8 => ['text' => 'Return Completed', 'color' => '#28a745'],
+                                                        ];
+                                                        $status = $statusMap[$order['status']] ?? ['text' => 'Processing', 'color' => '#6c757d'];
+                                                        ?>
+                                                        <span class="badge ms-2"
+                                                            style="background-color:<?= $status['color']; ?>; color:#fff; font-size:14px;">
+                                                            <?= $status['text']; ?>
+                                                        </span>
+                                                    </h5>
+                                                </div>
+
+                                                <div class="order-id">
+                                                    <h5 class="mb-0">Order ID:
+                                                        <a href="#"
+                                                            class="text-decoration-underline"><?= $order['order_number']; ?></a>
+                                                    </h5>
+                                                </div>
+                                            </div>
+
+                                            <!-- Product Table -->
+                                            <div class="product-order-detail table-responsive">
+                                                <table class="table table-bordered align-middle">
+                                                    <thead class="table-dark">
+                                                        <tr class="text-center">
+                                                            <th>Image</th>
+                                                            <th>Product Name</th>
+                                                            <th>Size</th>
+                                                            <th>Qty</th>
+                                                            <th>Price (₹)</th>
+                                                            <th>Total (₹)</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <?php
+                                                            $grandTotal = 0;
+                                                            $coupon_discount_value = floatval($order['coupon_discount'] ?? 0);
+                                                            $coupon_discount_type = $order['discount_type'] ?? 'fixed'; 
+                                                    
+                                                            foreach ($products as $prod):
+                                                                $price = $prod['final_price'] ?? 0;
+                                                                $quantity = $prod['quantity'] ?? 1;
+
+                                                               
+                                                                $sub_product_id = $prod['product_master_id'];
+                                                                $gst_row = $this->db->get_where('sub_product_master', ['id' => $sub_product_id])->row_array();
+                                                                $gst_percent = $gst_row['gst'] ?? 0;
+
+                                                              
+                                                                if ($coupon_discount_value > 0)
+                                                                {
+                                                                    if ($coupon_discount_type === 'percent')
+                                                                    {
+                                                                        $discounted_price = $price - ($price * $coupon_discount_value / 100);
+                                                                    } else
+                                                                    {
+                                                                      
+                                                                        $discounted_price = $price - ($coupon_discount_value / count($products));
+                                                                    }
+                                                                } else
+                                                                {
+                                                                    $discounted_price = $price;
+                                                                }
+
+                                                              
+                                                                $discounted_price = max($discounted_price, 0);
+
+                                                              
+                                                                $item_gst = ($discounted_price * $gst_percent / 100);
+
+                                                               
+                                                                $item_total = ($discounted_price + $item_gst) * $quantity;
+
+                                                              
+                                                                $grandTotal += $item_total;
+
+                                                                $main_image = !empty($prod['main_image']) ? base_url('assets/product_images/' . $prod['main_image']) : base_url('assets/product_images/no-image.jpg');
+                                                                ?>
+                                                       
+                                                            <tr class="text-center">
+                                                                <td style="width: 100px;">
+                                                                    <img src="<?= $main_image; ?>" alt="" class="img-fluid rounded"
+                                                                        style="width: 90px; height: 90px; object-fit: cover;">
+                                                                </td>
+                                                                <td><?= htmlspecialchars($prod['product_name']); ?></td>
+                                                                <td><?= htmlspecialchars($prod['size']); ?></td>
+                                                                <td><?= $quantity; ?></td>
+                                                                <td>₹ <?= number_format($price, 2); ?></td>
+                                                                <td>₹ <?= number_format($item_total, 2); ?></td>
+                                                            </tr>
+                                                        <?php endforeach; ?>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                            <!-- Buttons -->
+                                            <div class="d-flex flex-wrap align-items-center gap-3 mt-3">
                                                 <?php
-                                                    $statusMap = [
-                                                        1 => ['text' => 'Order waiting for Seller approval', 'color' => '#ffc107'],
-                                                        2 => ['text' => 'Order Shipped', 'color' => '#17a2b8'],
-                                                        3 => ['text' => 'Order Delivered', 'color' => '#28a745'],
-                                                        4 => ['text' => 'Order Cancelled by Customer', 'color' => '#a81e23'],
-                                                        5 => ['text' => 'Order Confirmed by Store', 'color' => '#28a745'],
-                                                        6 => ['text' => 'Order Rejected by Store', 'color' => '#dc3545'],
-                                                        7 => ['text' => 'Return Requested', 'color' => '#ebb923'],
-                                                        8 => ['text' => 'Return Completed', 'color' => '#28a745'],
-                                                    ];
-                                                    $status = $statusMap[$order['status']] ?? ['text' => 'Processing', 'color' => '#6c757d'];
+                                                $type = ($order['payment_type'] == 2) ? '2' : '1';
                                                 ?>
-                                                <span class="badge ms-2" style="background-color:<?= $status['color']; ?>; color:#fff; font-size:14px;">
-                                                    <?= $status['text']; ?>
-                                                </span>
-                                            </h5>
+                                                <a href="<?= base_url('web/order_details/') . base64_encode($order['id']) . '/' . $type; ?>"
+                                                    class="btn btn-primary btn-sm" style="background-color:#0a58ca; color:#fff">
+                                                    View Order
+                                                </a>
+                                                <a href="<?= base_url('web/order_invoice/') . base64_encode($order['id']) . '/' . $type; ?>"
+                                                    target="_blank" class="btn btn-warning btn-sm text-dark"
+                                                    style="background-color:#ffca2c; color:#000">
+                                                    View Invoice
+                                                </a>
+                                                <?php if (in_array($order['status'], [1, 3, 5])): ?>
+                                                    <button class="btn btn-danger btn-sm cancelOrder"
+                                                        data-order-id="<?= $order['id']; ?>"
+                                                        style="background-color:#a81e23; color:white">Cancel Order</button>
+                                                <?php endif; ?>
+                                            </div>
                                         </div>
-
-                                        <div class="order-id">
-                                            <h5 class="mb-0">Order ID:
-                                                <a href="#" class="text-decoration-underline"><?= $order['order_number']; ?></a>
-                                            </h5>
-                                        </div>
-                                    </div>
-
-                                    <!-- Product Table -->
-                                    <div class="product-order-detail table-responsive">
-                                        <table class="table table-bordered align-middle">
-                                            <thead class="table-dark">
-                                                <tr class="text-center">
-                                                    <th>Image</th>
-                                                    <th>Product Name</th>
-                                                    <th>Size</th>
-                                                    <th>Qty</th>
-                                                    <th>Price (₹)</th>
-                                                    <th>Total (₹)</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php foreach ($products as $prod):
-                                                    $price = $prod['final_price'] ?? 0;
-                                                    $quantity = $prod['quantity'] ?? 1;
-                                                    $main_image = !empty($prod['main_image']) ? base_url('assets/product_images/' . $prod['main_image']) : base_url('assets/product_images/no-image.jpg');
-                                                    $item_total = $price * $quantity; // GST/Discount calculation same as before
-                                                ?>
-                                                <tr class="text-center">
-                                                    <td style="width: 100px;">
-                                                        <img src="<?= $main_image; ?>" alt="" class="img-fluid rounded" style="width: 90px; height: 90px; object-fit: cover;">
-                                                    </td>
-                                                    <td><?= htmlspecialchars($prod['product_name']); ?></td>
-                                                    <td><?= htmlspecialchars($prod['size']); ?></td>
-                                                    <td><?= $quantity; ?></td>
-                                                    <td>₹ <?= number_format($price, 2); ?></td>
-                                                    <td>₹ <?= number_format($item_total, 2); ?></td>
-                                                </tr>
-                                                <?php endforeach; ?>
-                                            </tbody>
-                                        </table>
-                                    </div>
-
-                                    <!-- Buttons -->
-                                    <div class="d-flex flex-wrap align-items-center gap-3 mt-3">
-                                        <a href="<?= base_url('web/order_details/') . base64_encode($order['id']); ?>" class="btn btn-primary btn-sm" style="background-color:#0a58ca; color:#fff">View Order</a>
-                                        <a href="<?= base_url('web/order_invoice/') . base64_encode($order['id']); ?>" target="_blank" class="btn btn-warning btn-sm text-dark" style="background-color:#ffca2c; color:#000">View Invoice</a>
-                                        <?php if (in_array($order['status'], [1, 3, 5])): ?>
-                                            <button class="btn btn-danger btn-sm cancelOrder" data-order-id="<?= $order['id']; ?>" style="background-color:#a81e23; color:white">Cancel Order</button>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                                <?php endforeach; ?>
+                                    <?php endforeach; ?>
                                 <?php else: ?>
-                                <div class="text-center py-5">
-                                    <i class="fa-solid fa-box-open" style="font-size: 50px; color:#fd6969;"></i>
-                                    <h4 class="mt-3">You have no orders yet!</h4>
-                                    <p class="text-muted">Start shopping now and your orders will appear here.</p>
-                                    <a href="<?= base_url(); ?>" class="btn btn-danger mt-2 border">Shop Now</a>
-                                </div>
+                                    <div class="text-center py-5">
+                                        <i class="fa-solid fa-box-open" style="font-size: 50px; color:#fd6969;"></i>
+                                        <h4 class="mt-3">You have no orders yet!</h4>
+                                        <p class="text-muted">Start shopping now and your orders will appear here.</p>
+                                        <a href="<?= base_url(); ?>" class="btn btn-danger mt-2 border">Shop Now</a>
+                                    </div>
                                 <?php endif; ?>
                             </div>
                         </div>

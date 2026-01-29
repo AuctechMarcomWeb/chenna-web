@@ -1,191 +1,4 @@
-<style>
-    .vendor-card {
-        background: #fff;
-        border-radius: 12px;
-        padding: 18px;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
-        transition: 0.3s ease;
-    }
 
-    .vendor-card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
-    }
-
-    .vendor-top {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        margin-bottom: 15px;
-    }
-
-    .vendor-image img {
-        width: 70px;
-        height: 70px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 2px solid #0da487;
-    }
-
-    .vendor-name {
-        font-size: 16px;
-        font-weight: 600;
-        margin-bottom: 4px;
-    }
-
-    .vendor-city {
-        font-size: 13px;
-        color: #777;
-    }
-
-    .vendor-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-top: 12px;
-        border-top: 1px dashed #ddd;
-        font-size: 14px;
-    }
-
-    .vendor-footer strong {
-        font-size: 18px;
-        color: #da6228;
-    }
-
-    /* FILTER UI */
-    .vendor-filter {
-        background: #ffffff;
-        padding: 20px;
-        border-radius: 14px;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
-    }
-
-    .filter-label {
-        font-size: 17px;
-        font-weight: 600;
-        margin-bottom: 6px;
-        display: block;
-    }
-
-    .vendor-select {
-        height: 48px;
-        border-radius: 2px;
-        border-color: #da622887;
-    }
-
-    .vendor-filter-btn {
-        height: 48px;
-        border-radius: 10px;
-        font-weight: 600;
-    }
-
-    /* VENDOR CARD */
-    .vendor-card {
-        background: #fff;
-        border-radius: 14px;
-        padding: 18px;
-
-        transition: 0.3s ease;
-    }
-
-    .vendor-card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
-    }
-
-    .vendor-top {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        margin-bottom: 15px;
-    }
-
-    .vendor-image img {
-        width: 70px;
-        height: 70px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 2px solid #0da487;
-    }
-
-    .vendor-name {
-        font-size: 16px;
-        font-weight: 600;
-        margin-bottom: 4px;
-    }
-
-    .vendor-city {
-        font-size: 13px;
-        color: #777;
-    }
-
-    .vendor-footer {
-        display: flex;
-        justify-content: space-between;
-        padding-top: 12px;
-        border-top: 1px dashed #ddd;
-    }
-
-    .vendor-footer strong {
-        font-size: 18px;
-        color: #0da487;
-    }
-
-    .vendor-search-box {
-        position: relative;
-    }
-
-    .vendor-search-input {
-        padding-left: 45px;
-        height: 48px;
-        border-radius: 8px;
-        font-size: 15px;
-        border-color: #da622887;
-    }
-
-    .search-icon {
-        position: absolute;
-        top: 50%;
-        left: 15px;
-        transform: translateY(-50%);
-        font-size: 18px;
-        color: #777;
-    }
-
-    .filter-label {
-        font-size: 14px;
-        font-weight: 600;
-        margin-bottom: 6px;
-    }
-
-    .form-select:focus {
-        border-color: #da622887;
-        outline: 0;
-        -webkit-box-shadow: 0 0 0 .25rem rgba(13, 110, 253, .25);
-        box-shadow: 0 0 0 -0.75rem rgba(13, 110, 253, .25);
-    }
-</style>
-<section class="breadcrumb-section pt-0">
-    <div class="container-fluid-lg">
-        <div class="row">
-            <div class="col-12">
-                <div class="breadcrumb-contain">
-                    <h2>About Us</h2>
-                    <nav>
-                        <ol class="breadcrumb mb-0">
-                            <li class="breadcrumb-item">
-                                <a href="<?php echo base_url(); ?>">
-                                    <i class="fa-solid fa-house"></i>
-                                </a>
-                            </li>
-                            <li class="breadcrumb-item active">About Us</li>
-                        </ol>
-                    </nav>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 <style>
     .vendor-card {
         background: #fff;
@@ -359,7 +172,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="breadcrumb-contain">
-                    <h2>About Us</h2>
+                    <h2>Vendors List</h2>
                     <nav>
                         <ol class="breadcrumb mb-0">
                             <li class="breadcrumb-item">
@@ -367,7 +180,7 @@
                                     <i class="fa-solid fa-house"></i>
                                 </a>
                             </li>
-                            <li class="breadcrumb-item active">About Us</li>
+                            <li class="breadcrumb-item active">Vendors List</li>
                         </ol>
                     </nav>
                 </div>

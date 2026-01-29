@@ -107,102 +107,225 @@ class Phonepe extends CI_Controller
     }
 
     /* ================= PAYMENT RESPONSE ================= */
+    // public function response()
+    // {
+    //     $merchantTxnId = $this->input->get('oid');
+    //     if (!$merchantTxnId) show_error('Transaction ID missing');
+
+    //     $token = $this->getToken();
+    //     if (!$token) show_error('Token error');
+
+    //     // Check payment status from PhonePe
+    //     $statusUrl = STATUS_URL . $merchantTxnId . '/status';
+    //     $ch = curl_init($statusUrl);
+    //     curl_setopt_array($ch, [
+    //         CURLOPT_RETURNTRANSFER => true,
+    //         CURLOPT_HTTPHEADER => [
+    //             'Authorization: O-Bearer ' . $token
+    //         ],
+    //         CURLOPT_SSL_VERIFYPEER => false
+    //     ]);
+
+    //     $response = curl_exec($ch);
+    //     curl_close($ch);
+
+    //     $res = json_decode($response, true);
+    //     $state = strtoupper($res['state'] ?? 'FAILED');
+    //     $isSuccess = in_array($state, ['COMPLETED', 'SUCCESS', 'CHARGED']);
+
+    //     /* ================= ORDER PAYMENT ================= */
+    //     if (strpos($merchantTxnId, 'ORD') === 0 || strpos($merchantTxnId, 'DN') === 0) {
+    //         $order = $this->db->where('phonepe_merchant_txn_id', $merchantTxnId)
+    //                           ->get('order_master2')->row_array();
+    //         if (!$order) show_error('Order not found');
+
+    //         if ($isSuccess) {
+    //             $this->db->where('id', $order['id'])->update('order_master2', [
+    //                 'payment_status' => 'SUCCESS',
+    //                 'phonepe_status' => $state,
+    //                 'transaction_id' => $res['transactionId'] ?? '',
+    //                 'modify_date' => date('Y-m-d H:i:s')
+    //             ]);
+
+    //             $this->session->set_flashdata('success', 'Payment successful! Your order has been placed.');
+    //             redirect('web/order_success/' . base64_encode($order['id']));
+    //         } else {
+    //             $this->db->where('id', $order['id'])->update('order_master2', [
+    //                 'payment_status' => 'FAILED'
+    //             ]);
+    //             $this->session->set_flashdata('error', 'Payment failed! Please try again.');
+    //             redirect('phonepe/fail');
+    //         }
+    //         return;
+    //     }
+
+    //     /* ================= SUBSCRIPTION PAYMENT ================= */
+    //     if (strpos($merchantTxnId, 'SUB') === 0 || strpos($merchantTxnId, 'PERPROD') === 0) {
+    //         // Vendor
+    //         $sub = $this->db->where('transaction_id', $merchantTxnId)
+    //                         ->get('vendor_subscriptions_master')->row_array();
+    //         $table = 'vendor_subscriptions_master';
+
+    //         // Promoter fallback
+    //         if (!$sub) {
+    //             $sub = $this->db->where('transaction_id', $merchantTxnId)
+    //                             ->get('promoter_subscriptions_master')->row_array();
+    //             $table = 'promoter_subscriptions_master';
+    //         }
+
+    //         if (!$sub) show_error('Subscription not found');
+
+    //         if ($sub['plan_type'] == 2 || strpos($merchantTxnId, 'PERPROD') === 0) {
+    //             $this->db->where('id', $sub['id'])->update($table, [
+    //                 'status' => 1,
+    //                 'approval_status' => 1,
+    //                 'payment_status' => 'activated',
+    //                 'updated_at' => date('Y-m-d H:i:s')
+    //             ]);
+    //         } elseif ($isSuccess) {
+    //             $this->db->where('id', $sub['id'])->update($table, [
+    //                 'status' => 1,
+    //                 'approval_status' => 1,
+    //                 'payment_status' => 'paid',
+    //                 'updated_at' => date('Y-m-d H:i:s')
+    //             ]);
+    //         } else {
+    //             $this->db->where('id', $sub['id'])->update($table, [
+    //                 'payment_status' => 'failed',
+    //                 'updated_at' => date('Y-m-d H:i:s')
+    //             ]);
+    //         }
+
+    //         $this->session->set_flashdata('success', 'Payment processed. Subscription will be activated shortly.');
+    //         redirect('admin/dashboard');
+    //         return;
+    //     }
+
+    //     show_error('Invalid transaction type');
+    // }
+
     public function response()
+{
+    $merchantTxnId = $this->input->get('oid');
+    if (!$merchantTxnId) show_error('Transaction ID missing');
+
+    $token = $this->getToken();
+    if (!$token) show_error('Token error');
+
+    /* ================= CHECK STATUS ================= */
+    $statusUrl = STATUS_URL . $merchantTxnId . '/status';
+    $ch = curl_init($statusUrl);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER => [
+            'Authorization: O-Bearer ' . $token
+        ],
+        CURLOPT_SSL_VERIFYPEER => false
+    ]);
+
+    $response = curl_exec($ch);
+    curl_close($ch);
+
+    $res = json_decode($response, true);
+    $state = strtoupper($res['state'] ?? 'FAILED');
+    $isSuccess = in_array($state, ['COMPLETED', 'SUCCESS', 'CHARGED']);
+
+    /* ================= ORDER PAYMENT ================= */
+    if (strpos($merchantTxnId, 'ORD') === 0 || strpos($merchantTxnId, 'DN') === 0)
     {
-        $merchantTxnId = $this->input->get('oid');
-        if (!$merchantTxnId) show_error('Transaction ID missing');
+        $order = $this->db->where('phonepe_merchant_txn_id', $merchantTxnId)
+                          ->get('order_master2')
+                          ->row_array();
 
-        $token = $this->getToken();
-        if (!$token) show_error('Token error');
+        if (!$order) show_error('Order not found');
 
-        // Check payment status from PhonePe
-        $statusUrl = STATUS_URL . $merchantTxnId . '/status';
-        $ch = curl_init($statusUrl);
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => [
-                'Authorization: O-Bearer ' . $token
-            ],
-            CURLOPT_SSL_VERIFYPEER => false
-        ]);
+        if ($isSuccess)
+        {
+            // update order
+            $this->db->where('id', $order['id'])->update('order_master2', [
+                'payment_status'   => 'SUCCESS',
+                'phonepe_status'   => $state,
+                'transaction_id'   => $res['transactionId'] ?? '',
+                'status'           => 1,
+                'action_payment'   => 'Yes',
+                'modify_date'      => date('Y-m-d H:i:s')
+            ]);
 
-        $response = curl_exec($ch);
-        curl_close($ch);
+            /* ✅ CART CLEAR ONLY AFTER PAYMENT SUCCESS */
+            $this->cart->destroy();
+            $this->session->unset_userdata(['buy_now', 'applied_coupon']);
 
-        $res = json_decode($response, true);
-        $state = strtoupper($res['state'] ?? 'FAILED');
-        $isSuccess = in_array($state, ['COMPLETED', 'SUCCESS', 'CHARGED']);
+            $this->session->set_flashdata(
+                'success',
+                'Payment successful! Your order has been placed.'
+            );
 
-        /* ================= ORDER PAYMENT ================= */
-        if (strpos($merchantTxnId, 'ORD') === 0 || strpos($merchantTxnId, 'DN') === 0) {
-            $order = $this->db->where('phonepe_merchant_txn_id', $merchantTxnId)
-                              ->get('order_master2')->row_array();
-            if (!$order) show_error('Order not found');
-
-            if ($isSuccess) {
-                $this->db->where('id', $order['id'])->update('order_master2', [
-                    'payment_status' => 'SUCCESS',
-                    'phonepe_status' => $state,
-                    'transaction_id' => $res['transactionId'] ?? '',
-                    'modify_date' => date('Y-m-d H:i:s')
-                ]);
-
-                $this->session->set_flashdata('success', 'Payment successful! Your order has been placed.');
-                redirect('web/order_success/' . base64_encode($order['id']));
-            } else {
-                $this->db->where('id', $order['id'])->update('order_master2', [
-                    'payment_status' => 'FAILED'
-                ]);
-                $this->session->set_flashdata('error', 'Payment failed! Please try again.');
-                redirect('phonepe/fail');
-            }
-            return;
+            redirect('web/order_success/' . base64_encode($order['id']));
         }
+        else
+        {
+            $this->db->where('id', $order['id'])->update('order_master2', [
+                'payment_status' => 'FAILED',
+                'phonepe_status' => $state,
+                'modify_date'    => date('Y-m-d H:i:s')
+            ]);
 
-        /* ================= SUBSCRIPTION PAYMENT ================= */
-        if (strpos($merchantTxnId, 'SUB') === 0 || strpos($merchantTxnId, 'PERPROD') === 0) {
-            // Vendor
-            $sub = $this->db->where('transaction_id', $merchantTxnId)
-                            ->get('vendor_subscriptions_master')->row_array();
-            $table = 'vendor_subscriptions_master';
+            $this->session->set_flashdata(
+                'error',
+                'Payment failed! Please try again.'
+            );
 
-            // Promoter fallback
-            if (!$sub) {
-                $sub = $this->db->where('transaction_id', $merchantTxnId)
-                                ->get('promoter_subscriptions_master')->row_array();
-                $table = 'promoter_subscriptions_master';
-            }
-
-            if (!$sub) show_error('Subscription not found');
-
-            if ($sub['plan_type'] == 2 || strpos($merchantTxnId, 'PERPROD') === 0) {
-                $this->db->where('id', $sub['id'])->update($table, [
-                    'status' => 1,
-                    'approval_status' => 1,
-                    'payment_status' => 'activated',
-                    'updated_at' => date('Y-m-d H:i:s')
-                ]);
-            } elseif ($isSuccess) {
-                $this->db->where('id', $sub['id'])->update($table, [
-                    'status' => 1,
-                    'approval_status' => 1,
-                    'payment_status' => 'paid',
-                    'updated_at' => date('Y-m-d H:i:s')
-                ]);
-            } else {
-                $this->db->where('id', $sub['id'])->update($table, [
-                    'payment_status' => 'failed',
-                    'updated_at' => date('Y-m-d H:i:s')
-                ]);
-            }
-
-            $this->session->set_flashdata('success', 'Payment processed. Subscription will be activated shortly.');
-            redirect('admin/dashboard');
-            return;
+            redirect('phonepe/fail');
         }
-
-        show_error('Invalid transaction type');
+        return;
     }
+
+    /* ================= SUBSCRIPTION PAYMENT ================= */
+    if (strpos($merchantTxnId, 'SUB') === 0 || strpos($merchantTxnId, 'PERPROD') === 0)
+    {
+        $sub = $this->db->where('transaction_id', $merchantTxnId)
+                        ->get('vendor_subscriptions_master')
+                        ->row_array();
+        $table = 'vendor_subscriptions_master';
+
+        if (!$sub)
+        {
+            $sub = $this->db->where('transaction_id', $merchantTxnId)
+                            ->get('promoter_subscriptions_master')
+                            ->row_array();
+            $table = 'promoter_subscriptions_master';
+        }
+
+        if (!$sub) show_error('Subscription not found');
+
+        if ($isSuccess)
+        {
+            $this->db->where('id', $sub['id'])->update($table, [
+                'status'           => 1,
+                'approval_status'  => 1,
+                'payment_status'   => 'paid',
+                'updated_at'       => date('Y-m-d H:i:s')
+            ]);
+        }
+        else
+        {
+            $this->db->where('id', $sub['id'])->update($table, [
+                'payment_status' => 'failed',
+                'updated_at'     => date('Y-m-d H:i:s')
+            ]);
+        }
+
+        $this->session->set_flashdata(
+            'success',
+            'Payment processed. Subscription will be activated shortly.'
+        );
+        redirect('admin/dashboard');
+        return;
+    }
+
+    show_error('Invalid transaction type');
+}
+
 
     /* ================= PAYMENT FAILED ================= */
     public function fail()
