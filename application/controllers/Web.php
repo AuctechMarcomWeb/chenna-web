@@ -2843,8 +2843,8 @@ class Web extends CI_Controller
     echo json_encode(['count' => $count]);
   }
 
-public function vendorlist()
-{
+  public function vendorlist()
+  {
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
     $data['vendors'] = $this->web_model->get_vendors_with_product_count();
@@ -2860,51 +2860,93 @@ public function vendorlist()
     $this->load->view('web/include/header', $data);
     $this->load->view('web/vendorlist', $data);
     $this->load->view('web/include/footer');
-}
+  }
 
-public function filter_vendors()
-{
-    $state  = $this->input->post('state');
-    $city   = $this->input->post('city');
+  public function filter_vendors()
+  {
+    $state = $this->input->post('state');
+    $city = $this->input->post('city');
     $search = $this->input->post('search');
     $vendors = $this->web_model->get_vendors_with_product_count($state, $city, $search);
     $html = $this->load->view('web/vendorsingle', ['vendors' => $vendors], true);
 
     echo json_encode(['html' => $html]);
+  }
+
+// Load Vendor Products Section (AJAX)
+public function vendor_products_section()
+{
+    $vendor_id = $this->input->post('vendor_id');
+
+    if (!$vendor_id) {
+        echo '<p class="text-danger text-center">Vendor not found</p>';
+        return;
+    }
+
+    $data['vendor_id']     = $vendor_id;
+    $data['categories']    = $this->web_model->get_categories();
+    $data['sub_categories']= $this->web_model->get_sub_categories();
+    $data['sizes'] = $this->web_model->get_vendor_all_sizes($vendor_id);
+    $data['products'] = $this->web_model->get_vendor_products($vendor_id);
+
+    $this->load->view('web/vendor_products_section', $data);
+}
+public function get_subcategories_by_category()
+{
+    $category_ids = $this->input->post('category_ids');
+
+    if (empty($category_ids)) {
+        echo json_encode([]);
+        return;
+    }
+
+    $data = $this->db
+        ->where_in('category_master_id', $category_ids) // ✅ FIXED
+        ->where('status', 1)
+        ->get('sub_category_master')
+        ->result_array();
+
+    echo json_encode($data);
 }
 
 
 
-    // AJAX: Get vendor products + filters
- public function get_vendor_products()
-    {
-        $vendor_id = $this->input->post('vendor_id');
-        if (!$vendor_id) {
-            echo "Invalid vendor";
-            return;
-        }
 
-        // ✅ Now the model is loaded, this will work
-        $data['products'] = $this->Web_model->get_products_by_vendor($vendor_id);
-        $data['categories'] = $this->Web_model->get_categories();
-        $data['sub_categories'] = $this->Web_model->get_sub_categories();
 
-        $this->load->view('web/vendor_products_section', $data);
+// Filter Vendor Products (AJAX)
+
+public function filter_vendor_products()
+{
+    // Read filter inputs from POST
+    $filter = [
+        'vendor_id' => $this->input->post('vendor_id'),
+        'category_id' => $this->input->post('category'),
+        'sub_category' => $this->input->post('sub_category'),
+        'size' => $this->input->post('size'),
+        'price' => $this->input->post('price'),
+        'rating' => $this->input->post('rating')
+    ];
+
+    // Vendor ID is required
+    if(empty($filter['vendor_id'])){
+        echo '<p class="text-danger text-center">Vendor missing</p>';
+        return;
     }
 
+    // Get filtered products from model
+    $data['products'] = $this->web_model->filter_vendor_products($filter);
 
-    // AJAX: Filter products
-    public function filter_vendor_products()
-    {
-        $vendor_id = $this->input->post('vendor_id');
-        $category = $this->input->post('category');
-        $sub_category = $this->input->post('sub_category');
-        $price = $this->input->post('price');
-        $rating = $this->input->post('rating');
+    // Load the partial view
+    $this->load->view('web/vendor_product_list', $data);
+}
 
-        $data['products'] = $this->Web_model->filter_products($vendor_id, $category, $sub_category, $price, $rating);
-        $this->load->view('filtered_products_only', $data);
-    }
+
+
+
+
+
+  /* FILTER PRODUCTS */
+
   public function tersms_conditions()
   {
     $data['title'] = 'Terms & Conditions | Chenna';
@@ -3453,17 +3495,14 @@ public function filter_vendors()
 
     /* ================= GET ITEMS ================= */
     $total_items = [];
-
     if (!empty($buyNow['pro_id']))
     {
-
       $prod = $this->db->get_where('sub_product_master', ['id' => $buyNow['pro_id']])->row_array();
       if (empty($prod))
       {
         redirect('web/cart');
         return;
       }
-
       $total_items[] = [
         'id' => $prod['id'],
         'name' => $prod['product_name'],
@@ -3479,17 +3518,14 @@ public function filter_vendors()
         'vendor_id' => $prod['vendor_id'],
         'promoter_id' => $prod['promoter_id']
       ];
-
     } else
     {
-
       $cart_contents = $this->cart->contents();
       if (empty($cart_contents))
       {
         redirect(base_url());
         return;
       }
-
       foreach ($cart_contents as $c)
       {
         $prod = $this->db->get_where('sub_product_master', ['id' => $c['id']])->row_array();
@@ -3498,7 +3534,6 @@ public function filter_vendors()
           redirect('web/cart');
           return;
         }
-
         $total_items[] = [
           'id' => $c['id'],
           'name' => $c['name'],
@@ -3506,8 +3541,8 @@ public function filter_vendors()
           'final_price' => $c['final_price'],
           'gst' => $prod['gst'],
           'qty' => $c['qty'],
-          'size' => $c['size'],
-          'color' => $c['color'],
+          'size' => $prod['size'],
+          'color' => $prod['color'],
           'main_image' => $prod['main_image'],
           'product_hsn' => $prod['product_hsn'],
           'sku_code' => $prod['sku_code'],
@@ -3542,7 +3577,6 @@ public function filter_vendors()
         $coupon_discount_amount = $applied_coupon['discount_value'];
       }
     }
-
     $subtotal_after_coupon = $total_price - $coupon_discount_amount;
 
     /* ================= GST ================= */
@@ -3550,25 +3584,18 @@ public function filter_vendors()
     foreach ($total_items as $itm)
     {
       $item_total = $itm['final_price'] * $itm['qty'];
-      $item_discount = ($total_price > 0)
-        ? ($item_total / $total_price) * $coupon_discount_amount
-        : 0;
-
+      $item_discount = ($total_price > 0) ? ($item_total / $total_price) * $coupon_discount_amount : 0;
       $gst_total += (($item_total - $item_discount) * $itm['gst'] / 100);
     }
 
     /* ================= SHIPPING ================= */
     $settings = $this->db->get_where('settings', ['id' => 1])->row_array();
-    $shipping = ($subtotal_after_coupon > $settings['min_order_bal'])
-      ? 0
-      : $settings['shipping_amount'];
-
+    $shipping = ($subtotal_after_coupon > $settings['min_order_bal']) ? 0 : $settings['shipping_amount'];
     $grand_total = $subtotal_after_coupon + $gst_total + $shipping;
 
     /* ================= TRANSACTION ID ================= */
     $transaction_id = '';
     $phonepe_merchant_txn_id = '';
-
     if ($paymentType === 2)
     {
       $phonepe_merchant_txn_id = 'DN' . date('YmdHis') . strtoupper(bin2hex(random_bytes(5)));
@@ -3578,7 +3605,6 @@ public function filter_vendors()
 
     /* ================= ORDER INSERT ================= */
     $order_number = 'ORD' . time();
-
     $order = [
       'order_number' => $order_number,
       'transaction_id' => $transaction_id,
@@ -3598,19 +3624,13 @@ public function filter_vendors()
       'add_date' => date('Y-m-d H:i:s'),
       'modify_date' => date('Y-m-d H:i:s')
     ];
-
     $this->db->insert($order_table, $order);
     $lastId = $this->db->insert_id();
 
-    /* ================= PURCHASE INSERT ================= */
+    /* ================= PURCHASE & EARNINGS INSERT ================= */
     foreach ($total_items as $itm)
     {
-
-      $this->db->query("
-            UPDATE sub_product_master 
-            SET quantity = quantity - {$itm['qty']} 
-            WHERE id = {$itm['id']}
-        ");
+      $this->db->query("UPDATE sub_product_master SET quantity = quantity - {$itm['qty']} WHERE id = {$itm['id']}");
 
       $this->db->insert($purchase_table, [
         'order_master_id' => $lastId,
@@ -3631,6 +3651,68 @@ public function filter_vendors()
         'modify_date' => date('Y-m-d H:i:s'),
         'status' => 1
       ]);
+
+      /* ================= ADMIN EARNING ================= */
+      $commission = 0;
+
+      // Vendor subscription (monthly / per product)
+      $vendor_sub = $this->db->get_where('vendor_subscriptions_master', ['vendor_id' => $itm['vendor_id'], 'status' => 1])->row_array();
+      if ($vendor_sub)
+      {
+        if ($vendor_sub['plan_type'] == 2 && $vendor_sub['commission_percent'] > 0)
+        { // per product
+          $commission += ($itm['final_price'] * $vendor_sub['commission_percent'] / 100) * $itm['qty'];
+        }
+      }
+
+      // Promoter subscription (monthly / per product)
+      $promoter_sub = $this->db->get_where('promoter_subscriptions_master', ['promoter_id' => $itm['promoter_id'], 'status' => 1])->row_array();
+      $promoter_commission = 0;
+      if ($promoter_sub)
+      {
+        if ($promoter_sub['plan_type'] == 2 && $promoter_sub['commission_percent'] > 0)
+        { // per product
+          $promoter_commission = ($itm['final_price'] * $promoter_sub['commission_percent'] / 100) * $itm['qty'];
+
+          // insert into promoter_earnings_master
+          $this->db->insert('promoter_earnings_master', [
+            'promoter_id' => $itm['promoter_id'],
+            'vendor_id' => $itm['vendor_id'],
+            'product_id' => $itm['id'],
+            'order_id' => $lastId,
+            'qty' => $itm['qty'],
+            'product_price' => $itm['final_price'],
+            'commission_percent' => $promoter_sub['commission_percent'],
+            'commission_amount' => $promoter_commission,
+            'earning_amount' => $promoter_commission,
+            'status' => 0
+          ]);
+        }
+      }
+
+      // insert admin earning
+      if ($commission > 0)
+      {
+        $this->db->insert('admin_earnings_master', [
+          'vendor_id' => $itm['vendor_id'],
+          'promoter_id' => $itm['promoter_id'],
+          'product_id' => $itm['id'],
+          'commission_amount' => $commission,
+          'created_at' => date('Y-m-d H:i:s')
+        ]);
+      }
+
+      // insert vendor earning
+      $vendor_earning = ($itm['final_price'] * $itm['qty']) - $commission;
+      $this->db->insert('vendor_earnings_master', [
+        'vendor_id' => $itm['vendor_id'],
+        'promoter_id' => $itm['promoter_id'],
+        'product_id' => $itm['id'],
+        'order_id' => $lastId,
+        'qty' => $itm['qty'],
+        'earning_amount' => $vendor_earning,
+        'created_at' => date('Y-m-d H:i:s')
+      ]);
     }
 
     /* ================= ADDRESS INSERT ================= */
@@ -3640,7 +3722,6 @@ public function filter_vendors()
       redirect('web/checkout');
       return;
     }
-
     $this->db->insert($address_table, [
       'order_master_id' => $lastId,
       'title' => $address['title'],
@@ -3654,11 +3735,12 @@ public function filter_vendors()
     ]);
 
     /* ================= PHONEPE REDIRECT ================= */
-    if ($paymentType === 2)
+    if ($paymentType == 2)
     {
       $this->load->view('payment/phonepe_redirect', [
-        'order_id' => $phonepe_merchant_txn_id,
-        'amount' => round($grand_total, 2)
+        'ref_id' => $phonepe_merchant_txn_id,
+        'amount' => $grand_total,
+        'payment_type' => 'order'
       ]);
       return;
     }
@@ -3666,9 +3748,9 @@ public function filter_vendors()
     /* ================= COD SUCCESS ================= */
     $this->cart->destroy();
     $this->session->unset_userdata(['buy_now', 'applied_coupon']);
-
     redirect('web/order_success/' . base64_encode($lastId));
   }
+
 
 
   public function cancel_order()
