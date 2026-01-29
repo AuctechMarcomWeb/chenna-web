@@ -594,39 +594,98 @@ class Website_model extends CI_Model
 
 
 
-    public function get_products_by_vendor($vendor_id)
-    {
-        $this->db->select('sp.*, scm.sub_category_name, cm.category_name, pcm.name as parent_category_name');
-        $this->db->from('sub_product_master sp');
-        $this->db->join('sub_category_master scm', 'sp.sub_category_id = scm.id', 'left');
-        $this->db->join('category_master cm', 'sp.category_id = cm.id', 'left');
-        $this->db->join('parent_category_master pcm', 'sp.parent_category_id = pcm.id', 'left');
-        $this->db->where('sp.vendor_id', $vendor_id);
-        $this->db->where('sp.status', 1);
-        return $this->db->get()->result_array();
-    }
-
     public function get_categories()
     {
-        return $this->db->get_where('category_master', ['status' => 1])->result_array();
+        return $this->db->where('status', 1)->get('category_master')->result_array();
     }
 
     public function get_sub_categories()
     {
-        return $this->db->get_where('sub_category_master', ['status' => 1])->result_array();
+        return $this->db->where('status', 1)->get('sub_category_master')->result_array();
     }
 
-    public function filter_products($vendor_id, $category=null, $sub_category=null, $price=null, $rating=null)
+    public function get_vendor_products($vendor_id)
     {
-        $this->db->select('*')->from('sub_product_master')->where('vendor_id', $vendor_id)->where('status',1);
+        return $this->db
+            ->select('
+            spm.id,
+            spm.sku_code,
+            spm.product_name,
+            spm.main_image,
+            MIN(spm.final_price) as final_price,
+            MAX(spm.price) as price
+        ')
+            ->from('sub_product_master spm')
+            ->where([
+                'spm.vendor_id' => $vendor_id,
+                'spm.status' => 1,
+                'spm.verify_status' => 1
+            ])
+            ->group_by('spm.sku_code')
+            ->get()
+            ->result_array();
+    }
 
-        if($category) $this->db->where('category_id', $category);
-        if($sub_category) $this->db->where('sub_category_id', $sub_category);
-        if($price) $this->db->where('final_price <=', $price);
-        if($rating) $this->db->where('rating >=', $rating);
+
+    public function filter_vendor_products($f)
+    {
+        $this->db->select('
+        spm.id,
+        spm.sku_code,
+        spm.product_name,
+        spm.main_image,
+        MIN(spm.final_price) as final_price,
+        MAX(spm.price) as price,
+        ROUND(AVG(cr.rating),1) as avg_rating
+    ');
+
+        $this->db->from('sub_product_master spm');
+
+        $this->db->join(
+            'customer_review cr',
+            'cr.product_id = spm.id',
+            'left'
+        );
+
+        $this->db->where([
+            'spm.vendor_id' => $f['vendor_id'],
+            'spm.status' => 1,
+            'spm.verify_status' => 1
+        ]);
+
+        if (!empty($f['category_id']))
+            $this->db->where_in('spm.category_id', $f['category_id']);
+
+        if (!empty($f['sub_category']))
+            $this->db->where_in('spm.sub_category_id', $f['sub_category']);
+
+        if (!empty($f['size']))
+            $this->db->where_in('spm.size', $f['size']);
+
+        if (!empty($f['price']))
+            $this->db->where('spm.final_price <=', $f['price']);
+
+        if (!empty($f['rating']))
+            $this->db->where_in('cr.rating', $f['rating']);
+        $this->db->group_by('spm.sku_code');
 
         return $this->db->get()->result_array();
     }
+
+
+    public function get_vendor_all_sizes($vendor_id)
+    {
+        return $this->db
+            ->distinct()
+            ->select('size')
+            ->where('vendor_id', $vendor_id)
+            ->where('status', 1)
+            ->where('verify_status', 1)
+            ->get('sub_product_master')
+            ->result_array();
+    }
+
+
 
 }
 ?>
