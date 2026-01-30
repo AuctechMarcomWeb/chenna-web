@@ -199,57 +199,59 @@
 
                 <!-- From Date -->
                 <div class="col-sm-2">
-                  <input type="date" class="form-control" name="fromDate" placeholder="From Date">
+                  <input type="date" class="form-control" name="fromDate" value="<?= @$_POST['fromDate']; ?>">
                 </div>
 
                 <!-- To Date -->
                 <div class="col-sm-2">
-                  <input type="date" class="form-control" name="toDate" placeholder="To Date">
+                  <input type="date" class="form-control" name="toDate" value="<?= @$_POST['toDate']; ?>">
                 </div>
 
                 <!-- Customer Name -->
                 <div class="col-sm-2">
-                  <input type="text" class="form-control" name="customer_name" placeholder="Customer Name">
+                  <input type="text" class="form-control" name="customer_name" placeholder="Customer Name"
+                    value="<?= @$_POST['customer_name']; ?>">
                 </div>
 
                 <!-- Order Status -->
-                <div class="col-sm-3">
-                  <lable>Order Status</lable>
+                <div class="col-sm-2">
+                  <!-- <label>Order Status</label> -->
                   <select class="form-control" name="order_status">
-                    <option value="1" <?php echo (@$_POST['order_status'] == '1') ? 'Selected' : '' ?>>
-                      Order&nbsp;waiting&nbsp;for&nbsp; seller&nbsp;approval</option>
-                    <option value="4" <?php echo (@$_POST['order_status'] == '4') ? 'Selected' : '' ?>>
-                      Order&nbsp;cancel&nbsp;by customer</option>
-                    <option value="5" <?php echo (@$_POST['order_status'] == '5') ? 'Selected' : '' ?>>
-                      Order&nbsp;confirmed&nbsp;by seller</option>
-                    <option value="6" <?php echo (@$_POST['order_status'] == '6') ? 'Selected' : '' ?>>
-                      Order&nbsp;reject&nbsp;by seller</option>
-                    <option value="3" <?php echo (@$_POST['order_status'] == '3') ? 'Selected' : '' ?>>Order&nbsp;Delivered
+                    <option value="">Order Status</option>
+                    <option value="1" <?= (@$_POST['order_status'] == 1) ? 'selected' : ''; ?>>Order waiting for seller
+                      approval</option>
+                    <option value="2" <?= (@$_POST['order_status'] == 2) ? 'selected' : ''; ?>>Order shipped</option>
+                    <option value="3" <?= (@$_POST['order_status'] == 3) ? 'selected' : ''; ?>>Order Delivered</option>
+                    <option value="4" <?= (@$_POST['order_status'] == 4) ? 'selected' : ''; ?>>Order cancel by customer
                     </option>
-                    <option value="2" <?php echo (@$_POST['order_status'] == '2') ? 'Selected' : '' ?>>Order&nbsp;shipped
+                    <option value="5" <?= (@$_POST['order_status'] == 5) ? 'selected' : ''; ?>>Order confirmed by seller
                     </option>
-                    <option value="7" <?php echo (@$_POST['order_status'] == '7') ? 'Selected' : '' ?>>Return&nbsp;Request
+                    <option value="6" <?= (@$_POST['order_status'] == 6) ? 'selected' : ''; ?>>Order reject by seller
                     </option>
-                    <option value="8" <?php echo (@$_POST['order_status'] == '8') ? 'Selected' : '' ?>>Return&nbsp;Completed
-                    </option>
+                    <option value="7" <?= (@$_POST['order_status'] == 7) ? 'selected' : ''; ?>>Return Request</option>
+                    <option value="8" <?= (@$_POST['order_status'] == 8) ? 'selected' : ''; ?>>Return Completed</option>
                   </select>
                 </div>
 
                 <!-- Order Number -->
                 <div class="col-sm-2">
-                  <input type="text" class="form-control" name="keywords" placeholder="Order Number">
+                  <input type="text" class="form-control" name="keywords" placeholder="Order Number"
+                    value="<?= @$_POST['keywords']; ?>">
                 </div>
 
                 <!-- Delete / All -->
                 <div class="col-sm-2">
                   <select class="form-control" name="delete_status">
                     <option value="">All Orders</option>
-                    <option value="delete">Delete</option>
+                    <option value="delete" <?= (@$_POST['delete_status'] == 'delete') ? 'selected' : ''; ?>>Deleted
+                    </option>
                   </select>
                 </div>
 
               </div>
             </form>
+
+
 
             <div class="table-responsive">
               <table id="example1111" class="table table-bordered table-striped">
@@ -259,210 +261,126 @@
                     <th>Order&nbsp;Number</th>
                     <th>Order&nbsp;Status</th>
                     <th>Invoice</th>
-                    <!-- <th>Shipping&nbsp;Label</th> -->
                     <th>View&nbsp;Order</th>
-                    <!-- <th>Assign&nbsp;Courier</th> -->
                     <th>Customer&nbsp;Name</th>
                     <th>Final&nbsp;Amount</th>
                     <th>Payment&nbsp;Type</th>
                     <th>Payment&nbsp;Status</th>
                     <th>Order&nbsp;Date</th>
-
                   </tr>
                 </thead>
+
                 <tbody>
                   <?php
-
-                  if (!empty($pano))
+                  if (!empty($pano) && $pano > 1)
                   {
-                    if ($pano == '1')
-                    {
-                    }
                     $counter = (10 * ($pano - 1)) + 1;
                   } else
                   {
                     $counter = 1;
                   }
 
-                  foreach ($results as $value)
-                  { ?>
-
-
-                    <tr>
-                      <td><?php echo $counter; ?>
-                        <a href="<?php echo site_url() . 'admin/Order/updatePaymentStatus/' . $value['id'] ?>"><button
-                            class="fa fa-trash-o"></button></a>
-                      </td>
-                      <td>
-                        <?php echo $orderNO = $this->Order_model->GetSingleData($value['id'], 'order_master', 'order_number');
-                        $order = $this->db->query("SELECT * FROM order_master where order_number='$orderNO'")->row_array();
-                        $user_info = $this->db->get_where('user_master', array('id' => $order['user_master_id']))->row_array();
-
-                        ?>
-                      </td><!-- Partial Return Requested -->
-                      <!--  -->
-
-                      <td>
-                        <?php
-                        if ($value['status'] == 1)
-                        {
-                          echo '<b style="color:#ff6c00">Order&nbsp;waiting&nbsp;for&nbsp; seller&nbsp;approval</b>';
-                        }
-                        if ($value['status'] == 4)
-                        {
-                          echo '<b style="color:#f00">Order&nbsp;cancel&nbsp;by customer</b>';
-                        }
-                        if ($value['status'] == 5)
-                        {
-                          echo '<b style="color:#ff6c00">Order&nbsp;confirmed&nbsp;by seller</b>';
-                        }
-                        if ($value['status'] == 6)
-                        {
-                          echo '<b style="color:green">Order&nbsp;reject&nbsp;by seller</b>';
-                        }
-                        if ($value['status'] == 3)
-                        {
-                          echo '<b style="color:green">Order&nbsp;Accepeted&nbsp;Delivered</b>';
-                        }
-                        if ($value['status'] == 2)
-                        {
-                          echo '<b style="color:#ff6c00">Order&nbsp;shipped</b>';
-                        }
-                        if ($value['status'] == 7)
-                        {
-                          echo '<b style="color:#ff6c00">Return&nbsp;Request</b>';
-                        }
-                        if ($value['status'] == 8)
-                        {
-                          echo '<b style="color:green">Return&nbsp;Completed</b>';
-                        } ?>
-
-                      </td>
-                      <td>
-                        <!--<a href="<?= $order['pdf_link']; ?>" target="_blank">View&nbsp;Invoice</a> -->
-                        <a href="<?= base_url('web/order_invoice/') . base64_encode($value['id']); ?>"
-                          target="_blank" " target=" _blank">View&nbsp;Invoice</a>
-                      </td>
-                      <!--  <td>
-                    <?php if (empty($value['shipping_label']))
+                  if (!empty($results))
+                  {
+                    foreach ($results as $value)
                     {
-                      echo 'NA';
-                    } ?>
-                    <ul>
-                      
-                     <?php if (!empty($value['shipping_label']))
-                     { ?>
-                      <a href="<?php echo $value['shipping_label']; ?>" target="_blank">
-                       <li>Download</li></a>
-                     <?php } ?>
-                      <?php if (!empty($value['shipping_label1']))
-                      { ?>
-                      <a href="<?php echo $value['shipping_label1']; ?>" target="_blank">
-                       <li>Download</li></a>
-                     <?php } ?>
+                      ?>
+                      <tr>
+                        <td>
+                          <?= $counter; ?>
+                          <a href="<?= site_url('admin/Order/updatePaymentStatus/' . $value['id']); ?>">
+                            <button class="fa fa-trash-o"></button>
+                          </a>
+                        </td>
 
-                      <?php if (!empty($value['shipping_label2']))
-                      { ?>
-                      <a href="<?php echo $value['shipping_label2']; ?>" target="_blank">
-                       <li>Download</li></a>
-                     <?php } ?>
+                        <td><?= $value['order_number']; ?></td>
 
-                      <?php if (!empty($value['shipping_label3']))
-                      { ?>
-                      <a href="<?php echo $value['shipping_label3']; ?>" target="_blank">
-                       <li>Download</li></a>
-                     <?php } ?>
+                        <td>
+                          <?php
+                          if ($value['status'] == 1)
+                            echo '<b style="color:#ff6c00">Order waiting for seller approval</b>';
+                          elseif ($value['status'] == 2)
+                            echo '<b style="color:#ff6c00">Order shipped</b>';
+                          elseif ($value['status'] == 3)
+                            echo '<b style="color:green">Order Accepted & Delivered</b>';
+                          elseif ($value['status'] == 4)
+                            echo '<b style="color:#f00">Order cancelled by customer</b>';
+                          elseif ($value['status'] == 5)
+                            echo '<b style="color:#ff6c00">Order confirmed by seller</b>';
+                          elseif ($value['status'] == 6)
+                            echo '<b style="color:green">Order rejected by seller</b>';
+                          elseif ($value['status'] == 7)
+                            echo '<b style="color:#ff6c00">Return Request</b>';
+                          elseif ($value['status'] == 8)
+                            echo '<b style="color:green">Return Completed</b>';
+                          ?>
+                        </td>
 
-                      <?php if (!empty($value['shipping_label4']))
-                      { ?>
-                      <a href="<?php echo $value['shipping_label4']; ?>" target="_blank">
-                       <li>Download</li></a>
-                     <?php } ?>
+                        <td>
+                          <a href="<?= base_url('web/order_invoice/' . base64_encode($value['id'])); ?>" target="_blank">
+                            View&nbsp;Invoice
+                          </a>
+                        </td>
 
-                      <?php if (!empty($value['shipping_label5']))
-                      { ?>
-                      <a href="<?php echo $value['shipping_label5']; ?>" target="_blank">
-                       <li>Download</li></a>
-                     <?php } ?>
+                        <!-- <td>
+                          <a href="<?= site_url('admin/Vendor/VendorViewOrderDetails/' . $value['id']); ?>">
+                            <button class="btn btn-info btn-sm">View</button>
+                          </a>
+                        </td> -->
+                        <td>
 
-                    </ul>
-                  </td> -->
-                      <td>
-                        <a href="<?php echo site_url() . 'admin/Vendor/VendorViewOrderDetails/' . $value['id'] ?>"><button
-                            class="btn btn-info">View</button></a>
+                          <a href="<?= site_url('admin/Vendor/VendorViewOrderDetails/' . $value['id'] . '/' . $value['payment_type']); ?>"
+                            class="btn btn-info">View</a>
 
-                      </td>
-                      <!--  <td> 
+                        </td>
 
-                    <?php
+                        <td>
+                          <?= $value['username']; ?><br>
+                          <?= $value['mobile']; ?>
+                        </td>
 
-                    if (empty($order['waybill']))
-                    { ?>
-                      <button class="btn btn-success" onclick="assignCorier(<?= $value['id'] ?>);">Assign Courier</button>
+                        <td>
+                          <i class="fa fa-inr"></i> <?= number_format($value['final_price'], 2); ?>
+                        </td>
 
-                    <?php } else
-                    { ?> 
+                        <td>
+                          <?= ($value['payment_type'] == 1) ? 'COD' : 'Online Payment'; ?>
+                        </td>
 
-                      <p style="color:#00c0ef;" title="logistic_name"><?= $value['logistic_name']; ?></p>
-                      <p style="color:#dd4b39;" title="waybill"><?= $value['waybill']; ?></p>
-
-                   <?php } ?>
-                  </td> -->
-                      <td>
-                        <?= $user_info['username']; ?><br>
-                        <?= $user_info['mobile']; ?>
-                        <br>
-                        <?= $order['id']; ?>
-                      </td>
-                      <!--<td><i class="fa fa-inr" aria-hidden="true"></i>&nbsp;<?php //echo $order['final_price']+ $order['shippment_charge']+ $order['gst'];
-                        ?></td>-->
-                      <td><i class="fa fa-inr" aria-hidden="true"></i>&nbsp;<?= $order['final_price']; ?></td>
-                      <td>
-                        <?php if ($order['payment_type'] == '1')
-                        {
-                          echo 'COD';
-                        } else
-                        {
-                          echo 'Online Payment';
-                        } ?>
-                      </td>
-                      <td>
-                        <?php if ($order['payment_type'] == '2')
-                        {
-                          echo $order['payment_status'];
-                        } else
-                        {
-                          echo 'N/A';
-                        } ?>
-                      </td>
-                      <td><?= date("d-m-Y h:i A", $order['add_date']); ?></td>
+                        <td>
+                          <?= ($value['payment_type'] == 2) ? $value['payment_status'] : 'N/A'; ?>
+                        </td>
 
 
-
-
-                    </tr>
-
-                    <?php $counter++;
-                  } ?>
+                        <td>
+                          <?= !empty($value['add_date']) ? date('d-m-Y h:i A', strtotime($value['add_date'])) : '-'; ?>
+                        </td>
+                      </tr>
+                      <?php
+                      $counter++;
+                    }
+                  }
+                  ?>
                 </tbody>
-
               </table>
 
-              <ul class="pagination pull-left" style="display: inline-block;">
+              <ul class="pagination pull-left">
                 <?= @$entries; ?>
               </ul>
-              <ul class="pagination pull-right" style="display: inline-block;">
-                <?php
 
-                foreach ($links as $link)
+              <ul class="pagination pull-right">
+                <?php
+                if (!empty($links))
                 {
-                  echo "<li>" . $link . "</li>";
+                  foreach ($links as $link)
+                  {
+                    echo "<li>$link</li>";
+                  }
                 }
                 ?>
               </ul>
-
-
             </div>
+
           </div>
 
 
@@ -547,24 +465,54 @@
 </script>
 
 <script>
+  const form = document.getElementById('filterForm');
 
-  document.querySelectorAll('#filterForm select, #filterForm input').forEach(el => {
+  const fromDate = form.querySelector('[name="fromDate"]');
+  const toDate = form.querySelector('[name="toDate"]');
+
+  form.querySelectorAll('input, select').forEach(el => {
+
     el.addEventListener('change', function () {
 
-      if ((el.name == 'fromDate' || el.name == 'toDate')) {
-        let from = document.querySelector('[name="fromDate"]').value;
-        let to = document.querySelector('[name="toDate"]').value;
-        if (from !== '' && to !== '') {
-          document.getElementById('filterForm').submit();
+      /* ==========================
+         DATE FILTER LOGIC
+      ========================== */
+      if (el.name === 'fromDate' || el.name === 'toDate') {
+
+        // reset other filters
+        form.querySelectorAll('input, select').forEach(input => {
+          if (
+            input.name !== 'fromDate' &&
+            input.name !== 'toDate'
+          ) {
+            input.value = '';
+          }
+        });
+
+        // submit only when both dates selected
+        if (fromDate.value !== '' && toDate.value !== '') {
+          form.submit();
         }
         return;
       }
-      document.querySelectorAll('#filterForm select, #filterForm input').forEach(input => {
-        if (input !== el && input.name != 'fromDate' && input.name != 'toDate') {
+
+      /* ==========================
+         OTHER FILTERS LOGIC
+      ========================== */
+
+      // reset date fields
+      fromDate.value = '';
+      toDate.value = '';
+
+      // reset other inputs except current
+      form.querySelectorAll('input, select').forEach(input => {
+        if (input !== el && input.name !== 'fromDate' && input.name !== 'toDate') {
           input.value = '';
         }
       });
-      document.getElementById('filterForm').submit();
+
+      form.submit();
     });
+
   });
 </script>

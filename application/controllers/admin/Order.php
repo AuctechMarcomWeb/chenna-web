@@ -263,88 +263,107 @@ class Order extends CI_Controller
 
 
 
-  public function index()
-  {
+public function index()
+{
     is_not_logged_in();
 
-    $limit = 10;
-    $pageNo = $this->input->get('per_page');
-    $pageNo = (isset($pageNo) && $pageNo > 0) ? $pageNo : 1;
-    $offset = ($pageNo - 1) * $limit;
+    $limit   = 10;
+    $pageNo  = $this->input->get('per_page') ?: 1;
+    $offset  = ($pageNo - 1) * $limit;
 
-    $keywords = $this->input->post('keywords');
-    $fromDate = $this->input->post('fromDate');
-    $toDate = $this->input->post('toDate');
-    $vender_id = $this->input->post('vender_id');
-    $order_status = $this->input->post('order_status');
+    $keywords      = $this->input->post('keywords');
+    $fromDate      = $this->input->post('fromDate');
+    $toDate        = $this->input->post('toDate');
+    $order_status  = $this->input->post('order_status');
     $delete_status = $this->input->post('delete_status');
 
-    $VenderData = $this->db->get_where('staff_master', array('account_verify' => '1'))->result_array();
-
-    $this->db->select('*');
+    // COD Orders
     $this->db->from('order_master');
-    // $this->db->where('action_payment', 'Yes');
+    $this->db->where('payment_type', 1);
+    $this->db->where('action_payment', ($delete_status == 'delete') ? 'delete' : 'Yes');
 
-    if ($delete_status === 'delete') {
-      $this->db->where('action_payment', $delete_status);
-    } else {
-      $this->db->where('action_payment', 'Yes');
+    if ($keywords) $this->db->like('order_number', $keywords);
+    if ($order_status) $this->db->where('status', $order_status);
+    if ($fromDate && $toDate) {
+        $this->db->where("DATE(add_date) >=", $fromDate);
+        $this->db->where("DATE(add_date) <=", $toDate);
     }
+    $codOrders = $this->db->get()->result_array();
 
-    if (!empty($keywords)) {
-      $this->db->like('order_number', $keywords);
+    // Online Orders
+    $this->db->from('order_master2');
+    $this->db->where('payment_type', 2);
+    if ($keywords) $this->db->like('order_number', $keywords);
+    if ($order_status) $this->db->where('status', $order_status);
+    if ($fromDate && $toDate) {
+        $this->db->where("DATE(add_date) >=", $fromDate);
+        $this->db->where("DATE(add_date) <=", $toDate);
     }
+    $onlineOrders = $this->db->get()->result_array();
 
-    if (!empty($order_status)) {
-      $this->db->where('status', $order_status);
-    }
+    // Merge and sort
+    $orders = array_merge($codOrders, $onlineOrders);
+    usort($orders, fn($a,$b) => strtotime($b['add_date']) - strtotime($a['add_date']));
 
-    if (!empty($fromDate) && !empty($toDate)) {
-      $this->db->where("DATE_FORMAT(FROM_UNIXTIME(add_date), '%Y-%m-%d %H:%i:%s') >=", $fromDate);
-      $this->db->where("DATE_FORMAT(FROM_UNIXTIME(add_date), '%Y-%m-%d %H:%i:%s') <=", $toDate);
-    }
+    $totalRecords = count($orders);
+    $results = array_slice($orders, $offset, $limit);
 
-    $totalRecords = $this->db->count_all_results('', false); // Get total records count
-
-    $this->db->order_by('id', 'desc');
-    $this->db->limit($limit, $offset);
-    $AllRecord = $this->db->get()->result_array();
-
-    $entries = 'Showing ' . ($offset + 1) . ' to ' . ($offset + count($AllRecord)) . ' of ' . $totalRecords . ' entries';
-
-    $config["base_url"] = base_url('admin/Order/index?keyword=');
-    $config["total_rows"] = $totalRecords;
-    $config["per_page"] = $limit;
-    $config['use_page_numbers'] = TRUE;
-    $config['page_query_string'] = TRUE;
-    $config['enable_query_strings'] = TRUE;
-    $config['num_links'] = 3;
-    $config['cur_tag_open'] = '&nbsp;<li class="active"><a>';
-    $config['cur_tag_close'] = '</a></li>';
-    $config['next_link'] = 'Next';
-    $config['prev_link'] = 'Previous';
-
-    $this->pagination->initialize($config);
-    $str_links = $this->pagination->create_links();
-    $links = explode('&nbsp;', $str_links);
-
-    $data = array(
-      'VenderData' => $VenderData,
-      'totalResult' => $totalRecords,
-      'results' => $AllRecord,
-      'pano' => $pageNo,
-      'links' => $links,
-      'index2' => '',
-      'v_id' => '',
-      'index' => 'Orders',
-      'entries' => $entries,
-      'title' => 'Manage Orders'
-    );
+    $data = [
+        'results' => $results,
+        'pano'    => $pageNo,
+        'entries' => "Showing " . ($offset + 1) . " to " . ($offset + count($results)) . " of $totalRecords entries",
+        'title'   => 'Manage Orders'
+    ];
 
     $this->load->view('include/header', $data);
     $this->load->view('Order/OrderList', $data);
     $this->load->view('include/footer');
-  }
+}
+
+
+public function ViewOrder($id = '', $payment_type = '')
+{
+    is_not_logged_in();
+
+    $data['title'] = 'Manage Order';
+
+    // Determine table by payment type
+    if ($payment_type == 1) {
+        $orderTbl    = 'order_master';
+        $purchaseTbl = 'purchase_master';
+        $addressTbl  = 'order_address_master';
+        $orderType   = 'offline';
+    } elseif ($payment_type == 2) {
+        $orderTbl    = 'order_master2';
+        $purchaseTbl = 'purchase_master2';
+        $addressTbl  = 'order_address_master2';
+        $orderType   = 'online';
+    } else {
+        show_404();
+    }
+
+    $order = $this->db->get_where($orderTbl, ['id' => $id])->row_array();
+    if (empty($order)) show_404();
+
+    $data['getData'] = $order;
+    $data['orderType'] = $orderType;
+
+    // Fetch purchase data
+    $purchaseData = $this->db->where('order_master_id', $id)->get($purchaseTbl)->result_array();
+    $data['purchaseData'] = $purchaseData;
+    $data['product_ids'] = array_column($purchaseData, 'product_master_id');
+
+    // Fetch shipping address
+    $address_data = $this->db->where('order_master_id', $id)->get($addressTbl)->row_array();
+    $data['address_data'] = $address_data;
+
+    $this->load->view('include/header', $data);
+    $this->load->view('Order/product_detail', $data);
+    $this->load->view('include/footer');
+}
+
+
+
 
 
 
@@ -365,17 +384,58 @@ class Order extends CI_Controller
     return $this->db->query('SELECT * FROM `purchase_master` Where id =' . $id . ' ')->row_array();
   }
 
-  public function ViewOrder($id = '')
-  {
-    is_not_logged_in();
-    $data['index']          = 'UpdtOrders';
-    $data['index2']         = '';
-    $data['title']          = 'Manage Order';
-    $data['getData']        = $this->db->get_where('order_master', array('id' => $id))->row_array();
-    $this->load->view('include/header', $data);
-    $this->load->view('Order/product_detail');
-    $this->load->view('include/footer');
-  }
+// public function ViewOrder($id = '')
+// {
+//     is_not_logged_in();
+
+//     $data['index']  = 'UpdtOrders';
+//     $data['index2'] = '';
+//     $data['title']  = 'Manage Order';
+
+//     // Fetch COD order first
+//     $order = $this->db
+//         ->select("*, UNIX_TIMESTAMP(add_date) as add_date")
+//         ->get_where('order_master', ['id' => $id])
+//         ->row_array();
+//     $orderType = 'offline';
+
+//     // Fallback: Online order
+//     if (empty($order)) {
+//         $order = $this->db
+//             ->select("*, UNIX_TIMESTAMP(add_date) as add_date")
+//             ->get_where('order_master2', ['id' => $id])
+//             ->row_array();
+//         $orderType = 'online';
+//     }
+
+//     if (empty($order)) {
+//         show_404();
+//     }
+
+//     $data['getData'] = $order;
+//     $data['orderType'] = $orderType;
+
+//     // Get purchase data
+//     if ($orderType == 'offline') {
+//         $purchaseData = $this->db
+//             ->where('order_master_id', $id)
+//             ->get('purchase_master')
+//             ->result_array();
+//     } else {
+//         $purchaseData = $this->db
+//             ->where('order_master_id', $id)
+//             ->get('purchase_master2')
+//             ->result_array();
+//     }
+
+//     $data['purchaseData'] = $purchaseData;
+//     $data['product_ids']  = array_column($purchaseData, 'product_master_id');
+
+//     $this->load->view('include/header', $data);
+//     $this->load->view('Order/product_detail', $data);
+//     $this->load->view('include/footer');
+// }
+
 
   public function ViewDetails($id = '')
   {
@@ -427,199 +487,119 @@ class Order extends CI_Controller
 
 
 
-  public function SendSMSAlert($alertType, $orderDetail)
-  {
+public function SendSMSAlert($alertType, $orderDetail)
+{
+    if (empty($orderDetail)) return false;
 
-    //   echo "<pre>";
-    //  print_r($orderDetail);
-    //  die();
-
+    // Get user info
     $mobile  = singlerowparameter('mobile', 'id', $orderDetail['user_master_id'], 'user_master');
     $emailid = singlerowparameter('email_id', 'id', $orderDetail['user_master_id'], 'user_master');
     $user    = singlerowparameter('username', 'id', $orderDetail['user_master_id'], 'user_master');
 
-    $purchase       = $this->db->get_where('purchase_master', array('order_master_id' => $orderDetail['id']))->result_array();
-    $address_info   = $this->db->get_where('order_address_master', array('order_master_id' => $orderDetail['id']))->row_array();
+    // Detect order type to choose purchase table
+    $payment_type = $orderDetail['payment_type'] ?? 1; // default offline
+    $purchaseTbl  = ($payment_type == 2) ? 'purchase_master2' : 'purchase_master';
+    $addressTbl   = ($payment_type == 2) ? 'order_address_master2' : 'order_address_master';
 
-    //  echo "<pre>";
-    //  print_r($address_info);
-    //  die();
-    foreach ($purchase as $key => $purchase) {
+    $purchaseData = $this->db->get_where($purchaseTbl, ['order_master_id' => $orderDetail['id']])->result_array();
+    $address_info = $this->db->get_where($addressTbl, ['order_master_id' => $orderDetail['id']])->row_array();
 
-      $product = $this->db->get_where('sub_product_master', array('id' => $purchase['product_master_id']))->row_array();
-      $array_url  = parse_url($product['main_image']);
+    if (empty($purchaseData)) return false;
 
-      if (empty($array_url['host'])) {
-        $img_link = base_url() . '/assets/product_images/' . $product['main_image'];
-      } else {
-        $img_link = 'https://' . $array_url['host'] . '' . $array_url['path'] . '?raw=1';
-      }
+    foreach ($purchaseData as $purchase) {
+        $product = $this->db->get_where('sub_product_master', ['id' => $purchase['product_master_id']])->row_array();
+
+        // IMAGE URL
+        $img_link = base_url('assets/product_images/no-image.png');
+        if (!empty($product['main_image'])) {
+            $parsed = parse_url($product['main_image']);
+            if (!empty($parsed['host'])) {
+                $img_link = 'https://' . $parsed['host'] . $parsed['path'];
+            } else {
+                $img_link = base_url('assets/product_images/' . $product['main_image']);
+            }
+        }
+
+        // ======= FIX: Convert string date to timestamp =======
+        $add_date_ts   = is_numeric($purchase['add_date']) ? $purchase['add_date'] : strtotime($purchase['add_date']);
+        $placed_date   = gmdate("d-m-Y", $add_date_ts);
+        $delivery_date = date('d-m-Y', strtotime('+8 days', $add_date_ts));
+
+        // Prepare order info
+        $order_no      = $orderDetail['order_number'];
+        $product_title = $product['product_name'];
+        $size          = $purchase['size'];
+        $color         = $purchase['color'];
+        $qty           = $purchase['quantity'];
+        $price         = $orderDetail['total_price'] ?? $purchase['final_price'];
+        $total         = $orderDetail['final_price'];
+        $address       = $address_info['address'] ?? '';
+        $c_name        = $user;
+        $c_address     = $address;
+
+        $message = '';
+        $subject = '';
+        $email_body = '';
+
+        // ====== Alert Type Messages ======
+        switch ($alertType) {
+            case 1: // Order Accepted
+                $message = "Dear customer, Your Order no. - $order_no has been Accepted and is being processed. Thanks. Visit https://dukekart.in";
+                $subject = "Your order no $order_no has been Accepted";
+                $this->load->helper('/email/order_shipped');
+                $email_body = order_shipped(
+                    'Order Accepted', $order_no, $user,
+                    $message, $img_link, $product_title, $size, $color, $qty,
+                    $price, "Free", 0, $total, $address, $delivery_date, $placed_date
+                );
+                break;
+
+            case 2: // Order Shipped
+                $message = "Your order no. $order_no of $product_title has been dispatched. Visit https://dukekart.in for more info.";
+                $subject = "Your order no $order_no has been shipped";
+                $this->load->helper('/email/temp4');
+                $email_body = temp4('Order Shipped', $order_no, $user, $message, $img_link, $product_title, $size, $color, $qty, $price, "Free", 0, $total, $delivery_date, $placed_date, $address);
+                break;
+
+            case 3: // Order Delivered
+                $message = "Dear $user, your order no. $order_no has been delivered successfully. Thanks for shopping with Dukekart!";
+                $subject = "Your order no $order_no has been delivered";
+                $this->load->helper('/email/temp5');
+                $email_body = temp5('Order Delivered', $user, $message, 'https://dukekart.in/');
+                break;
+
+            case 4: // Order Cancelled
+                $message = "Dear customer, Your Order no. - $order_no has been cancelled. Contact support for more info.";
+                $subject = "Your order no $order_no has been cancelled";
+                $this->load->helper('/email/temp5');
+                $email_body = temp5('Order Cancelled', $user, $message, 'https://dukekart.in/');
+                break;
+
+            case 5: // Confirmed by Seller
+                $message = "Dear $user, your order no. $order_no has been confirmed by the seller.";
+                $subject = "Your order no $order_no is confirmed by Seller";
+                $this->load->helper('/email/temp1');
+                $email_body = temp1('Order Confirmed', $order_no, $user, $message, $img_link, $product_title, $size, $color, $qty, $price, "Free", 0, $total, $c_name, $c_address);
+                break;
+
+            case 6: // Rejected by Seller
+                $message = "Dear $user, your order no. $order_no has been rejected by the seller.";
+                $subject = "Your order no $order_no is rejected by Seller";
+                $this->load->helper('/email/temp1');
+                $email_body = temp1('Order Rejected', $order_no, $user, $message, $img_link, $product_title, $size, $color, $qty, $price, "Free", 0, $total, $c_name, $c_address);
+                break;
+        }
+
+        // Send email & SMS
+        if ($message != '') {
+            sentCommonEmail($emailid, $email_body, $subject);
+            sendSMS($mobile, $message, '1000000000000000000'); // Replace with proper template ID
+        }
     }
 
-    $add_date       =     $purchase['add_date'];
-    $placed_date    = gmdate("d-m-Y", $add_date);
-    $delivery_date  = date('d-m-Y', strtotime($placed_date . ' + 8 days'));
+    return true;
+}
 
-
-    $order_no       =     $orderDetail['order_number'];
-    $product_title  =     $product['product_name'];
-    $size           =     $purchase['size'];
-    $color          =     $purchase['color'];
-    $qty            =     $purchase['quantity'];
-    $price          =     $orderDetail['total_price'];
-    $shipping       =     "Free";
-    $discount       =     '0';
-    $total          =     $orderDetail['final_price'];
-    $address        =     $address_info['address'];
-    $c_address      =     $address;
-    $c_name         =     $user;
-
-    //$address_info['city']
-    //$address_info['state']
-    //Value passing through array
-    //$order_details= []; 
-    // echo "<pre>";
-    // print_r($purchase);
-
-    // echo "<br>";
-    // echo "<br>";
-    // echo "<br>";
-    // print_r($address_info);
-
-
-    $messaage = '';
-
-
-    //********  Not identified  ********   
-    if ($alertType == 1) {
-
-
-      //"Dear" {#var#}, your order no. {#var#} has been confirmed by the seller and ready for shipping. Once your shipment is ready we will notify you with order tracking details";
-
-      $message = "Dear customer, Your Order no. - " . $order_no . " has been Accepted and it is being under-processed. Thanks. For More Kindly visit https://dukekart.in.  Regards ,  Dukekart Real Time Private Limited ";
-      $tempID = '1007834077422417627';
-
-      $this->load->helper('/email/order_shipped');
-      $status = "Order Delivered";
-      $email_text = "Your order " . $order_no . " has been Accepted and it is being under-processed. Thanks. For More Kindly visit https://dukekart.in.  Regards ,  Dukekart Real Time Private Limited ";
-      $email_body = order_shipped(
-        $status,
-        $order_no,
-        $user,
-        $email_text,
-        $img_link,
-        $product_title,
-        $size,
-        $color,
-        $qty,
-        $price,
-        $shipping,
-        $discount,
-        $total,
-        $address,
-        $delivery_date,
-        $placed_date
-      );
-      $subject = "Your order no " . $order_no . " has been Accepted";
-    }
-
-
-    if ($alertType == 2) {
-
-
-      //**************************  Order Shipped SMS to Customer  *************************************************
-
-
-      $message = "Your order no. " . $order_no . " of " . $product_title . " has been dispatched and the expected time of the delivery of your product will be done soon. Kindly visit https://www.dukekart.in/ for more shopping. Regards , Dukekart Real Time Private Limited ";
-      $tempID = '1007545840486348638';
-
-      $this->load->helper('/email/temp4');
-      $status = "Order Shipped";
-      $email_text = "Your order has been shipped and the expected time of the delivery of your product will be in the next 5-7 working days. Kindly visit https://dukekart.in/ for more shopping.";
-      $email_body = temp4($status, $order_no, $user, $email_text, $img_link, $product_title, $size, $color, $qty, $price, $shipping, $discount, $total, $delivery_date, $placed_date, $address);
-      $subject = "Your order no " . $order_no . " has been shipped";
-    }
-
-    //***********************  Order Delivered SMS to Customer  *************************************************
-
-    if ($alertType == 3) {
-
-      $message = "Dear" . $user . ", your order no. " . $order_no . " has been delivered successfully. Thanks for giving us a chance to serve you. Regards , Dukekart Real Time Private Limited ,www.dukekart.in";
-      $tempID = '1007215043165967557';
-
-      $this->load->helper('/email/temp5');
-      $status = "Order Delivered";
-      $dash_link = 'https://dukekart.in/';
-      $email_text = "Your order of " . $product_title . " has been delivered successfully, we hope you like the product. Must share your reviews and suggestions for improvement.";
-      $email_body = temp5($status, $user, $email_text, $dash_link);
-      $subject = "Your order no " . $order_no . " has been delivered";
-    }
-
-
-    //********  Order Cancel SMS to Customer  ******** Not approved template  
-
-    if ($alertType == 4) {
-
-      $message = "Dear customer, Your Order no. -" . $order_no . ", has been cancelled and please contact with our Support team.Thanks .Regards , Dukekart Real Time Private Limited , www.dukekart.in ";
-      $tempID = '1007492296258821177';
-
-      $this->load->helper('/email/temp5');
-      $status = "Order Delivered";
-      $email_text = "Your order no. " . $order_no . " has been cancelled and please contact with our Support team.Thanks .Regards , Dukekart Real Time Private Limited , www.dukekart.in ";
-      $email_body = temp5($status, $user, $email_text, "https://dukekart.in");
-      $subject = "Your order no " . $order_no . " has been delivered";
-    }
-
-    //********  Order Confirm By seller SMS to Customer  ******** 
-
-    if ($alertType == 5) {
-
-      $message = "Dear " . $user . ", your order no. " . $order_no . " has been confirmed by the seller and ready for shipping. Once your shipment is ready we will notify you with order tracking details.Regards, DukeKart Real Time Private Limited ,www.dukekart.in";
-      $tempID = '1007750554066627865';
-
-      $this->load->helper('/email/temp1');
-      $status = "Order Confirmed";
-      $email_text = "Your order has been confirmed by the seller and it's being prepared for shipment. Order details are given below:";
-      $email_body = temp1($status, $order_no, $user, $email_text, $img_link, $product_title, $size, $color, $qty, $price, $shipping, $discount, $total, $c_name, $c_address);
-      $subject = "Your order no " . $order_no . " is confirm by the Sellerl";
-    }
-
-    //********  Order Reject By seller SMS to Customer  ********
-
-    if ($alertType == 6) {
-
-      $message = "Dear " . $user . " your order no. " . $order_no . ") has been rejected by the seller due to some reasons. We are sorry for that, our team will reach you soon with the best offersRegardsDukeKart Real Time Private Limitedwww,dukekart.in";
-      $tempID = '1007673968420136347';
-
-      $this->load->helper('/email/temp1');
-      $status = "Order Reject";
-      $email_text = "Your order has been rejected by the seller due to some reasons. We are sorry for that, our team will reach you soon with best offers";
-      $email_body = temp1($status, $order_no, $user, $email_text, $img_link, $product_title, $size, $color, $qty, $price, $shipping, $discount, $total, $c_name, $c_address);
-      $subject = "Your order no " . $order_no . " is rejected by the Seller";
-    }
-
-
-    if ($message != '') {
-      // ***************** ROUND SMS **************************************************************
-      sentCommonEmail($emailid, $email_body, $subject);
-      sendSMS($mobile, $message, $tempID);
-
-      // ***************** TOP10 SMS **************************************************************
-
-      //  sendSMS2($mobile,$message,$tempID);
-
-      //*************************  SMTP Email  **************************************************** 
-
-      //  $this->load->library('email_send');
-      // $this->email_send->send_email($emailid,$email_body,$subject);
-
-
-      //*************************  Webserver Mail  ************************************************      
-      //  sentCommonEmail2($UserEmail,$message,$subject);
-      //  sentCommonEmail2($emailid,$email_body,$subject);       
-
-    }
-  }
 
 
 

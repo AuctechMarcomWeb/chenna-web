@@ -1,130 +1,89 @@
 <?php
 class EarningsDashboard_model extends CI_Model
 {
-    /**
-     * Apply filters for order_master table
-     */
-    private function applyOrderFilters($filters)
+
+    private function applyDateFilter($filters, $field = 'add_date')
     {
         if (!empty($filters['month']))
         {
-            $this->db->where("DATE_FORMAT(add_date,'%Y-%m') =", $filters['month']);
-        }
-
-        if (!empty($filters['from_date']) && !empty($filters['to_date']))
-        {
-            $this->db->where('DATE(add_date) >=', $filters['from_date']);
-            $this->db->where('DATE(add_date) <=', $filters['to_date']);
-        }
-
-        if (!empty($filters['vendor_id']))
-        {
-            $this->db->where('vendor_id', $filters['vendor_id']);
-        }
-
-        if (!empty($filters['promoter_id']))
-        {
-            $this->db->where('promoter_id', $filters['promoter_id']);
-        }
-    }
-
-    /**
-     * Apply filters for sub_product_master table
-     */
-    private function applyProductFilters($filters)
-    {
-        if (!empty($filters['month']))
-        {
-            $this->db->where("DATE_FORMAT(add_date,'%Y-%m') =", $filters['month']);
-        }
-
-        if (!empty($filters['from_date']) && !empty($filters['to_date']))
-        {
-            $this->db->where('DATE(add_date) >=', $filters['from_date']);
-            $this->db->where('DATE(add_date) <=', $filters['to_date']);
-        }
-
-        if (!empty($filters['vendor_id']))
-        {
-            $this->db->where('vendor_id', $filters['vendor_id']);
-        }
-
-        if (!empty($filters['promoter_id']))
-        {
-            $this->db->where('promoter_id', $filters['promoter_id']);
-        }
-    }
-
-    /**
-     * Get Earnings Dashboard Summary
-     */
-    public function getSummary($filters)
-    {
-        // ======= TOTAL EARNING =======
-        $this->applyOrderFilters($filters);
-        $totalEarning = $this->db->select('SUM(final_price) as total_earning')
-            ->get('order_master')
-            ->row()->total_earning ?? 0;
-
-        // ======= TOTAL VENDOR EARNING =======
-        $this->applyOrderFilters($filters);
-        $vendorEarning = $this->db->select('SUM(vendor_earning) as vendor_earning')
-            ->get('order_master')
-            ->row()->vendor_earning ?? 0;
-
-        // ======= TOTAL ADMIN EARNING =======
-        $this->applyOrderFilters($filters);
-        $adminEarning = $this->db->select('SUM(admin_earning) as admin_earning')
-            ->get('order_master')
-            ->row()->admin_earning ?? 0;
-
-        // ======= TOTAL ORDERS =======
-        $this->applyOrderFilters($filters);
-        $totalOrders = $this->db->count_all_results('order_master') ?? 0;
-
-        // ======= TOTAL VENDORS =======
-        $totalVendorsQuery = $this->db->select('id')->from('vendors');
-
-        if (!empty($filters['vendor_id']))
-        {
-            $totalVendorsQuery->where('id', $filters['vendor_id']);
-        }
-
-        // Apply month/date filter based on registration date (assuming vendors table has 'add_date')
-        if (!empty($filters['month']))
-        {
-            $totalVendorsQuery->where("DATE_FORMAT(add_date,'%Y-%m') =", $filters['month']);
+            $this->db->where("DATE_FORMAT($field,'%Y-%m')", $filters['month']);
         } elseif (!empty($filters['from_date']) && !empty($filters['to_date']))
         {
-            $totalVendorsQuery->where('DATE(add_date) >=', $filters['from_date']);
-            $totalVendorsQuery->where('DATE(add_date) <=', $filters['to_date']);
+            $this->db->where("DATE($field) >= ", $filters['from_date']);
+            $this->db->where("DATE($field) <= ", $filters['to_date']);
+        }
+    }
+
+    public function getSummary($filters)
+    {
+        $tables = ['purchase_master', 'purchase_master2'];
+        $earning_total = $vendor_total = $promoter_total = 0;
+        $total_orders = $pending_orders = $total_products = 0;
+
+        foreach ($tables as $table)
+        {
+            $this->db->reset_query();
+            $this->db->select('SUM(final_price) as total, SUM(final_price*0.1) as vendor_earn, SUM(final_price*0.05) as promoter_earn');
+            if (!empty($filters['vendor_id']))
+                $this->db->where('vendor_id', $filters['vendor_id']);
+            if (!empty($filters['promoter_id']))
+                $this->db->where('promoter_id', $filters['promoter_id']);
+            $this->applyDateFilter($filters);
+            $res = $this->db->get($table)->row();
+            $earning_total += $res->total ?? 0;
+            $vendor_total += $res->vendor_earn ?? 0;
+            $promoter_total += $res->promoter_earn ?? 0;
+
+            // Orders
+            $this->db->reset_query();
+            if (!empty($filters['vendor_id']))
+                $this->db->where('vendor_id', $filters['vendor_id']);
+            if (!empty($filters['promoter_id']))
+                $this->db->where('promoter_id', $filters['promoter_id']);
+            $this->applyDateFilter($filters);
+            $total_orders += $this->db->count_all_results($table);
+
+            // Pending Orders
+            $this->db->reset_query();
+            $this->db->where('status', 1);
+            if (!empty($filters['vendor_id']))
+                $this->db->where('vendor_id', $filters['vendor_id']);
+            if (!empty($filters['promoter_id']))
+                $this->db->where('promoter_id', $filters['promoter_id']);
+            $this->applyDateFilter($filters);
+            $pending_orders += $this->db->count_all_results($table);
+
+            // Products
+            $this->db->reset_query();
+            if (!empty($filters['vendor_id']))
+                $this->db->where('vendor_id', $filters['vendor_id']);
+            if (!empty($filters['promoter_id']))
+                $this->db->where('promoter_id', $filters['promoter_id']);
+            $this->applyDateFilter($filters, 'add_date');
+            $total_products += $this->db->count_all_results('sub_product_master');
         }
 
-        $totalVendors = $totalVendorsQuery->count_all_results() ?? 0;
-
-
-        // ======= TOTAL PRODUCTS =======
-        $this->applyProductFilters($filters);
-        $totalProducts = $this->db->count_all_results('sub_product_master') ?? 0;
+        $total_vendors = $this->db->count_all_results('vendors');
+        $total_promoters = $this->db->count_all_results('promoters');
 
         return [
-            'total_earning' => $totalEarning,
-            'vendor_earning' => $vendorEarning,
-            'admin_earning' => $adminEarning,
-            'total_orders' => $totalOrders,
-            'total_vendors' => $totalVendors,
-            'total_products' => $totalProducts
+            'total_earning' => $earning_total,
+            'vendor_earning' => $vendor_total,
+            'promoter_earning' => $promoter_total,
+            'total_orders' => $total_orders,
+            'pending_orders' => $pending_orders,
+            'total_products' => $total_products,
+            'total_vendors' => $total_vendors,
+            'total_promoters' => $total_promoters
         ];
     }
 
-    /**
-     * Get vendors for dropdown
-     */
     public function getVendors()
     {
-        return $this->db->select('id, name')
-            ->where('status', 1)
-            ->get('vendors')
-            ->result();
+        return $this->db->where('status', 1)->get('vendors')->result();
+    }
+    public function getPromoters()
+    {
+        return $this->db->where('status', 1)->get('promoters')->result();
     }
 }

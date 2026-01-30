@@ -2713,7 +2713,8 @@ class Web extends CI_Controller
 
   public function checkout_payment()
   {
-    $userData = $this->session->userdata('User');
+     $userData = $this->session->userdata('User');
+    $data['wishlist_count'] = !empty($userData) ? $this->web_model->get_total_wishlist_by_user($userData['id']) : 0;
     if (empty($userData))
     {
       redirect('web/login');
@@ -3198,12 +3199,295 @@ class Web extends CI_Controller
     }
   }
 
+  // public function order_complete()
+  // {
+  //   $data = $this->input->post();
+  //   $userData = $this->session->userdata('User');
+
+  //   /* ================= USER CHECK ================= */
+  //   if (empty($userData))
+  //   {
+  //     redirect('web/login');
+  //     return;
+  //   }
+
+  //   $userId = $userData['id'];
+  //   $buyNow = $this->session->userdata('buy_now');
+  //   $applied_coupon = $this->session->userdata('applied_coupon');
+  //   $coupon_discount_amount = 0;
+
+  //   /* ================= PAYMENT TYPE ================= */
+  //   $paymentType = (int) ($data['paymentType'] ?? 1); // 1 = COD, 2 = Online
+
+  //   /* ================= TABLE SELECTION ================= */
+  //   $order_table = ($paymentType === 2) ? 'order_master2' : 'order_master';
+  //   $purchase_table = ($paymentType === 2) ? 'purchase_master2' : 'purchase_master';
+  //   $address_table = ($paymentType === 2) ? 'order_address_master2' : 'order_address_master';
+
+  //   /* ================= GET ITEMS ================= */
+  //   $total_items = [];
+  //   if (!empty($buyNow['pro_id']))
+  //   {
+  //     $prod = $this->db->get_where('sub_product_master', ['id' => $buyNow['pro_id']])->row_array();
+  //     if (empty($prod))
+  //     {
+  //       redirect('web/cart');
+  //       return;
+  //     }
+  //     $total_items[] = [
+  //       'id' => $prod['id'],
+  //       'name' => $prod['product_name'],
+  //       'price' => $prod['price'],
+  //       'final_price' => $prod['final_price'],
+  //       'gst' => $prod['gst'],
+  //       'qty' => (int) $buyNow['qty'],
+  //       'size' => $prod['size'],
+  //       'color' => $prod['color'],
+  //       'main_image' => $prod['main_image'],
+  //       'product_hsn' => $prod['product_hsn'],
+  //       'sku_code' => $prod['sku_code'],
+  //       'vendor_id' => $prod['vendor_id'],
+  //       'promoter_id' => $prod['promoter_id']
+  //     ];
+  //   } else
+  //   {
+  //     $cart_contents = $this->cart->contents();
+  //     if (empty($cart_contents))
+  //     {
+  //       redirect(base_url());
+  //       return;
+  //     }
+  //     foreach ($cart_contents as $c)
+  //     {
+  //       $prod = $this->db->get_where('sub_product_master', ['id' => $c['id']])->row_array();
+  //       if (empty($prod))
+  //       {
+  //         redirect('web/cart');
+  //         return;
+  //       }
+  //       $total_items[] = [
+  //         'id' => $c['id'],
+  //         'name' => $c['name'],
+  //         'price' => $c['price'],
+  //         'final_price' => $c['final_price'],
+  //         'gst' => $prod['gst'],
+  //         'qty' => $c['qty'],
+  //         'size' => $prod['size'],
+  //         'color' => $prod['color'],
+  //         'main_image' => $prod['main_image'],
+  //         'product_hsn' => $prod['product_hsn'],
+  //         'sku_code' => $prod['sku_code'],
+  //         'vendor_id' => $prod['vendor_id'],
+  //         'promoter_id' => $prod['promoter_id']
+  //       ];
+  //     }
+  //   }
+
+  //   /* ================= TOTAL ================= */
+  //   $total_price = 0;
+  //   foreach ($total_items as $itm)
+  //   {
+  //     $total_price += $itm['final_price'] * $itm['qty'];
+  //   }
+
+  //   /* ================= COUPON ================= */
+  //   if (!empty($applied_coupon))
+  //   {
+  //     if ($applied_coupon['discount_type'] === 'percent')
+  //     {
+  //       $coupon_discount_amount = ($applied_coupon['discount_value'] / 100) * $total_price;
+  //       if (
+  //         !empty($applied_coupon['max_discount_amount']) &&
+  //         $coupon_discount_amount > $applied_coupon['max_discount_amount']
+  //       )
+  //       {
+  //         $coupon_discount_amount = $applied_coupon['max_discount_amount'];
+  //       }
+  //     } else
+  //     {
+  //       $coupon_discount_amount = $applied_coupon['discount_value'];
+  //     }
+  //   }
+  //   $subtotal_after_coupon = $total_price - $coupon_discount_amount;
+
+  //   /* ================= GST ================= */
+  //   $gst_total = 0;
+  //   foreach ($total_items as $itm)
+  //   {
+  //     $item_total = $itm['final_price'] * $itm['qty'];
+  //     $item_discount = ($total_price > 0) ? ($item_total / $total_price) * $coupon_discount_amount : 0;
+  //     $gst_total += (($item_total - $item_discount) * $itm['gst'] / 100);
+  //   }
+
+  //   /* ================= SHIPPING ================= */
+  //   $settings = $this->db->get_where('settings', ['id' => 1])->row_array();
+  //   $shipping = ($subtotal_after_coupon > $settings['min_order_bal']) ? 0 : $settings['shipping_amount'];
+  //   $grand_total = $subtotal_after_coupon + $gst_total + $shipping;
+
+  //   /* ================= TRANSACTION ID ================= */
+  //   $transaction_id = '';
+  //   $phonepe_merchant_txn_id = '';
+  //   if ($paymentType === 2)
+  //   {
+  //     $phonepe_merchant_txn_id = 'DN' . date('YmdHis') . strtoupper(bin2hex(random_bytes(5)));
+  //     $this->session->set_userdata('phonepe_merchant_txn_id', $phonepe_merchant_txn_id);
+  //     $transaction_id = $phonepe_merchant_txn_id;
+  //   }
+
+  //   /* ================= ORDER INSERT ================= */
+  //   $order_number = 'ORD' . time();
+  //   $order = [
+  //     'order_number' => $order_number,
+  //     'transaction_id' => $transaction_id,
+  //     'phonepe_merchant_txn_id' => $phonepe_merchant_txn_id,
+  //     'user_master_id' => $userId,
+  //     'total_price' => $grand_total,
+  //     'final_price' => $grand_total,
+  //     'payment_type' => $paymentType,
+  //     'address_master_id' => $data['address_id'],
+  //     'action_payment' => ($paymentType == 1) ? 'Yes' : 'No',
+  //     'shippment_charge' => $shipping,
+  //     'gst' => $gst_total,
+  //     'coupon_code_id' => $applied_coupon['id'] ?? null,
+  //     'coupon_discount' => $coupon_discount_amount,
+  //     'payment_status' => ($paymentType == 1) ? 'SUCCESS' : 'PENDING',
+  //     'status' => ($paymentType == 1) ? 1 : 0,
+  //     'add_date' => date('Y-m-d H:i:s'),
+  //     'modify_date' => date('Y-m-d H:i:s')
+  //   ];
+  //   $this->db->insert($order_table, $order);
+  //   $lastId = $this->db->insert_id();
+
+  //   /* ================= PURCHASE & EARNINGS INSERT ================= */
+  //   foreach ($total_items as $itm)
+  //   {
+  //     $this->db->query("UPDATE sub_product_master SET quantity = quantity - {$itm['qty']} WHERE id = {$itm['id']}");
+
+  //     $this->db->insert($purchase_table, [
+  //       'order_master_id' => $lastId,
+  //       'vendor_id' => $itm['vendor_id'],
+  //       'promoter_id' => $itm['promoter_id'],
+  //       'product_master_id' => $itm['id'],
+  //       'product_name' => $itm['name'],
+  //       'price' => $itm['price'],
+  //       'final_price' => $itm['final_price'],
+  //       'quantity' => $itm['qty'],
+  //       'size' => $itm['size'],
+  //       'color' => $itm['color'],
+  //       'gst' => $itm['gst'],
+  //       'main_image' => $itm['main_image'],
+  //       'product_hsn' => $itm['product_hsn'],
+  //       'sku_code' => $itm['sku_code'],
+  //       'add_date' => date('Y-m-d H:i:s'),
+  //       'modify_date' => date('Y-m-d H:i:s'),
+  //       'status' => 1
+  //     ]);
+
+  //     /* ================= ADMIN EARNING ================= */
+  //     $commission = 0;
+
+  //     // Vendor subscription (monthly / per product)
+  //     $vendor_sub = $this->db->get_where('vendor_subscriptions_master', ['vendor_id' => $itm['vendor_id'], 'status' => 1])->row_array();
+  //     if ($vendor_sub)
+  //     {
+  //       if ($vendor_sub['plan_type'] == 2 && $vendor_sub['commission_percent'] > 0)
+  //       { // per product
+  //         $commission += ($itm['final_price'] * $vendor_sub['commission_percent'] / 100) * $itm['qty'];
+  //       }
+  //     }
+
+  //     // Promoter subscription (monthly / per product)
+  //     $promoter_sub = $this->db->get_where('promoter_subscriptions_master', ['promoter_id' => $itm['promoter_id'], 'status' => 1])->row_array();
+  //     $promoter_commission = 0;
+  //     if ($promoter_sub)
+  //     {
+  //       if ($promoter_sub['plan_type'] == 2 && $promoter_sub['commission_percent'] > 0)
+  //       { // per product
+  //         $promoter_commission = ($itm['final_price'] * $promoter_sub['commission_percent'] / 100) * $itm['qty'];
+
+  //         // insert into promoter_earnings_master
+  //         $this->db->insert('promoter_earnings_master', [
+  //           'promoter_id' => $itm['promoter_id'],
+  //           'vendor_id' => $itm['vendor_id'],
+  //           'product_id' => $itm['id'],
+  //           'order_id' => $lastId,
+  //           'qty' => $itm['qty'],
+  //           'product_price' => $itm['final_price'],
+  //           'commission_percent' => $promoter_sub['commission_percent'],
+  //           'commission_amount' => $promoter_commission,
+  //           'earning_amount' => $promoter_commission,
+  //           'status' => 0
+  //         ]);
+  //       }
+  //     }
+
+  //     // insert admin earning
+  //     if ($commission > 0)
+  //     {
+  //       $this->db->insert('admin_earnings_master', [
+  //         'vendor_id' => $itm['vendor_id'],
+  //         'promoter_id' => $itm['promoter_id'],
+  //         'product_id' => $itm['id'],
+  //         'commission_amount' => $commission,
+  //         'created_at' => date('Y-m-d H:i:s')
+  //       ]);
+  //     }
+
+  //     // insert vendor earning
+  //     $vendor_earning = ($itm['final_price'] * $itm['qty']) - $commission;
+  //     $this->db->insert('vendor_earnings_master', [
+  //       'vendor_id' => $itm['vendor_id'],
+  //       'promoter_id' => $itm['promoter_id'],
+  //       'product_id' => $itm['id'],
+  //       'order_id' => $lastId,
+  //       'qty' => $itm['qty'],
+  //       'earning_amount' => $vendor_earning,
+  //       'created_at' => date('Y-m-d H:i:s')
+  //     ]);
+  //   }
+
+  //   /* ================= ADDRESS INSERT ================= */
+  //   $address = $this->db->get_where('user_address_master', ['id' => $data['address_id']])->row_array();
+  //   if (empty($address))
+  //   {
+  //     redirect('web/checkout');
+  //     return;
+  //   }
+  //   $this->db->insert($address_table, [
+  //     'order_master_id' => $lastId,
+  //     'title' => $address['title'],
+  //     'contact_person' => $address['contact_person'],
+  //     'mobile_number' => $address['mobile_number'],
+  //     'address' => $address['address'],
+  //     'city' => $address['city'],
+  //     'state' => $address['state'],
+  //     'pincode' => $address['pincode'],
+  //     'add_date' => date('Y-m-d H:i:s')
+  //   ]);
+
+  //   /* ================= PHONEPE REDIRECT ================= */
+  //   if ($paymentType == 2)
+  //   {
+  //     $this->load->view('payment/phonepe_redirect', [
+  //       'ref_id' => $phonepe_merchant_txn_id,
+  //       'amount' => $grand_total,
+  //       'payment_type' => 'order'
+  //     ]);
+  //     return;
+  //   }
+
+  //   /* ================= COD SUCCESS ================= */
+  //   $this->cart->destroy();
+  //   $this->session->unset_userdata(['buy_now', 'applied_coupon']);
+  //   redirect('web/order_success/' . base64_encode($lastId));
+  // }
+
   public function order_complete()
   {
     $data = $this->input->post();
     $userData = $this->session->userdata('User');
 
-    /* ================= USER CHECK ================= */
+    $data['wishlist_count'] = !empty($userData) ? $this->web_model->get_total_wishlist_by_user($userData['id']) : 0;
     if (empty($userData))
     {
       redirect('web/login');
@@ -3215,24 +3499,21 @@ class Web extends CI_Controller
     $applied_coupon = $this->session->userdata('applied_coupon');
     $coupon_discount_amount = 0;
 
-    /* ================= PAYMENT TYPE ================= */
-    $paymentType = (int) ($data['paymentType'] ?? 1); // 1 = COD, 2 = Online
+    $paymentType = (int) ($data['paymentType'] ?? 1); // 1=COD,2=Online
 
-    /* ================= TABLE SELECTION ================= */
     $order_table = ($paymentType === 2) ? 'order_master2' : 'order_master';
     $purchase_table = ($paymentType === 2) ? 'purchase_master2' : 'purchase_master';
     $address_table = ($paymentType === 2) ? 'order_address_master2' : 'order_address_master';
 
-    /* ================= GET ITEMS ================= */
+    /* ================= ITEMS ================= */
     $total_items = [];
+
     if (!empty($buyNow['pro_id']))
     {
       $prod = $this->db->get_where('sub_product_master', ['id' => $buyNow['pro_id']])->row_array();
-      if (empty($prod))
-      {
+      if (!$prod)
         redirect('web/cart');
-        return;
-      }
+
       $total_items[] = [
         'id' => $prod['id'],
         'name' => $prod['product_name'],
@@ -3250,20 +3531,16 @@ class Web extends CI_Controller
       ];
     } else
     {
-      $cart_contents = $this->cart->contents();
-      if (empty($cart_contents))
-      {
+      $cart = $this->cart->contents();
+      if (empty($cart))
         redirect(base_url());
-        return;
-      }
-      foreach ($cart_contents as $c)
+
+      foreach ($cart as $c)
       {
         $prod = $this->db->get_where('sub_product_master', ['id' => $c['id']])->row_array();
-        if (empty($prod))
-        {
+        if (!$prod)
           redirect('web/cart');
-          return;
-        }
+
         $total_items[] = [
           'id' => $c['id'],
           'name' => $c['name'],
@@ -3307,6 +3584,7 @@ class Web extends CI_Controller
         $coupon_discount_amount = $applied_coupon['discount_value'];
       }
     }
+
     $subtotal_after_coupon = $total_price - $coupon_discount_amount;
 
     /* ================= GST ================= */
@@ -3323,7 +3601,7 @@ class Web extends CI_Controller
     $shipping = ($subtotal_after_coupon > $settings['min_order_bal']) ? 0 : $settings['shipping_amount'];
     $grand_total = $subtotal_after_coupon + $gst_total + $shipping;
 
-    /* ================= TRANSACTION ID ================= */
+    /* ================= TRANSACTION ================= */
     $transaction_id = '';
     $phonepe_merchant_txn_id = '';
     if ($paymentType === 2)
@@ -3335,6 +3613,7 @@ class Web extends CI_Controller
 
     /* ================= ORDER INSERT ================= */
     $order_number = 'ORD' . time();
+
     $order = [
       'order_number' => $order_number,
       'transaction_id' => $transaction_id,
@@ -3354,12 +3633,19 @@ class Web extends CI_Controller
       'add_date' => date('Y-m-d H:i:s'),
       'modify_date' => date('Y-m-d H:i:s')
     ];
+
     $this->db->insert($order_table, $order);
     $lastId = $this->db->insert_id();
 
-    /* ================= PURCHASE & EARNINGS INSERT ================= */
+    /* ================= TOTAL EARNINGS ================= */
+    $total_admin_earning = 0;
+    $total_vendor_earning = 0;
+    $total_promoter_earning = 0;
+
+    /* ================= PURCHASE LOOP ================= */
     foreach ($total_items as $itm)
     {
+
       $this->db->query("UPDATE sub_product_master SET quantity = quantity - {$itm['qty']} WHERE id = {$itm['id']}");
 
       $this->db->insert($purchase_table, [
@@ -3382,58 +3668,56 @@ class Web extends CI_Controller
         'status' => 1
       ]);
 
-      /* ================= ADMIN EARNING ================= */
-      $commission = 0;
-
-      // Vendor subscription (monthly / per product)
-      $vendor_sub = $this->db->get_where('vendor_subscriptions_master', ['vendor_id' => $itm['vendor_id'], 'status' => 1])->row_array();
-      if ($vendor_sub)
-      {
-        if ($vendor_sub['plan_type'] == 2 && $vendor_sub['commission_percent'] > 0)
-        { // per product
-          $commission += ($itm['final_price'] * $vendor_sub['commission_percent'] / 100) * $itm['qty'];
-        }
-      }
-
-      // Promoter subscription (monthly / per product)
-      $promoter_sub = $this->db->get_where('promoter_subscriptions_master', ['promoter_id' => $itm['promoter_id'], 'status' => 1])->row_array();
+      /* ===== COMMISSIONS ===== */
+      $admin_commission = 0;
       $promoter_commission = 0;
-      if ($promoter_sub)
-      {
-        if ($promoter_sub['plan_type'] == 2 && $promoter_sub['commission_percent'] > 0)
-        { // per product
-          $promoter_commission = ($itm['final_price'] * $promoter_sub['commission_percent'] / 100) * $itm['qty'];
 
-          // insert into promoter_earnings_master
-          $this->db->insert('promoter_earnings_master', [
-            'promoter_id' => $itm['promoter_id'],
-            'vendor_id' => $itm['vendor_id'],
-            'product_id' => $itm['id'],
-            'order_id' => $lastId,
-            'qty' => $itm['qty'],
-            'product_price' => $itm['final_price'],
-            'commission_percent' => $promoter_sub['commission_percent'],
-            'commission_amount' => $promoter_commission,
-            'earning_amount' => $promoter_commission,
-            'status' => 0
-          ]);
-        }
+      $vendor_sub = $this->db->get_where('vendor_subscriptions_master', [
+        'vendor_id' => $itm['vendor_id'],
+        'status' => 1
+      ])->row_array();
+
+      if ($vendor_sub && $vendor_sub['commission_percent'] > 0)
+      {
+        $admin_commission += ($itm['final_price'] * $vendor_sub['commission_percent'] / 100) * $itm['qty'];
       }
 
-      // insert admin earning
-      if ($commission > 0)
+      $promoter_sub = $this->db->get_where('promoter_subscriptions_master', [
+        'promoter_id' => $itm['promoter_id'],
+        'status' => 1
+      ])->row_array();
+
+      if ($promoter_sub && $promoter_sub['commission_percent'] > 0)
+      {
+        $promoter_commission = ($itm['final_price'] * $promoter_sub['commission_percent'] / 100) * $itm['qty'];
+
+        $this->db->insert('promoter_earnings_master', [
+          'promoter_id' => $itm['promoter_id'],
+          'vendor_id' => $itm['vendor_id'],
+          'product_id' => $itm['id'],
+          'order_id' => $lastId,
+          'qty' => $itm['qty'],
+          'product_price' => $itm['final_price'],
+          'commission_percent' => $promoter_sub['commission_percent'],
+          'commission_amount' => $promoter_commission,
+          'earning_amount' => $promoter_commission,
+          'status' => 0
+        ]);
+      }
+
+      if ($admin_commission > 0)
       {
         $this->db->insert('admin_earnings_master', [
           'vendor_id' => $itm['vendor_id'],
           'promoter_id' => $itm['promoter_id'],
           'product_id' => $itm['id'],
-          'commission_amount' => $commission,
+          'commission_amount' => $admin_commission,
           'created_at' => date('Y-m-d H:i:s')
         ]);
       }
 
-      // insert vendor earning
-      $vendor_earning = ($itm['final_price'] * $itm['qty']) - $commission;
+      $vendor_earning = ($itm['final_price'] * $itm['qty']) - $admin_commission;
+
       $this->db->insert('vendor_earnings_master', [
         'vendor_id' => $itm['vendor_id'],
         'promoter_id' => $itm['promoter_id'],
@@ -3443,15 +3727,24 @@ class Web extends CI_Controller
         'earning_amount' => $vendor_earning,
         'created_at' => date('Y-m-d H:i:s')
       ]);
+
+      $total_admin_earning += $admin_commission;
+      $total_vendor_earning += $vendor_earning;
+      $total_promoter_earning += $promoter_commission;
     }
 
-    /* ================= ADDRESS INSERT ================= */
+    /* ================= UPDATE ORDER EARNINGS ================= */
+    $this->db->where('id', $lastId)->update($order_table, [
+      'admin_earning' => $total_admin_earning,
+      'vendor_earning' => $total_vendor_earning,
+      'promoter_earning' => $total_promoter_earning
+    ]);
+
+    /* ================= ADDRESS ================= */
     $address = $this->db->get_where('user_address_master', ['id' => $data['address_id']])->row_array();
-    if (empty($address))
-    {
+    if (!$address)
       redirect('web/checkout');
-      return;
-    }
+
     $this->db->insert($address_table, [
       'order_master_id' => $lastId,
       'title' => $address['title'],
@@ -3464,7 +3757,7 @@ class Web extends CI_Controller
       'add_date' => date('Y-m-d H:i:s')
     ]);
 
-    /* ================= PHONEPE REDIRECT ================= */
+    /* ================= PHONEPE ================= */
     if ($paymentType == 2)
     {
       $this->load->view('payment/phonepe_redirect', [
@@ -3475,12 +3768,10 @@ class Web extends CI_Controller
       return;
     }
 
-    /* ================= COD SUCCESS ================= */
     $this->cart->destroy();
     $this->session->unset_userdata(['buy_now', 'applied_coupon']);
     redirect('web/order_success/' . base64_encode($lastId));
   }
-
 
 
   public function cancel_order()
@@ -3771,7 +4062,8 @@ class Web extends CI_Controller
   }
   public function order_success($order_id)
   {
-
+    $userData = $this->session->userdata('User');
+    $data['wishlist_count'] = !empty($userData) ? $this->web_model->get_total_wishlist_by_user($userData['id']) : 0;
     $decoded_order_id = base64_decode($order_id);
 
     $tables = [
@@ -3822,7 +4114,8 @@ class Web extends CI_Controller
   }
   public function order_success2($order_number)
   {
-
+    $userData = $this->session->userdata('User');
+    $data['wishlist_count'] = !empty($userData) ? $this->web_model->get_total_wishlist_by_user($userData['id']) : 0;
     $order = $this->db->get_where('order_master2', ['order_number' => $order_number])->row_array();
 
     if (empty($order))
