@@ -456,34 +456,58 @@ public function ViewOrder($id = '', $payment_type = '')
   }
 
 
-  public function UpdateOrderStatus($orderid = '', $vendor_id = '')
-  {
-    // $OrderDetail = allData2('order_master','id',$orderid); 
+public function UpdateOrderStatus($orderid = '', $vendor_id = '')
+{
     $data = $this->input->post();
-    $field = array();
-    $field['order_id']    = $orderid;
-    $field['vendor_id']   = $vendor_id;
-    $field['StatusUpdate']  = $data['StatusUpdate'];
-    $field['remark']      = $data['remark'];
+    $StatusUpdate = $data['StatusUpdate'];
+    $remark = $data['remark'];
 
-    // print_r($data);
-    // die();
-    $row  = $this->Order_model->UpdateOrderData($field);
+    // Detect payment type
+    $orderDetail = $this->db->get_where('order_master', ['id' => $orderid])->row_array();
+    $orderTbl = 'order_master';
 
+    if (empty($orderDetail)) {
+        // If not in offline, check online
+        $orderDetail = $this->db->get_where('order_master2', ['id' => $orderid])->row_array();
+        $orderTbl = 'order_master2';
+    }
 
+    if (empty($orderDetail)) {
+        $this->session->set_flashdata('activate', getCustomAlert('D', '!Order not found.'));
+        redirect('admin/Order/');
+    }
 
+    // Prepare data for update
+    $field = [
+        'order_id'     => $orderid,
+        'vendor_id'    => $vendor_id,
+        'StatusUpdate' => $StatusUpdate,
+        'remark'       => $remark,
+    ];
+
+    $row = $this->Order_model->UpdateOrderData($field, $orderTbl); 
 
     if ($row > 0) {
-      $OrderDetail  = allData2('order_master', 'id', $orderid);
-      $SendSMSAlert = $this->SendSMSAlert($data['StatusUpdate'], $OrderDetail);
+        // Send alerts
+        $this->SendSMSAlert($StatusUpdate, $orderDetail);
 
-      $this->session->set_flashdata('activate', getCustomAlert('S', ' Order has been Update Successfully.'));
-      redirect('admin/Order/');
+        $this->session->set_flashdata('activate', getCustomAlert('S', ' Order has been updated successfully.'));
+
+        // Redirect based on user type
+        $userType = $this->session->userdata('adminData')['Type'];
+        if ($userType == 2) {
+            redirect('admin/Vendor/VendorOrderList');    
+        } elseif ($userType == 3) {
+            redirect('admin/Vendor/PromoterOrderList');   
+        } else {
+            redirect('admin/Order');                     
+        }
     } else {
-      $this->session->set_flashdata('activate', getCustomAlert('D', '!Opps Something is worng.Please try again.'));
-      redirect('admin/Order/');
+        $this->session->set_flashdata('activate', getCustomAlert('D', '!Oops Something went wrong. Please try again.'));
+        redirect('admin/Order/');
     }
-  }
+}
+
 
 
 

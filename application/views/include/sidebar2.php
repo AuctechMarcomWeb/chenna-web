@@ -216,6 +216,11 @@
           </li>
         </ul>
       </li>
+      <li class="<?php echo (($index == 'VendorOrder') ? 'active' : ''); ?>">
+        <a href="<?php echo site_url('admin/Vendor/PromoterOrderList'); ?>">
+          <i class="fa fa-cart-plus"></i> <span>Manage Orders</span>
+        </a>
+      </li>
       <li class="<?php echo (($index == 'VendorPromoterPlans') ? 'active' : ''); ?>">
         <a href="<?php echo site_url('admin/Vendor/VendorPromoterPlans'); ?>">
           <i class="fa fa-id-card"></i> <span>Subsciption Plans</span>
@@ -232,7 +237,7 @@
         <ul class="treeview-menu">
           <li class="<?= (($index == 'VendorListByPromoter') ? 'active' : ''); ?>">
             <a href="<?= site_url('admin/Vendor/VendorsByPromoter'); ?>">
-              <i class="fa fa-circle-o"></i> 
+              <i class="fa fa-circle-o"></i>
               <span>Vendor List</span>
             </a>
           </li>

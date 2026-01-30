@@ -804,89 +804,214 @@ class Vendor extends CI_Controller
 		$this->load->view('Vendor/VendorViewOrderDetails', $data);
 		$this->load->view('include/footer');
 	}
-	// public function VendorViewOrderDetails($order_id)
-	// {
-	// 	// Check if vendor is logged in
-	// 	is_not_logged_in();
 
-	// 	$vendorData = $this->session->userdata('adminData');
-	// 	$vendor_id = $vendorData['Id'];
+	public function PromoterOrderList()
+	{
+		is_not_logged_in();
+		$this->load->library('pagination');
 
-	// 	// ===================== Fetch Order Master (COD + Online) =====================
-	// 	$orderMaster = $this->db->query("
-    //     SELECT id, user_master_id, order_number, final_price, status, payment_type, UNIX_TIMESTAMP(add_date) AS add_date
-    //     FROM order_master
-    //     WHERE id = ?
-    //     UNION ALL
-    //     SELECT id, user_master_id, order_number, final_price, status, payment_type, UNIX_TIMESTAMP(add_date) AS add_date
-    //     FROM order_master2
-    //     WHERE id = ?
-    // ", [$order_id, $order_id])->row_array();
+		$limit = 10;
+		$pageNo = $this->input->get('per_page');
+		$pageNo = (!empty($pageNo) && $pageNo > 0) ? $pageNo : 1;
+		$offset = ($pageNo - 1) * $limit;
 
-	// 	if (!$orderMaster)
-	// 	{
-	// 		show_404(); // Order not found
-	// 		return;
-	// 	}
+		/* ================= FILTERS ================= */
+		$keywords = $this->input->post('keywords');
+		$fromDate = $this->input->post('fromDate');
+		$toDate = $this->input->post('toDate');
+		$order_status = $this->input->post('order_status');
+		$delete_status = $this->input->post('delete_status');
+		$customer_name = $this->input->post('customer_name');
 
-	// 	$data['getData'] = $orderMaster;
+		/* ================= PROMOTER ID ================= */
+		$promoter_id = $this->session->userdata('adminData')['Id'];
 
-	// 	// ===================== Fetch Vendor-Specific Purchase Products =====================
-	// 	$purchaseData = $this->db->query("
-    //     SELECT pm.id, pm.order_master_id, pm.product_master_id, pm.vendor_id, pm.quantity, pm.final_price, pm.size, pm.color, pm.status,
-    //            sp.product_name, sp.main_image
-    //     FROM purchase_master pm
-    //     LEFT JOIN sub_product_master sp ON sp.id = pm.product_master_id
-    //     WHERE pm.order_master_id = ? AND pm.vendor_id = ?
-    //     UNION ALL
-    //     SELECT pm2.id, pm2.order_master_id, pm2.product_master_id, pm2.vendor_id, pm2.quantity, pm2.final_price, pm2.size, pm2.color, pm2.status,
-    //            sp2.product_name, sp2.main_image
-    //     FROM purchase_master2 pm2
-    //     LEFT JOIN sub_product_master sp2 ON sp2.id = pm2.product_master_id
-    //     WHERE pm2.order_master_id = ? AND pm2.vendor_id = ?
-    // ", [$order_id, $vendor_id, $order_id, $vendor_id])->result_array();
+		/* ================= DATE TO TIMESTAMP ================= */
+		$fromTimestamp = '';
+		$toTimestamp = '';
 
-	// 	$data['purchaseData'] = $purchaseData;
+		if (!empty($fromDate) && !empty($toDate))
+		{
+			$fromTimestamp = strtotime($fromDate . ' 00:00:00');
+			$toTimestamp = strtotime($toDate . ' 23:59:59');
+		}
 
-	// 	// ===================== Check Vendor Returns =====================
-	// 	$check_return = $this->db->query("
-    //     SELECT SUM(total) AS total_return FROM (
-    //         SELECT COUNT(*) AS total
-    //         FROM purchase_master
-    //         WHERE order_master_id = ? AND vendor_id = ? AND status = '8'
-    //         UNION ALL
-    //         SELECT COUNT(*) AS total
-    //         FROM purchase_master2
-    //         WHERE order_master_id = ? AND vendor_id = ? AND status = '8'
-    //     ) AS combined
-    // ", [$order_id, $vendor_id, $order_id, $vendor_id])->row_array();
+		/* ================= COMMON WHERE ================= */
+		$whereCod = " WHERE p.promoter_id = '$promoter_id' ";
+		$whereOnline = " WHERE p.promoter_id = '$promoter_id' ";
 
-	// 	$data['check_return'] = $check_return['total_return'] ?? 0;
+		if (!empty($keywords))
+		{
+			$whereCod .= " AND o.order_number LIKE '%$keywords%' ";
+			$whereOnline .= " AND o.order_number LIKE '%$keywords%' ";
+		}
 
-	// 	// ===================== Fetch Shipping Address =====================
-	// 	$addressData = $this->db->query("
-    //     SELECT *
-    //     FROM order_address_master
-    //     WHERE order_master_id = ?
-    //     UNION ALL
-    //     SELECT *
-    //     FROM order_address_master2
-    //     WHERE order_master_id = ?
-    // ", [$order_id, $order_id])->row_array();
+		if (!empty($customer_name))
+		{
+			$whereCod .= " AND u.username LIKE '%$customer_name%' ";
+			$whereOnline .= " AND u.username LIKE '%$customer_name%' ";
+		}
 
-	// 	$data['address_data'] = $addressData;
+		if (!empty($order_status))
+		{
+			$whereCod .= " AND o.status = '$order_status' ";
+			$whereOnline .= " AND o.status = '$order_status' ";
+		}
 
-	// 	// ===================== Fetch User Info =====================
-	// 	$user_info = $this->db->get_where('user_master', ['id' => $orderMaster['user_master_id']])->row_array();
-	// 	$data['user_info'] = $user_info;
+		if (!empty($delete_status) && $delete_status == 'delete')
+		{
+			$whereCod .= " AND o.action_payment = 'delete' ";
+			$whereOnline .= " AND o.action_payment = 'delete' ";
+		} else
+		{
+			$whereCod .= " AND o.action_payment = 'Yes' ";
+			$whereOnline .= " AND o.action_payment = 'Yes' ";
+		}
 
-	// 	// ===================== Load Views =====================
-	// 	$this->load->view('include/header', $data);
-	// 	$this->load->view('Vendor/VendorViewOrderDetails', $data);
-	// 	$this->load->view('include/footer');
-	// }
+		if (!empty($fromTimestamp) && !empty($toTimestamp))
+		{
+			// COD (UNIX)
+			$whereCod .= " AND o.add_date BETWEEN $fromTimestamp AND $toTimestamp ";
+			// ONLINE (DATETIME)
+			$whereOnline .= " AND o.add_date BETWEEN FROM_UNIXTIME($fromTimestamp) 
+                          AND FROM_UNIXTIME($toTimestamp) ";
+		}
+
+		/* ================= COD ORDERS ================= */
+		$codQuery = "
+        SELECT 
+            o.id,
+            o.order_number,
+            o.final_price,
+            o.payment_type,
+            o.payment_status,
+            o.status,
+            o.add_date,
+            u.username,
+            u.mobile
+        FROM order_master o
+        INNER JOIN purchase_master p ON p.order_master_id = o.id
+        LEFT JOIN user_master u ON u.id = o.user_master_id
+        $whereCod
+        GROUP BY o.id
+    ";
+
+		/* ================= ONLINE ORDERS ================= */
+		$onlineQuery = "
+        SELECT 
+            o.id,
+            o.order_number,
+            o.final_price,
+            o.payment_type,
+            o.payment_status,
+            o.status,
+            UNIX_TIMESTAMP(o.add_date) AS add_date,
+            u.username,
+            u.mobile
+        FROM order_master2 o
+        INNER JOIN purchase_master2 p ON p.order_master_id = o.id
+        LEFT JOIN user_master u ON u.id = o.user_master_id
+        $whereOnline
+        GROUP BY o.id
+    ";
+
+		/* ================= FINAL UNION ================= */
+		$finalQuery = "
+        ($codQuery)
+        UNION ALL
+        ($onlineQuery)
+        ORDER BY add_date DESC
+        LIMIT $limit OFFSET $offset
+    ";
+
+		$AllRecord = $this->db->query($finalQuery)->result_array();
+
+		/* ================= TOTAL COUNT ================= */
+		$countQuery = "
+        SELECT COUNT(*) AS total FROM (
+            ($codQuery)
+            UNION ALL
+            ($onlineQuery)
+        ) AS total_orders
+    ";
+
+		$totalRecords = $this->db->query($countQuery)->row()->total;
+
+		/* ================= PAGINATION ================= */
+		$config['base_url'] = base_url('admin/Vendor/PromoterOrderList');
+		$config['total_rows'] = $totalRecords;
+		$config['per_page'] = $limit;
+		$config['use_page_numbers'] = TRUE;
+		$config['page_query_string'] = TRUE;
+		$config['num_links'] = 3;
+
+		$this->pagination->initialize($config);
+
+		$entries = 'Showing ' . ($offset + 1) . ' to ' .
+			($offset + count($AllRecord)) . ' of ' . $totalRecords . ' entries';
+
+		$data = [
+			'results' => $AllRecord,
+			'links' => $this->pagination->create_links(),
+			'entries' => $entries,
+			'index' => 'PromoterOrder',
+			'title' => 'Manage Orders'
+		];
+
+		$this->load->view('include/header', $data);
+		$this->load->view('Promoter/PromoterOrderList', $data);
+		$this->load->view('include/footer');
+	}
 
 
+	public function PromoterViewOrderDetails($id = '', $payment_type = '')
+	{
+		is_not_logged_in();
+		$promoterData = $this->session->userdata('adminData');
+		$promoter_id = $promoterData['Id'];
+
+		$data['title'] = 'Manage Order';
+
+		// Determine table by payment type
+		if ($payment_type == 1)
+		{
+			$orderTbl = 'order_master';
+			$purchaseTbl = 'purchase_master';
+			$addressTbl = 'order_address_master';
+			$orderType = 'offline';
+		} elseif ($payment_type == 2)
+		{
+			$orderTbl = 'order_master2';
+			$purchaseTbl = 'purchase_master2';
+			$addressTbl = 'order_address_master2';
+			$orderType = 'online';
+		} else
+		{
+			show_404();
+		}
+
+		// Fetch order
+		$order = $this->db->get_where($orderTbl, ['id' => $id])->row_array();
+		if (empty($order))
+			show_404();
+
+		// Fetch purchase data
+		$purchaseData = $this->db->where('order_master_id', $id)->get($purchaseTbl)->result_array();
+		$product_ids = array_column($purchaseData, 'product_master_id');
+
+		// Fetch shipping address
+		$address_data = $this->db->where('order_master_id', $id)->get($addressTbl)->row_array();
+
+		$data['getData'] = $order;
+		$data['purchaseData'] = $purchaseData;
+		$data['address_data'] = $address_data;
+		$data['orderType'] = $orderType;
+		$data['product_ids'] = $product_ids;
+
+		$this->load->view('include/header', $data);
+		$this->load->view('Promoter/PromoterViewOrderDetails', $data);
+		$this->load->view('include/footer');
+	}
 
 	public function promoter_registration()
 	{
