@@ -1352,46 +1352,48 @@ class Vendor extends CI_Controller
 	}
 
 	public function VendorsByPromoter()
-	{
-		is_not_logged_in();
-		$adminData = $this->session->userdata('adminData');
-		if ($adminData['Type'] != 3)
-		{
-			redirect('admin/Welcome');
-		}
+{
+    $adminData = $this->session->userdata('adminData');
+    if (!$adminData) {
+        redirect('admin/login');
+    }
 
-		$promoter_id = $adminData['Id'];
+    $data['adminData'] = $adminData;
+    $promoter_id = $adminData['Id'];
 
-		$data['total_vendors'] = $this->Vendor_model->total_vendors_by_promoter($promoter_id);
-		$data['vendors'] = $this->Vendor_model->vendors_with_plan_status($promoter_id);
+    // ✅ LOAD MODELS FIRST
+    $this->load->model('Subscription_model');
+    $this->load->model('Vendor_model');
 
-		$data['title'] = 'My Vendors';
-		$data['index'] = 'VendorListByPromoter';
+    // ✅ NOW SAFE TO CALL MODEL FUNCTIONS
+    $active_subscription = $this->Subscription_model
+        ->getActiveSubscription($promoter_id, 'promoter');
 
-		$this->load->view('include/header', $data);
-		$this->load->view('Promoter/VendorsByPromoter', $data);
-		$this->load->view('include/footer');
-	}
+    $pending_request = $this->Subscription_model
+        ->getPendingSubscriptionRequest($promoter_id, 'promoter');
 
-	// Renew vendor plan by promoter
-	public function renew_vendor_plan()
-	{
-		$vendor_id = $this->input->post('vendor_id');
-		$promoter_id = $this->session->userdata('adminData')['Id'];
+    $data['show_subscription_popup'] =
+        (empty($active_subscription) && empty($pending_request)) ? 1 : 0;
 
-		// Example: Extend subscription 1 month from today
-		$new_end_date = date('Y-m-d', strtotime('+1 month'));
-		$this->db->where('vendor_id', $vendor_id)->update('vendor_subscriptions_master', [
-			'end_date' => $new_end_date,
-			'status' => 1,
-			'updated_at' => date('Y-m-d H:i:s')
-		]);
+    // Plans
+    $data['plans'] = $this->Subscription_model->get_active_plans();
 
-		// Assign vendor to current promoter
-		$this->Vendor_model->assign_vendor_to_promoter($vendor_id, $promoter_id);
+    // Vendors data
+    $data['total_vendors'] =
+        $this->Vendor_model->total_vendors_by_promoter($promoter_id);
 
-		echo json_encode(['status' => 'success', 'message' => 'Plan renewed successfully']);
-	}
+    $data['vendors'] =
+        $this->Vendor_model->vendors_with_plan_status($promoter_id);
+
+    $data['title'] = 'My Vendors';
+    $data['index'] = 'VendorListByPromoter';
+
+    $this->load->view('include/header', $data);
+    $this->load->view('Promoter/VendorsByPromoter', $data);
+    $this->load->view('include/footer');
+}
+
+
 
 
 

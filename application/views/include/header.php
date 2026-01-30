@@ -97,6 +97,7 @@ defined('BASEPATH') or exit('No direct script access allowed'); ?>
 	<link rel="stylesheet" href="<?php echo base_url('assets/admin/css/evelution.css'); ?>">
 	<!-- jQuery 2.2.0 -->
 	<script src="<?php echo base_url('assets/admin/plugins/jQuery/jQuery-2.2.0.min.js'); ?>"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
 	<!-- jQuery UI 1.11.4 -->
 	<!-- <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script> -->
 	<script src="<?php echo base_url('assets/admin/js/jquery-ui.min.js'); ?>"></script>

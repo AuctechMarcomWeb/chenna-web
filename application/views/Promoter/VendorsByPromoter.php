@@ -27,54 +27,6 @@
         background: aliceblue;
     }
 
-    .modal {
-        display: none;
-        /* Hidden by default */
-        position: fixed;
-        /* Stay in place */
-        z-index: 9999;
-        /* Sit on top */
-        padding-top: 100px;
-        /* Location of the box */
-        left: 0;
-        top: 0;
-        width: 100%;
-        /* Full width */
-        height: 100%;
-        /* Full height */
-        overflow: auto;
-        /* Enable scroll if needed */
-        background-color: rgb(0, 0, 0);
-        /* Fallback color */
-        background-color: rgba(0, 0, 0, 0.4);
-        /* Black w/ opacity */
-    }
-
-    /* Modal Content */
-    .modal-content {
-        background-color: #fefefe;
-        margin: auto;
-
-        /*padding: 23px;*/
-        border: 1px solid #888;
-        width: 37%;
-    }
-
-    /* The Close Button */
-    .close {
-        color: #820505;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-        padding-right: 13px;
-    }
-
-    .close:hover,
-    .close:focus {
-        color: #000;
-        text-decoration: none;
-        cursor: pointer;
-    }
 
     .pagination.pull-right a {
         background: #337ab7;
@@ -178,54 +130,404 @@
         object-fit: contain;
     }
 
-    .status-badge {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 5px 10px;
-        border-radius: 8px;
-        font-weight: 500;
-        font-size: 0.85rem;
-        min-width: 120px;
+    /* Progress bar styling */
+    .progress-xs {
+        height: 20px;
     }
 
-    .status-badge span {
-        margin-bottom: 5px;
-        background: #f38612;
-        padding: 3px 10px;
-        border-radius: 17px;
-           font-size: 10px;
+    .progress-bar-custom {
+        background-color: #28a745;
+    }
+
+    .pricing-range {
+        width: 100%;
+        height: 6px;
+        background: #ffd6d6;
+        border-radius: 10px;
+        outline: none;
+        -webkit-appearance: none;
+        margin: 20px 0;
+    }
+
+    /* Track for Chrome/Safari */
+    .pricing-range::-webkit-slider-runnable-track {
+        height: 6px;
+        background: #ffd6d6;
+        border-radius: 10px;
+    }
+
+    /* Thumb for Chrome/Safari */
+    .pricing-range::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 18px;
+        height: 18px;
+        background: #ff6b6b;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 2px solid #fff;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+        margin-top: -6px;
+        /* center thumb on track */
+    }
+
+    /* Track for Firefox */
+    .pricing-range::-moz-range-track {
+        height: 6px;
+        background: #ffd6d6;
+        border-radius: 10px;
+    }
+
+    /* Thumb for Firefox */
+    .pricing-range::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        background: #ff6b6b;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 2px solid #fff;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Track for IE/Edge */
+    .pricing-range::-ms-track {
+        height: 6px;
+        background: transparent;
+        border-color: transparent;
+        color: transparent;
+    }
+
+    .pricing-range::-ms-fill-lower {
+        background: #ffd6d6;
+        border-radius: 10px;
+    }
+
+    .pricing-range::-ms-fill-upper {
+        background: #ffd6d6;
+        border-radius: 10px;
+    }
+
+    .pricing-range::-ms-thumb {
+        width: 18px;
+        height: 18px;
+        background: #ff6b6b;
+        border-radius: 50%;
+        border: 2px solid #fff;
+    }
+
+    /* MODAL BACKGROUND FEEL */
+
+    .modal-content.pricing-modal {
+        border-radius: 15px;
+        border: none;
+        background: #ffffff;
+        box-shadow: 0 10px 30px rgb(217 184 184 / 64%);
+    }
+
+    .text-muted {
+        color: #444;
+        font-size: 15px;
+    }
+
+    /* TITLE */
+    .pricing-modal h4 {
+        font-size: 22px;
+        font-weight: 700;
+    }
+
+    .plan-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 5px;
+        border-bottom: 3px solid #ffd6d6;
+
+        padding-top: 38px;
+    }
+
+    .heading-text {
+        font-size: 15px;
+        font-weight: 600;
+    }
+
+    .heading-icon {
+        font-size: 18px;
+        font-weight: 700;
+        color: #ff6b6b;
+        cursor: pointer;
+    }
+
+
+    /* RANGE SLIDER */
+    .pricing-range {
+        width: 60% !important;
+        margin: 10px auto 23px;
+    }
+
+    .pricing-range::-webkit-slider-runnable-track {
+        height: 6px;
+        background: #ffd6d6;
+        border-radius: 10px;
+    }
+
+    .pricing-range::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 16px;
+        height: 16px;
+        background: #ff6b6b;
+        border-radius: 50%;
+        margin-top: -5px;
+    }
+
+    /* LEFT SECTION */
+    .plan-box {
+
+        padding: 10px 1px;
+        border-radius: 14px;
+        background: #fff;
+    }
+
+    /* PRICE TAG LEFT */
+    .price-tag {
+        background: #ffe6e6;
+        color: #ff5a5a;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 4px 4px;
+        border-radius: 5px;
+    }
+
+    /* FEATURES */
+    .feature-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .feature-list li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 14px;
+        margin-bottom: 14px;
+        text-align: left;
+    }
+
+    .feature-list .dot {
+        width: 8px;
+        height: 8px;
+        background: #ff6b6b;
+        border-radius: 50%;
+        margin-right: 8px;
+    }
+
+    .cross {
+        background: #ffe6e6;
+        color: #ff6b6b;
+        font-weight: bold;
+        border-radius: 6px;
+        padding: 2px 8px;
+    }
+
+    /* PRICING CARDS */
+    .pricing-card {
+        border: 1px solid #f1f1f1;
+        border-radius: 7px;
+        padding: 20px 15px;
+        text-align: center;
+        background: #fff;
+        transition: all 0.3s ease;
+        margin-top: 11px;
+        cursor: pointer;
+    }
+
+    /* CARD TITLE */
+    .pricing-card h6 {
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    /* PRICE */
+    .card-price {
+        position: relative;
+        font-size: 14px;
+        font-weight: 800;
+        color: #ff6b6b;
+        margin: 18px 0;
+        padding: 8px 0px 8px 0px;
+        border-top: 1px solid #ffd6d6;
+        border-left: 1px solid #ffd6d6;
+        border-radius: 10px;
+        overflow: hidden;
+
+        /* important */
+    }
+
+    /* bottom line */
+    .card-price::after {
+        content: "";
+        position: absolute;
+        left: 1px;
+        bottom: 0;
+        width: 60%;
+        height: 1px;
+        background: #ffd6d6;
+        border-bottom-left-radius: 40px;
+    }
+
+    /* right line */
+    .card-price::before {
+        content: "";
+        position: absolute;
+        right: 0;
+        top: 1px;
+        height: 60%;
+        width: 1px;
+        background: #ffd6d6;
+        border-top-right-radius: 40px;
+    }
+
+
+    /* CARD FEATURES */
+    .pricing-card ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .pricing-card ul li {
+        font-size: 14px;
+        margin-bottom: 12px;
+        color: #666;
+        text-align: left;
+    }
+
+    /* MODAL BODY SPACING */
+    .modal-body {
+        padding: 29px 30px;
+    }
+
+    .plan-inline {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .plan-inline h6 {
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    #selectedPlanBox button#proceedPlan {
+        background-color: #ff6b6b;
+        border: none;
+        color: #fff;
+        font-weight: 600;
+        border-radius: 12px;
+        padding: 10px 0;
+        transition: 0.3s;
+    }
+
+    #selectedPlanBox button#proceedPlan:hover {
+        background-color: #ff3b3b;
+    }
+
+    .pricing-card.active {
+        border: 1px solid #ff6b6b6e;
+        box-shadow: 0 0px 5px rgba(255, 107, 107, 0.35);
+        position: relative;
+        cursor: pointer;
+    }
+
+    .btn-proceed {
+        background: #ff6b6b;
+        color: #fff;
+        font-weight: 600;
+        font-size: 16px;
+        padding: 10px 30px;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 15px rgba(255, 107, 107, 0.4);
+    }
+
+    .btn-proceed:hover {
+        background: #35c708;
+        box-shadow: 0 8px 20px rgba(136, 199, 107, 0.5);
+        transform: translateY(-2px);
         color: white;
     }
 
-    .status-badge.no-plan {
-        background-color: #f44336;
+    .pricing-modal {
+        border-radius: 16px;
+    }
+
+    .pricing-card {
+        border: 1px solid #eee;
+        border-radius: 14px;
+        padding: 13px;
+        cursor: pointer;
+        transition: all .25s ease;
+        height: auto;
+        background: #fff;
+    }
+
+    .pricing-card.active {
+        border-color: #ffe4e4;
+        background: linear-gradient(135deg, #ffffff, #fff);
+        box-shadow: 0 11px 24px rgb(255 234 234);
+    }
+
+    .card-price {
+        font-size: 13px;
+        font-weight: 700;
+        color: #e7331d;
+    }
+
+    .card-price small {
+        font-size: 13px;
+        font-weight: 500;
+        color: #6c757d;
+    }
+
+    .btn-proceed {
+        padding: 10px 21px;
+        font-size: 16px;
+        margin-top: 40px;
+        border-radius: 50px;
+        background: linear-gradient(135deg, #dd4b39, #f38f12);
         color: #fff;
-        min-width: 50px;
-        font-size: small;
-        padding: 4px 10px;
-        align-items: center;
+        border: none;
+        margin-bottom: 10px;
     }
 
-   .status-badge.active {
-    background-color: #2c9d0e;
-    color: #fff;
-    text-align: center;
-    min-width: 24px;
-    font-size: small;
-    align-items: center;
+    .btn-proceed:hover {
+        background: linear-gradient(135deg, #17af27, #238522);
     }
 
-
-    .status-badge.expired {
-        background-color: #9e9e9e;
-        color: #fff;
+    .section-title {
+        position: relative;
+        padding-bottom: 8px;
+        margin-bottom: 15px;
+        margin-top: 44px;
+        font-weight: 600;
     }
 
-    .status-badge button.renewBtn {
-        font-size: small;
-        padding: 4px 21px;
-        border-radius: 6px;
+    .bg-success {
+
+        background-color: #4ec90c;
+        padding: 6px 12px;
+        color: white;
+        border-radius: 5px;
+    }
+
+    .section-title::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 50%;
+        height: 2px;
+        background: #dd4b394f;
+        border-radius: 10px;
     }
 </style>
 <div class="content-wrapper">
@@ -234,9 +536,7 @@
     <section class="content-header">
         <h1>
             Vendor List
-            <span class="badge bg-blue">
-                Total Vendors: <?= $total_vendors; ?>
-            </span>
+            
         </h1>
     </section>
 
@@ -245,9 +545,7 @@
         <div class="row">
             <div class="col-xs-12">
 
-                <div class="alert alert-info">
-                    <strong>Total Vendors Registered Through You:</strong> <?= $total_vendors; ?>
-                </div>
+              
 
                 <div class="box">
                     <div class="box-body" style="overflow-x:auto;">
@@ -294,36 +592,26 @@
                                             <td><?= $v['city']; ?></td>
                                             <td><?= $v['state']; ?></td>
                                             <td><?= $v['pincode']; ?></td>
-                                            <td><?= $v['plan_type'] == 1 ? 'Monthly' : ($v['plan_type'] == 2 ? 'Per Product' : 'N/A'); ?></td>
+                                            <td><?= $v['plan_type'] == 1 ? 'Monthly' : ($v['plan_type'] == 2 ? 'Per Product' : 'N/A'); ?>
+                                            </td>
+
 
                                             <td>
-                                                <?php
-                                                if (empty($v['end_date'])): ?>
-                                                    <div class="status-badge no-plan">
-                                                        No Plan
-                                                    </div>
-
-                                                <?php elseif ($v['plan_status'] == 1 && $v['days_left'] > 5): ?>
-                                                    <div class="status-badge active">
-                                                        Active
-                                                    </div>
-
-                                                <?php elseif ($v['plan_status'] == 1 && $v['days_left'] >= 0 && $v['days_left'] <= 7): ?>
-                                                    <div class="status-badge expiring">
-                                                        <span>Expiring in <?= $v['days_left']; ?>
-                                                            day<?= $v['days_left'] > 1 ? 's' : ''; ?></span>
-                                                        <button class="btn btn-sm btn-danger" id="addProductBtn"
-                                                            data-id="<?= $v['id']; ?>">Renew Now</button>
-                                                    </div>
-
-                                                <?php else: ?>
-                                                    <div class="status-badge expired">
-                                                        <span>Expired – Open for All Promoters</span>
-                                                        <button class="btn btn-sm btn-primary renewBtn"
-                                                            data-id="<?= $v['id']; ?>">Subscribe</button>
-                                                    </div>
+                                                <?php if (empty($v['plan_type'])): ?>
+                                                    <button class="btn btn-primary renewBtn"
+                                                        data-vendor="<?= $v['id'] ?>">Subscribe</button>
+                                                <?php elseif ($v['days_left'] > 0): ?>
+                                                    <span class="btn bg-success ">Active</span>
+                                                <?php elseif ($v['days_left'] <= 7 && $v['days_left'] >= 0): ?>
+                                                    <button class="btn btn-danger renewBtn"
+                                                        data-vendor="<?= $v['id'] ?>">Renew</button>
+                                                <?php elseif ($v['days_left'] < 0 && $v['days_left'] <= -7): ?>
+                                                    <button class="btn btn-warning renewBtn" data-vendor="<?= $v['id'] ?>">Renew
+                                                    </button>
                                                 <?php endif; ?>
                                             </td>
+
+
 
 
                                             <td><?= date('d-m-Y | h:i:s A', strtotime($v['add_date'])); ?></td>
@@ -343,29 +631,158 @@
         </div>
     </section>
 
-    <script>
-        $(document).on('click', '.renewBtn', function () {
-            var vendor_id = $(this).data('id');
-            if (confirm('Are you sure you want to renew this vendor plan?')) {
-                $.ajax({
-                    url: '<?= base_url("Vendor/renew_vendor_plan") ?>',
-                    type: 'POST',
-                    data: { vendor_id: vendor_id },
-                    dataType: 'json',
-                    success: function (res) {
-                        if (res.status == 'success') {
-                            alert(res.message);
-                            location.reload();
-                        } else {
-                            alert('Something went wrong!');
-                        }
-                    }
-                });
-            }
-        });
-    </script>
+
 
 </div>
+
+<div class="modal fade" id="subscriptionModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content pricing-modal">
+            <div class="modal-body p-5">
+
+                <div class="text-center mb-5">
+                    <h3 class="fw-bold">Choose Your Plan</h3>
+                    <p class="text-muted">Upgrade to unlock premium features</p>
+                </div><br>
+                <input type="hidden" id="selected_vendor_id" name="selected_vendor_id">
+
+                <div class="row g-4">
+                    <!-- LEFT : Selected Plan -->
+                    <div class="col-md-4">
+                        <h6 class="fw-semibold mb-3 section-title">Selected Plan</h6>
+
+                        <div class="plan-box" id="selectedPlanBox">
+                            <h6><?= $plans[0]['plan_name'] ?></h6>
+                            <div class="price-tag" id="selectedPlanPrice">
+                                <?= $plans[0]['plan_type'] == 1 ? '₹' . $plans[0]['price'] : $plans[0]['commission_percent'] . '%' ?>
+                                <small>/<?= $plans[0]['plan_type'] == 1 ? 'Month' : 'Per Product' ?></small>
+                            </div><br>
+                            <small class="text-muted mt-3">Product Limit: <?= $plans[0]['product_limit'] ?></small>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT : Plans -->
+                    <div class="col-md-8">
+                        <div class="row g-3">
+                            <?php foreach ($plans as $plan): ?>
+                                <div class="col-md-6">
+                                    <div class="pricing-card select-plan" data-id="<?= $plan['id'] ?>"
+                                        data-name="<?= $plan['plan_name'] ?>" data-price="<?= $plan['price'] ?>"
+                                        data-type="<?= $plan['plan_type'] ?>"
+                                        data-commission="<?= $plan['commission_percent'] ?>"
+                                        data-limit="<?= $plan['product_limit'] ?>">
+                                        <h6 class="fw-semibold"><?= $plan['plan_name'] ?></h6>
+                                        <div class="card-price mt-2">
+                                            <?= $plan['plan_type'] == 1 ? '₹' . $plan['price'] : $plan['commission_percent'] . '%' ?>
+                                            <small>/<?= $plan['plan_type'] == 1 ? 'Month' : 'Per Product' ?></small>
+                                        </div>
+                                        <small class="text-muted">Product Limit: <?= $plan['product_limit'] ?></small>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-5">
+                    <button class="btn btn-proceed" id="proceedPlanBtn">
+                        Proceed to Payment →
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        var promoter_id = <?= $adminData['Id'] ?>;
+
+        // Subscribe / Renew click
+        $(document).on('click', '.renewBtn', function () {
+
+            let vendor_id = $(this).data('vendor');
+            $('#selected_vendor_id').val(vendor_id);
+
+            $('#subscriptionModal').modal('show');
+
+            let defaultPlan = document.querySelector('.select-plan');
+            if (defaultPlan) {
+                $('.select-plan').removeClass('active');
+                defaultPlan.classList.add('active');
+                updateSelectedPlanBox(defaultPlan);
+            }
+        });
+
+        // Select plan
+        $(document).on('click', '.select-plan', function () {
+            $('.select-plan').removeClass('active');
+            $(this).addClass('active');
+            updateSelectedPlanBox(this);
+        });
+
+        function updateSelectedPlanBox(card) {
+            $('#selectedPlanBox').html(`
+            <div class="plan-inline d-flex justify-content-between">
+                <h6>${card.dataset.name}</h6>
+                <div class="price-tag">
+                    ${card.dataset.type == 1 ? '₹' + card.dataset.price : card.dataset.commission + '%'}
+                    <small>/${card.dataset.type == 1 ? 'Month' : 'Per Product'}</small>
+                </div>
+            </div>
+            <small>Product Limit: ${card.dataset.limit}</small>
+        `);
+        }
+
+        // Proceed payment
+        $('#proceedPlanBtn').on('click', function () {
+
+            let plan = document.querySelector('.select-plan.active');
+            if (!plan) {
+                alert('Please select a plan');
+                return;
+            }
+
+            $.ajax({
+                url: "<?= base_url('admin/Subscription/update_subscription') ?>",
+                type: "POST",
+                dataType: "json",
+                data: {
+                    user_id: $('#selected_vendor_id').val(), // ✅ vendor id
+                    user_type: 'vendor',                     // ✅ important
+                    plan_id: plan.dataset.id,
+                    promoter_id: promoter_id                 // optional (tracking)
+                },
+                success: function (res) {
+                    if (res.status === 'success') {
+
+                        if (plan.dataset.type == 1) {
+                            // Monthly → PhonePe
+                            let f = document.createElement('form');
+                            f.method = 'POST';
+                            f.action = "<?= base_url('phonepe/pay') ?>";
+                            f.innerHTML = `
+                    <input type="hidden" name="order_id" value="${res.merchant_txn_id}">
+                    <input type="hidden" name="amount" value="${res.amount}">
+                `;
+                            document.body.appendChild(f);
+                            f.submit();
+                        } else {
+                            alert('Plan activated successfully');
+                            location.reload();
+                        }
+                    } else {
+                        alert(res.message);
+                    }
+                }
+            });
+
+        });
+
+    });
+</script>
 
 
 <script src="<?php echo base_url('assets/admin/plugins/select2/select2.full.min.js'); ?>"></script>
