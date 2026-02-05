@@ -494,12 +494,74 @@ $categoryList = $this->db->query("Select* from `category_master` where (status=1
         width: 100%;
         margin: 0px !important;
     }
+
     .product-box-4 .special-box img.special-box {
         width: 65%;
         height: auto;
         -o-object-fit: unset;
         object-fit: unset;
         margin: 74px auto 0 !important;
+    }
+     .custom-product-wrapper {
+        background: #fff;
+        border-radius: 11px;
+        padding: 15px;
+        border: 2px solid #da62286b;
+    }
+
+
+    .custom-filter-box {
+        background: #f8f9fa;
+        padding: 12px;
+        border-radius: 10px;
+        margin-bottom: 15px;
+    }
+
+    .custom-select {
+        border-radius: 8px;
+        font-size: 14px;
+    }
+
+    /* Product Box */
+    .custom-product-box {
+        border-radius: 14px;
+
+        overflow: hidden;
+    }
+    .custom-slide-item {
+        padding-top: 68px;
+    }
+    .custom-image-box {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .custom-product-img {
+        max-height: 100%;
+        max-width: 100%;
+        object-fit: contain;
+
+    }
+    .custom-product-detail {
+        padding-top: 12px;
+    }
+
+    .custom-product-name {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+
+    .custom-price {
+        font-size: 18px;
+        font-weight: 700;
+    }
+    @media (max-width: 576px) {
+        .custom-image-box {
+            height: 180px;
+        }
     }
 </style>
 <!-- Left Side Ad -->
@@ -681,37 +743,37 @@ if (!empty($sections) && count($sections) > 0)
             <div class="row g-sm-4 g-3" style="flex-wrap: wrap-reverse;">
 
                 <div class="col-xxl-4 col-lg-5 order-lg-2">
-                    <div class="product-bg-image wow fadeInUp">
-                        <div class="product-title product-warning">
-                            <div class="row g-5">
-                                <!-- State -->
+                    <div class="product-bg-image wow fadeInUp custom-product-wrapper">
+
+                        <!-- FILTER -->
+                        <div class="product-title product-warning custom-filter-box">
+                            <div class="row g-3">
                                 <div class="col-6">
-                                    <select class="form-select" id="stateFilter">
+                                    <select class="form-select custom-select" id="stateFilter">
                                         <option value="">All State</option>
                                         <?php foreach ($states as $st)
                                         { ?>
-                                            <option value="<?= $st['state'] ?>">
-                                                <?= $st['state'] ?>
-                                            </option>
+                                            <option value="<?= $st['state'] ?>"><?= $st['state'] ?></option>
                                         <?php } ?>
                                     </select>
                                 </div>
 
-                                <!-- City -->
                                 <div class="col-6">
-                                    <select class="form-select" id="cityFilter">
+                                    <select class="form-select custom-select" id="cityFilter">
                                         <option value="">All City</option>
                                     </select>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="product-box-4 product-box-3 rounded-0">
+                        <!-- PRODUCT BOX -->
+                        <div class="product-box-4 product-box-3 rounded-0 custom-product-box">
+
                             <div class="deal-box">
                                 <div class="circle-box">
                                     <div class="shape-circle">
                                         <img src="https://themes.pixelstrap.com/fastkart/assets/images/grocery/circle.svg"
-                                            class="blur-up lazyloaded" alt="">
+                                            alt="">
                                         <div class="shape-text">
                                             <h6>Hot <br> Deal</h6>
                                         </div>
@@ -719,42 +781,45 @@ if (!empty($sections) && count($sections) > 0)
                                 </div>
                             </div>
 
-                            <div class="top-selling-slider product-arrow top-selling-slider-1" id="homeProductSlider">
-                                <?php if (!empty($products))
-                                {
-                                    foreach ($products as $pro)
-                                    { ?>
-                                        <div>
-                                            <div class="product-image special-box" id="special-box">
-                                                <a href="<?= base_url('product/' . $pro['id']); ?>">
-                                                    <img src="<?= base_url('assets/product_images/' . $pro['main_image']) ?>"
-                                                        class="img-fluid special-box blur-up lazyloaded" alt="">
-                                                </a>
-                                            </div>
+                            <!-- SLIDER -->
+                            <div class="top-selling-slider product-arrow top-selling-slider-1 custom-slider"
+                                id="homeProductSlider">
 
-                                            <div class="product-detail text-center">
-                                               
+                                <?php foreach ($products as $pro)
+                                { ?>
+                                    <div class="custom-slide-item">
 
-                                                <a href="<?= base_url('product/' . $pro['id']); ?>">
-                                                    <h3 class="name w-100 mx-auto text-center text-title"><?= $pro['product_name'] ?></h3>
-                                                </a>
-
-                                                <h3 class="price theme-color">
-                                                    ₹<?= $pro['final_price'] ?>
-                                                    <?php if (!empty($pro['price']) && $pro['price'] > $pro['final_price'])
-                                                    { ?>
-                                                        <del class="delete-price">₹<?= $pro['price'] ?></del>
-                                                    <?php } ?>
-                                                </h3>
-                                            </div>
+                                        <div class="product-image special-box custom-image-box">
+                                            <a href="<?= base_url('product/' . $pro['id']); ?>">
+                                                <img src="<?= base_url('assets/product_images/' . $pro['main_image']) ?>"
+                                                    class="custom-product-img w-100" alt="<?= $pro['product_name']; ?>" style="height:300px">
+                                            </a>
                                         </div>
-                                    <?php }
-                                } ?>
-                            </div>
 
+                                        <div class="product-detail text-center custom-product-detail">
+                                            <a href="<?= base_url('product/' . $pro['id']); ?>">
+                                                <h3 class="">
+                                                    <?= $pro['product_name']; ?>
+                                                </h3>
+                                            </a>
+
+                                            <h3 class="price theme-color custom-price">
+                                                ₹<?= $pro['final_price']; ?>
+                                                <?php if (!empty($pro['price']) && $pro['price'] > $pro['final_price'])
+                                                { ?>
+                                                    <del class="delete-price">₹<?= $pro['price']; ?></del>
+                                                <?php } ?>
+                                            </h3>
+                                        </div>
+
+                                    </div>
+                                <?php } ?>
+
+                            </div>
                         </div>
                     </div>
                 </div>
+               
 
                 <div class="col-xxl-8 col-lg-7 order-lg-1">
                     <div class="slider-5_2 img-slider">
@@ -822,6 +887,7 @@ if (!empty($sections) && count($sections) > 0)
         </div>
     </section>
 <?php endif; ?>
+
 
 
 
@@ -1531,49 +1597,63 @@ for ($i = 4; $i < count($sections); $i++)
     });
 </script>
 <script>
-$(document).ready(function(){
+    $(document).ready(function () {
 
-    // Load cities when state changes
-    $('#stateFilter').on('change', function(){
-        var state = $(this).val();
-        if(state != ''){
-            $.ajax({
-                url: "<?= base_url('Web/get_city') ?>",
-                type: "POST",
-                data: {state: state},
-                success: function(res){
-                    $('#cityFilter').html(res);
-                }
-            });
-        } else {
-            $('#cityFilter').html('<option value="">Select City</option>');
-        }
+        // Load cities when state changes
+        $('#stateFilter').on('change', function () {
+            var state = $(this).val();
+            if (state != '') {
+                $.ajax({
+                    url: "<?= base_url('Web/get_city') ?>",
+                    type: "POST",
+                    data: { state: state },
+                    success: function (res) {
+                        $('#cityFilter').html(res);
+                    }
+                });
+            } else {
+                $('#cityFilter').html('<option value="">Select City</option>');
+            }
+        });
+
+        // Fetch products when state or city changes
+        $('#stateFilter, #cityFilter').on('change', function () {
+            var state = $('#stateFilter').val();
+            var city = $('#cityFilter').val();
+            if (state != '' && city != '') {
+                $.ajax({
+                    url: "<?= base_url('Web/get_home_products') ?>",
+                    type: "POST",
+                    data: { state: state, city: city },
+                    success: function (res) {
+                        $('.top-selling-slider-1').slick('unslick'); // destroy old slider
+                        $('.top-selling-slider-1').html(res); // append filtered products
+                        $('.top-selling-slider-1').slick({  // re-init slick
+                            slidesToShow: 1,
+                            slidesToScroll: 1,
+                            arrows: true,
+                            dots: false,
+                            autoplay: false,
+                            infinite: false
+                        });
+                    }
+                });
+            }
+        });
+
     });
-
-    // Fetch products when state or city changes
-    $('#stateFilter, #cityFilter').on('change', function(){
-        var state = $('#stateFilter').val();
-        var city  = $('#cityFilter').val();
-        if(state != '' && city != ''){
-            $.ajax({
-                url: "<?= base_url('Web/get_home_products') ?>",
-                type: "POST",
-                data: {state: state, city: city},
-                success: function(res){
-                    $('.top-selling-slider-1').slick('unslick'); // destroy old slider
-                    $('.top-selling-slider-1').html(res); // append filtered products
-                    $('.top-selling-slider-1').slick({  // re-init slick
-                        slidesToShow: 1,
-                        slidesToScroll: 1,
-                        arrows: true,
-                        dots: false,
-                        autoplay: false,
-                        infinite: false
-                    });
-                }
-            });
-        }
+</script>
+<script>
+    $(document).ready(function () {
+        $('#homeProductSlider').slick({
+            slidesToShow: 1,
+            slidesToScroll: 1,
+            autoplay: true,
+            autoplaySpeed: 3000,
+            arrows: true,
+            dots: false,
+            infinite: true,
+            adaptiveHeight: true
+        });
     });
-
-});
 </script>

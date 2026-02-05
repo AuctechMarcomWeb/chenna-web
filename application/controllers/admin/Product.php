@@ -2389,6 +2389,10 @@ class Product extends CI_Controller
 //   redirect('admin/Product');
 // }
 
+function generate_unique_id($prefix = 'PRD')
+{
+    return $prefix . date('YmdHis') . rand(100, 999);
+}
 
   public function final_submit()
   {

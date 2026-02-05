@@ -15,7 +15,7 @@ class Subscription extends CI_Controller
     {
         $user_id = $this->input->post('user_id');
         $plan_id = $this->input->post('plan_id');
-        $user_type = $this->input->post('user_type'); 
+        $user_type = $this->input->post('user_type');
 
         if (!$user_id || !$plan_id)
         {
@@ -39,14 +39,14 @@ class Subscription extends CI_Controller
         $merchant_txn_id = 'SUB' . date('YmdHis') . rand(1000, 9999);
         if ($plan['plan_type'] == 2)
         {
-            $status = 1;          
-            $approval_status = 1; 
-            $payment_status = 'activated'; 
+            $status = 1;
+            $approval_status = 1;
+            $payment_status = 'activated';
         } else
         {
-            $status = 0;           
-            $approval_status = 0;  
-            $payment_status = 'pending'; 
+            $status = 0;
+            $approval_status = 0;
+            $payment_status = 'pending';
         }
 
         $data = [
@@ -86,7 +86,7 @@ class Subscription extends CI_Controller
 
     public function update_subscription()
     {
-        $vendor_id = $this->input->post('user_id'); 
+        $vendor_id = $this->input->post('user_id');
         $plan_id = $this->input->post('plan_id');
         $promoter_id = $this->input->post('promoter_id');
         $user_type = $this->input->post('user_type');
@@ -446,5 +446,75 @@ class Subscription extends CI_Controller
 
         echo json_encode(['has_plan' => !empty($plan)]);
     }
+
+
+    // Advertisment Plan
+    public function AdvertismentUpdatePlan()
+    {
+        if ($this->input->post())
+        {
+            $data = [
+                'plan_name' => $this->input->post('plan_name'),
+                'price' => $this->input->post('price'),
+                'duration_days' => $this->input->post('duration_days'),
+                'product_limit' => $this->input->post('product_limit'),
+                'hot_deal' => $this->input->post('hot_deal') ?? 0,
+                'featured_product' => $this->input->post('featured_product') ?? 0,
+                'banner' => $this->input->post('banner') ?? 0,
+                'status' => 1,
+                'created_at' => date('Y-m-d H:i:s')
+            ];
+
+            $this->db->insert('admin_advertisement_plans_master', $data);
+            $this->session->set_flashdata('success', 'Plan added successfully.');
+            redirect('admin/AdvertismentUpdatePlan'); // Reload page
+        }
+
+        // Fetch all active plans
+        $data['plans'] = $this->db
+            ->where('status', 1)
+            ->order_by('id', 'DESC')
+            ->get('admin_advertisement_plans_master')
+            ->result_array();
+
+        $data['title'] = 'Manage Advertisement Plans';
+        $this->load->view('include/header', $data);
+        $this->load->view('admin/AdvertismentUpdatePlan', $data);
+        $this->load->view('include/footer');
+    }
+
+   public function UpdateadvertismentPlan($id)
+    {
+        $data['plan'] = $this->db->get_where('admin_advertisement_plans_master', ['id' => $id])->row_array();
+        $data['title'] = 'Update Advertisement Plan';
+        
+        $this->load->view('include/header', $data);
+        $this->load->view('admin/UpdateadvertismentPlan', $data);
+        $this->load->view('include/footer');
+    }
+
+    public function updateadvertismentPlans()
+    {
+        $data = $this->input->post();
+
+        $updateData = [
+            'plan_name' => $data['plan_name'],
+            'price' => $data['price'] ?? 0,
+            'duration_days' => $data['duration_days'] ?? 0,
+            'product_limit' => $data['product_limit'] ?? 0,
+            'hot_deal' => isset($data['hot_deal']) ? 1 : 0,
+            'featured_product' => isset($data['featured_product']) ? 1 : 0,
+            'banner' => isset($data['banner']) ? 1 : 0,
+            'status' => $data['status'],
+            'created_at' => date('Y-m-d H:i:s')
+        ];
+
+        $this->db->where('id', $data['id']);
+        $this->db->update('admin_advertisement_plans_master', $updateData);
+
+        $this->session->set_flashdata('message', 'Advertisement Plan Updated Successfully!');
+        redirect('admin/Subscription/AdvertismentUpdatePlan');
+    }
+
 
 }
