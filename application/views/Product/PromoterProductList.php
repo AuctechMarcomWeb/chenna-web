@@ -519,6 +519,59 @@
     background: #dd4b394f;
     border-radius: 10px;
   }
+  /* Toggle wrapper */
+    .custom-toggle {
+        position: relative;
+        display: inline-block;
+        width: 52px;
+        height: 26px;
+    }
+
+    /* Hide default checkbox */
+    .custom-toggle input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    /* Slider background */
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        inset: 0;
+        background-color: #ccc;
+        transition: 0.4s;
+        border-radius: 30px;
+    }
+
+    /* Slider knob */
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 20px;
+        width: 20px;
+        left: 3px;
+        bottom: 3px;
+        background-color: #fff;
+        transition: 0.4s;
+        border-radius: 50%;
+    }
+
+    .custom-toggle input:checked+.toggle-slider {
+        background-color: #28a745;
+    }
+
+    .custom-toggle input:checked+.toggle-slider:before {
+        transform: translateX(26px);
+    }
+
+    .custom-toggle.cod input:checked+.toggle-slider {
+        background-color: #0d6efd;
+    }
+
+    .custom-toggle.seller input:checked+.toggle-slider {
+        background-color: #198754;
+    }
 </style>
 <div class="content-wrapper">
 
@@ -585,6 +638,8 @@
                     <th>Rate / MRP</th>
                     <th>Stock</th>
                     <th>Date</th>
+                     <th>Cash On Delivery</th>
+                    <th>Seller Status</th>
                     <th>Verify</th>
                     <th>Action</th>
                   </tr>
@@ -625,6 +680,21 @@
                       <td><?= $value['final_price']; ?> / <?= $value['price']; ?></td>
                       <td><?= $value['quantity']; ?></td>
                       <td><?= date('d-m-Y | h:i:s A', strtotime($value['add_date'] ?? date('Y-m-d H:i:s'))); ?></td>
+                       <td>
+                      <label class="custom-toggle cod">
+                      <input type="checkbox" class="codToggle" data-id="<?= $value['id']; ?>"
+                          <?= ($value['cash_on_delivery'] == 1) ? 'checked' : '' ?>>
+                      <span class="toggle-slider"></span>
+                  </label>
+                  </td>
+
+                  <!-- SELLER APPROVE TOGGLE -->
+                  <td><label class="custom-toggle seller">
+                      <input type="checkbox" class="sellerToggle" data-id="<?= $value['id']; ?>"
+                          <?= ($value['seller_approve_status'] == 1) ? 'checked' : '' ?>>
+                      <span class="toggle-slider"></span>
+                  </label>
+                  </td>
                       <td>
                         <?php if ($promoterData['Type'] == 3)
                         { ?>
@@ -908,4 +978,27 @@
     });
 
   });
+</script>
+<script>
+$(document).on('change', '.codToggle', function () {
+    let id = $(this).attr('data-id');
+    let value = $(this).is(':checked') ? 1 : 0;
+    console.log('COD ID:', id, 'Value:', value);
+
+    $.post("<?= base_url('admin/product/update_cod') ?>", { id: id, value: value }, function(response) {
+        console.log(response);
+    });
+});
+
+$(document).on('change', '.sellerToggle', function () {
+    let id = $(this).attr('data-id');
+    let value = $(this).is(':checked') ? 1 : 0;
+    console.log('Seller ID:', id, 'Value:', value);
+
+    $.post("<?= base_url('admin/product/update_seller_status') ?>", { id: id, value: value }, function(response) {
+        console.log(response);
+    });
+});
+
+
 </script>

@@ -97,62 +97,62 @@ $sub_cate_data = $this->db->get_where('sub_category_master', array('category_mas
                    <?php if (empty($tab_id))
                    { ?>
 
-                                                        <li class="active"><a href="#activity" data-toggle="tab">General information</a></li>
-                                                        <li><a href="#timeline" data-toggle="tab">Size-Color</a></li>
-                                                        <li><a href="#size_color" data-toggle="tab">Size-Color Combination</a></li>
-                                                        <li><a href="#product_images" data-toggle="tab">Product Images</a></li>
-                                                        <li><a href="#shipping_information" data-toggle="tab">Shipping Information</a></li>
-                                                        <li><a href="#settings" data-toggle="tab">Other</a></li>
+                                                          <li class="active"><a href="#activity" data-toggle="tab">General information</a></li>
+                                                          <li><a href="#timeline" data-toggle="tab">Size-Color</a></li>
+                                                          <li><a href="#size_color" data-toggle="tab">Size-Color Combination</a></li>
+                                                          <li><a href="#product_images" data-toggle="tab">Product Images</a></li>
+                                                          <li><a href="#shipping_information" data-toggle="tab">Shipping Information</a></li>
+                                                          <li><a href="#settings" data-toggle="tab">Other</a></li>
 
                     <?php } else if ($tab_id == '2')
                    { ?>
 
-                                                                                    <li><a href="#activity" data-toggle="tab">General information</a></li>
-                                                                                    <li class="active"><a href="#timeline" data-toggle="tab">Size-Color</a></li>
-                                                                                    <li><a href="#size_color" data-toggle="tab">Size-Color Combination</a> </li>
-                                                                                    <li><a href="#product_images" data-toggle="tab">Product Images</a> </li>
-                                                                                    <li><a href="#shipping_information" data-toggle="tab">Shipping Information</a></li>
-                                                                                    <li><a href="#settings" data-toggle="tab">Other</a></li>
+                                                                                        <li><a href="#activity" data-toggle="tab">General information</a></li>
+                                                                                        <li class="active"><a href="#timeline" data-toggle="tab">Size-Color</a></li>
+                                                                                        <li><a href="#size_color" data-toggle="tab">Size-Color Combination</a> </li>
+                                                                                        <li><a href="#product_images" data-toggle="tab">Product Images</a> </li>
+                                                                                        <li><a href="#shipping_information" data-toggle="tab">Shipping Information</a></li>
+                                                                                        <li><a href="#settings" data-toggle="tab">Other</a></li>
                           
                   <?php } else if ($tab_id == '3')
                    { ?>
 
-                                                                                                                  <li><a href="#activity" data-toggle="tab">General information</a></li>
-                                                                                                                  <li ><a href="#timeline" data-toggle="tab">Size-Color</a></li>
-                                                                                                                  <li class="active"><a href="#size_color" data-toggle="tab">Size-Color Combination</a> </li>
-                                                                                                                  <li><a href="#product_images" data-toggle="tab">Product Images</a> </li>
-                                                                                                                  <li><a href="#shipping_information" data-toggle="tab">Shipping Information</a></li>
-                                                                                                                  <li><a href="#settings" data-toggle="tab">Other</a></li>
+                                                                                                                        <li><a href="#activity" data-toggle="tab">General information</a></li>
+                                                                                                                        <li ><a href="#timeline" data-toggle="tab">Size-Color</a></li>
+                                                                                                                        <li class="active"><a href="#size_color" data-toggle="tab">Size-Color Combination</a> </li>
+                                                                                                                        <li><a href="#product_images" data-toggle="tab">Product Images</a> </li>
+                                                                                                                        <li><a href="#shipping_information" data-toggle="tab">Shipping Information</a></li>
+                                                                                                                        <li><a href="#settings" data-toggle="tab">Other</a></li>
 
                   <?php } else if ($tab_id == '4')
                    { ?>
 
-                                                                                                                                                <li><a href="#activity" data-toggle="tab">General information</a></li>
-                                                                                                                                                <li ><a href="#timeline" data-toggle="tab">Size-Color</a></li>
-                                                                                                                                                <li><a href="#size_color" data-toggle="tab">Size-Color Combination</a> </li>
-                                                                                                                                                <li class="active"><a href="#product_images" data-toggle="tab">Product Images</a> </li>
-                                                                                                                                                <li><a href="#shipping_information" data-toggle="tab">Shipping Information</a></li>
-                                                                                                                                                <li><a href="#settings" data-toggle="tab">Other</a></li>
+                                                                                                                                                        <li><a href="#activity" data-toggle="tab">General information</a></li>
+                                                                                                                                                        <li ><a href="#timeline" data-toggle="tab">Size-Color</a></li>
+                                                                                                                                                        <li><a href="#size_color" data-toggle="tab">Size-Color Combination</a> </li>
+                                                                                                                                                        <li class="active"><a href="#product_images" data-toggle="tab">Product Images</a> </li>
+                                                                                                                                                        <li><a href="#shipping_information" data-toggle="tab">Shipping Information</a></li>
+                                                                                                                                                        <li><a href="#settings" data-toggle="tab">Other</a></li>
 
                 <?php } else if ($tab_id == '5')
                    { ?>
 
-                                                                                                                                                                              <li><a href="#activity" data-toggle="tab">General information</a></li>
-                                                                                                                                                                              <li ><a href="#timeline" data-toggle="tab">Size-Color</a></li>
-                                                                                                                                                                              <li><a href="#size_color" data-toggle="tab">Size-Color Combination</a> </li>
-                                                                                                                                                                              <li><a href="#product_images" data-toggle="tab">Product Images</a> </li>
-                                                                                                                                                                              <li class="active"><a href="#shipping_information" data-toggle="tab">Shipping Information</a></li>
-                                                                                                                                                                              <li ><a href="#settings" data-toggle="tab">Other</a></li>
+                                                                                                                                                                                        <li><a href="#activity" data-toggle="tab">General information</a></li>
+                                                                                                                                                                                        <li ><a href="#timeline" data-toggle="tab">Size-Color</a></li>
+                                                                                                                                                                                        <li><a href="#size_color" data-toggle="tab">Size-Color Combination</a> </li>
+                                                                                                                                                                                        <li><a href="#product_images" data-toggle="tab">Product Images</a> </li>
+                                                                                                                                                                                        <li class="active"><a href="#shipping_information" data-toggle="tab">Shipping Information</a></li>
+                                                                                                                                                                                        <li ><a href="#settings" data-toggle="tab">Other</a></li>
 
                <?php } else if ($tab_id == '6')
                    { ?>
 
-                                                                                                                                                                                                            <li><a href="#activity" data-toggle="tab">General information</a></li>
-                                                                                                                                                                                                            <li ><a href="#timeline" data-toggle="tab">Size-Color</a></li>
-                                                                                                                                                                                                            <li><a href="#size_color" data-toggle="tab">Size-Color Combination</a> </li>
-                                                                                                                                                                                                            <li><a href="#product_images" data-toggle="tab">Product Images</a> </li>
-                                                                                                                                                                                                            <li><a href="#shipping_information" data-toggle="tab">Shipping Information</a></li>
-                                                                                                                                                                                                            <li class="active"><a href="#settings" data-toggle="tab">Other</a></li>
+                                                                                                                                                                                                                        <li><a href="#activity" data-toggle="tab">General information</a></li>
+                                                                                                                                                                                                                        <li ><a href="#timeline" data-toggle="tab">Size-Color</a></li>
+                                                                                                                                                                                                                        <li><a href="#size_color" data-toggle="tab">Size-Color Combination</a> </li>
+                                                                                                                                                                                                                        <li><a href="#product_images" data-toggle="tab">Product Images</a> </li>
+                                                                                                                                                                                                                        <li><a href="#shipping_information" data-toggle="tab">Shipping Information</a></li>
+                                                                                                                                                                                                                        <li class="active"><a href="#settings" data-toggle="tab">Other</a></li>
 
 
                 <?php } ?>
@@ -175,38 +175,38 @@ $sub_cate_data = $this->db->get_where('sub_category_master', array('category_mas
 
                                 <?php if (isset($adminData) && $adminData['Type'] == 3): ?>
 
-                                    <?php
-                                    $promoterShop = $this->db
+                                      <?php
+                                      $promoterShop = $this->db
                                         ->get_where('promoters', [
-                                            'id' => $adminData['Id'],
-                                            'status' => 1
+                                          'id' => $adminData['Id'],
+                                          'status' => 1
                                         ])->row_array();
-                                    ?>
+                                      ?>
 
-                                    <?php if (!empty($promoterShop)): ?>
-                                        <select class="form-control select2" disabled style="width:100%;">
-                                            <option selected>
-                                                <?= ucfirst($promoterShop['shop_name']); ?>
-                                            </option>
-                                        </select>
+                                      <?php if (!empty($promoterShop)): ?>
+                                            <select class="form-control select2" disabled style="width:100%;">
+                                                <option selected>
+                                                    <?= ucfirst($promoterShop['shop_name']); ?>
+                                                </option>
+                                            </select>
 
-                                        <!-- ✅ ACTUAL VALUE SUBMIT -->
-                                        <input type="hidden" name="shop_id" value="p_<?= $promoterShop['id']; ?>">
+                                            <!-- ✅ ACTUAL VALUE SUBMIT -->
+                                            <input type="hidden" name="shop_id" value="p_<?= $promoterShop['id']; ?>">
 
-                                    <?php endif; ?>
+                                      <?php endif; ?>
 
                                 <?php else: ?>
 
-                                    <!-- ADMIN / VENDOR -->
-                                    <select class="form-control select2" name="shop_id" id="shop_id" required style="width:100%;">
-                                        <option value="">Select Shop</option>
-                                        <?php foreach ($shopList as $shop): ?>
-                                            <option value="<?= $shop['id']; ?>"
-                                                <?= (!empty($getBasicInfo['shop_id']) && $getBasicInfo['shop_id'] == $shop['id']) ? 'selected' : ''; ?>>
-                                                <?= ucfirst($shop['shop_name'] ?? $shop['name']); ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
+                                      <!-- ADMIN / VENDOR -->
+                                      <select class="form-control select2" name="shop_id" id="shop_id" required style="width:100%;">
+                                          <option value="">Select Shop</option>
+                                          <?php foreach ($shopList as $shop): ?>
+                                                <option value="<?= $shop['id']; ?>"
+                                                    <?= (!empty($getBasicInfo['shop_id']) && $getBasicInfo['shop_id'] == $shop['id']) ? 'selected' : ''; ?>>
+                                                    <?= ucfirst($shop['shop_name'] ?? $shop['name']); ?>
+                                                </option>
+                                          <?php endforeach; ?>
+                                      </select>
 
                                 <?php endif; ?>
                             </div>
@@ -218,7 +218,7 @@ $sub_cate_data = $this->db->get_where('sub_category_master', array('category_mas
                                   <select class="form-control select2" name="par_cat_master_ID" id="par_cat_master_ID" required  placeholder="Select Category"style="width: 100%;">
                                     <option value ="">Select Category</option>
                                     <?php foreach ($getParCatgy as $parent): ?>
-                                                                    <option value="<?php echo $parent['id'] ?>"<?php echo ($parent['id'] == $getBasicInfo['parent_id']) ? 'selected' : '' ?>><?php echo ucfirst($parent['name']) ?></option>
+                                                                      <option value="<?php echo $parent['id'] ?>"<?php echo ($parent['id'] == $getBasicInfo['parent_id']) ? 'selected' : '' ?>><?php echo ucfirst($parent['name']) ?></option>
                                       <?php endforeach; ?>
                                   </select>
                             </div>
@@ -230,7 +230,7 @@ $sub_cate_data = $this->db->get_where('sub_category_master', array('category_mas
                                     <option value ="">Select Category</option>
                                     <?php foreach ($getCatgy as $allCatgy)
                                     { ?>
-                                                                    <option value="<?php echo $allCatgy['id'] ?>"<?php echo ($allCatgy['id'] == $getBasicInfo['category_id']) ? 'selected' : '' ?>><?php echo ucfirst($allCatgy['category_name']) ?></option>
+                                                                      <option value="<?php echo $allCatgy['id'] ?>"<?php echo ($allCatgy['id'] == $getBasicInfo['category_id']) ? 'selected' : '' ?>><?php echo ucfirst($allCatgy['category_name']) ?></option>
                                       <?php } ?>
                                   </select>
                             </div>
@@ -246,7 +246,7 @@ $sub_cate_data = $this->db->get_where('sub_category_master', array('category_mas
                                  <option value ="">Select Sub Category</option>
                                 <?php foreach ($sub_cate_data as $key => $subData)
                                 { ?>
-                                                                <option value ="<?= $subData['id']; ?>"<?php echo ($subData['id'] == $getBasicInfo['sub_category_id']) ? 'selected' : '' ?>><?= $subData['sub_category_name']; ?></option>
+                                                                  <option value ="<?= $subData['id']; ?>"<?php echo ($subData['id'] == $getBasicInfo['sub_category_id']) ? 'selected' : '' ?>><?= $subData['sub_category_name']; ?></option>
                                  <?php } ?>
                             </select>
                           </div>
@@ -316,229 +316,229 @@ $sub_cate_data = $this->db->get_where('sub_category_master', array('category_mas
 
 
 
-                                                  <div class="row" style="margin-left: 10px;">
+                                                      <div class="row" style="margin-left: 10px;">
 
 
-                                                    <div class="col-sm-4">
-                                                      <label for="colorPicker" class="form-label"
-                                                        style="font-weight: 500; display:block; font-weight:bold">
-                                                        Color <span class="err_color">*</span>
-                                                      </label>
+                                                        <div class="col-sm-4">
+                                                          <label for="colorPicker" class="form-label"
+                                                            style="font-weight: 500; display:block; font-weight:bold">
+                                                            Color <span class="err_color">*</span>
+                                                          </label>
 
-                                                      <input type="text" name="color[]" value="<?= htmlspecialchars($getColorData['color']); ?>"
-                                                        class="form-control">
+                                                          <input type="text" name="color[]" value="<?= htmlspecialchars($getColorData['color']); ?>"
+                                                            class="form-control">
 
-                                                    <input type="hidden" name="color_id[]" value="<?= $getColorData['pro_id']; ?>">
-                                                    </div>
+                                                        <input type="hidden" name="color_id[]" value="<?= $getColorData['pro_id']; ?>">
+                                                        </div>
 
 
 
-                                                    <div class="col-sm-4">
-                                                      <label>Size <span class="err_color">*</span></label>
-                                                      <select class="form-control select2" id="related_size1" multiple="" name="size[]"
-                                                        style="width: 100%;" required>
-                                                        <option value="XS" <?php if (in_array('XS', $size_array))
-                                                        { ?> Selected <?php } ?>>XS
-                                                        </option>
-                                                        <option value="S" <?php if (in_array('S', $size_array))
-                                                        { ?> Selected <?php } ?>>S</option>
-                                                        <option value="M" <?php if (in_array('M', $size_array))
-                                                        { ?> Selected <?php } ?>>M</option>
-                                                        <option value="L" <?php if (in_array('L', $size_array))
-                                                        { ?> Selected <?php } ?>>L</option>
-                                                        <option value="XL" <?php if (in_array('XL', $size_array))
-                                                        { ?> Selected <?php } ?>>XL
-                                                        </option>
-                                                        <option value="XXL" <?php if (in_array('XXL', $size_array))
-                                                        { ?> Selected <?php } ?>>XXL
-                                                        </option>
-                                                        <option value="3XL" <?php if (in_array('3XL', $size_array))
-                                                        { ?> Selected <?php } ?>>3XL
-                                                        </option>
-                                                        <option value="4XL" <?php if (in_array('4XL', $size_array))
-                                                        { ?> Selected <?php } ?>>4XL
-                                                        </option>
-                                                        <option value="Free Size" <?php if (in_array('Free Size', $size_array))
-                                                        { ?> Selected <?php } ?>>Free Size</option>
+                                                        <div class="col-sm-4">
+                                                          <label>Size <span class="err_color">*</span></label>
+                                                          <select class="form-control select2" id="related_size1" multiple="" name="size[]"
+                                                            style="width: 100%;" required>
+                                                            <option value="XS" <?php if (in_array('XS', $size_array))
+                                                            { ?> Selected <?php } ?>>XS
+                                                            </option>
+                                                            <option value="S" <?php if (in_array('S', $size_array))
+                                                            { ?> Selected <?php } ?>>S</option>
+                                                            <option value="M" <?php if (in_array('M', $size_array))
+                                                            { ?> Selected <?php } ?>>M</option>
+                                                            <option value="L" <?php if (in_array('L', $size_array))
+                                                            { ?> Selected <?php } ?>>L</option>
+                                                            <option value="XL" <?php if (in_array('XL', $size_array))
+                                                            { ?> Selected <?php } ?>>XL
+                                                            </option>
+                                                            <option value="XXL" <?php if (in_array('XXL', $size_array))
+                                                            { ?> Selected <?php } ?>>XXL
+                                                            </option>
+                                                            <option value="3XL" <?php if (in_array('3XL', $size_array))
+                                                            { ?> Selected <?php } ?>>3XL
+                                                            </option>
+                                                            <option value="4XL" <?php if (in_array('4XL', $size_array))
+                                                            { ?> Selected <?php } ?>>4XL
+                                                            </option>
+                                                            <option value="Free Size" <?php if (in_array('Free Size', $size_array))
+                                                            { ?> Selected <?php } ?>>Free Size</option>
 
-                                                        <option value="28" <?php if (in_array('28', $size_array))
-                                                        { ?> Selected <?php } ?>>28
-                                                        </option>
-                                                        <option value="30" <?php if (in_array('30', $size_array))
-                                                        { ?> Selected <?php } ?>>30
-                                                        </option>
-                                                        <option value="32" <?php if (in_array('32', $size_array))
-                                                        { ?> Selected <?php } ?>>32
-                                                        </option>
-                                                        <option value="34" <?php if (in_array('34', $size_array))
-                                                        { ?> Selected <?php } ?>>34
-                                                        </option>
-                                                        <option value="36" <?php if (in_array('36', $size_array))
-                                                        { ?> Selected <?php } ?>>36
-                                                        </option>
-                                                        <option value="38" <?php if (in_array('38', $size_array))
-                                                        { ?> Selected <?php } ?>>38
-                                                        </option>
-                                                        <option value="40" <?php if (in_array('40', $size_array))
-                                                        { ?> Selected <?php } ?>>40
-                                                        </option>
-                                                        <option value="42" <?php if (in_array('42', $size_array))
-                                                        { ?> Selected <?php } ?>>42
-                                                        </option>
-                                                        <option value="Onesize" <?php if (in_array('Onesize', $size_array))
-                                                        { ?> Selected <?php } ?>>Onesize</option>
+                                                            <option value="28" <?php if (in_array('28', $size_array))
+                                                            { ?> Selected <?php } ?>>28
+                                                            </option>
+                                                            <option value="30" <?php if (in_array('30', $size_array))
+                                                            { ?> Selected <?php } ?>>30
+                                                            </option>
+                                                            <option value="32" <?php if (in_array('32', $size_array))
+                                                            { ?> Selected <?php } ?>>32
+                                                            </option>
+                                                            <option value="34" <?php if (in_array('34', $size_array))
+                                                            { ?> Selected <?php } ?>>34
+                                                            </option>
+                                                            <option value="36" <?php if (in_array('36', $size_array))
+                                                            { ?> Selected <?php } ?>>36
+                                                            </option>
+                                                            <option value="38" <?php if (in_array('38', $size_array))
+                                                            { ?> Selected <?php } ?>>38
+                                                            </option>
+                                                            <option value="40" <?php if (in_array('40', $size_array))
+                                                            { ?> Selected <?php } ?>>40
+                                                            </option>
+                                                            <option value="42" <?php if (in_array('42', $size_array))
+                                                            { ?> Selected <?php } ?>>42
+                                                            </option>
+                                                            <option value="Onesize" <?php if (in_array('Onesize', $size_array))
+                                                            { ?> Selected <?php } ?>>Onesize</option>
 
-                                                        <option value="UK3" <?php if (in_array('UK3', $size_array))
-                                                        { ?> Selected <?php } ?>>UK3
-                                                        </option>
-                                                        <option value="UK4" <?php if (in_array('UK4', $size_array))
-                                                        { ?> Selected <?php } ?>>UK4
-                                                        </option>
-                                                        <option value="UK5" <?php if (in_array('UK5', $size_array))
-                                                        { ?> Selected <?php } ?>>UK5
-                                                        </option>
-                                                        <option value="UK6" <?php if (in_array('UK6', $size_array))
-                                                        { ?> Selected <?php } ?>>UK6
-                                                        </option>
-                                                        <option value="UK7" <?php if (in_array('UK7', $size_array))
-                                                        { ?> Selected <?php } ?>>UK7
-                                                        </option>
-                                                        <option value="UK8" <?php if (in_array('UK8', $size_array))
-                                                        { ?> Selected <?php } ?>>UK8
-                                                        </option>
-                                                        <option value="UK9" <?php if (in_array('UK9', $size_array))
-                                                        { ?> Selected <?php } ?>>UK9
-                                                        </option>
-                                                        <option value="UK10" <?php if (in_array('UK10', $size_array))
-                                                        { ?> Selected <?php } ?>>UK10
-                                                        </option>
-                                                        <option value="UK11" <?php if (in_array('UK11', $size_array))
-                                                        { ?> Selected <?php } ?>>UK11
-                                                        </option>
+                                                            <option value="UK3" <?php if (in_array('UK3', $size_array))
+                                                            { ?> Selected <?php } ?>>UK3
+                                                            </option>
+                                                            <option value="UK4" <?php if (in_array('UK4', $size_array))
+                                                            { ?> Selected <?php } ?>>UK4
+                                                            </option>
+                                                            <option value="UK5" <?php if (in_array('UK5', $size_array))
+                                                            { ?> Selected <?php } ?>>UK5
+                                                            </option>
+                                                            <option value="UK6" <?php if (in_array('UK6', $size_array))
+                                                            { ?> Selected <?php } ?>>UK6
+                                                            </option>
+                                                            <option value="UK7" <?php if (in_array('UK7', $size_array))
+                                                            { ?> Selected <?php } ?>>UK7
+                                                            </option>
+                                                            <option value="UK8" <?php if (in_array('UK8', $size_array))
+                                                            { ?> Selected <?php } ?>>UK8
+                                                            </option>
+                                                            <option value="UK9" <?php if (in_array('UK9', $size_array))
+                                                            { ?> Selected <?php } ?>>UK9
+                                                            </option>
+                                                            <option value="UK10" <?php if (in_array('UK10', $size_array))
+                                                            { ?> Selected <?php } ?>>UK10
+                                                            </option>
+                                                            <option value="UK11" <?php if (in_array('UK11', $size_array))
+                                                            { ?> Selected <?php } ?>>UK11
+                                                            </option>
 
-                                                        <option value="1_1.5_years" <?php if (in_array('1_1.5_years', $size_array))
-                                                        { ?> Selected
-                                                          <?php } ?>>1 – 1.5 years</option>
-                                                        <option value="2_2.5_years" <?php if (in_array('2_2.5_years', $size_array))
-                                                        { ?> Selected
-                                                          <?php } ?>>2 – 2.5 years</option>
-                                                        <option value="3_3.5_years" <?php if (in_array('3_3.5_years', $size_array))
-                                                        { ?> Selected
-                                                          <?php } ?>>3 – 3.5 years</option>
-                                                        <option value="4_4.5_years" <?php if (in_array('4_4.5_years', $size_array))
-                                                        { ?> Selected
-                                                          <?php } ?>>4 – 4.5 years</option>
-                                                        <option value="5_5.5_years" <?php if (in_array('5_5.5_years', $size_array))
-                                                        { ?> Selected
-                                                          <?php } ?>>5 – 5.5 years</option>
-                                                        <option value="6_7_years" <?php if (in_array('6_7_years', $size_array))
-                                                        { ?> Selected <?php } ?>>6 – 7 years</option>
-                                                        <option value="8-9_years" <?php if (in_array('8_9_years', $size_array))
-                                                        { ?> Selected <?php } ?>>8 – 9 years</option>
-                                                        <option value="10_11_years" <?php if (in_array('10_11_years', $size_array))
-                                                        { ?> Selected
-                                                          <?php } ?>>10 – 11 years</option>
-                                                        <option value="12_13_years" <?php if (in_array('12_13_years', $size_array))
-                                                        { ?> Selected
-                                                          <?php } ?>>12 – 13 years</option>
+                                                            <option value="1_1.5_years" <?php if (in_array('1_1.5_years', $size_array))
+                                                            { ?> Selected
+                                                              <?php } ?>>1 – 1.5 years</option>
+                                                            <option value="2_2.5_years" <?php if (in_array('2_2.5_years', $size_array))
+                                                            { ?> Selected
+                                                              <?php } ?>>2 – 2.5 years</option>
+                                                            <option value="3_3.5_years" <?php if (in_array('3_3.5_years', $size_array))
+                                                            { ?> Selected
+                                                              <?php } ?>>3 – 3.5 years</option>
+                                                            <option value="4_4.5_years" <?php if (in_array('4_4.5_years', $size_array))
+                                                            { ?> Selected
+                                                              <?php } ?>>4 – 4.5 years</option>
+                                                            <option value="5_5.5_years" <?php if (in_array('5_5.5_years', $size_array))
+                                                            { ?> Selected
+                                                              <?php } ?>>5 – 5.5 years</option>
+                                                            <option value="6_7_years" <?php if (in_array('6_7_years', $size_array))
+                                                            { ?> Selected <?php } ?>>6 – 7 years</option>
+                                                            <option value="8-9_years" <?php if (in_array('8_9_years', $size_array))
+                                                            { ?> Selected <?php } ?>>8 – 9 years</option>
+                                                            <option value="10_11_years" <?php if (in_array('10_11_years', $size_array))
+                                                            { ?> Selected
+                                                              <?php } ?>>10 – 11 years</option>
+                                                            <option value="12_13_years" <?php if (in_array('12_13_years', $size_array))
+                                                            { ?> Selected
+                                                              <?php } ?>>12 – 13 years</option>
 
-                                                           <!-- Mobile Screen Sizes -->
-                                                        <option value="4.0 inch" <?php if (in_array('4.0 inch', $size_array))
-                                                          echo 'selected'; ?>>
-                                                          4.0 inch</option>
-                                                        <option value="4.5 inch" <?php if (in_array('4.5 inch', $size_array))
-                                                          echo 'selected'; ?>>
-                                                          4.5 inch</option>
-                                                        <option value="5.0 inch" <?php if (in_array('5.0 inch', $size_array))
-                                                          echo 'selected'; ?>>
-                                                          5.0 inch</option>
-                                                        <option value="5.5 inch" <?php if (in_array('5.5 inch', $size_array))
-                                                          echo 'selected'; ?>>
-                                                          5.5 inch</option>
-                                                        <option value="6.0 inch" <?php if (in_array('6.0 inch', $size_array))
-                                                          echo 'selected'; ?>>
-                                                          6.0 inch</option>
-                                                        <option value="6.5 inch" <?php if (in_array('6.5 inch', $size_array))
-                                                          echo 'selected'; ?>>
-                                                          6.5 inch</option>
-                                                        <option value="7.0 inch" <?php if (in_array('7.0 inch', $size_array))
-                                                          echo 'selected'; ?>>
-                                                          7.0 inch</option>
-                                                        <option value="7.5 inch" <?php if (in_array('7.5 inch', $size_array))
-                                                          echo 'selected'; ?>>
-                                                          7.5 inch</option>
-                                                        <option value="8.0 inch" <?php if (in_array('8.0 inch', $size_array))
-                                                          echo 'selected'; ?>>
-                                                          8.0 inch</option>
-                                                        <option value="8.5 inch" <?php if (in_array('8.5 inch', $size_array))
-                                                          echo 'selected'; ?>>
-                                                          8.5 inch</option>
-                                                        <option value="9.0 inch" <?php if (in_array('9.0 inch', $size_array))
-                                                          echo 'selected'; ?>>
-                                                          9.0 inch</option>
-                                                        <option value="10.0 inch" <?php if (in_array('10.0 inch', $size_array))
-                                                          echo 'selected'; ?>>
-                                                          10.0 inch</option>
+                                                               <!-- Mobile Screen Sizes -->
+                                                            <option value="4.0 inch" <?php if (in_array('4.0 inch', $size_array))
+                                                              echo 'selected'; ?>>
+                                                              4.0 inch</option>
+                                                            <option value="4.5 inch" <?php if (in_array('4.5 inch', $size_array))
+                                                              echo 'selected'; ?>>
+                                                              4.5 inch</option>
+                                                            <option value="5.0 inch" <?php if (in_array('5.0 inch', $size_array))
+                                                              echo 'selected'; ?>>
+                                                              5.0 inch</option>
+                                                            <option value="5.5 inch" <?php if (in_array('5.5 inch', $size_array))
+                                                              echo 'selected'; ?>>
+                                                              5.5 inch</option>
+                                                            <option value="6.0 inch" <?php if (in_array('6.0 inch', $size_array))
+                                                              echo 'selected'; ?>>
+                                                              6.0 inch</option>
+                                                            <option value="6.5 inch" <?php if (in_array('6.5 inch', $size_array))
+                                                              echo 'selected'; ?>>
+                                                              6.5 inch</option>
+                                                            <option value="7.0 inch" <?php if (in_array('7.0 inch', $size_array))
+                                                              echo 'selected'; ?>>
+                                                              7.0 inch</option>
+                                                            <option value="7.5 inch" <?php if (in_array('7.5 inch', $size_array))
+                                                              echo 'selected'; ?>>
+                                                              7.5 inch</option>
+                                                            <option value="8.0 inch" <?php if (in_array('8.0 inch', $size_array))
+                                                              echo 'selected'; ?>>
+                                                              8.0 inch</option>
+                                                            <option value="8.5 inch" <?php if (in_array('8.5 inch', $size_array))
+                                                              echo 'selected'; ?>>
+                                                              8.5 inch</option>
+                                                            <option value="9.0 inch" <?php if (in_array('9.0 inch', $size_array))
+                                                              echo 'selected'; ?>>
+                                                              9.0 inch</option>
+                                                            <option value="10.0 inch" <?php if (in_array('10.0 inch', $size_array))
+                                                              echo 'selected'; ?>>
+                                                              10.0 inch</option>
 
-                                                      </select>
-                                                    </div>
-                                                  </div><br>
+                                                          </select>
+                                                        </div>
+                                                      </div><br>
 
-                                    <?php }
+                                      <?php }
                       } else
                       { ?>
 
-                                    <div class="row" style="margin-left: 10px;">
-                                      <div class="col-sm-4">
-                                        <label>Color <span class="err_color">*</span></label>
-                                        <input type="text" class="form-control" name="color[]" placeholder="Color" required>
-                                      </div>
+                                      <div class="row" style="margin-left: 10px;">
+                                        <div class="col-sm-4">
+                                          <label>Color <span class="err_color">*</span></label>
+                                          <input type="text" class="form-control" name="color[]" placeholder="Color" required>
+                                        </div>
 
-                                      <div class="col-sm-4">
-                                        <label>Size <span class="err_color">*</span></label>
-                                        <select class="form-control select2" id="related_size1" multiple=""  name="size[]"
-                                          style="width: 100%;">
-                                          <option value="XS">XS</option>
-                                          <option value="S">S </option>
-                                          <option value="M">M</option>
-                                          <option value="L">L</option>
-                                          <option value="XL">XL </option>
-                                          <option value="XXL">XXL</option>
-                                          <option value="3XL">3XL</option>
-                                          <option value="4XL">4XL</option>
-                                          <option value="Free Size">Free Size</option>
-                                          <option value="28">28</option>
-                                          <option value="30">30 </option>
-                                          <option value="32">32</option>
-                                          <option value="34">34</option>
-                                          <option value="36">36 </option>
-                                          <option value="38">38</option>
-                                          <option value="40">40</option>
-                                          <option value="42">42</option>
-                                          <option value="Onesize">Onesize</option>
+                                        <div class="col-sm-4">
+                                          <label>Size <span class="err_color">*</span></label>
+                                          <select class="form-control select2" id="related_size1" multiple=""  name="size[]"
+                                            style="width: 100%;">
+                                            <option value="XS">XS</option>
+                                            <option value="S">S </option>
+                                            <option value="M">M</option>
+                                            <option value="L">L</option>
+                                            <option value="XL">XL </option>
+                                            <option value="XXL">XXL</option>
+                                            <option value="3XL">3XL</option>
+                                            <option value="4XL">4XL</option>
+                                            <option value="Free Size">Free Size</option>
+                                            <option value="28">28</option>
+                                            <option value="30">30 </option>
+                                            <option value="32">32</option>
+                                            <option value="34">34</option>
+                                            <option value="36">36 </option>
+                                            <option value="38">38</option>
+                                            <option value="40">40</option>
+                                            <option value="42">42</option>
+                                            <option value="Onesize">Onesize</option>
 
-                                          <option value="UK3">UK3</option>
-                                          <option value="UK4">UK4</option>
-                                          <option value="UK5">UK5</option>
-                                          <option value="UK6">UK6</option>
-                                          <option value="UK7">UK7</option>
-                                          <option value="UK8">UK8</option>
-                                          <option value="UK9">UK9</option>
-                                          <option value="UK10">UK10</option>
-                                          <option value="UK11">UK11</option>
+                                            <option value="UK3">UK3</option>
+                                            <option value="UK4">UK4</option>
+                                            <option value="UK5">UK5</option>
+                                            <option value="UK6">UK6</option>
+                                            <option value="UK7">UK7</option>
+                                            <option value="UK8">UK8</option>
+                                            <option value="UK9">UK9</option>
+                                            <option value="UK10">UK10</option>
+                                            <option value="UK11">UK11</option>
 
-                                          <option value="1_1.5_years">1 – 1.5 years</option>
-                                          <option value="2_2.5_years">2 – 2.5 years</option>
-                                          <option value="3_3.5_years">3 – 3.5 years</option>
-                                          <option value="4_4.5_years">4 – 4.5 years</option>
-                                          <option value="5_5.5_years">5 – 5.5 years</option>
-                                          <option value="6_7_years">6 – 7 years</option>
-                                          <option value="8_9_years">8 – 9 years</option>
-                                          <option value="10_11_years">10 – 11 years</option>
-                                          <option value="12_13_years">12 – 13 years</option>
-                                        </select>
-                                      </div>
-                                    </div><br>
+                                            <option value="1_1.5_years">1 – 1.5 years</option>
+                                            <option value="2_2.5_years">2 – 2.5 years</option>
+                                            <option value="3_3.5_years">3 – 3.5 years</option>
+                                            <option value="4_4.5_years">4 – 4.5 years</option>
+                                            <option value="5_5.5_years">5 – 5.5 years</option>
+                                            <option value="6_7_years">6 – 7 years</option>
+                                            <option value="8_9_years">8 – 9 years</option>
+                                            <option value="10_11_years">10 – 11 years</option>
+                                            <option value="12_13_years">12 – 13 years</option>
+                                          </select>
+                                        </div>
+                                      </div><br>
 
 
                       <?php } ?>
@@ -567,6 +567,14 @@ $sub_cate_data = $this->db->get_where('sub_category_master', array('category_mas
             {
               '';
             } ?> tab-pane" id="size_color">
+            <?php
+           
+            $colorRow = $this->db->get_where('tab_color_master', [
+              'product_id' => $product_id
+            ])->row_array();
+
+            $colorName = $colorRow['color'] ?? '';
+            ?>
              <form action="<?php echo base_url(); ?>admin/product/color_size2/<?= $product_id; ?>" method="POST">
                <div class="row" style="margin-left: 10px;">
                 <div class="col-sm-2">Color</div>
@@ -596,16 +604,16 @@ $sub_cate_data = $this->db->get_where('sub_category_master', array('category_mas
                 ])->row_array();
                 ?>
            
-                                              <div class="row" style="margin-left: 10px;margin-top: 10px;">
-                                                   <input type="hidden" name="pro_id[]" value="<?= $sizeRow['pro_id']; ?>">
-                                                <div class="col-sm-2"> <input type="text" readonly name="color[]" value="<?= htmlspecialchars($color['color']); ?>" class="form-control"></div>
-                                                <div class="col-sm-2"> <input type="text" readonly name="size[]" value="<?= $sizeRow['size']; ?>" class="form-control"></div>
-                                                <div class="col-sm-2"><input type="text" class="form-control" value="<?= $price['final_price']; ?>" name="sp[]" placeholder="S.P" required=""></div>
-                                                <div class="col-sm-2"><input type="text" class="form-control" value="<?= $price['price']; ?>" name="mrp[]" placeholder="M.R.P" required=""></div>
-                                                <div class="col-sm-2"> <input type="text" class="form-control" value="<?= $price['qty']; ?>" name="qty[]" placeholder="Quantity" required></div>
-                                                 <div class="col-sm-2"><input type="text" class="form-control" value="<?= $price['gst']; ?>"
-                                                          name="gst[]" placeholder="GST" required=""></div>
-                                              </div>
+                                                <div class="row" style="margin-left: 10px;margin-top: 10px;">
+                                                     <input type="hidden" name="pro_id[]" value="<?= $sizeRow['pro_id']; ?>">
+                                                  <div class="col-sm-2"> <input type="text" readonly  name="color[]" value="<?= htmlspecialchars($colorName); ?>" class="form-control"></div>
+                                                  <div class="col-sm-2"> <input type="text" readonly name="size[]" value="<?= $sizeRow['size']; ?>" class="form-control"></div>
+                                                  <div class="col-sm-2"><input type="text" class="form-control" value="<?= $price['final_price']; ?>" name="sp[]" placeholder="S.P" required=""></div>
+                                                  <div class="col-sm-2"><input type="text" class="form-control" value="<?= $price['price']; ?>" name="mrp[]" placeholder="M.R.P" required=""></div>
+                                                  <div class="col-sm-2"> <input type="text" class="form-control" value="<?= $price['qty']; ?>" name="qty[]" placeholder="Quantity" required></div>
+                                                   <div class="col-sm-2"><input type="text" class="form-control" value="<?= $price['gst']; ?>"
+                                                            name="gst[]" placeholder="GST" required=""></div>
+                                                </div>
               <?php } ?>
 
               <div class="row" style="margin-left: 10px;"> 
@@ -761,151 +769,151 @@ $sub_cate_data = $this->db->get_where('sub_category_master', array('category_mas
 
                     ?>
 
-                                    <h4><?= $getColorData['color']; ?> Color Images</h4>
-                                      <div class="row" style="margin-left: 10px;"> 
+                                      <h4><?= $getColorData['color']; ?> Color Images</h4>
+                                        <div class="row" style="margin-left: 10px;"> 
 
-                                      <div class="col-sm-4">
-                                        <label>Product Main Image (500 * 400)</label>
+                                        <div class="col-sm-4">
+                                          <label>Product Main Image (500 * 400)</label>
           
-                                        <input type="file" class="form-control" name="thumbnail[]">
-                                        <input type="hidden" name="color_id[]" value="<?= $getColorData['id']; ?>">
-                                          <img src="<?= $main_image; ?>" style="width:50px;height:50px;margin-top: 5px;">
-                                      </div>
+                                          <input type="file" class="form-control" name="thumbnail[]">
+                                          <input type="hidden" name="color_id[]" value="<?= $getColorData['id']; ?>">
+                                            <img src="<?= $main_image; ?>" style="width:50px;height:50px;margin-top: 5px;">
+                                        </div>
 
 
-                                      <div class="col-sm-4">
-                                        <label>Product Gallery (500 * 400)</label>
-                                        <input type="file" class="form-control" multiple="" name="images<?= $count; ?>[]">
-                                        <div class="row" style="margin-top: 5px;">
-                                          <div class="col-md-1"></div>
+                                        <div class="col-sm-4">
+                                          <label>Product Gallery (500 * 400)</label>
+                                          <input type="file" class="form-control" multiple="" name="images<?= $count; ?>[]">
+                                          <div class="row" style="margin-top: 5px;">
+                                            <div class="col-md-1"></div>
 
-                                            <?php if (!empty($getColorData['image1']))
-                                            {
-                                              $img1_url = parse_url($getColorData['image1']);
-
-                                              if (empty($img1_url['host']))
+                                              <?php if (!empty($getColorData['image1']))
                                               {
+                                                $img1_url = parse_url($getColorData['image1']);
 
-                                                $img1 = base_url() . '/assets/product_images/' . $getColorData['image1'];
+                                                if (empty($img1_url['host']))
+                                                {
 
-                                              } else
+                                                  $img1 = base_url() . '/assets/product_images/' . $getColorData['image1'];
+
+                                                } else
+                                                {
+
+                                                  $img1 = 'https://' . $img1_url['host'] . '' . $img1_url['path'] . '?raw=1';
+                                                }
+
+                                                ?>
+
+                                                                                <div class="col-md-2">
+                                                                                  <img src="<?= $img1; ?>" style="width:50px;height:50px;">
+                                                                                </div>
+
+                                              <?php } ?>
+
+                                              <?php if (!empty($getColorData['image2']))
                                               {
+                                                $img2_url = parse_url($getColorData['image2']);
+                                                if (empty($img2_url['host']))
+                                                {
 
-                                                $img1 = 'https://' . $img1_url['host'] . '' . $img1_url['path'] . '?raw=1';
-                                              }
+                                                  $img2 = base_url() . '/assets/product_images/' . $getColorData['image2'];
 
-                                              ?>
+                                                } else
+                                                {
 
-                                                                            <div class="col-md-2">
-                                                                              <img src="<?= $img1; ?>" style="width:50px;height:50px;">
-                                                                            </div>
+                                                  $img2 = 'https://' . $img2_url['host'] . '' . $img2_url['path'] . '?raw=1';
+                                                }
 
-                                            <?php } ?>
+                                                ?>
 
-                                            <?php if (!empty($getColorData['image2']))
-                                            {
-                                              $img2_url = parse_url($getColorData['image2']);
-                                              if (empty($img2_url['host']))
-                                              {
-
-                                                $img2 = base_url() . '/assets/product_images/' . $getColorData['image2'];
-
-                                              } else
-                                              {
-
-                                                $img2 = 'https://' . $img2_url['host'] . '' . $img2_url['path'] . '?raw=1';
-                                              }
-
-                                              ?>
-
-                                                                            <div class="col-md-2">
-                                                                              <img src="<?= $img2; ?>" style="width:50px;height:50px;">
-                                                                            </div>
+                                                                                <div class="col-md-2">
+                                                                                  <img src="<?= $img2; ?>" style="width:50px;height:50px;">
+                                                                                </div>
                 
-                                            <?php } ?>
+                                              <?php } ?>
 
 
-                                            <?php if (!empty($getColorData['image3']))
-                                            {
-                                              $img3_url = parse_url($getColorData['image3']);
-
-                                              if (empty($img3_url['host']))
+                                              <?php if (!empty($getColorData['image3']))
                                               {
+                                                $img3_url = parse_url($getColorData['image3']);
 
-                                                $img3 = base_url() . '/assets/product_images/' . $getColorData['image3'];
+                                                if (empty($img3_url['host']))
+                                                {
 
-                                              } else
-                                              {
+                                                  $img3 = base_url() . '/assets/product_images/' . $getColorData['image3'];
 
-                                                $img3 = 'https://' . $img3_url['host'] . '' . $img3_url['path'] . '?raw=1';
-                                              }
+                                                } else
+                                                {
+
+                                                  $img3 = 'https://' . $img3_url['host'] . '' . $img3_url['path'] . '?raw=1';
+                                                }
 
 
-                                              ?>
+                                                ?>
 
-                                                                            <div class="col-md-2">
-                                                                              <img src="<?= $img3; ?>" style="width:50px;height:50px;">
-                                                                            </div>
+                                                                                <div class="col-md-2">
+                                                                                  <img src="<?= $img3; ?>" style="width:50px;height:50px;">
+                                                                                </div>
                 
-                                            <?php } ?>
+                                              <?php } ?>
 
-                                            <?php if (!empty($getColorData['image4']))
-                                            {
-                                              $img4_url = parse_url($getColorData['image4']);
-                                              if (empty($img4_url['host']))
+                                              <?php if (!empty($getColorData['image4']))
                                               {
+                                                $img4_url = parse_url($getColorData['image4']);
+                                                if (empty($img4_url['host']))
+                                                {
 
-                                                $img4 = base_url() . '/assets/product_images/' . $getColorData['image4'];
+                                                  $img4 = base_url() . '/assets/product_images/' . $getColorData['image4'];
 
-                                              } else
-                                              {
+                                                } else
+                                                {
 
-                                                $img4 = 'https://' . $img4_url['host'] . '' . $img4_url['path'] . '?raw=1';
-                                              }
+                                                  $img4 = 'https://' . $img4_url['host'] . '' . $img4_url['path'] . '?raw=1';
+                                                }
 
-                                              ?>
+                                                ?>
 
-                                                                            <div class="col-md-2">
-                                                                              <img src="<?= $img4; ?>" style="width:50px;height:50px;">
-                                                                            </div>
+                                                                                <div class="col-md-2">
+                                                                                  <img src="<?= $img4; ?>" style="width:50px;height:50px;">
+                                                                                </div>
                 
-                                            <?php } ?>
+                                              <?php } ?>
 
-                                            <?php if (!empty($getColorData['image5']))
-                                            {
-                                              $img5_url = parse_url($getColorData['image5']);
-                                              if (empty($img5_url['host']))
+                                              <?php if (!empty($getColorData['image5']))
                                               {
+                                                $img5_url = parse_url($getColorData['image5']);
+                                                if (empty($img5_url['host']))
+                                                {
 
-                                                $img5 = base_url() . '/assets/product_images/' . $getColorData['image5'];
+                                                  $img5 = base_url() . '/assets/product_images/' . $getColorData['image5'];
 
-                                              } else
-                                              {
+                                                } else
+                                                {
 
-                                                $img5 = 'https://' . $img5_url['host'] . '' . $img5_url['path'] . '?raw=1';
-                                              }
+                                                  $img5 = 'https://' . $img5_url['host'] . '' . $img5_url['path'] . '?raw=1';
+                                                }
 
-                                              ?>
+                                                ?>
 
-                                                                            <div class="col-md-2">
-                                                                              <img src="<?= $img5; ?>" style="width:50px;height:50px;">
-                                                                            </div>
+                                                                                <div class="col-md-2">
+                                                                                  <img src="<?= $img5; ?>" style="width:50px;height:50px;">
+                                                                                </div>
                 
-                                            <?php } ?>
+                                              <?php } ?>
 
     
             
 
+                                          </div>
                                         </div>
-                                      </div>
 
         
 
-                                    </div><br>
+                                      </div><br>
 
                      
 
-                                <?php $count++;
+                                  <?php $count++;
                   } ?>
 
                 <div class="row" style="margin-left: 10px;"> 
@@ -987,35 +995,35 @@ $sub_cate_data = $this->db->get_where('sub_category_master', array('category_mas
                    foreach ($dynamicFields as $index => $df)
                    { ?>
                         
-                                        <div class="row mb-2 field-row" id="row_<?= $df['id']; ?>" style="margin-left:0;padding:10px">
+                                            <div class="row mb-2 field-row" id="row_<?= $df['id']; ?>" style="margin-left:0;padding:10px">
                             
-                                            <div class="col-sm-1 sequence">
-                                                <strong><?= $index + 1; ?>.</strong>
+                                                <div class="col-sm-1 sequence">
+                                                    <strong><?= $index + 1; ?>.</strong>
+                                                </div>
+
+                                                <div class="col-sm-5">
+                                                    <input type="text" class="form-control" 
+                                                          name="field_name_existing[]" 
+                                                          value="<?= $df['field_name']; ?>">
+                                                </div>
+
+                                                <div class="col-sm-5">
+                                                    <input type="text" class="form-control" 
+                                                          name="field_value_existing[]" 
+                                                          value="<?= $df['field_value']; ?>">
+                                                </div>
+
+                                                <div class="col-sm-1">
+                                                    <button type="button" 
+                                                            class="btn btn-danger btn-sm"
+                                                            onclick="removeField(<?= $df['id']; ?>)">
+                                                        Remove
+                                                    </button>
+                                                </div>
+
                                             </div>
 
-                                            <div class="col-sm-5">
-                                                <input type="text" class="form-control" 
-                                                      name="field_name_existing[]" 
-                                                      value="<?= $df['field_name']; ?>">
-                                            </div>
-
-                                            <div class="col-sm-5">
-                                                <input type="text" class="form-control" 
-                                                      name="field_value_existing[]" 
-                                                      value="<?= $df['field_value']; ?>">
-                                            </div>
-
-                                            <div class="col-sm-1">
-                                                <button type="button" 
-                                                        class="btn btn-danger btn-sm"
-                                                        onclick="removeField(<?= $df['id']; ?>)">
-                                                    Remove
-                                                </button>
-                                            </div>
-
-                                        </div>
-
-                        <?php }
+                          <?php }
                  } ?>
 
 

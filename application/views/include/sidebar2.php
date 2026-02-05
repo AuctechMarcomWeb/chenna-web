@@ -56,15 +56,21 @@
           <i class="fa fa-cart-plus"></i> <span>Manage Orders</span>
         </a>
       </li>
-
+      <li class="<?php echo (($index == 'VendorWallet') ? 'active' : ''); ?>">
+        <a href="<?php echo site_url('admin/Dashboard/TransactionAmount'); ?>">
+          <i class="fa fa-wallet text-black"></i> <span>Transaction Requests</span>
+        </a>
+      </li>
+      <li class="<?php echo (($index == 'DashboardWallet') ? 'active' : ''); ?>">
+        <a href="<?php echo site_url('admin/Dashboard/WalletTransactionHistoryList'); ?>">
+          <i class="fa fa-wallet text-black"></i> <span>Wllate Transaction History</span>
+        </a>
+      </li>
       <li class="<?php echo (($index == 'Banner') ? 'active' : ''); ?>">
         <a href="<?php echo site_url('admin/Dashboard/BannerList'); ?>">
           <i class="fa fa-picture-o"></i> <span>Manage Banners</span>
         </a>
       </li>
-
-
-
 
       <li class="<?php echo (($index2 == 'Tag') ? 'active' : ''); ?>">
         <a href="<?php echo site_url('admin/Dashboard/tagList'); ?>">
@@ -114,7 +120,7 @@
       </li>
       <li class="<?php echo (($index == 'Setting') ? 'active' : ''); ?>">
         <a href="<?php echo site_url('admin/Dashboard/advertisement'); ?>">
-          <i class="fa fa-bullhorn"></i> <span>Manage Ad</span>
+          <i class="fa fa-bullhorn"></i> <span>Manage Add</span>
         </a>
       </li>
 
@@ -170,10 +176,15 @@
           <i class="fa fa-cart-plus"></i> <span>Manage Orders</span>
         </a>
       </li>
+      <li class="<?php echo (($index == 'VendorWallet') ? 'active' : ''); ?>">
+        <a href="<?php echo site_url('admin/Vendor/MyWallet'); ?>">
+          <i class="fa fa-wallet text-black"></i> <span>My Wallet</span>
+        </a>
+      </li>
       <!-- SALES / ORDERS -->
       <li class="<?php echo (($index == 'VendorPromoterPlans') ? 'active' : ''); ?>">
         <a href="<?php echo site_url('admin/Vendor/VendorPromoterPlans'); ?>">
-          <i class="fa fa-cart-plus"></i> <span>Subsciption Plans</span>
+          <i class="fa fa-id-card"></i> <span>Subsciption Plans</span>
         </a>
       </li>
       <!-- SETTINGS -->
@@ -219,6 +230,11 @@
       <li class="<?php echo (($index == 'VendorOrder') ? 'active' : ''); ?>">
         <a href="<?php echo site_url('admin/Vendor/PromoterOrderList'); ?>">
           <i class="fa fa-cart-plus"></i> <span>Manage Orders</span>
+        </a>
+      </li>
+      <li class="<?php echo (($index == 'VendorWallet') ? 'active' : ''); ?>">
+        <a href="<?php echo site_url('admin/Vendor/MyWallet'); ?>">
+          <i class="fa fa-wallet text-black"></i> <span>My Wallet</span>
         </a>
       </li>
       <li class="<?php echo (($index == 'VendorPromoterPlans') ? 'active' : ''); ?>">

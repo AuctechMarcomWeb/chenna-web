@@ -572,25 +572,38 @@ class Website_model extends CI_Model
 
     public function get_vendors_with_product_count($state = null, $city = null, $search = null)
     {
-        $this->db->select('v.id, v.name, v.city, v.state, v.profile_pic, COUNT(sp.id) as total_products');
+        $this->db->select('
+        v.id,
+        v.name,
+        v.city,
+        v.state,
+        v.profile_pic,
+        COUNT(DISTINCT sp.sku_code) as total_products
+    ');
         $this->db->from('vendors v');
         $this->db->join('sub_product_master sp', 'sp.vendor_id = v.id', 'left');
         $this->db->where('v.status', 1);
-        $this->db->group_by('v.id');
+
         if (!empty($state))
         {
             $this->db->where('v.state', $state);
         }
+
         if (!empty($city))
         {
             $this->db->where('v.city', $city);
         }
+
         if (!empty($search))
         {
             $this->db->like('v.name', $search);
         }
+
+        $this->db->group_by('v.id');
+
         return $this->db->get()->result_array();
     }
+
 
 
 

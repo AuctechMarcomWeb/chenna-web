@@ -15,10 +15,10 @@ class Order extends CI_Controller
 
   public function applyedCoupon($id)
   {
-    $data['index']      = 'Coupon';
-    $data['index2']     = '';
-    $data['title']      = 'Manage Coupon';
-    $data['getData']    = $this->db->query("select * from order_master where coupon_code_id=" . $id . " order by id DESC")->result_array();
+    $data['index'] = 'Coupon';
+    $data['index2'] = '';
+    $data['title'] = 'Manage Coupon';
+    $data['getData'] = $this->db->query("select * from order_master where coupon_code_id=" . $id . " order by id DESC")->result_array();
     $this->load->view('include/header', $data);
     $this->load->view('Coupon/applyedCoupon');
     $this->load->view('include/footer');
@@ -35,7 +35,8 @@ class Order extends CI_Controller
 
     $this->db->select('product_master_id');
     $purchase = $this->db->get_where('purchase_master', array('order_master_id' => $id))->result_array();
-    foreach ($purchase as $key => $value) {
+    foreach ($purchase as $key => $value)
+    {
       $getQty = $this->db->query("SELECT quantity FROM purchase_master where order_master_id=" . $id . " AND product_master_id=" . $value['product_master_id'] . "")->row_array();
 
       $this->db->select('quantity');
@@ -57,39 +58,42 @@ class Order extends CI_Controller
     $html = '';
     $waybill_number = $this->input->post('waybill_number');
 
-    $rate_cal['awb_number_list']         = $waybill_number;
-    $rate_cal['access_token']            = '28b4d9246917ac19f5f9cea9861bc731';
-    $rate_cal['secret_key']              = 'df1b745f66e9b39f81b70b8bc2ad4689';
+    $rate_cal['awb_number_list'] = $waybill_number;
+    $rate_cal['access_token'] = '28b4d9246917ac19f5f9cea9861bc731';
+    $rate_cal['secret_key'] = 'df1b745f66e9b39f81b70b8bc2ad4689';
 
-    $array_data['data']                 = $rate_cal;
+    $array_data['data'] = $rate_cal;
 
-    $json_data   = json_encode($array_data);
+    $json_data = json_encode($array_data);
 
     $curl = curl_init();
     curl_setopt_array($curl, array(
-      CURLOPT_URL             => "https://manage.ithinklogistics.com/api_v3/order/track.json",
-      CURLOPT_RETURNTRANSFER  => true,
-      CURLOPT_ENCODING        => "",
-      CURLOPT_MAXREDIRS       => 10,
-      CURLOPT_TIMEOUT         => 30,
-      CURLOPT_HTTP_VERSION    => CURL_HTTP_VERSION_1_1,
-      CURLOPT_CUSTOMREQUEST   => "POST",
-      CURLOPT_POSTFIELDS      => $json_data,
-      CURLOPT_HTTPHEADER      => array(
+      CURLOPT_URL => "https://manage.ithinklogistics.com/api_v3/order/track.json",
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_ENCODING => "",
+      CURLOPT_MAXREDIRS => 10,
+      CURLOPT_TIMEOUT => 30,
+      CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+      CURLOPT_CUSTOMREQUEST => "POST",
+      CURLOPT_POSTFIELDS => $json_data,
+      CURLOPT_HTTPHEADER => array(
         "cache-control: no-cache",
         "content-type: application/json"
       ),
     ));
 
     $response = curl_exec($curl);
-    $err      = curl_error($curl);
+    $err = curl_error($curl);
     curl_close($curl);
-    if ($err) {
+    if ($err)
+    {
       echo "cURL Error #:" . $err;
-    } else {
+    } else
+    {
       $res_array = json_decode($response, true);
 
-      foreach ($res_array['data'][$waybill_number]['scan_details'] as $key => $value) {
+      foreach ($res_array['data'][$waybill_number]['scan_details'] as $key => $value)
+      {
         $html .= '<div class="row">
          <div class="col-md-6">' . $value['status_date_time'] . '</div>
            <div class="col-md-5">
@@ -102,7 +106,8 @@ class Order extends CI_Controller
              <div class="trk-address float-none float-sm-right">' . $value['status_location'] . '<img src="https://manage-cdn.ithinklogistics.com/manage/theme2/assets/images/track-order.svg" class="trk-address-icon">
             </div>
           </div>';
-        if (!empty($value['status_remark'])) {
+        if (!empty($value['status_remark']))
+        {
 
 
           $html .= '<div class="col-md-12">
@@ -127,11 +132,13 @@ class Order extends CI_Controller
     $html = '';
     $order_id = $this->input->post('order_id');
 
-    $order    = $this->db->get_where('order_master', array('id' => $order_id))->row_array();
+    $order = $this->db->get_where('order_master', array('id' => $order_id))->row_array();
 
-    if ($order['payment_type'] == '1') {
+    if ($order['payment_type'] == '1')
+    {
       $payment_method = 'cod';
-    } else {
+    } else
+    {
       $payment_method = 'Prepaid';
     }
 
@@ -141,73 +148,80 @@ class Order extends CI_Controller
     $this->db->select('product_master_id,quantity');
     $purchase = $this->db->get_where('purchase_master', array('order_master_id' => $order_id))->result_array();
 
-    $weight         = '0';
-    $packet_weight  = '0';
-    $packet_height  = '0';
-    $packet_length  = '0';
+    $weight = '0';
+    $packet_weight = '0';
+    $packet_height = '0';
+    $packet_length = '0';
 
-    foreach ($purchase as $key => $purchaseData) {
+    foreach ($purchase as $key => $purchaseData)
+    {
       $this->db->select('weight,packet_weight,packet_height,packet_length');
       $product = $this->db->get_where('sub_product_master', array('id' => $purchaseData['product_master_id']))->row_array();
 
       $weight += $product['weight'] * $purchaseData['quantity'];
       $packet_height += $product['packet_height'] * $purchaseData['quantity'];
-      $packet_length          = $product['packet_length'];
-      $packet_weight          = $product['packet_weight'];
+      $packet_length = $product['packet_length'];
+      $packet_weight = $product['packet_weight'];
     }
 
 
-    $rate_cal['from_pincode']            = '226001';
-    $rate_cal['to_pincode']              = $address_data['pincode'];
-    $rate_cal['shipping_length_cms']     = $packet_length;
-    $rate_cal['shipping_width_cms']      = $packet_weight;
-    $rate_cal['shipping_height_cms']     = $packet_height;
-    $rate_cal['shipping_weight_kg']      = $weight;
-    $rate_cal['order_type']              = 'forward';
-    $rate_cal['payment_method']          = $payment_method;
-    $rate_cal['product_mrp']             = $order['final_price'];
-    $rate_cal['access_token']            = '28b4d9246917ac19f5f9cea9861bc731';
-    $rate_cal['secret_key']              = 'df1b745f66e9b39f81b70b8bc2ad4689';
+    $rate_cal['from_pincode'] = '226001';
+    $rate_cal['to_pincode'] = $address_data['pincode'];
+    $rate_cal['shipping_length_cms'] = $packet_length;
+    $rate_cal['shipping_width_cms'] = $packet_weight;
+    $rate_cal['shipping_height_cms'] = $packet_height;
+    $rate_cal['shipping_weight_kg'] = $weight;
+    $rate_cal['order_type'] = 'forward';
+    $rate_cal['payment_method'] = $payment_method;
+    $rate_cal['product_mrp'] = $order['final_price'];
+    $rate_cal['access_token'] = '28b4d9246917ac19f5f9cea9861bc731';
+    $rate_cal['secret_key'] = 'df1b745f66e9b39f81b70b8bc2ad4689';
 
-    $array_data['data']                 = $rate_cal;
+    $array_data['data'] = $rate_cal;
 
-    $json_data   = json_encode($array_data);
+    $json_data = json_encode($array_data);
 
 
 
     $curl = curl_init();
     curl_setopt_array($curl, array(
-      CURLOPT_URL             => "https://manage.ithinklogistics.com/api_v3/rate/check.json",
-      CURLOPT_RETURNTRANSFER  => true,
-      CURLOPT_ENCODING        => "",
-      CURLOPT_MAXREDIRS       => 10,
-      CURLOPT_TIMEOUT         => 30,
-      CURLOPT_HTTP_VERSION    => CURL_HTTP_VERSION_1_1,
-      CURLOPT_CUSTOMREQUEST   => "POST",
-      CURLOPT_POSTFIELDS      => $json_data,
-      CURLOPT_HTTPHEADER      => array(
+      CURLOPT_URL => "https://manage.ithinklogistics.com/api_v3/rate/check.json",
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_ENCODING => "",
+      CURLOPT_MAXREDIRS => 10,
+      CURLOPT_TIMEOUT => 30,
+      CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+      CURLOPT_CUSTOMREQUEST => "POST",
+      CURLOPT_POSTFIELDS => $json_data,
+      CURLOPT_HTTPHEADER => array(
         "cache-control: no-cache",
         "content-type: application/json"
       ),
     ));
 
     $response = curl_exec($curl);
-    $err      = curl_error($curl);
+    $err = curl_error($curl);
     curl_close($curl);
-    if ($err) {
+    if ($err)
+    {
       echo "cURL Error #:" . $err;
-    } else {
+    } else
+    {
       $res_array = json_decode($response, true);
 
 
-      if (!empty($res_array['data'])) {
+      if (!empty($res_array['data']))
+      {
 
         $count = '1';
-        foreach ($res_array['data'] as $key => $arrayData) {
+        foreach ($res_array['data'] as $key => $arrayData)
+        {
 
-          if (empty($arrayData['logistic_service_type'])) {
+          if (empty($arrayData['logistic_service_type']))
+          {
             $service = 'N/A';
-          } else {
+          } else
+          {
 
             $service = $arrayData['logistic_service_type'];
           }
@@ -245,7 +259,8 @@ class Order extends CI_Controller
 
           $count++;
         }
-      } else {
+      } else
+      {
 
 
         $html .= '<p><h4>' . $res_array['message'] . '</h4></p>';
@@ -263,18 +278,18 @@ class Order extends CI_Controller
 
 
 
-public function index()
-{
+  public function index()
+  {
     is_not_logged_in();
 
-    $limit   = 10;
-    $pageNo  = $this->input->get('per_page') ?: 1;
-    $offset  = ($pageNo - 1) * $limit;
+    $limit = 10;
+    $pageNo = $this->input->get('per_page') ?: 1;
+    $offset = ($pageNo - 1) * $limit;
 
-    $keywords      = $this->input->post('keywords');
-    $fromDate      = $this->input->post('fromDate');
-    $toDate        = $this->input->post('toDate');
-    $order_status  = $this->input->post('order_status');
+    $keywords = $this->input->post('keywords');
+    $fromDate = $this->input->post('fromDate');
+    $toDate = $this->input->post('toDate');
+    $order_status = $this->input->post('order_status');
     $delete_status = $this->input->post('delete_status');
 
     // COD Orders
@@ -282,68 +297,78 @@ public function index()
     $this->db->where('payment_type', 1);
     $this->db->where('action_payment', ($delete_status == 'delete') ? 'delete' : 'Yes');
 
-    if ($keywords) $this->db->like('order_number', $keywords);
-    if ($order_status) $this->db->where('status', $order_status);
-    if ($fromDate && $toDate) {
-        $this->db->where("DATE(add_date) >=", $fromDate);
-        $this->db->where("DATE(add_date) <=", $toDate);
+    if ($keywords)
+      $this->db->like('order_number', $keywords);
+    if ($order_status)
+      $this->db->where('status', $order_status);
+    if ($fromDate && $toDate)
+    {
+      $this->db->where("DATE(add_date) >=", $fromDate);
+      $this->db->where("DATE(add_date) <=", $toDate);
     }
     $codOrders = $this->db->get()->result_array();
 
     // Online Orders
     $this->db->from('order_master2');
     $this->db->where('payment_type', 2);
-    if ($keywords) $this->db->like('order_number', $keywords);
-    if ($order_status) $this->db->where('status', $order_status);
-    if ($fromDate && $toDate) {
-        $this->db->where("DATE(add_date) >=", $fromDate);
-        $this->db->where("DATE(add_date) <=", $toDate);
+    if ($keywords)
+      $this->db->like('order_number', $keywords);
+    if ($order_status)
+      $this->db->where('status', $order_status);
+    if ($fromDate && $toDate)
+    {
+      $this->db->where("DATE(add_date) >=", $fromDate);
+      $this->db->where("DATE(add_date) <=", $toDate);
     }
     $onlineOrders = $this->db->get()->result_array();
 
     // Merge and sort
     $orders = array_merge($codOrders, $onlineOrders);
-    usort($orders, fn($a,$b) => strtotime($b['add_date']) - strtotime($a['add_date']));
+    usort($orders, fn($a, $b) => strtotime($b['add_date']) - strtotime($a['add_date']));
 
     $totalRecords = count($orders);
     $results = array_slice($orders, $offset, $limit);
 
     $data = [
-        'results' => $results,
-        'pano'    => $pageNo,
-        'entries' => "Showing " . ($offset + 1) . " to " . ($offset + count($results)) . " of $totalRecords entries",
-        'title'   => 'Manage Orders'
+      'results' => $results,
+      'pano' => $pageNo,
+      'entries' => "Showing " . ($offset + 1) . " to " . ($offset + count($results)) . " of $totalRecords entries",
+      'title' => 'Manage Orders'
     ];
 
     $this->load->view('include/header', $data);
     $this->load->view('Order/OrderList', $data);
     $this->load->view('include/footer');
-}
+  }
 
 
-public function ViewOrder($id = '', $payment_type = '')
-{
+  public function ViewOrder($id = '', $payment_type = '')
+  {
     is_not_logged_in();
 
     $data['title'] = 'Manage Order';
 
     // Determine table by payment type
-    if ($payment_type == 1) {
-        $orderTbl    = 'order_master';
-        $purchaseTbl = 'purchase_master';
-        $addressTbl  = 'order_address_master';
-        $orderType   = 'offline';
-    } elseif ($payment_type == 2) {
-        $orderTbl    = 'order_master2';
-        $purchaseTbl = 'purchase_master2';
-        $addressTbl  = 'order_address_master2';
-        $orderType   = 'online';
-    } else {
-        show_404();
+    if ($payment_type == 1)
+    {
+      $orderTbl = 'order_master';
+      $purchaseTbl = 'purchase_master';
+      $addressTbl = 'order_address_master';
+      $orderType = 'offline';
+    } elseif ($payment_type == 2)
+    {
+      $orderTbl = 'order_master2';
+      $purchaseTbl = 'purchase_master2';
+      $addressTbl = 'order_address_master2';
+      $orderType = 'online';
+    } else
+    {
+      show_404();
     }
 
     $order = $this->db->get_where($orderTbl, ['id' => $id])->row_array();
-    if (empty($order)) show_404();
+    if (empty($order))
+      show_404();
 
     $data['getData'] = $order;
     $data['orderType'] = $orderType;
@@ -360,7 +385,7 @@ public function ViewOrder($id = '', $payment_type = '')
     $this->load->view('include/header', $data);
     $this->load->view('Order/product_detail', $data);
     $this->load->view('include/footer');
-}
+  }
 
 
 
@@ -371,9 +396,9 @@ public function ViewOrder($id = '', $payment_type = '')
   {
 
     is_not_logged_in();
-    $data['index']      = 'Orders';
-    $data['index2']     = '';
-    $data['title']      = 'Manage Orders';
+    $data['index'] = 'Orders';
+    $data['index2'] = '';
+    $data['title'] = 'Manage Orders';
     $this->load->view('include/header', $data);
     $this->load->view('Order/addOfflineOrder');
     $this->load->view('include/footer');
@@ -384,245 +409,529 @@ public function ViewOrder($id = '', $payment_type = '')
     return $this->db->query('SELECT * FROM `purchase_master` Where id =' . $id . ' ')->row_array();
   }
 
-// public function ViewOrder($id = '')
+  // public function UpdateOrderStatus($orderid = '')
+  // {
+  //   is_not_logged_in();
+
+  //   $data = $this->input->post();
+  //   $StatusUpdate = (int) ($data['StatusUpdate'] ?? 0);
+  //   $remark = $data['remark'] ?? '';
+
+  //   if (!$orderid || !$StatusUpdate)
+  //   {
+  //     $this->session->set_flashdata('activate', getCustomAlert('D', 'Invalid request!'));
+  //     redirect('admin/Order');
+  //   }
+
+  //   /* ---------- Detect Order Table ---------- */
+  //   $order = $this->db->get_where('order_master', ['id' => $orderid])->row_array();
+  //   $orderTbl = 'order_master';
+  //   $purchaseTbl = 'purchase_master';
+
+  //   if (!$order)
+  //   {
+  //     $order = $this->db->get_where('order_master2', ['id' => $orderid])->row_array();
+  //     $orderTbl = 'order_master2';
+  //     $purchaseTbl = 'purchase_master2';
+  //   }
+
+  //   if (!$order)
+  //   {
+  //     $this->session->set_flashdata('activate', getCustomAlert('D', 'Order not found'));
+  //     redirect('admin/Order');
+  //   }
+
+  //   /* ---------- Prevent double credit ---------- */
+  //   if ($order['status'] == 3 && $StatusUpdate == 3)
+  //   {
+  //     $this->session->set_flashdata('activate', getCustomAlert('D', 'Order already delivered'));
+  //     redirect('admin/Order');
+  //   }
+
+  //   $this->db->trans_begin();
+
+  //   /* ---------- Update Order ---------- */
+  //   $this->db->where('id', $orderid)->update($orderTbl, [
+  //     'status' => $StatusUpdate,
+  //     'remark' => $remark,
+  //     'modify_date' => date('Y-m-d H:i:s')
+  //   ]);
+
+  //   /* =====================================================
+  //      CREDIT WALLET ONLY WHEN ORDER DELIVERED
+  //      ===================================================== */
+  //   if ($StatusUpdate == 3)
+  //   {
+
+  //     $products = $this->db->where('order_master_id', $orderid)
+  //       ->get($purchaseTbl)
+  //       ->result_array();
+
+  //     foreach ($products as $item)
+  //     {
+
+  //       /* ---------- Vendor Pending Earning ---------- */
+  //       $earning = $this->db->get_where('vendor_earnings_master', [
+  //         'order_id' => $orderid,
+  //         'product_id' => $item['product_master_id'],
+  //         'vendor_id' => $item['vendor_id'],
+  //         'status' => 0
+  //       ])->row_array();
+
+  //       if (!$earning)
+  //         continue;
+
+  //       $vendorAmount = (float) $earning['earning_amount'];
+
+  //       /* ---------- SAFE WALLET UPDATE ---------- */
+  //       $vendor = $this->db->select('wallet_amount')
+  //         ->where('id', $item['vendor_id'])
+  //         ->get('vendors')
+  //         ->row_array();
+
+  //       $currentWallet = $vendor['wallet_amount'] ?? 0;
+  //       $newWallet = $currentWallet + $vendorAmount;
+
+  //       $this->db->where('id', $item['vendor_id'])
+  //         ->update('vendors', [
+  //           'wallet_amount' => $newWallet,
+  //           'modify_date' => date('Y-m-d H:i:s')
+  //         ]);
+
+  //       /* ---------- Mark earning paid ---------- */
+  //       $this->db->where('id', $earning['id'])
+  //         ->update('vendor_earnings_master', ['status' => 1]);
+
+  //       /* ---------- TRANSACTION HISTORY ---------- */
+  //       $this->db->insert('transaction_history_master', [
+  //         'order_id' => $orderid,
+  //         'order_number' => $order['order_number'] ?? '',
+  //         'product_id' => $item['product_master_id'],
+  //         'product_name' => $item['product_name'],
+  //         'main_image' => $item['main_image'],
+  //         'vendor_id' => $item['vendor_id'],
+  //         'plan_type' => $earning['plan_type'] ?? 2,
+  //         'final_price' => $item['final_price'],
+  //         'price' => $item['price'],
+  //         'qty' => $item['qty'],
+  //         'admin_amount' => $item['admin_commission'] ?? 0,
+  //         'vendor_amount' => $vendorAmount,
+  //         'transaction_type' => 'wallet_credit',
+  //         'credit_amount' => $vendorAmount,
+  //         'debit_amount' => 0,
+  //         'source' => 'Order Delivered',
+  //         'remark' => 'Vendor wallet credited on order delivery',
+  //         'status' => 1,
+  //         'created_at' => date('Y-m-d H:i:s')
+  //       ]);
+  //     }
+  //   }
+
+  //   /* ---------- Commit / Rollback ---------- */
+  //   if ($this->db->trans_status() === FALSE)
+  //   {
+  //     $this->db->trans_rollback();
+  //     $this->session->set_flashdata('activate', getCustomAlert('D', 'Something went wrong'));
+  //   } else
+  //   {
+  //     $this->db->trans_commit();
+  //     $this->session->set_flashdata('activate', getCustomAlert('S', 'Order updated successfully'));
+  //   }
+
+  //   /* ---------- Redirect ---------- */
+  //   $type = $this->session->userdata('adminData')['Type'] ?? 1;
+  //   if ($type == 2)
+  //   {
+  //     redirect('admin/Vendor/VendorOrderList');
+  //   } elseif ($type == 3)
+  //   {
+  //     redirect('admin/Vendor/PromoterOrderList');
+  //   } else
+  //   {
+  //     redirect('admin/Order');
+  //   }
+  // }
+
+
+  public function UpdateOrderStatus($orderid = '')
+  {
+    is_not_logged_in();
+
+    $data = $this->input->post();
+    $StatusUpdate = (int) ($data['StatusUpdate'] ?? 0);
+    $remark = $data['remark'] ?? '';
+
+    if (!$orderid || !$StatusUpdate)
+    {
+      $this->session->set_flashdata('activate', getCustomAlert('D', 'Invalid request!'));
+      redirect('admin/Order');
+    }
+
+    /* ---------- Detect Order Table ---------- */
+    $order = $this->db->get_where('order_master', ['id' => $orderid])->row_array();
+    $orderTbl = 'order_master';
+    $purchaseTbl = 'purchase_master';
+
+    if (!$order)
+    {
+      $order = $this->db->get_where('order_master2', ['id' => $orderid])->row_array();
+      $orderTbl = 'order_master2';
+      $purchaseTbl = 'purchase_master2';
+    }
+
+    if (!$order)
+    {
+      $this->session->set_flashdata('activate', getCustomAlert('D', 'Order not found'));
+      redirect('admin/Order');
+    }
+
+    /* ---------- Prevent double delivery ---------- */
+    if ($order['status'] == 3 && $StatusUpdate == 3)
+    {
+      $this->session->set_flashdata('activate', getCustomAlert('D', 'Order already delivered'));
+      redirect('admin/Order');
+    }
+
+    $this->db->trans_begin();
+
+    /* ---------- Update ORDER MASTER ---------- */
+    $this->db->where('id', $orderid)->update($orderTbl, [
+      'status' => $StatusUpdate,
+      'remark' => $remark,
+      'modify_date' => date('Y-m-d H:i:s')
+    ]);
+
+    /* ---------- UPDATE PURCHASE MASTER STATUS ---------- */
+    $this->db->where('order_master_id', $orderid)
+      ->update($purchaseTbl, [
+        'status' => $StatusUpdate,
+        'modify_date' => date('Y-m-d H:i:s')
+      ]);
+
+    /* =====================================================
+       CREDIT WALLET ONLY WHEN ORDER DELIVERED
+       ===================================================== */
+    if ($StatusUpdate == 3)
+    {
+
+      $products = $this->db->where('order_master_id', $orderid)
+        ->get($purchaseTbl)
+        ->result_array();
+
+      foreach ($products as $item)
+      {
+
+        /* ---------- Vendor Pending Earning ---------- */
+        $earning = $this->db->get_where('vendor_earnings_master', [
+          'order_id' => $orderid,
+          'product_id' => $item['product_master_id'],
+          'vendor_id' => $item['vendor_id'],
+          'status' => 0
+        ])->row_array();
+
+        if (!$earning)
+          continue;
+
+        $vendorAmount = (float) $earning['earning_amount'];
+
+        /* ---------- WALLET UPDATE ---------- */
+        $vendor = $this->db->select('wallet_amount')
+          ->where('id', $item['vendor_id'])
+          ->get('vendors')
+          ->row_array();
+
+        $currentWallet = $vendor['wallet_amount'] ?? 0;
+        $newWallet = $currentWallet + $vendorAmount;
+
+        $this->db->where('id', $item['vendor_id'])
+          ->update('vendors', [
+            'wallet_amount' => $newWallet,
+            'modify_date' => date('Y-m-d H:i:s')
+          ]);
+
+        /* ---------- Mark earning paid ---------- */
+        $this->db->where('id', $earning['id'])
+          ->update('vendor_earnings_master', ['status' => 1]);
+
+        /* ---------- TRANSACTION HISTORY ---------- */
+        $planType = ($item['subscription_type'] == 1) ? $earning['plan_type'] : null;
+        $planId = ($item['subscription_type'] == 1) ? $earning['plan_id'] : null;
+
+        $this->db->insert('transaction_history_master', [
+          'order_id' => $orderid,
+          'order_number' => $order['order_number'] ?? null,
+          'product_id' => $item['product_master_id'],
+          'product_name' => $item['product_name'] ?? null,
+          'main_image' => $item['main_image'] ?? null,
+          'vendor_id' => $item['vendor_id'],
+          'promoter_id' => $earning['promoter_id'] ?? null,
+          'plan_type' => $planType,
+          'plan_id' => $planId,
+          'final_price' => $item['final_price'],
+          'price' => $item['price'],
+          'qty' => $item['qty'],
+          'admin_amount' => $item['admin_commission'] ?? 0,
+          'vendor_amount' => $vendorAmount,
+          'promoter_amount' => $earning['promoter_amount'] ?? 0,
+          'transaction_type' => 'wallet_credit',
+          'credit_amount' => $vendorAmount,
+          'debit_amount' => 0,
+          'source' => 'Order',
+          'remark' => 'Wallet credited on order delivered',
+          'status' => 1,
+          'created_at' => date('Y-m-d H:i:s')
+        ]);
+      }
+
+    }
+
+    /* ---------- Commit / Rollback ---------- */
+    if ($this->db->trans_status() === FALSE)
+    {
+      $this->db->trans_rollback();
+      $this->session->set_flashdata('activate', getCustomAlert('D', 'Something went wrong'));
+    } else
+    {
+      $this->db->trans_commit();
+      $this->session->set_flashdata('activate', getCustomAlert('S', 'Order updated successfully'));
+    }
+
+    /* ---------- Redirect ---------- */
+    $type = $this->session->userdata('adminData')['Type'] ?? 1;
+    if ($type == 2)
+    {
+      redirect('admin/Vendor/VendorOrderList');
+    } elseif ($type == 3)
+    {
+      redirect('admin/Vendor/PromoterOrderList');
+    } else
+    {
+      redirect('admin/Order');
+    }
+  }
+
+
+  // public function UpdateOrderStatus($orderid = '', $vendor_id = '')
 // {
-//     is_not_logged_in();
+//     $data = $this->input->post();
+//     $StatusUpdate = isset($data['StatusUpdate']) ? $data['StatusUpdate'] : '';
+//     $remark = isset($data['remark']) ? $data['remark'] : '';
 
-//     $data['index']  = 'UpdtOrders';
-//     $data['index2'] = '';
-//     $data['title']  = 'Manage Order';
-
-//     // Fetch COD order first
-//     $order = $this->db
-//         ->select("*, UNIX_TIMESTAMP(add_date) as add_date")
-//         ->get_where('order_master', ['id' => $id])
-//         ->row_array();
-//     $orderType = 'offline';
-
-//     // Fallback: Online order
-//     if (empty($order)) {
-//         $order = $this->db
-//             ->select("*, UNIX_TIMESTAMP(add_date) as add_date")
-//             ->get_where('order_master2', ['id' => $id])
-//             ->row_array();
-//         $orderType = 'online';
+  //     if (empty($orderid) || empty($StatusUpdate)) {
+//         $this->session->set_flashdata('activate', getCustomAlert('D', '!Invalid request.'));
+//         redirect('admin/Order/');
 //     }
 
-//     if (empty($order)) {
-//         show_404();
+  //     // Detect whether order is from order_master or order_master2
+//     $orderDetail = $this->db->get_where('order_master', ['id' => $orderid])->row_array();
+//     $orderTbl = 'order_master';
+//     $purchaseTbl = 'purchase_master';
+
+  //     if (empty($orderDetail)) {
+//         $orderDetail = $this->db->get_where('order_master2', ['id' => $orderid])->row_array();
+//         $orderTbl = 'order_master2';
+//         $purchaseTbl = 'purchase_master2';
 //     }
 
-//     $data['getData'] = $order;
-//     $data['orderType'] = $orderType;
+  //     if (empty($orderDetail)) {
+//         $this->session->set_flashdata('activate', getCustomAlert('D', '!Order not found.'));
+//         redirect('admin/Order/');
+//     }
 
-//     // Get purchase data
-//     if ($orderType == 'offline') {
-//         $purchaseData = $this->db
-//             ->where('order_master_id', $id)
-//             ->get('purchase_master')
-//             ->result_array();
+  //     // Step 1: Update order status
+//     $updateData = [
+//         'status' => $StatusUpdate,
+//         'remark' => $remark,
+//         'modify_date' => date('Y-m-d H:i:s')
+//     ];
+//     $this->db->where('id', $orderid);
+//     $this->db->update($orderTbl, $updateData);
+
+  //     // Step 2: If order is delivered, update vendor wallet from pending earnings
+//     if ($StatusUpdate == 3) { // Delivered
+//         // Fetch all products for this order
+//         $purchases = $this->db->get_where($purchaseTbl, ['order_master_id' => $orderid])->result_array();
+
+  //         foreach ($purchases as $product) {
+//             $vendorId = $product['vendor_id'];
+//             $productId = $product['product_master_id'];
+
+  //             // Fetch pending earnings for this vendor + product + order
+//             $earning = $this->db->get_where('vendor_earnings_master', [
+//                 'vendor_id' => $vendorId,
+//                 'product_id' => $productId,
+//                 'order_id' => $orderid,
+//                 'status' => 0 // Only pending earnings
+//             ])->row_array();
+
+  //             if (!empty($earning)) {
+//                 $earningAmount = $earning['earning_amount'];
+
+  //                 // Fetch current wallet amount safely (if NULL, set to 0)
+//                 $vendorData = $this->db->get_where('vendors', ['id' => $vendorId])->row_array();
+//                 $currentWallet = isset($vendorData['wallet_amount']) ? $vendorData['wallet_amount'] : 0;
+//                 $newWallet = $currentWallet + $earningAmount;
+
+  //                 // Update vendor wallet
+//                 $this->db->where('id', $vendorId);
+//                 $this->db->update('vendors', ['wallet_amount' => $newWallet]);
+
+  //                 // Mark earning as paid
+//                 $this->db->where('id', $earning['id']);
+//                 $this->db->update('vendor_earnings_master', ['status' => 1]);
+//             }
+//         }
+//     }
+
+  //     // Step 3: Flash message
+//     $this->session->set_flashdata('activate', getCustomAlert('S', 'Order status updated successfully.'));
+
+  //     // Step 4: Redirect based on admin type
+//     $userType = $this->session->userdata('adminData')['Type'];
+//     if ($userType == 2) {
+//         redirect('admin/Vendor/VendorOrderList');
+//     } elseif ($userType == 3) {
+//         redirect('admin/Vendor/PromoterOrderList');
 //     } else {
-//         $purchaseData = $this->db
-//             ->where('order_master_id', $id)
-//             ->get('purchase_master2')
-//             ->result_array();
+//         redirect('admin/Order');
 //     }
-
-//     $data['purchaseData'] = $purchaseData;
-//     $data['product_ids']  = array_column($purchaseData, 'product_master_id');
-
-//     $this->load->view('include/header', $data);
-//     $this->load->view('Order/product_detail', $data);
-//     $this->load->view('include/footer');
 // }
 
 
-  public function ViewDetails($id = '')
+
+  public function SendSMSAlert($alertType, $orderDetail)
   {
-    is_not_logged_in();
-    $data['index']          = 'UpdtOrders';
-    $data['index2']         = '';
-    $data['title']          = 'View Order Details';
-    $data['getData']        = $this->db->get_where('order_master', array('id' => $id))->row_array();
-    $this->load->view('include/header', $data);
-    $this->load->view('Order/VieworderDetails');
-    $this->load->view('include/footer');
-  }
-
-  public function updatePaymentStatus($id)
-  {
-    $this->Order_model->updateActionPaymentStatus($id);
-    redirect('admin/Order');
-  }
-
-
-public function UpdateOrderStatus($orderid = '', $vendor_id = '')
-{
-    $data = $this->input->post();
-    $StatusUpdate = $data['StatusUpdate'];
-    $remark = $data['remark'];
-
-    // Detect payment type
-    $orderDetail = $this->db->get_where('order_master', ['id' => $orderid])->row_array();
-    $orderTbl = 'order_master';
-
-    if (empty($orderDetail)) {
-        // If not in offline, check online
-        $orderDetail = $this->db->get_where('order_master2', ['id' => $orderid])->row_array();
-        $orderTbl = 'order_master2';
-    }
-
-    if (empty($orderDetail)) {
-        $this->session->set_flashdata('activate', getCustomAlert('D', '!Order not found.'));
-        redirect('admin/Order/');
-    }
-
-    // Prepare data for update
-    $field = [
-        'order_id'     => $orderid,
-        'vendor_id'    => $vendor_id,
-        'StatusUpdate' => $StatusUpdate,
-        'remark'       => $remark,
-    ];
-
-    $row = $this->Order_model->UpdateOrderData($field, $orderTbl); 
-
-    if ($row > 0) {
-        // Send alerts
-        $this->SendSMSAlert($StatusUpdate, $orderDetail);
-
-        $this->session->set_flashdata('activate', getCustomAlert('S', ' Order has been updated successfully.'));
-
-        // Redirect based on user type
-        $userType = $this->session->userdata('adminData')['Type'];
-        if ($userType == 2) {
-            redirect('admin/Vendor/VendorOrderList');    
-        } elseif ($userType == 3) {
-            redirect('admin/Vendor/PromoterOrderList');   
-        } else {
-            redirect('admin/Order');                     
-        }
-    } else {
-        $this->session->set_flashdata('activate', getCustomAlert('D', '!Oops Something went wrong. Please try again.'));
-        redirect('admin/Order/');
-    }
-}
-
-
-
-
-public function SendSMSAlert($alertType, $orderDetail)
-{
-    if (empty($orderDetail)) return false;
+    if (empty($orderDetail))
+      return false;
 
     // Get user info
-    $mobile  = singlerowparameter('mobile', 'id', $orderDetail['user_master_id'], 'user_master');
+    $mobile = singlerowparameter('mobile', 'id', $orderDetail['user_master_id'], 'user_master');
     $emailid = singlerowparameter('email_id', 'id', $orderDetail['user_master_id'], 'user_master');
-    $user    = singlerowparameter('username', 'id', $orderDetail['user_master_id'], 'user_master');
+    $user = singlerowparameter('username', 'id', $orderDetail['user_master_id'], 'user_master');
 
     // Detect order type to choose purchase table
     $payment_type = $orderDetail['payment_type'] ?? 1; // default offline
-    $purchaseTbl  = ($payment_type == 2) ? 'purchase_master2' : 'purchase_master';
-    $addressTbl   = ($payment_type == 2) ? 'order_address_master2' : 'order_address_master';
+    $purchaseTbl = ($payment_type == 2) ? 'purchase_master2' : 'purchase_master';
+    $addressTbl = ($payment_type == 2) ? 'order_address_master2' : 'order_address_master';
 
     $purchaseData = $this->db->get_where($purchaseTbl, ['order_master_id' => $orderDetail['id']])->result_array();
     $address_info = $this->db->get_where($addressTbl, ['order_master_id' => $orderDetail['id']])->row_array();
 
-    if (empty($purchaseData)) return false;
+    if (empty($purchaseData))
+      return false;
 
-    foreach ($purchaseData as $purchase) {
-        $product = $this->db->get_where('sub_product_master', ['id' => $purchase['product_master_id']])->row_array();
+    foreach ($purchaseData as $purchase)
+    {
+      $product = $this->db->get_where('sub_product_master', ['id' => $purchase['product_master_id']])->row_array();
 
-        // IMAGE URL
-        $img_link = base_url('assets/product_images/no-image.png');
-        if (!empty($product['main_image'])) {
-            $parsed = parse_url($product['main_image']);
-            if (!empty($parsed['host'])) {
-                $img_link = 'https://' . $parsed['host'] . $parsed['path'];
-            } else {
-                $img_link = base_url('assets/product_images/' . $product['main_image']);
-            }
+      // IMAGE URL
+      $img_link = base_url('assets/product_images/no-image.png');
+      if (!empty($product['main_image']))
+      {
+        $parsed = parse_url($product['main_image']);
+        if (!empty($parsed['host']))
+        {
+          $img_link = 'https://' . $parsed['host'] . $parsed['path'];
+        } else
+        {
+          $img_link = base_url('assets/product_images/' . $product['main_image']);
         }
+      }
 
-        // ======= FIX: Convert string date to timestamp =======
-        $add_date_ts   = is_numeric($purchase['add_date']) ? $purchase['add_date'] : strtotime($purchase['add_date']);
-        $placed_date   = gmdate("d-m-Y", $add_date_ts);
-        $delivery_date = date('d-m-Y', strtotime('+8 days', $add_date_ts));
+      // ======= FIX: Convert string date to timestamp =======
+      $add_date_ts = is_numeric($purchase['add_date']) ? $purchase['add_date'] : strtotime($purchase['add_date']);
+      $placed_date = gmdate("d-m-Y", $add_date_ts);
+      $delivery_date = date('d-m-Y', strtotime('+8 days', $add_date_ts));
 
-        // Prepare order info
-        $order_no      = $orderDetail['order_number'];
-        $product_title = $product['product_name'];
-        $size          = $purchase['size'];
-        $color         = $purchase['color'];
-        $qty           = $purchase['quantity'];
-        $price         = $orderDetail['total_price'] ?? $purchase['final_price'];
-        $total         = $orderDetail['final_price'];
-        $address       = $address_info['address'] ?? '';
-        $c_name        = $user;
-        $c_address     = $address;
+      // Prepare order info
+      $order_no = $orderDetail['order_number'];
+      $product_title = $product['product_name'];
+      $size = $purchase['size'];
+      $color = $purchase['color'];
+      $qty = $purchase['quantity'];
+      $price = $orderDetail['total_price'] ?? $purchase['final_price'];
+      $total = $orderDetail['final_price'];
+      $address = $address_info['address'] ?? '';
+      $c_name = $user;
+      $c_address = $address;
 
-        $message = '';
-        $subject = '';
-        $email_body = '';
+      $message = '';
+      $subject = '';
+      $email_body = '';
 
-        // ====== Alert Type Messages ======
-        switch ($alertType) {
-            case 1: // Order Accepted
-                $message = "Dear customer, Your Order no. - $order_no has been Accepted and is being processed. Thanks. Visit https://dukekart.in";
-                $subject = "Your order no $order_no has been Accepted";
-                $this->load->helper('/email/order_shipped');
-                $email_body = order_shipped(
-                    'Order Accepted', $order_no, $user,
-                    $message, $img_link, $product_title, $size, $color, $qty,
-                    $price, "Free", 0, $total, $address, $delivery_date, $placed_date
-                );
-                break;
+      // ====== Alert Type Messages ======
+      switch ($alertType)
+      {
+        case 1: // Order Accepted
+          $message = "Dear customer, Your Order no. - $order_no has been Accepted and is being processed. Thanks. Visit https://dukekart.in";
+          $subject = "Your order no $order_no has been Accepted";
+          $this->load->helper('/email/order_shipped');
+          $email_body = order_shipped(
+            'Order Accepted',
+            $order_no,
+            $user,
+            $message,
+            $img_link,
+            $product_title,
+            $size,
+            $color,
+            $qty,
+            $price,
+            "Free",
+            0,
+            $total,
+            $address,
+            $delivery_date,
+            $placed_date
+          );
+          break;
 
-            case 2: // Order Shipped
-                $message = "Your order no. $order_no of $product_title has been dispatched. Visit https://dukekart.in for more info.";
-                $subject = "Your order no $order_no has been shipped";
-                $this->load->helper('/email/temp4');
-                $email_body = temp4('Order Shipped', $order_no, $user, $message, $img_link, $product_title, $size, $color, $qty, $price, "Free", 0, $total, $delivery_date, $placed_date, $address);
-                break;
+        case 2: // Order Shipped
+          $message = "Your order no. $order_no of $product_title has been dispatched. Visit https://dukekart.in for more info.";
+          $subject = "Your order no $order_no has been shipped";
+          $this->load->helper('/email/temp4');
+          $email_body = temp4('Order Shipped', $order_no, $user, $message, $img_link, $product_title, $size, $color, $qty, $price, "Free", 0, $total, $delivery_date, $placed_date, $address);
+          break;
 
-            case 3: // Order Delivered
-                $message = "Dear $user, your order no. $order_no has been delivered successfully. Thanks for shopping with Dukekart!";
-                $subject = "Your order no $order_no has been delivered";
-                $this->load->helper('/email/temp5');
-                $email_body = temp5('Order Delivered', $user, $message, 'https://dukekart.in/');
-                break;
+        case 3: // Order Delivered
+          $message = "Dear $user, your order no. $order_no has been delivered successfully. Thanks for shopping with Dukekart!";
+          $subject = "Your order no $order_no has been delivered";
+          $this->load->helper('/email/temp5');
+          $email_body = temp5('Order Delivered', $user, $message, 'https://dukekart.in/');
+          break;
 
-            case 4: // Order Cancelled
-                $message = "Dear customer, Your Order no. - $order_no has been cancelled. Contact support for more info.";
-                $subject = "Your order no $order_no has been cancelled";
-                $this->load->helper('/email/temp5');
-                $email_body = temp5('Order Cancelled', $user, $message, 'https://dukekart.in/');
-                break;
+        case 4: // Order Cancelled
+          $message = "Dear customer, Your Order no. - $order_no has been cancelled. Contact support for more info.";
+          $subject = "Your order no $order_no has been cancelled";
+          $this->load->helper('/email/temp5');
+          $email_body = temp5('Order Cancelled', $user, $message, 'https://dukekart.in/');
+          break;
 
-            case 5: // Confirmed by Seller
-                $message = "Dear $user, your order no. $order_no has been confirmed by the seller.";
-                $subject = "Your order no $order_no is confirmed by Seller";
-                $this->load->helper('/email/temp1');
-                $email_body = temp1('Order Confirmed', $order_no, $user, $message, $img_link, $product_title, $size, $color, $qty, $price, "Free", 0, $total, $c_name, $c_address);
-                break;
+        case 5: // Confirmed by Seller
+          $message = "Dear $user, your order no. $order_no has been confirmed by the seller.";
+          $subject = "Your order no $order_no is confirmed by Seller";
+          $this->load->helper('/email/temp1');
+          $email_body = temp1('Order Confirmed', $order_no, $user, $message, $img_link, $product_title, $size, $color, $qty, $price, "Free", 0, $total, $c_name, $c_address);
+          break;
 
-            case 6: // Rejected by Seller
-                $message = "Dear $user, your order no. $order_no has been rejected by the seller.";
-                $subject = "Your order no $order_no is rejected by Seller";
-                $this->load->helper('/email/temp1');
-                $email_body = temp1('Order Rejected', $order_no, $user, $message, $img_link, $product_title, $size, $color, $qty, $price, "Free", 0, $total, $c_name, $c_address);
-                break;
-        }
+        case 6: // Rejected by Seller
+          $message = "Dear $user, your order no. $order_no has been rejected by the seller.";
+          $subject = "Your order no $order_no is rejected by Seller";
+          $this->load->helper('/email/temp1');
+          $email_body = temp1('Order Rejected', $order_no, $user, $message, $img_link, $product_title, $size, $color, $qty, $price, "Free", 0, $total, $c_name, $c_address);
+          break;
+      }
 
-        // Send email & SMS
-        if ($message != '') {
-            sentCommonEmail($emailid, $email_body, $subject);
-            sendSMS($mobile, $message, '1000000000000000000'); // Replace with proper template ID
-        }
+      // Send email & SMS
+      if ($message != '')
+      {
+        sentCommonEmail($emailid, $email_body, $subject);
+        sendSMS($mobile, $message, '1000000000000000000'); // Replace with proper template ID
+      }
     }
 
     return true;
-}
+  }
 
 
 
@@ -630,12 +939,12 @@ public function SendSMSAlert($alertType, $orderDetail)
 
   public function CancelOrderByUser()
   {
-    $data  = $this->input->post();
+    $data = $this->input->post();
     $field = array();
-    $field['order_id']    = $data['order_id'];
-    $field['StatusUpdate']  = $data['StatusUpdate'];
-    $field['activity']    = 1;
-    $row  = $this->Order_model->UpdateOrderData($field);
+    $field['order_id'] = $data['order_id'];
+    $field['StatusUpdate'] = $data['StatusUpdate'];
+    $field['activity'] = 1;
+    $row = $this->Order_model->UpdateOrderData($field);
     echo $row;
   }
 
@@ -668,7 +977,8 @@ public function SendSMSAlert($alertType, $orderDetail)
 
     $oder_number = $oder['order_number'];
 
-    if ($check == '1') {
+    if ($check == '1')
+    {
 
       /*Order Master*/
 
@@ -685,7 +995,8 @@ public function SendSMSAlert($alertType, $orderDetail)
 
       sendSMS($user_info['mobile'], $smstxt, '1007563476963767461');
       sentCommonEmail($user_info['email_id'], $smstxt, "Return request approved");
-    } else {
+    } else
+    {
 
       /*Update Purchase Status*/
       $statuss['status'] = '8';
@@ -707,18 +1018,18 @@ public function SendSMSAlert($alertType, $orderDetail)
   public function addCorierOrder()
   {
 
-    $weight         = '0';
-    $packet_weight  = '0';
-    $packet_height  = '0';
-    $packet_length  = '0';
+    $weight = '0';
+    $packet_weight = '0';
+    $packet_height = '0';
+    $packet_length = '0';
 
-    $order_id    = $this->input->post('order_id');
-    $name        = $this->input->post('name');
-    $rate        = $this->input->post('rate');
-    $service     = $this->input->post('service');
+    $order_id = $this->input->post('order_id');
+    $name = $this->input->post('name');
+    $rate = $this->input->post('rate');
+    $service = $this->input->post('service');
 
     $this->db->select('id,payment_type,order_number,add_date,final_price,user_master_id');
-    $order     = $this->db->get_where('order_master', array('id' => $order_id))->row_array();
+    $order = $this->db->get_where('order_master', array('id' => $order_id))->row_array();
 
     $this->db->select('email_id,username');
     $user_info = $this->db->get_where('user_master', array('id' => $order['user_master_id']))->row_array();
@@ -733,7 +1044,8 @@ public function SendSMSAlert($alertType, $orderDetail)
 
 
     $shop_array = array();
-    foreach ($purchase as $key => $purchaseD) {
+    foreach ($purchase as $key => $purchaseD)
+    {
       $shop_array[] = $purchaseD['shop_id'];
     }
 
@@ -742,7 +1054,8 @@ public function SendSMSAlert($alertType, $orderDetail)
 
     $count = '1';
 
-    foreach ($shop_ids_array as $key => $shop_idd) {
+    foreach ($shop_ids_array as $key => $shop_idd)
+    {
       $this->db->select('warehouse_id');
       $shop_detail = $this->db->get_where('shop_master', array('id' => $shop_idd))->row_array();
 
@@ -757,217 +1070,233 @@ public function SendSMSAlert($alertType, $orderDetail)
       $this->db->where_in('product_master_id', $product_ids);
       $productData = $this->db->get('purchase_master')->result_array();
       $order_amount = '0';
-      foreach ($productData as $key => $productD) {
+      foreach ($productData as $key => $productD)
+      {
         $order_amount += $productD['final_price'] * $productD['quantity'];
       }
 
-      if ($order['payment_type'] == '1') {
+      if ($order['payment_type'] == '1')
+      {
         $payment_mode = 'COD';
-        $cod_amount   = $order_amount;
-      } else {
+        $cod_amount = $order_amount;
+      } else
+      {
         $payment_mode = 'Prepaid';
-        $cod_amount   = '0';
+        $cod_amount = '0';
       }
 
-      $fields['waybill']                         = '';
-      $fields['order']                           = $order['order_number'] . '_' . $shop_idd;
-      $fields['sub_order']                       = $order['order_number'] . '_' . $shop_idd;
-      $fields['order_date']                      = date("d-m-Y", $order['add_date']);
-      $fields['total_amount']                    = $order_amount;
-      $fields['name']                            = $address_data['contact_person'];
-      $fields['company_name']                    = 'DUKEKART PRIVATE LIMITED';
-      $fields['add']                             = $address_data['address'];
-      $fields['add2']                            = $address_data['localty'];
-      $fields['add3']                            = '';
-      $fields['pin']                             = $address_data['pincode'];
-      $fields['city']                            = $address_data['city'];
-      $fields['state']                           = $address_data['state'];
-      $fields['country']                         = 'India';
-      $fields['phone']                           = $address_data['mobile_number'];
-      $fields['alt_phone']                       = $address_data['mobile_number'];
-      $fields['email']                           = $user_info['email_id'];
-      $fields['is_billing_same_as_shipping']               = 'yes';
-      $fields['billing_name']                              = '';
-      $fields['billing_company_name']                      = '';
-      $fields['billing_add']                               = '';
-      $fields['billing_add2']                              = '';
-      $fields['billing_add3']                              = '';
-      $fields['billing_pin']                               = '';
-      $fields['billing_city']                              = '';
-      $fields['billing_state']                             = '';
-      $fields['billing_country']                           = '';
-      $fields['billing_phone']                             = '';
-      $fields['billing_alt_phone']                         = '';
-      $fields['billing_email']                             = '';
+      $fields['waybill'] = '';
+      $fields['order'] = $order['order_number'] . '_' . $shop_idd;
+      $fields['sub_order'] = $order['order_number'] . '_' . $shop_idd;
+      $fields['order_date'] = date("d-m-Y", $order['add_date']);
+      $fields['total_amount'] = $order_amount;
+      $fields['name'] = $address_data['contact_person'];
+      $fields['company_name'] = 'DUKEKART PRIVATE LIMITED';
+      $fields['add'] = $address_data['address'];
+      $fields['add2'] = $address_data['localty'];
+      $fields['add3'] = '';
+      $fields['pin'] = $address_data['pincode'];
+      $fields['city'] = $address_data['city'];
+      $fields['state'] = $address_data['state'];
+      $fields['country'] = 'India';
+      $fields['phone'] = $address_data['mobile_number'];
+      $fields['alt_phone'] = $address_data['mobile_number'];
+      $fields['email'] = $user_info['email_id'];
+      $fields['is_billing_same_as_shipping'] = 'yes';
+      $fields['billing_name'] = '';
+      $fields['billing_company_name'] = '';
+      $fields['billing_add'] = '';
+      $fields['billing_add2'] = '';
+      $fields['billing_add3'] = '';
+      $fields['billing_pin'] = '';
+      $fields['billing_city'] = '';
+      $fields['billing_state'] = '';
+      $fields['billing_country'] = '';
+      $fields['billing_phone'] = '';
+      $fields['billing_alt_phone'] = '';
+      $fields['billing_email'] = '';
 
 
 
 
 
       $cod_amount = '0';
-      foreach ($productData as $key => $purchaseData) {
+      foreach ($productData as $key => $purchaseData)
+      {
 
         $product_info = $this->db->get_where('sub_product_master', array('id' => $purchaseData['product_master_id']))->row_array();
 
 
         $weight += $product_info['weight'] * $purchaseData['quantity'];
         $packet_height += $product_info['packet_height'] * $purchaseData['quantity'];
-        $packet_length          = $product_info['packet_length'];
-        $packet_weight          = $product_info['packet_weight'];
-        $cod_amount            = $purchaseData['final_price'] * $purchaseData['quantity'];
-        $product['product_name']               =   $product_info['product_name'];
-        $product['product_sku']                =   $product_info['sku_code'];
-        $product['product_quantity']           =   $purchaseData['quantity'];
-        $product['product_price']              =   $purchaseData['final_price'];
-        $product['product_tax_rate']           =   '0';
-        $product['product_hsn_code']           =   $product_info['product_hsn'];
-        $product['product_discount']           =   '0';
-        $hold[]                                =   $product;
+        $packet_length = $product_info['packet_length'];
+        $packet_weight = $product_info['packet_weight'];
+        $cod_amount = $purchaseData['final_price'] * $purchaseData['quantity'];
+        $product['product_name'] = $product_info['product_name'];
+        $product['product_sku'] = $product_info['sku_code'];
+        $product['product_quantity'] = $purchaseData['quantity'];
+        $product['product_price'] = $purchaseData['final_price'];
+        $product['product_tax_rate'] = '0';
+        $product['product_hsn_code'] = $product_info['product_hsn'];
+        $product['product_discount'] = '0';
+        $hold[] = $product;
       }
 
 
-      $fields['shipment_length']                           =   $packet_length;
-      $fields['shipment_width']                            =   $packet_weight;
-      $fields['shipment_height']                           =   $packet_height;
-      $fields['weight']                                    =   $weight;
-      $fields['shipping_charges']                          =   '0';
-      $fields['giftwrap_charges']                          =   '0';
-      $fields['transaction_charges']                       =   '0';
-      $fields['total_discount']                            =   '0';
-      $fields['first_attemp_discount']                     =   '0';
-      $fields['cod_charges']                               =   '0';
-      $fields['advance_amount']                            =   '0';
-      $fields['cod_amount']                                =   $cod_amount;
-      $fields['payment_mode']                              =   $payment_mode;
-      $fields['reseller_name']                             =   '';
-      $fields['eway_bill_number']                          =   '';
-      $fields['gst_number']                                =   '';
-      $fields['return_address_id']                         =  $shop_detail['warehouse_id'];
+      $fields['shipment_length'] = $packet_length;
+      $fields['shipment_width'] = $packet_weight;
+      $fields['shipment_height'] = $packet_height;
+      $fields['weight'] = $weight;
+      $fields['shipping_charges'] = '0';
+      $fields['giftwrap_charges'] = '0';
+      $fields['transaction_charges'] = '0';
+      $fields['total_discount'] = '0';
+      $fields['first_attemp_discount'] = '0';
+      $fields['cod_charges'] = '0';
+      $fields['advance_amount'] = '0';
+      $fields['cod_amount'] = $cod_amount;
+      $fields['payment_mode'] = $payment_mode;
+      $fields['reseller_name'] = '';
+      $fields['eway_bill_number'] = '';
+      $fields['gst_number'] = '';
+      $fields['return_address_id'] = $shop_detail['warehouse_id'];
 
-      $fields['products']                                   = $hold;
+      $fields['products'] = $hold;
 
-      $hold_data[]                                           = $fields;
-      $all_data['shipments']                                 = $hold_data;
-      $all_data['pickup_address_id']                         = $shop_detail['warehouse_id'];
-      $all_data['access_token']                              = '28b4d9246917ac19f5f9cea9861bc731';
-      $all_data['secret_key']                                = 'df1b745f66e9b39f81b70b8bc2ad4689';
-      $all_data['logistics']                                 =  $name;
-      $all_data['s_type']                                    = $service;
-      $all_data['order_type']                                = '';
+      $hold_data[] = $fields;
+      $all_data['shipments'] = $hold_data;
+      $all_data['pickup_address_id'] = $shop_detail['warehouse_id'];
+      $all_data['access_token'] = '28b4d9246917ac19f5f9cea9861bc731';
+      $all_data['secret_key'] = 'df1b745f66e9b39f81b70b8bc2ad4689';
+      $all_data['logistics'] = $name;
+      $all_data['s_type'] = $service;
+      $all_data['order_type'] = '';
 
-      $response['data']                                      = $all_data;
+      $response['data'] = $all_data;
 
-      $json_data                                             = json_encode($response);
+      $json_data = json_encode($response);
 
 
 
       $curl = curl_init();
       curl_setopt_array($curl, array(
-        CURLOPT_URL             => "https://manage.ithinklogistics.com/api_v3/order/add.json",
-        CURLOPT_RETURNTRANSFER  => true,
-        CURLOPT_ENCODING        => "",
-        CURLOPT_MAXREDIRS       => 10,
-        CURLOPT_TIMEOUT         => 30,
-        CURLOPT_HTTP_VERSION    => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST   => "POST",
-        CURLOPT_POSTFIELDS      => $json_data,
-        CURLOPT_HTTPHEADER      => array(
+        CURLOPT_URL => "https://manage.ithinklogistics.com/api_v3/order/add.json",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => "",
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => "POST",
+        CURLOPT_POSTFIELDS => $json_data,
+        CURLOPT_HTTPHEADER => array(
           "cache-control: no-cache",
           "content-type: application/json"
         ),
       ));
 
       $response = curl_exec($curl);
-      $err      = curl_error($curl);
+      $err = curl_error($curl);
       curl_close($curl);
-      if ($err) {
+      if ($err)
+      {
 
         $resp['message'] = $err;
-        $resp['status']  = '3';
+        $resp['status'] = '3';
         echo json_encode($resp);
         exit;
-      } else {
+      } else
+      {
 
         $array_response = json_decode($response, true);
 
 
-        if (!empty($array_response['data']['1']['status'])) {
+        if (!empty($array_response['data']['1']['status']))
+        {
 
-          if ($array_response['data']['1']['status'] == 'success') {
+          if ($array_response['data']['1']['status'] == 'success')
+          {
 
-            if ($count == '1') {
+            if ($count == '1')
+            {
 
-              $fieldsss['logistic_status']   = $array_response['status'];
-              $fieldsss['waybill']           = $array_response['data']['1']['waybill'];
-              $fieldsss['reference_number']  = $array_response['data']['1']['refnum'];
-              $fieldsss['logistic_name']     = $array_response['data']['1']['logistic_name'];
+              $fieldsss['logistic_status'] = $array_response['status'];
+              $fieldsss['waybill'] = $array_response['data']['1']['waybill'];
+              $fieldsss['reference_number'] = $array_response['data']['1']['refnum'];
+              $fieldsss['logistic_name'] = $array_response['data']['1']['logistic_name'];
               $this->db->where('order_number', $order['order_number']);
               $this->db->update('order_master', $fieldsss);
 
               $this->saveCorierLabel($order_id, $shop_idd, $array_response['data']['1']['waybill'], $count, $user_info['username']);
-            } else if ($count == '2') {
+            } else if ($count == '2')
+            {
 
-              $fieldsss['logistic_status1']   = $array_response['status'];
-              $fieldsss['waybill1']           = $array_response['data']['1']['waybill'];
-              $fieldsss['reference_number1']  = $array_response['data']['1']['refnum'];
-              $fieldsss['logistic_name1']     = $array_response['data']['1']['logistic_name'];
+              $fieldsss['logistic_status1'] = $array_response['status'];
+              $fieldsss['waybill1'] = $array_response['data']['1']['waybill'];
+              $fieldsss['reference_number1'] = $array_response['data']['1']['refnum'];
+              $fieldsss['logistic_name1'] = $array_response['data']['1']['logistic_name'];
               $this->db->where('order_number', $order['order_number']);
               $this->db->update('order_master', $fieldsss);
 
               $this->saveCorierLabel($order_id, $shop_idd, $array_response['data']['1']['waybill'], $count, $user_info['username']);
-            } else if ($count == '3') {
+            } else if ($count == '3')
+            {
 
-              $fieldsss['logistic_status2']   = $array_response['status'];
-              $fieldsss['waybill2']           = $array_response['data']['1']['waybill'];
-              $fieldsss['reference_number2']  = $array_response['data']['1']['refnum'];
-              $fieldsss['logistic_name2']     = $array_response['data']['1']['logistic_name'];
+              $fieldsss['logistic_status2'] = $array_response['status'];
+              $fieldsss['waybill2'] = $array_response['data']['1']['waybill'];
+              $fieldsss['reference_number2'] = $array_response['data']['1']['refnum'];
+              $fieldsss['logistic_name2'] = $array_response['data']['1']['logistic_name'];
               $this->db->where('order_number', $order['order_number']);
               $this->db->update('order_master', $fieldsss);
               $this->saveCorierLabel($order_id, $shop_idd, $array_response['data']['1']['waybill'], $count, $user_info['username']);
-            } else if ($count == '4') {
+            } else if ($count == '4')
+            {
 
-              $fieldsss['logistic_status3']   = $array_response['status'];
-              $fieldsss['waybill3']           = $array_response['data']['1']['waybill'];
-              $fieldsss['reference_number3']  = $array_response['data']['1']['refnum'];
-              $fieldsss['logistic_name3']     = $array_response['data']['1']['logistic_name'];
-              $this->db->where('order_number', $order['order_number']);
-              $this->db->update('order_master', $fieldsss);
-
-              $this->saveCorierLabel($order_id, $shop_idd, $array_response['data']['1']['waybill'], $count, $user_info['username']);
-            } else if ($count == '5') {
-
-              $fieldsss['logistic_status4']   = $array_response['status'];
-              $fieldsss['waybill4']           = $array_response['data']['1']['waybill'];
-              $fieldsss['reference_number4']  = $array_response['data']['1']['refnum'];
-              $fieldsss['logistic_name4']     = $array_response['data']['1']['logistic_name'];
-              $this->db->where('order_number', $order['order_number']);
-              $this->db->update('order_master', $fieldsss);
-              $this->saveCorierLabel($order_id, $shop_idd, $array_response['data']['1']['waybill'], $count, $user_info['username']);
-            } else if ($count == '6') {
-
-              $fieldsss['logistic_status5']   = $array_response['status'];
-              $fieldsss['waybill5']           = $array_response['data']['1']['waybill'];
-              $fieldsss['reference_number5']  = $array_response['data']['1']['refnum'];
-              $fieldsss['logistic_name5']     = $array_response['data']['1']['logistic_name'];
+              $fieldsss['logistic_status3'] = $array_response['status'];
+              $fieldsss['waybill3'] = $array_response['data']['1']['waybill'];
+              $fieldsss['reference_number3'] = $array_response['data']['1']['refnum'];
+              $fieldsss['logistic_name3'] = $array_response['data']['1']['logistic_name'];
               $this->db->where('order_number', $order['order_number']);
               $this->db->update('order_master', $fieldsss);
 
               $this->saveCorierLabel($order_id, $shop_idd, $array_response['data']['1']['waybill'], $count, $user_info['username']);
-            } else if ($count == '7') {
+            } else if ($count == '5')
+            {
 
-              $fieldsss['logistic_status6']   = $array_response['status'];
-              $fieldsss['waybill6']           = $array_response['data']['1']['waybill'];
-              $fieldsss['reference_number6']  = $array_response['data']['1']['refnum'];
-              $fieldsss['logistic_name6']     = $array_response['data']['1']['logistic_name'];
+              $fieldsss['logistic_status4'] = $array_response['status'];
+              $fieldsss['waybill4'] = $array_response['data']['1']['waybill'];
+              $fieldsss['reference_number4'] = $array_response['data']['1']['refnum'];
+              $fieldsss['logistic_name4'] = $array_response['data']['1']['logistic_name'];
               $this->db->where('order_number', $order['order_number']);
               $this->db->update('order_master', $fieldsss);
               $this->saveCorierLabel($order_id, $shop_idd, $array_response['data']['1']['waybill'], $count, $user_info['username']);
-            } else if ($count == '8') {
+            } else if ($count == '6')
+            {
 
-              $fieldsss['logistic_status7']   = $array_response['status'];
-              $fieldsss['waybill7']           = $array_response['data']['1']['waybill'];
-              $fieldsss['reference_number7']  = $array_response['data']['1']['refnum'];
-              $fieldsss['logistic_name7']     = $array_response['data']['1']['logistic_name'];
+              $fieldsss['logistic_status5'] = $array_response['status'];
+              $fieldsss['waybill5'] = $array_response['data']['1']['waybill'];
+              $fieldsss['reference_number5'] = $array_response['data']['1']['refnum'];
+              $fieldsss['logistic_name5'] = $array_response['data']['1']['logistic_name'];
+              $this->db->where('order_number', $order['order_number']);
+              $this->db->update('order_master', $fieldsss);
+
+              $this->saveCorierLabel($order_id, $shop_idd, $array_response['data']['1']['waybill'], $count, $user_info['username']);
+            } else if ($count == '7')
+            {
+
+              $fieldsss['logistic_status6'] = $array_response['status'];
+              $fieldsss['waybill6'] = $array_response['data']['1']['waybill'];
+              $fieldsss['reference_number6'] = $array_response['data']['1']['refnum'];
+              $fieldsss['logistic_name6'] = $array_response['data']['1']['logistic_name'];
+              $this->db->where('order_number', $order['order_number']);
+              $this->db->update('order_master', $fieldsss);
+              $this->saveCorierLabel($order_id, $shop_idd, $array_response['data']['1']['waybill'], $count, $user_info['username']);
+            } else if ($count == '8')
+            {
+
+              $fieldsss['logistic_status7'] = $array_response['status'];
+              $fieldsss['waybill7'] = $array_response['data']['1']['waybill'];
+              $fieldsss['reference_number7'] = $array_response['data']['1']['refnum'];
+              $fieldsss['logistic_name7'] = $array_response['data']['1']['logistic_name'];
               $this->db->where('order_number', $order['order_number']);
               $this->db->update('order_master', $fieldsss);
               $this->saveCorierLabel($order_id, $shop_idd, $array_response['data']['1']['waybill'], $count, $user_info['username']);
@@ -975,27 +1304,31 @@ public function SendSMSAlert($alertType, $orderDetail)
 
 
             $resp['message'] = 'Order assign Successfully';
-            $resp['status']  = '1';
-          } else {
+            $resp['status'] = '1';
+          } else
+          {
 
-            if (!empty($array_response['html_message'])) {
+            if (!empty($array_response['html_message']))
+            {
 
               $resp['message'] = $array_response['html_message'];
-              $resp['status']  = '2';
-            } else {
+              $resp['status'] = '2';
+            } else
+            {
 
               $resp['message'] = $array_response['data'][1]['remark'];
-              $resp['status']  = '2';
+              $resp['status'] = '2';
             }
           }
 
 
           echo json_encode($resp);
           exit;
-        } else {
+        } else
+        {
 
           $resp['message'] = $array_response['html_message'];
-          $resp['status']  = '3';
+          $resp['status'] = '3';
           echo json_encode($resp);
           exit;
         }
@@ -1009,65 +1342,74 @@ public function SendSMSAlert($alertType, $orderDetail)
   public function saveCorierLabel($order_id, $shop_id, $waybill, $count, $username)
   {
 
-    $rate_cal['awb_numbers']                   = $waybill;
-    $rate_cal['page_size']                     = 'A4';
-    $rate_cal['access_token']                  = '28b4d9246917ac19f5f9cea9861bc731';
-    $rate_cal['secret_key']                    = 'df1b745f66e9b39f81b70b8bc2ad4689';
-    $rate_cal['display_cod_prepaid']           = '';
-    $rate_cal['display_shipper_mobile']        = '';
-    $rate_cal['display_shipper_address']       = '';
+    $rate_cal['awb_numbers'] = $waybill;
+    $rate_cal['page_size'] = 'A4';
+    $rate_cal['access_token'] = '28b4d9246917ac19f5f9cea9861bc731';
+    $rate_cal['secret_key'] = 'df1b745f66e9b39f81b70b8bc2ad4689';
+    $rate_cal['display_cod_prepaid'] = '';
+    $rate_cal['display_shipper_mobile'] = '';
+    $rate_cal['display_shipper_address'] = '';
 
-    $array_data['data']                 = $rate_cal;
+    $array_data['data'] = $rate_cal;
 
-    $json_data   = json_encode($array_data);
+    $json_data = json_encode($array_data);
 
 
 
     $curl = curl_init();
     curl_setopt_array($curl, array(
-      CURLOPT_URL             => "https://manage.ithinklogistics.com/api_v3/shipping/label.json",
-      CURLOPT_RETURNTRANSFER  => true,
-      CURLOPT_ENCODING        => "",
-      CURLOPT_MAXREDIRS       => 10,
-      CURLOPT_TIMEOUT         => 30,
-      CURLOPT_HTTP_VERSION    => CURL_HTTP_VERSION_1_1,
-      CURLOPT_CUSTOMREQUEST   => "POST",
-      CURLOPT_POSTFIELDS      => $json_data,
-      CURLOPT_HTTPHEADER      => array(
+      CURLOPT_URL => "https://manage.ithinklogistics.com/api_v3/shipping/label.json",
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_ENCODING => "",
+      CURLOPT_MAXREDIRS => 10,
+      CURLOPT_TIMEOUT => 30,
+      CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+      CURLOPT_CUSTOMREQUEST => "POST",
+      CURLOPT_POSTFIELDS => $json_data,
+      CURLOPT_HTTPHEADER => array(
         "cache-control: no-cache",
         "content-type: application/json"
       ),
     ));
 
     $response = curl_exec($curl);
-    $err      = curl_error($curl);
+    $err = curl_error($curl);
     curl_close($curl);
 
     $array_response = json_decode($response, true);
 
-    if ($array_response['status'] == 'success') {
-      if ($count == '1') {
+    if ($array_response['status'] == 'success')
+    {
+      if ($count == '1')
+      {
 
         $shipping_labe['shipping_label'] = $array_response['file_name'];
-      } else if ($count == '2') {
+      } else if ($count == '2')
+      {
 
         $shipping_labe['shipping_label1'] = $array_response['file_name'];
-      } else if ($count == '3') {
+      } else if ($count == '3')
+      {
 
         $shipping_labe['shipping_label2'] = $array_response['file_name'];
-      } else if ($count == '4') {
+      } else if ($count == '4')
+      {
 
         $shipping_labe['shipping_label3'] = $array_response['file_name'];
-      } else if ($count == '5') {
+      } else if ($count == '5')
+      {
 
         $shipping_labe['shipping_label4'] = $array_response['file_name'];
-      } else if ($count == '6') {
+      } else if ($count == '6')
+      {
 
         $shipping_labe['shipping_label5'] = $array_response['file_name'];
-      } else if ($count == '7') {
+      } else if ($count == '7')
+      {
 
         $shipping_labe['shipping_label6'] = $array_response['file_name'];
-      } else if ($count == '8') {
+      } else if ($count == '8')
+      {
 
         $shipping_labe['shipping_label7'] = $array_response['file_name'];
       }
@@ -1108,18 +1450,18 @@ Team Dukekart';
   public function reverseCorierOrder()
   {
 
-    $weight         = '0';
-    $packet_weight  = '0';
-    $packet_height  = '0';
-    $packet_length  = '0';
+    $weight = '0';
+    $packet_weight = '0';
+    $packet_height = '0';
+    $packet_length = '0';
 
-    $order_id    = $this->input->post('order_id');
-    $name        = $this->input->post('name');
-    $rate        = $this->input->post('rate');
-    $service     = $this->input->post('service');
+    $order_id = $this->input->post('order_id');
+    $name = $this->input->post('name');
+    $rate = $this->input->post('rate');
+    $service = $this->input->post('service');
 
     $this->db->select('id,payment_type,order_number,add_date,final_price,user_master_id');
-    $order     = $this->db->get_where('order_master', array('id' => $order_id))->row_array();
+    $order = $this->db->get_where('order_master', array('id' => $order_id))->row_array();
 
     $this->db->select('email_id');
     $user_info = $this->db->get_where('user_master', array('id' => $order['user_master_id']))->row_array();
@@ -1133,137 +1475,144 @@ Team Dukekart';
 
     $payment_mode = 'Prepaid';
 
-    $fields['waybill']                         = '';
-    $fields['order']                           = $order['order_number'];
-    $fields['sub_order']                       = $order['order_number'];
-    $fields['order_date']                      = date("d-m-Y", $order['add_date']);
-    $fields['total_amount']                    = $order['final_price'];
-    $fields['name']                            = $address_data['contact_person'];
-    $fields['company_name']                    = 'DUKEKART PRIVATE LIMITED';
-    $fields['add']                             = $address_data['address'] . ', ' . $address_data['localty'] . ', ' . $address_data['landmark'];
-    $fields['add2']                            = '';
-    $fields['add3']                            = '';
-    $fields['pin']                             = $address_data['pincode'];
-    $fields['city']                            = $address_data['city'];
-    $fields['state']                           = $address_data['state'];
-    $fields['country']                         = 'India';
-    $fields['phone']                           = $address_data['mobile_number'];
-    $fields['alt_phone']                       = $address_data['mobile_number'];
-    $fields['email']                           = $user_info['email_id'];
-    $fields['is_billing_same_as_shipping']               = 'yes';
-    $fields['billing_name']                              = '';
-    $fields['billing_company_name']                      = '';
-    $fields['billing_add']                               = '';
-    $fields['billing_add2']                              = '';
-    $fields['billing_add3']                              = '';
-    $fields['billing_pin']                               = '';
-    $fields['billing_city']                              = '';
-    $fields['billing_state']                             = '';
-    $fields['billing_country']                           = '';
-    $fields['billing_phone']                             = '';
-    $fields['billing_alt_phone']                         = '';
-    $fields['billing_email']                             = '';
+    $fields['waybill'] = '';
+    $fields['order'] = $order['order_number'];
+    $fields['sub_order'] = $order['order_number'];
+    $fields['order_date'] = date("d-m-Y", $order['add_date']);
+    $fields['total_amount'] = $order['final_price'];
+    $fields['name'] = $address_data['contact_person'];
+    $fields['company_name'] = 'DUKEKART PRIVATE LIMITED';
+    $fields['add'] = $address_data['address'] . ', ' . $address_data['localty'] . ', ' . $address_data['landmark'];
+    $fields['add2'] = '';
+    $fields['add3'] = '';
+    $fields['pin'] = $address_data['pincode'];
+    $fields['city'] = $address_data['city'];
+    $fields['state'] = $address_data['state'];
+    $fields['country'] = 'India';
+    $fields['phone'] = $address_data['mobile_number'];
+    $fields['alt_phone'] = $address_data['mobile_number'];
+    $fields['email'] = $user_info['email_id'];
+    $fields['is_billing_same_as_shipping'] = 'yes';
+    $fields['billing_name'] = '';
+    $fields['billing_company_name'] = '';
+    $fields['billing_add'] = '';
+    $fields['billing_add2'] = '';
+    $fields['billing_add3'] = '';
+    $fields['billing_pin'] = '';
+    $fields['billing_city'] = '';
+    $fields['billing_state'] = '';
+    $fields['billing_country'] = '';
+    $fields['billing_phone'] = '';
+    $fields['billing_alt_phone'] = '';
+    $fields['billing_email'] = '';
 
-    foreach ($purchase as $key => $purchaseData) {
+    foreach ($purchase as $key => $purchaseData)
+    {
 
       $product_info = $this->db->get_where('sub_product_master', array('id' => $purchaseData['product_master_id']))->row_array();
       $weight += $product_info['weight'] * $purchaseData['quantity'];
       $packet_height += $product_info['packet_height'] * $purchaseData['quantity'];
-      $packet_length          = $product_info['packet_length'];
-      $packet_weight          = $product_info['packet_weight'];
-      $product['product_name']               =   $product_info['product_name'];
-      $product['product_sku']                =   $product_info['sku_code'];
-      $product['product_quantity']           =   $purchaseData['quantity'];
-      $product['product_price']              =   $purchaseData['final_price'];
-      $product['product_tax_rate']           =   '0';
-      $product['product_hsn_code']           =   $product_info['product_hsn'];
-      $product['product_discount']           =   '0';
-      $hold[]                                =   $product;
+      $packet_length = $product_info['packet_length'];
+      $packet_weight = $product_info['packet_weight'];
+      $product['product_name'] = $product_info['product_name'];
+      $product['product_sku'] = $product_info['sku_code'];
+      $product['product_quantity'] = $purchaseData['quantity'];
+      $product['product_price'] = $purchaseData['final_price'];
+      $product['product_tax_rate'] = '0';
+      $product['product_hsn_code'] = $product_info['product_hsn'];
+      $product['product_discount'] = '0';
+      $hold[] = $product;
     }
 
 
-    $fields['shipment_length']                           =   $packet_length;
-    $fields['shipment_width']                            =   $packet_weight;
-    $fields['shipment_height']                           =   $packet_height;
-    $fields['weight']                                    =   $weight;
-    $fields['shipping_charges']                          =   '0';
-    $fields['giftwrap_charges']                          =   '0';
-    $fields['transaction_charges']                       =   '0';
-    $fields['total_discount']                            =   '0';
-    $fields['first_attemp_discount']                     =   '0';
-    $fields['cod_charges']                               =   '0';
-    $fields['advance_amount']                            =   '0';
-    $fields['cod_amount']                                =   $cod_amount;
-    $fields['payment_mode']                              =   $payment_mode;
-    $fields['reseller_name']                             =   '';
-    $fields['eway_bill_number']                          =   '';
-    $fields['gst_number']                                =   '';
-    $fields['return_address_id']                         =   '1289';
+    $fields['shipment_length'] = $packet_length;
+    $fields['shipment_width'] = $packet_weight;
+    $fields['shipment_height'] = $packet_height;
+    $fields['weight'] = $weight;
+    $fields['shipping_charges'] = '0';
+    $fields['giftwrap_charges'] = '0';
+    $fields['transaction_charges'] = '0';
+    $fields['total_discount'] = '0';
+    $fields['first_attemp_discount'] = '0';
+    $fields['cod_charges'] = '0';
+    $fields['advance_amount'] = '0';
+    $fields['cod_amount'] = $cod_amount;
+    $fields['payment_mode'] = $payment_mode;
+    $fields['reseller_name'] = '';
+    $fields['eway_bill_number'] = '';
+    $fields['gst_number'] = '';
+    $fields['return_address_id'] = '1289';
 
-    $fields['products']                                    = $hold;
+    $fields['products'] = $hold;
 
-    $hold_data[]                                           = $fields;
-    $all_data['shipments']                                 = $hold_data;
-    $all_data['pickup_address_id']                         = '1289';
-    $all_data['access_token']                              = '28b4d9246917ac19f5f9cea9861bc731';
-    $all_data['secret_key']                                = 'df1b745f66e9b39f81b70b8bc2ad4689';
-    $all_data['logistics']                                 =  $name;
-    $all_data['s_type']                                    = $service;
-    $all_data['order_type']                                = 'reverse';
+    $hold_data[] = $fields;
+    $all_data['shipments'] = $hold_data;
+    $all_data['pickup_address_id'] = '1289';
+    $all_data['access_token'] = '28b4d9246917ac19f5f9cea9861bc731';
+    $all_data['secret_key'] = 'df1b745f66e9b39f81b70b8bc2ad4689';
+    $all_data['logistics'] = $name;
+    $all_data['s_type'] = $service;
+    $all_data['order_type'] = 'reverse';
 
-    $response['data']                                      = $all_data;
+    $response['data'] = $all_data;
 
-    $json_data                                             = json_encode($response);
+    $json_data = json_encode($response);
 
 
 
 
     $curl = curl_init();
     curl_setopt_array($curl, array(
-      CURLOPT_URL             => "https://manage.ithinklogistics.com/api_v3/order/add.json",
-      CURLOPT_RETURNTRANSFER  => true,
-      CURLOPT_ENCODING        => "",
-      CURLOPT_MAXREDIRS       => 10,
-      CURLOPT_TIMEOUT         => 30,
-      CURLOPT_HTTP_VERSION    => CURL_HTTP_VERSION_1_1,
-      CURLOPT_CUSTOMREQUEST   => "POST",
-      CURLOPT_POSTFIELDS      => $json_data,
-      CURLOPT_HTTPHEADER      => array(
+      CURLOPT_URL => "https://manage.ithinklogistics.com/api_v3/order/add.json",
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_ENCODING => "",
+      CURLOPT_MAXREDIRS => 10,
+      CURLOPT_TIMEOUT => 30,
+      CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+      CURLOPT_CUSTOMREQUEST => "POST",
+      CURLOPT_POSTFIELDS => $json_data,
+      CURLOPT_HTTPHEADER => array(
         "cache-control: no-cache",
         "content-type: application/json"
       ),
     ));
 
     $response = curl_exec($curl);
-    $err      = curl_error($curl);
+    $err = curl_error($curl);
     curl_close($curl);
-    if ($err) {
+    if ($err)
+    {
       echo "cURL Error #:" . $err;
-    } else {
+    } else
+    {
 
       $array_response = json_decode($response, true);
 
-      if ($array_response['status'] == 'success') {
+      if ($array_response['status'] == 'success')
+      {
 
-        $fieldsss['return_logistic_status']   = $array_response['status'];
-        $fieldsss['return_waybill']           = $array_response['data']['1']['waybill'];
-        $fieldsss['return_reference_number']  = $array_response['data']['1']['refnum'];
-        $fieldsss['return_logistic_name']     = $array_response['data']['1']['logistic_name'];
+        $fieldsss['return_logistic_status'] = $array_response['status'];
+        $fieldsss['return_waybill'] = $array_response['data']['1']['waybill'];
+        $fieldsss['return_reference_number'] = $array_response['data']['1']['refnum'];
+        $fieldsss['return_logistic_name'] = $array_response['data']['1']['logistic_name'];
         $this->db->where('order_number', $order['order_number']);
         $this->db->update('order_master', $fieldsss);
 
         $resp['message'] = 'Courier assign Successfully';
-        $resp['status']  = '1';
-      } else {
+        $resp['status'] = '1';
+      } else
+      {
 
-        if (!empty($array_response['html_message'])) {
+        if (!empty($array_response['html_message']))
+        {
 
           $resp['message'] = $array_response['html_message'];
-          $resp['status']  = '2';
-        } else {
+          $resp['status'] = '2';
+        } else
+        {
 
           $resp['message'] = $array_response['data'][1]['remark'];
-          $resp['status']  = '2';
+          $resp['status'] = '2';
         }
       }
 

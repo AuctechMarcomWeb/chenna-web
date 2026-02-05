@@ -1,7 +1,7 @@
 <?php foreach ($vendors as $v)
 { ?>
     <div class="col-xxl-3 col-xl-3 col-lg-4 col-md-6 col-12">
-        <div class="vendor-card h-100">
+        <div class="vendor-card h-100 vendor-click" data-vendor="<?= $v['id'] ?>">
             <div class="vendor-top">
                 <div class="vendor-image">
                     <img src="<?= !empty($v['profile_pic']) ? base_url($v['profile_pic']) : base_url('assets/no-image.png') ?>"

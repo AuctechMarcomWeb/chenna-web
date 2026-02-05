@@ -76,7 +76,7 @@
 
                     <!-- IMAGE -->
                     <div class="product-image position-relative overflow-hidden">
-                        <a href="#">
+                        <a href="<?= base_url('product/' . $p['id']); ?>">
                             <img src="<?= base_url('assets/product_images/' . $p['main_image']) ?>"
                                 alt="<?= $p['product_name'] ?>" class="mt-2">
                         </a>
@@ -86,7 +86,7 @@
                     <div class="product-details p-3 flex-grow-1 d-flex flex-column">
                         <h6 class="product-name mb-2"><?= $p['product_name'] ?></h6>
 
-                        <!-- RATING -->
+                      
                         <div class="product-rating mb-2">
                             <?php $avg = round($p['avg_rating']); ?>
                             <?php for ($i = 1; $i <= 5; $i++): ?>

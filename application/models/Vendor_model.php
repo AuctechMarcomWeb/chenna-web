@@ -256,11 +256,7 @@ class Vendor_model extends CI_Model
   {
     return $this->db->where('id', $vendor_id)->update('vendors', ['promoter_id' => $promoter_id]);
   }
-  // End Registration
-  // public function getVendotList()
-  // {
-  //   return $this->db->query('SELECT * FROM `admin_master` WHERE id != "1" order by id desc ')->result_array();
-  // }
+
 
   public function AddVendorData($request)
   {
@@ -386,4 +382,53 @@ class Vendor_model extends CI_Model
   {
     return $this->db->get_where('purchase_master', array('vendor_master_id' => $v_id))->num_rows();
   }
+
+
+  
+
+
+  public function get_wallet_balance($id, $type)
+{
+    $table = ($type == 'vendor') ? 'vendors' : 'promoters';
+    $row = $this->db->select('wallet_amount')
+                    ->where('id', $id)
+                    ->get($table)
+                    ->row();
+    return isset($row->wallet_amount) ? floatval($row->wallet_amount) : 0;
+}
+
+public function submit_request($data)
+{
+    return $this->db->insert('withdrawal_requests', $data);
+}
+
+public function get_requests($user_id = null, $user_type = null)
+{
+    if ($user_id && $user_type) {
+        return $this->db->where(['user_id' => $user_id, 'user_type' => $user_type])
+                        ->get('withdrawal_requests')
+                        ->result_array();
+    } else {
+        // Admin: all requests
+        return $this->db->get('withdrawal_requests')->result_array();
+    }
+}
+
+public function update_request($id, $status, $remarks = '')
+{
+    $data = [
+        'status' => $status,
+        'approval_date' => date('Y-m-d H:i:s'),
+        'remarks' => $remarks
+    ];
+    return $this->db->where('id', $id)->update('withdrawal_requests', $data);
+}
+
+public function deduct_wallet($user_id, $user_type, $amount)
+{
+    $table = ($user_type == 'vendor') ? 'vendors' : 'promoters';
+    $this->db->set('wallet_amount', 'wallet_amount - ' . floatval($amount), FALSE)
+             ->where('id', $user_id)
+             ->update($table);
+}
 }

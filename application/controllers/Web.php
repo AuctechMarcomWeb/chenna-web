@@ -2713,7 +2713,7 @@ class Web extends CI_Controller
 
   public function checkout_payment()
   {
-     $userData = $this->session->userdata('User');
+    $userData = $this->session->userdata('User');
     $data['wishlist_count'] = !empty($userData) ? $this->web_model->get_total_wishlist_by_user($userData['id']) : 0;
     if (empty($userData))
     {
@@ -3643,11 +3643,10 @@ class Web extends CI_Controller
     $total_promoter_earning = 0;
 
     /* ================= PURCHASE LOOP ================= */
+    /* ================= PURCHASE LOOP ================= */
     foreach ($total_items as $itm)
     {
-
       $this->db->query("UPDATE sub_product_master SET quantity = quantity - {$itm['qty']} WHERE id = {$itm['id']}");
-
       $this->db->insert($purchase_table, [
         'order_master_id' => $lastId,
         'vendor_id' => $itm['vendor_id'],
@@ -3667,30 +3666,24 @@ class Web extends CI_Controller
         'modify_date' => date('Y-m-d H:i:s'),
         'status' => 1
       ]);
-
       /* ===== COMMISSIONS ===== */
       $admin_commission = 0;
       $promoter_commission = 0;
-
       $vendor_sub = $this->db->get_where('vendor_subscriptions_master', [
         'vendor_id' => $itm['vendor_id'],
         'status' => 1
       ])->row_array();
-
       if ($vendor_sub && $vendor_sub['commission_percent'] > 0)
       {
         $admin_commission += ($itm['final_price'] * $vendor_sub['commission_percent'] / 100) * $itm['qty'];
       }
-
       $promoter_sub = $this->db->get_where('promoter_subscriptions_master', [
         'promoter_id' => $itm['promoter_id'],
         'status' => 1
       ])->row_array();
-
       if ($promoter_sub && $promoter_sub['commission_percent'] > 0)
       {
         $promoter_commission = ($itm['final_price'] * $promoter_sub['commission_percent'] / 100) * $itm['qty'];
-
         $this->db->insert('promoter_earnings_master', [
           'promoter_id' => $itm['promoter_id'],
           'vendor_id' => $itm['vendor_id'],
@@ -3701,10 +3694,10 @@ class Web extends CI_Controller
           'commission_percent' => $promoter_sub['commission_percent'],
           'commission_amount' => $promoter_commission,
           'earning_amount' => $promoter_commission,
-          'status' => 0
+          'status' => 0,  // Pending
+          'created_at' => date('Y-m-d H:i:s')
         ]);
       }
-
       if ($admin_commission > 0)
       {
         $this->db->insert('admin_earnings_master', [
@@ -3715,9 +3708,7 @@ class Web extends CI_Controller
           'created_at' => date('Y-m-d H:i:s')
         ]);
       }
-
       $vendor_earning = ($itm['final_price'] * $itm['qty']) - $admin_commission;
-
       $this->db->insert('vendor_earnings_master', [
         'vendor_id' => $itm['vendor_id'],
         'promoter_id' => $itm['promoter_id'],
@@ -3725,9 +3716,9 @@ class Web extends CI_Controller
         'order_id' => $lastId,
         'qty' => $itm['qty'],
         'earning_amount' => $vendor_earning,
+        'status' => 0,  // Pending
         'created_at' => date('Y-m-d H:i:s')
       ]);
-
       $total_admin_earning += $admin_commission;
       $total_vendor_earning += $vendor_earning;
       $total_promoter_earning += $promoter_commission;
@@ -5637,4 +5628,7 @@ class Web extends CI_Controller
       ]);
     }
   }
+
+
+
 }
