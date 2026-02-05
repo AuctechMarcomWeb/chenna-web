@@ -83,6 +83,71 @@ class Subscription extends CI_Controller
         ]);
     }
 
+
+    public function update_subscription()
+    {
+        $vendor_id = $this->input->post('user_id'); 
+        $plan_id = $this->input->post('plan_id');
+        $promoter_id = $this->input->post('promoter_id');
+        $user_type = $this->input->post('user_type');
+
+        if (!$vendor_id || !$plan_id || !$user_type)
+        {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request']);
+            return;
+        }
+
+        $plan = $this->Subscription_model->getPlan($plan_id);
+        if (!$plan)
+        {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid plan']);
+            return;
+        }
+
+        $txn_id = 'SUB' . time() . rand(100, 999);
+        $start_date = date('Y-m-d');
+        $end_date = ($plan['plan_type'] == 1) ? date('Y-m-d', strtotime('+1 month')) : null;
+
+        $data = [
+            'plan_id' => $plan_id,
+            'plan_type' => $plan['plan_type'],
+            'price' => $plan['price'],
+            'commission_percent' => $plan['commission_percent'],
+            'product_limit' => $plan['product_limit'],
+            'products_used' => 0,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
+            'status' => ($plan['plan_type'] == 1) ? 0 : 1,
+            'approval_status' => ($plan['plan_type'] == 1) ? 0 : 1,
+            'transaction_id' => $txn_id,
+            'payment_status' => ($plan['plan_type'] == 1) ? 'pending' : 'activated',
+            'payment_type' => 2,
+            'updated_at' => date('Y-m-d H:i:s')
+        ];
+
+        // Check if vendor already has a subscription
+        $existing = $this->db->where('vendor_id', $vendor_id)->get('vendor_subscriptions_master')->row_array();
+
+        if ($existing)
+        {
+            // Update existing subscription
+            $this->db->where('vendor_id', $vendor_id)->update('vendor_subscriptions_master', $data);
+        } else
+        {
+            // Create new subscription
+            $data['vendor_id'] = $vendor_id;
+            $data['created_at'] = date('Y-m-d H:i:s');
+            $this->db->insert('vendor_subscriptions_master', $data);
+        }
+
+        echo json_encode([
+            'status' => 'success',
+            'merchant_txn_id' => $txn_id,
+            'amount' => $plan['price']
+        ]);
+    }
+
+
     public function response()
     {
         $this->session->set_flashdata(

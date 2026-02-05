@@ -177,6 +177,60 @@
     height: 50px;
     object-fit: contain;
   }
+
+  /* Toggle wrapper */
+  .custom-toggle {
+    position: relative;
+    display: inline-block;
+    width: 52px;
+    height: 26px;
+  }
+
+  /* Hide default checkbox */
+  .custom-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  /* Slider background */
+  .toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 30px;
+  }
+
+  /* Slider knob */
+  .toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #fff;
+    transition: 0.4s;
+    border-radius: 50%;
+  }
+
+  .custom-toggle input:checked+.toggle-slider {
+    background-color: #28a745;
+  }
+
+  .custom-toggle input:checked+.toggle-slider:before {
+    transform: translateX(26px);
+  }
+
+  .custom-toggle.cod input:checked+.toggle-slider {
+    background-color: #0d6efd;
+  }
+
+  .custom-toggle.seller input:checked+.toggle-slider {
+    background-color: #198754;
+  }
 </style>
 <div class="content-wrapper">
   <!-- Content Header (Page header) -->
@@ -213,14 +267,14 @@
 
                         if ($adminData['Type'] == '2')
                         {
-                          
+
                           foreach ($shopList ?? [] as $shop)
                           {
                             $shop_options[$shop['id']] = $shop['name'];
                           }
                         } elseif ($adminData['Type'] == '3')
                         {
-                          
+
                           foreach ($results ?? [] as $product)
                           {
                             if (!empty($product['promoter_shop_name']))
@@ -228,7 +282,7 @@
                               $shop_options[$product['shop_id']] = $product['promoter_shop_name'];
                             } elseif (!empty($product['shop_name']))
                             {
-                             
+
                               $shop_options[$product['shop_id']] = $product['shop_name'];
                             }
                           }
@@ -290,6 +344,8 @@
                     <th>PRODUCTS</th>
                     <th>RATE / MRP</th>
                     <th>STOCK</th>
+                    <th>Cash On Delivery</th>
+                    <th>Seller Status</th>
                     <th>VERIFY</th>
                     <th>DATE</th>
                     <th>ACTION</th>
@@ -337,6 +393,37 @@
                       </td>
                       <td><?= $value['final_price'] ?? ''; ?> / <?= $value['price'] ?? ''; ?></td>
                       <td><?= $value['quantity'] ?? ''; ?></td>
+                      <?php
+                      $can_cod = (
+                        $adminData['Type'] == $value['added_type'] &&
+                        $adminData['Id'] == $value['addedBy']
+                      );
+                      ?>
+                      <td>
+                        <label class="custom-toggle cod">
+                          <input type="checkbox" class="codToggle" data-id="<?= $value['id']; ?>"
+                            <?= ($value['cash_on_delivery'] == 1) ? 'checked' : ''; ?>   <?= (!$can_cod) ? 'disabled' : ''; ?>>
+                          <span class="toggle-slider"></span>
+                        </label>
+                      </td>
+
+
+                      <!-- SELLER APPROVE TOGGLE -->
+                      <?php
+                      $can_seller = (
+                        $adminData['Type'] != 1 &&
+                        $adminData['Type'] == $value['added_type'] &&
+                        $adminData['Id'] == $value['addedBy']
+                      );
+                      ?>
+                      <td>
+                        <label class="custom-toggle seller">
+                          <input type="checkbox" class="sellerToggle" data-id="<?= $value['id']; ?>"
+                            <?= ($value['seller_approve_status'] == 1) ? 'checked' : ''; ?>   <?= (!$can_seller) ? 'disabled' : ''; ?>>
+                          <span class="toggle-slider"></span>
+                        </label>
+                      </td>
+
 
                       <td>
                         <?php if ($adminData['Type'] == '1'): ?>
@@ -459,4 +546,25 @@
   }
 
 
+</script>
+<script>
+  $(document).on('change', '.codToggle', function () {
+    let id = $(this).data('id');
+    let value = $(this).is(':checked') ? 1 : 0;
+
+    $.post("<?= base_url('admin/product/update_cod') ?>", {
+      id: id,
+      value: value
+    });
+  });
+
+  $(document).on('change', '.sellerToggle', function () {
+    let id = $(this).data('id');
+    let value = $(this).is(':checked') ? 1 : 0;
+
+    $.post("<?= base_url('admin/product/update_seller_status') ?>", {
+      id: id,
+      value: value
+    });
+  });
 </script>

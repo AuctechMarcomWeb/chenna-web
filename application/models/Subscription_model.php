@@ -61,29 +61,34 @@ class Subscription_model extends CI_Model
 
     // Get subscription by ID + type
 
-// Get subscription by ID and type
-public function getSubscriptionByType($id, $user_type)
-{
-    if ($user_type == 'vendor') {
-        return $this->db->get_where('vendor_subscriptions_master', ['id'=>$id])->row_array();
-    } else {
-        return $this->db->get_where('promoter_subscriptions_master', ['id'=>$id])->row_array();
+    // Get subscription by ID and type
+    public function getSubscriptionByType($id, $user_type)
+    {
+        if ($user_type == 'vendor')
+        {
+            return $this->db->get_where('vendor_subscriptions_master', ['id' => $id])->row_array();
+        } else
+        {
+            return $this->db->get_where('promoter_subscriptions_master', ['id' => $id])->row_array();
+        }
     }
-}
 
-// Update subscription
-public function updateSubscription($id, $data, $user_type)
-{
-    if ($user_type == 'vendor') {
-        return $this->db->where('id',$id)->update('vendor_subscriptions_master',$data);
-    } else {
-        return $this->db->where('id',$id)->update('promoter_subscriptions_master',$data);
+    // Update subscription
+    public function updateSubscription($id, $data, $user_type)
+    {
+        if ($user_type == 'vendor')
+        {
+            return $this->db->where('id', $id)->update('vendor_subscriptions_master', $data);
+        } else
+        {
+            return $this->db->where('id', $id)->update('promoter_subscriptions_master', $data);
+        }
     }
-}
 
-// Fetch plan details
- public function getPlan($id){
-        return $this->db->get_where('admin_subscription_plans_master',['id'=>$id])->row_array();
+    // Fetch plan details
+    public function getPlan($id)
+    {
+        return $this->db->get_where('admin_subscription_plans_master', ['id' => $id])->row_array();
     }
 
 
@@ -144,19 +149,27 @@ public function updateSubscription($id, $data, $user_type)
             ->row_array();
     }
 
-    public function createVendorSubscription($data){
+    public function createVendorSubscription($data)
+    {
         $this->db->insert('vendor_subscriptions_master', $data);
         return $this->db->insert_id();
     }
 
-   public function createPromoterSubscription($data){
+    public function createPromoterSubscription($data)
+    {
         $this->db->insert('promoter_subscriptions_master', $data);
         return $this->db->insert_id();
     }
 
-    public function getPendingSubscriptionRequest($user_id, $type){
-        $table = ($type=='vendor') ? 'vendor_subscriptions_master' : 'promoter_subscriptions_master';
-        return $this->db->where(['status'=>0, ($type.'_id')=>$user_id])->get($table)->row_array();
+    public function getPendingSubscriptionRequest($user_id, $type)
+    {
+        $table = ($type == 'vendor') ? 'vendor_subscriptions_master' : 'promoter_subscriptions_master';
+
+        return $this->db->where($type . '_id', $user_id)
+            ->where('approval_status', 0) // Only truly pending
+            ->where('end_date >=', date('Y-m-d')) // ignore expired
+            ->get($table)
+            ->row_array();
     }
 
 
@@ -211,6 +224,12 @@ public function updateSubscription($id, $data, $user_type)
             ->result_array();
     }
 
-
+    public function get_active_plans()
+    {
+        return $this->db
+            ->where('status', 1)
+            ->get(' admin_subscription_plans_master')
+            ->result_array();
+    }
 
 }

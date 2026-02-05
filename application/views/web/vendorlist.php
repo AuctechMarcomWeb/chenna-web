@@ -11,6 +11,7 @@
     .vendor-card:hover {
         transform: translateY(-6px);
         box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+        cursor: pointer;
     }
 
     .vendor-top {
@@ -244,6 +245,7 @@
                 <div class="col-xxl-3 col-xl-3 col-lg-4 col-md-6 col-12">
                     <div class="vendor-card h-100 vendor-click" data-vendor="<?= $v['id'] ?>">
                         <div class="vendor-top">
+                            
                             <div class="vendor-image">
                                 <img src="<?= !empty($v['profile_pic']) ? base_url($v['profile_pic']) : base_url('assets/no-image.png') ?>"
                                     class="img-fluid" alt="">

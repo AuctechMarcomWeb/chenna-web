@@ -719,7 +719,7 @@ if (!empty($sections) && count($sections) > 0)
                                 </div>
                             </div>
 
-                            <div class="top-selling-slider product-arrow" id="homeProductSlider">
+                            <div class="top-selling-slider product-arrow top-selling-slider-1" id="homeProductSlider">
                                 <?php if (!empty($products))
                                 {
                                     foreach ($products as $pro)
@@ -1560,9 +1560,9 @@ $(document).ready(function(){
                 type: "POST",
                 data: {state: state, city: city},
                 success: function(res){
-                    $('.top-selling-slider').slick('unslick'); // destroy old slider
-                    $('.top-selling-slider').html(res); // append filtered products
-                    $('.top-selling-slider').slick({  // re-init slick
+                    $('.top-selling-slider-1').slick('unslick'); // destroy old slider
+                    $('.top-selling-slider-1').html(res); // append filtered products
+                    $('.top-selling-slider-1').slick({  // re-init slick
                         slidesToShow: 1,
                         slidesToScroll: 1,
                         arrows: true,

@@ -628,52 +628,36 @@ class Vendor extends CI_Controller
 		// ========= DATE FILTERS TO TIMESTAMP =========
 		$fromTimestamp = '';
 		$toTimestamp = '';
-
 		if (!empty($fromDate) && !empty($toDate))
 		{
 			$fromTimestamp = strtotime($fromDate . ' 00:00:00');
 			$toTimestamp = strtotime($toDate . ' 23:59:59');
 		}
 
-		// ========= COMMON WHERE =========
-		$whereCod = " WHERE p.vendor_id = '$vendor_id' ";
-		$whereOnline = " WHERE p.vendor_id = '$vendor_id' ";
-
-		// Filters
+		// ========= COMMON WHERE CONDITIONS =========
+		$whereFilters = "";
 		if (!empty($keywords))
 		{
-			$whereCod .= " AND o.order_number LIKE '%$keywords%' ";
-			$whereOnline .= " AND o.order_number LIKE '%$keywords%' ";
+			$whereFilters .= " AND o.order_number LIKE '%$keywords%' ";
 		}
-
 		if (!empty($customer_name))
 		{
-			$whereCod .= " AND u.username LIKE '%$customer_name%' ";
-			$whereOnline .= " AND u.username LIKE '%$customer_name%' ";
+			$whereFilters .= " AND u.username LIKE '%$customer_name%' ";
 		}
-
 		if (!empty($order_status))
 		{
-			$whereCod .= " AND o.status = '$order_status' ";
-			$whereOnline .= " AND o.status = '$order_status' ";
+			$whereFilters .= " AND o.status = '$order_status' ";
 		}
-
 		if (!empty($delete_status) && $delete_status == 'delete')
 		{
-			$whereCod .= " AND o.action_payment = 'delete' ";
-			$whereOnline .= " AND o.action_payment = 'delete' ";
+			$whereFilters .= " AND o.action_payment = 'delete' ";
 		} else
 		{
-			$whereCod .= " AND o.action_payment = 'Yes' ";
-			$whereOnline .= " AND o.action_payment = 'Yes' ";
+			$whereFilters .= " AND o.action_payment = 'Yes' ";
 		}
-
 		if (!empty($fromTimestamp) && !empty($toTimestamp))
 		{
-			// COD (UNIX TIMESTAMP)
-			$whereCod .= " AND o.add_date BETWEEN $fromTimestamp AND $toTimestamp ";
-			// ONLINE (DATETIME)
-			$whereOnline .= " AND o.add_date BETWEEN FROM_UNIXTIME($fromTimestamp) AND FROM_UNIXTIME($toTimestamp) ";
+			$whereFilters .= " AND UNIX_TIMESTAMP(o.add_date) BETWEEN $fromTimestamp AND $toTimestamp ";
 		}
 
 		// ========= COD ORDERS =========
@@ -687,11 +671,19 @@ class Vendor extends CI_Controller
             o.status,
             o.add_date,
             u.username,
-            u.mobile
+            u.mobile,
+            a.address,
+            a.city,
+            a.state,
+            a.pincode,
+            a.contact_person,
+            a.mobile_number
         FROM order_master o
         INNER JOIN purchase_master p ON p.order_master_id = o.id
         LEFT JOIN user_master u ON u.id = o.user_master_id
-        $whereCod
+        LEFT JOIN order_address_master a ON a.order_master_id = o.id
+        WHERE p.vendor_id = '$vendor_id'
+        $whereFilters
         GROUP BY o.id
     ";
 
@@ -704,13 +696,21 @@ class Vendor extends CI_Controller
             o.payment_type,
             o.payment_status,
             o.status,
-            UNIX_TIMESTAMP(o.add_date) AS add_date,
+            o.add_date,
             u.username,
-            u.mobile
+            u.mobile,
+            a.address,
+            a.city,
+            a.state,
+            a.pincode,
+            a.contact_person,
+            a.mobile_number
         FROM order_master2 o
         INNER JOIN purchase_master2 p ON p.order_master_id = o.id
         LEFT JOIN user_master u ON u.id = o.user_master_id
-        $whereOnline
+        LEFT JOIN order_address_master2 a ON a.order_master_id = o.id
+        WHERE p.vendor_id = '$vendor_id'
+        $whereFilters
         GROUP BY o.id
     ";
 
@@ -758,6 +758,8 @@ class Vendor extends CI_Controller
 		$this->load->view('Vendor/VendorOrderList', $data);
 		$this->load->view('include/footer');
 	}
+
+
 	public function VendorViewOrderDetails($id = '', $payment_type = '')
 	{
 		is_not_logged_in();
@@ -804,89 +806,214 @@ class Vendor extends CI_Controller
 		$this->load->view('Vendor/VendorViewOrderDetails', $data);
 		$this->load->view('include/footer');
 	}
-	// public function VendorViewOrderDetails($order_id)
-	// {
-	// 	// Check if vendor is logged in
-	// 	is_not_logged_in();
 
-	// 	$vendorData = $this->session->userdata('adminData');
-	// 	$vendor_id = $vendorData['Id'];
+	public function PromoterOrderList()
+	{
+		is_not_logged_in();
+		$this->load->library('pagination');
 
-	// 	// ===================== Fetch Order Master (COD + Online) =====================
-	// 	$orderMaster = $this->db->query("
-    //     SELECT id, user_master_id, order_number, final_price, status, payment_type, UNIX_TIMESTAMP(add_date) AS add_date
-    //     FROM order_master
-    //     WHERE id = ?
-    //     UNION ALL
-    //     SELECT id, user_master_id, order_number, final_price, status, payment_type, UNIX_TIMESTAMP(add_date) AS add_date
-    //     FROM order_master2
-    //     WHERE id = ?
-    // ", [$order_id, $order_id])->row_array();
+		$limit = 10;
+		$pageNo = $this->input->get('per_page');
+		$pageNo = (!empty($pageNo) && $pageNo > 0) ? $pageNo : 1;
+		$offset = ($pageNo - 1) * $limit;
 
-	// 	if (!$orderMaster)
-	// 	{
-	// 		show_404(); // Order not found
-	// 		return;
-	// 	}
+		/* ================= FILTERS ================= */
+		$keywords = $this->input->post('keywords');
+		$fromDate = $this->input->post('fromDate');
+		$toDate = $this->input->post('toDate');
+		$order_status = $this->input->post('order_status');
+		$delete_status = $this->input->post('delete_status');
+		$customer_name = $this->input->post('customer_name');
 
-	// 	$data['getData'] = $orderMaster;
+		/* ================= PROMOTER ID ================= */
+		$promoter_id = $this->session->userdata('adminData')['Id'];
 
-	// 	// ===================== Fetch Vendor-Specific Purchase Products =====================
-	// 	$purchaseData = $this->db->query("
-    //     SELECT pm.id, pm.order_master_id, pm.product_master_id, pm.vendor_id, pm.quantity, pm.final_price, pm.size, pm.color, pm.status,
-    //            sp.product_name, sp.main_image
-    //     FROM purchase_master pm
-    //     LEFT JOIN sub_product_master sp ON sp.id = pm.product_master_id
-    //     WHERE pm.order_master_id = ? AND pm.vendor_id = ?
-    //     UNION ALL
-    //     SELECT pm2.id, pm2.order_master_id, pm2.product_master_id, pm2.vendor_id, pm2.quantity, pm2.final_price, pm2.size, pm2.color, pm2.status,
-    //            sp2.product_name, sp2.main_image
-    //     FROM purchase_master2 pm2
-    //     LEFT JOIN sub_product_master sp2 ON sp2.id = pm2.product_master_id
-    //     WHERE pm2.order_master_id = ? AND pm2.vendor_id = ?
-    // ", [$order_id, $vendor_id, $order_id, $vendor_id])->result_array();
+		/* ================= DATE TO TIMESTAMP ================= */
+		$fromTimestamp = '';
+		$toTimestamp = '';
 
-	// 	$data['purchaseData'] = $purchaseData;
+		if (!empty($fromDate) && !empty($toDate))
+		{
+			$fromTimestamp = strtotime($fromDate . ' 00:00:00');
+			$toTimestamp = strtotime($toDate . ' 23:59:59');
+		}
 
-	// 	// ===================== Check Vendor Returns =====================
-	// 	$check_return = $this->db->query("
-    //     SELECT SUM(total) AS total_return FROM (
-    //         SELECT COUNT(*) AS total
-    //         FROM purchase_master
-    //         WHERE order_master_id = ? AND vendor_id = ? AND status = '8'
-    //         UNION ALL
-    //         SELECT COUNT(*) AS total
-    //         FROM purchase_master2
-    //         WHERE order_master_id = ? AND vendor_id = ? AND status = '8'
-    //     ) AS combined
-    // ", [$order_id, $vendor_id, $order_id, $vendor_id])->row_array();
+		/* ================= COMMON WHERE ================= */
+		$whereCod = " WHERE p.promoter_id = '$promoter_id' ";
+		$whereOnline = " WHERE p.promoter_id = '$promoter_id' ";
 
-	// 	$data['check_return'] = $check_return['total_return'] ?? 0;
+		if (!empty($keywords))
+		{
+			$whereCod .= " AND o.order_number LIKE '%$keywords%' ";
+			$whereOnline .= " AND o.order_number LIKE '%$keywords%' ";
+		}
 
-	// 	// ===================== Fetch Shipping Address =====================
-	// 	$addressData = $this->db->query("
-    //     SELECT *
-    //     FROM order_address_master
-    //     WHERE order_master_id = ?
-    //     UNION ALL
-    //     SELECT *
-    //     FROM order_address_master2
-    //     WHERE order_master_id = ?
-    // ", [$order_id, $order_id])->row_array();
+		if (!empty($customer_name))
+		{
+			$whereCod .= " AND u.username LIKE '%$customer_name%' ";
+			$whereOnline .= " AND u.username LIKE '%$customer_name%' ";
+		}
 
-	// 	$data['address_data'] = $addressData;
+		if (!empty($order_status))
+		{
+			$whereCod .= " AND o.status = '$order_status' ";
+			$whereOnline .= " AND o.status = '$order_status' ";
+		}
 
-	// 	// ===================== Fetch User Info =====================
-	// 	$user_info = $this->db->get_where('user_master', ['id' => $orderMaster['user_master_id']])->row_array();
-	// 	$data['user_info'] = $user_info;
+		if (!empty($delete_status) && $delete_status == 'delete')
+		{
+			$whereCod .= " AND o.action_payment = 'delete' ";
+			$whereOnline .= " AND o.action_payment = 'delete' ";
+		} else
+		{
+			$whereCod .= " AND o.action_payment = 'Yes' ";
+			$whereOnline .= " AND o.action_payment = 'Yes' ";
+		}
 
-	// 	// ===================== Load Views =====================
-	// 	$this->load->view('include/header', $data);
-	// 	$this->load->view('Vendor/VendorViewOrderDetails', $data);
-	// 	$this->load->view('include/footer');
-	// }
+		if (!empty($fromTimestamp) && !empty($toTimestamp))
+		{
+			// COD (UNIX)
+			$whereCod .= " AND o.add_date BETWEEN $fromTimestamp AND $toTimestamp ";
+			// ONLINE (DATETIME)
+			$whereOnline .= " AND o.add_date BETWEEN FROM_UNIXTIME($fromTimestamp) 
+                          AND FROM_UNIXTIME($toTimestamp) ";
+		}
+
+		/* ================= COD ORDERS ================= */
+		$codQuery = "
+        SELECT 
+            o.id,
+            o.order_number,
+            o.final_price,
+            o.payment_type,
+            o.payment_status,
+            o.status,
+            o.add_date,
+            u.username,
+            u.mobile
+        FROM order_master o
+        INNER JOIN purchase_master p ON p.order_master_id = o.id
+        LEFT JOIN user_master u ON u.id = o.user_master_id
+        $whereCod
+        GROUP BY o.id
+    ";
+
+		/* ================= ONLINE ORDERS ================= */
+		$onlineQuery = "
+        SELECT 
+            o.id,
+            o.order_number,
+            o.final_price,
+            o.payment_type,
+            o.payment_status,
+            o.status,
+            UNIX_TIMESTAMP(o.add_date) AS add_date,
+            u.username,
+            u.mobile
+        FROM order_master2 o
+        INNER JOIN purchase_master2 p ON p.order_master_id = o.id
+        LEFT JOIN user_master u ON u.id = o.user_master_id
+        $whereOnline
+        GROUP BY o.id
+    ";
+
+		/* ================= FINAL UNION ================= */
+		$finalQuery = "
+        ($codQuery)
+        UNION ALL
+        ($onlineQuery)
+        ORDER BY add_date DESC
+        LIMIT $limit OFFSET $offset
+    ";
+
+		$AllRecord = $this->db->query($finalQuery)->result_array();
+
+		/* ================= TOTAL COUNT ================= */
+		$countQuery = "
+        SELECT COUNT(*) AS total FROM (
+            ($codQuery)
+            UNION ALL
+            ($onlineQuery)
+        ) AS total_orders
+    ";
+
+		$totalRecords = $this->db->query($countQuery)->row()->total;
+
+		/* ================= PAGINATION ================= */
+		$config['base_url'] = base_url('admin/Vendor/PromoterOrderList');
+		$config['total_rows'] = $totalRecords;
+		$config['per_page'] = $limit;
+		$config['use_page_numbers'] = TRUE;
+		$config['page_query_string'] = TRUE;
+		$config['num_links'] = 3;
+
+		$this->pagination->initialize($config);
+
+		$entries = 'Showing ' . ($offset + 1) . ' to ' .
+			($offset + count($AllRecord)) . ' of ' . $totalRecords . ' entries';
+
+		$data = [
+			'results' => $AllRecord,
+			'links' => $this->pagination->create_links(),
+			'entries' => $entries,
+			'index' => 'PromoterOrder',
+			'title' => 'Manage Orders'
+		];
+
+		$this->load->view('include/header', $data);
+		$this->load->view('Promoter/PromoterOrderList', $data);
+		$this->load->view('include/footer');
+	}
 
 
+	public function PromoterViewOrderDetails($id = '', $payment_type = '')
+	{
+		is_not_logged_in();
+		$promoterData = $this->session->userdata('adminData');
+		$promoter_id = $promoterData['Id'];
+
+		$data['title'] = 'Manage Order';
+
+		// Determine table by payment type
+		if ($payment_type == 1)
+		{
+			$orderTbl = 'order_master';
+			$purchaseTbl = 'purchase_master';
+			$addressTbl = 'order_address_master';
+			$orderType = 'offline';
+		} elseif ($payment_type == 2)
+		{
+			$orderTbl = 'order_master2';
+			$purchaseTbl = 'purchase_master2';
+			$addressTbl = 'order_address_master2';
+			$orderType = 'online';
+		} else
+		{
+			show_404();
+		}
+
+		// Fetch order
+		$order = $this->db->get_where($orderTbl, ['id' => $id])->row_array();
+		if (empty($order))
+			show_404();
+
+		// Fetch purchase data
+		$purchaseData = $this->db->where('order_master_id', $id)->get($purchaseTbl)->result_array();
+		$product_ids = array_column($purchaseData, 'product_master_id');
+
+		// Fetch shipping address
+		$address_data = $this->db->where('order_master_id', $id)->get($addressTbl)->row_array();
+
+		$data['getData'] = $order;
+		$data['purchaseData'] = $purchaseData;
+		$data['address_data'] = $address_data;
+		$data['orderType'] = $orderType;
+		$data['product_ids'] = $product_ids;
+
+		$this->load->view('include/header', $data);
+		$this->load->view('Promoter/PromoterViewOrderDetails', $data);
+		$this->load->view('include/footer');
+	}
 
 	public function promoter_registration()
 	{
@@ -1228,17 +1355,38 @@ class Vendor extends CI_Controller
 
 	public function VendorsByPromoter()
 	{
-		is_not_logged_in();
 		$adminData = $this->session->userdata('adminData');
-		if ($adminData['Type'] != 3)
+		if (!$adminData)
 		{
-			redirect('admin/Welcome');
+			redirect('admin/login');
 		}
 
+		$data['adminData'] = $adminData;
 		$promoter_id = $adminData['Id'];
 
-		$data['total_vendors'] = $this->Vendor_model->total_vendors_by_promoter($promoter_id);
-		$data['vendors'] = $this->Vendor_model->vendors_with_plan_status($promoter_id);
+		// ✅ LOAD MODELS FIRST
+		$this->load->model('Subscription_model');
+		$this->load->model('Vendor_model');
+
+		// ✅ NOW SAFE TO CALL MODEL FUNCTIONS
+		$active_subscription = $this->Subscription_model
+			->getActiveSubscription($promoter_id, 'promoter');
+
+		$pending_request = $this->Subscription_model
+			->getPendingSubscriptionRequest($promoter_id, 'promoter');
+
+		$data['show_subscription_popup'] =
+			(empty($active_subscription) && empty($pending_request)) ? 1 : 0;
+
+		// Plans
+		$data['plans'] = $this->Subscription_model->get_active_plans();
+
+		// Vendors data
+		$data['total_vendors'] =
+			$this->Vendor_model->total_vendors_by_promoter($promoter_id);
+
+		$data['vendors'] =
+			$this->Vendor_model->vendors_with_plan_status($promoter_id);
 
 		$data['title'] = 'My Vendors';
 		$data['index'] = 'VendorListByPromoter';
@@ -1248,25 +1396,7 @@ class Vendor extends CI_Controller
 		$this->load->view('include/footer');
 	}
 
-	// Renew vendor plan by promoter
-	public function renew_vendor_plan()
-	{
-		$vendor_id = $this->input->post('vendor_id');
-		$promoter_id = $this->session->userdata('adminData')['Id'];
 
-		// Example: Extend subscription 1 month from today
-		$new_end_date = date('Y-m-d', strtotime('+1 month'));
-		$this->db->where('vendor_id', $vendor_id)->update('vendor_subscriptions_master', [
-			'end_date' => $new_end_date,
-			'status' => 1,
-			'updated_at' => date('Y-m-d H:i:s')
-		]);
-
-		// Assign vendor to current promoter
-		$this->Vendor_model->assign_vendor_to_promoter($vendor_id, $promoter_id);
-
-		echo json_encode(['status' => 'success', 'message' => 'Plan renewed successfully']);
-	}
 
 
 
@@ -1826,4 +1956,184 @@ class Vendor extends CI_Controller
 		$headers .= "Content-type: text/html; charset=utf-8\r\n";
 		mail($to, $subject, '<pre style="font-size:14px;">' . $message . '</pre>', $headers);
 	}
+
+	public function MyWallet()
+	{
+		is_not_logged_in();
+		$session = $this->session->userdata('adminData');
+		$userId = $session['Id'];
+		$type = $session['Type'];
+
+		// 🔹 Default
+		$data['wallet_balance'] = 0;
+		$data['has_bank_account'] = false;
+		if ($type == 2)
+		{
+			$userType = 'vendor';
+			$user = $this->db->get_where('vendors', ['id' => $userId])->row();
+		} elseif ($type == 3)
+		{
+			$userType = 'promoter';
+			$user = $this->db->get_where('promoters', ['id' => $userId])->row();
+		} else
+		{
+			redirect('admin/dashboard');
+			return;
+		}
+		if ($user)
+		{
+			$data['wallet_balance'] = $user->wallet_amount;
+
+			$data['has_bank_account'] = (
+				!empty($user->bank_name) &&
+				!empty($user->account_no) &&
+				!empty($user->ifsc_code)
+			);
+		}
+		$data['transactions'] = $this->db
+			->where('user_id', $userId)
+			->where('user_type', $userType)
+			->order_by('request_date', 'DESC')
+			->get('withdrawal_requests')
+			->result();
+
+		$data['title'] = 'My Wallet';
+		$this->load->view('include/header', $data);
+		$this->load->view('Vendor/MyWallet', $data);
+		$this->load->view('include/footer');
+	}
+
+
+
+	public function SaveVendorBankdetails()
+	{
+		$vendor_id = $this->session->userdata('adminData')['Id'];
+		if (!$vendor_id)
+		{
+			echo json_encode(['status' => 'error', 'msg' => 'Login required']);
+			return;
+		}
+
+		$data = [
+			'account_name' => $this->input->post('account_name'),
+			'account_no' => $this->input->post('account_number'),
+			'ifsc_code' => $this->input->post('ifsc'),
+			'bank_name' => $this->input->post('bank_name'),
+			'branch_name' => $this->input->post('branch_name'),
+			'upi_id' => $this->input->post('upi_id'),
+			'modify_date' => date('Y-m-d H:i:s')
+		];
+
+		$this->db->where('id', $vendor_id)->update('vendors', $data);
+
+		if ($this->db->affected_rows() >= 0)
+		{
+			echo json_encode(['status' => 'success']);
+		} else
+		{
+			echo json_encode(['status' => 'error', 'msg' => 'Bank save failed']);
+		}
+	}
+
+	public function redeemVendorRequest()
+{
+    is_not_logged_in();
+
+    $vendor_id = $this->session->userdata('adminData')['Id'];
+    $amount = (float)$this->input->post('amount');
+
+    $vendor = $this->db->get_where('vendors', ['id' => $vendor_id])->row();
+
+    if (!$vendor || $amount <= 0 || $amount > $vendor->wallet_amount)
+    {
+        $this->session->set_flashdata('error', 'Invalid amount');
+        redirect('admin/Vendor/MyWallet');
+    }
+
+    // ONLY REQUEST INSERT (no wallet minus)
+    $this->db->insert('withdrawal_requests', [
+        'user_id'        => $vendor_id,
+        'user_type'      => 'vendor',
+        'amount'         => $amount,
+        'wallet_amount'  => $vendor->wallet_amount,
+        'bank_name'      => $vendor->bank_name,
+        'account_no'     => $vendor->account_no,
+        'ifsc_code'      => $vendor->ifsc_code,
+        'status'         => 0,
+        'request_date'   => date('Y-m-d H:i:s')
+    ]);
+
+    $this->session->set_flashdata(
+        'success',
+        'Redeem request sent. Amount will be credited after admin approval.'
+    );
+
+    redirect('admin/Vendor/MyWallet');
+}
+
+	public function WithdrawalRequests()
+{
+    is_not_logged_in();
+
+    $user = $this->session->userdata('adminData');
+    if (!$user)
+        redirect('admin/Welcome');
+
+    $vendor_id = $user['Id'];
+
+    // Fetch withdrawal requests with order info
+    $this->db->select('
+        wr.*, 
+        v.name as vendor_name, 
+        v.shop_name,
+        om.id as order_id,
+        om.order_number,
+        om.final_price,
+        om.admin_earning,
+        om.vendor_earning,
+        om.promoter_earning
+    ');
+    $this->db->from('withdrawal_requests wr');
+    $this->db->join('vendors v', 'v.id = wr.user_id', 'left');
+
+    // Join COD orders
+    $this->db->join('order_master om', 'om.id = wr.order_id', 'left');
+    // Join Online orders (order_master2)
+    $this->db->join('order_master2 om2', 'om2.id = wr.order_id', 'left');
+
+    $this->db->where('wr.user_id', $vendor_id);
+    $this->db->order_by('wr.request_date', 'DESC');
+
+    $requests = $this->db->get()->result();
+
+    // Fetch purchase and address for each request
+    foreach ($requests as $req) {
+        if ($req->order_id) {
+           
+            $purchase = $this->db->get_where('purchase_master', ['order_master_id' => $req->order_id])->row();
+            if (!$purchase) {
+              
+                $purchase = $this->db->get_where('purchase_master2', ['order_master_id' => $req->order_id])->row();
+            }
+            $req->purchase = $purchase;
+
+          
+            $address = $this->db->get_where('order_address_master', ['order_master_id' => $req->order_id])->row();
+            if (!$address) {
+               
+                $address = $this->db->get_where('order_address_master2', ['order_master_id' => $req->order_id])->row();
+            }
+            $req->address = $address;
+        }
+    }
+
+    $data['requests'] = $requests;
+    $data['title'] = 'My Withdrawal Requests';
+
+    $this->load->view('include/header', $data);
+    $this->load->view('Vendor/WithdrawalRequests', $data);
+    $this->load->view('include/footer');
+}
+
+
 }

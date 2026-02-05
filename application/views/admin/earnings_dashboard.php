@@ -121,7 +121,6 @@
                         </div>
                     </div>
                 </div>
-                
             </div>
 
         </section>
@@ -130,12 +129,14 @@
 
 <script>
 const form = document.getElementById('filterForm');
-const monthInput = document.getElementById('month');
-const fromDateInput = document.getElementById('from_date');
-const toDateInput = document.getElementById('to_date');
-const vendorInput = document.getElementById('vendor_id');
-const promoterInput = document.getElementById('promoter_id');
 
+const monthInput     = document.getElementById('month');
+const fromDateInput  = document.getElementById('from_date');
+const toDateInput    = document.getElementById('to_date');
+const vendorInput    = document.getElementById('vendor_id');
+const promoterInput  = document.getElementById('promoter_id');
+
+/* ================= DASHBOARD UPDATE ================= */
 function updateDashboard() {
     const formData = new FormData(form);
 
@@ -145,50 +146,72 @@ function updateDashboard() {
     })
     .then(res => res.json())
     .then(data => {
-        const setText = (id, value) => {
+        const setText = (id, val) => {
             const el = document.getElementById(id);
-            if(el) el.innerText = value;
+            if (el) el.innerText = val;
         };
 
-        // Main totals
-        setText('total_earning', '₹' + (parseFloat(data.total_earning) || 0).toFixed(2));
-        setText('vendor_earning', '₹' + (parseFloat(data.vendor_earning) || 0).toFixed(2));
-        setText('promoter_earning', '₹' + (parseFloat(data.promoter_earning) || 0).toFixed(2));
-        setText('total_orders', data.total_orders || 0);
-        setText('pending_orders', data.pending_orders || 0);
+        setText('total_earning',   '₹' + (+data.total_earning || 0).toFixed(2));
+        setText('vendor_earning',  '₹' + (+data.vendor_earning || 0).toFixed(2));
+        setText('promoter_earning','₹' + (+data.promoter_earning || 0).toFixed(2));
 
-        // Filtered totals (dynamic according to month/date/vendor/promoter)
-        setText('total_vendors', data.total_vendors || 0);
+        setText('total_orders',    data.total_orders || 0);
+        setText('pending_orders',  data.pending_orders || 0);
+        setText('total_vendors',   data.total_vendors || 0);
         setText('total_promoters', data.total_promoters || 0);
-        setText('total_products', data.total_products || 0);
-
-        // Month/date-wise added counts
-        setText('total_vendors_added', data.total_vendors_added || 0);
-        setText('total_promoters_added', data.total_promoters_added || 0);
-        setText('total_products_added', data.total_products_added || 0);
+        setText('total_products',  data.total_products || 0);
     })
-    .catch(err => console.error('Error updating dashboard:', err));
+    .catch(err => console.error('Dashboard Error:', err));
 }
 
-// Filter event listeners
-monthInput.addEventListener('change', () => {
+/* ================= RESET HELPERS ================= */
+function resetDateRange() {
     fromDateInput.value = '';
-    toDateInput.value = '';
-    updateDashboard();
-});
+    toDateInput.value   = '';
+}
 
-[fromDateInput, toDateInput].forEach(el => el.addEventListener('change', () => {
+function resetMonth() {
     monthInput.value = '';
-    if(fromDateInput.value && toDateInput.value) updateDashboard();
-}));
+}
 
-vendorInput.addEventListener('change', () => {
-    promoterInput.value = '';
+function resetVendor() {
+    if (vendorInput) vendorInput.value = '';
+}
+
+function resetPromoter() {
+    if (promoterInput) promoterInput.value = '';
+}
+
+/* ================= FILTER EVENTS ================= */
+
+// Month → Date reset
+monthInput?.addEventListener('change', () => {
+    resetDateRange();
     updateDashboard();
 });
 
-promoterInput.addEventListener('change', () => {
+// Date range → Month reset
+[fromDateInput, toDateInput].forEach(el => {
+    el?.addEventListener('change', () => {
+        if (fromDateInput.value && toDateInput.value) {
+            resetMonth();
+            updateDashboard();
+        }
+    });
+});
+
+// Vendor → Promoter reset
+vendorInput?.addEventListener('change', () => {
+    resetPromoter();
+    updateDashboard();
+});
+
+// Promoter → Vendor reset + reload vendors
+promoterInput?.addEventListener('change', () => {
     const promoterId = promoterInput.value;
+
+    resetVendor();
+
     fetch('<?= base_url("admin/EarningsDashboard/getVendorsByPromoter") ?>', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -196,15 +219,22 @@ promoterInput.addEventListener('change', () => {
     })
     .then(res => res.json())
     .then(data => {
-        let html = '<option value="">Select Vendor</option>';
-        data.forEach(v => html += `<option value="${v.id}">${v.name}</option>`);
+        if (!vendorInput) return;
+
+        let html = '<option value="">All Vendors</option>';
+        data.forEach(v => {
+            html += `<option value="${v.id}">${v.name}</option>`;
+        });
+
         vendorInput.innerHTML = html;
         updateDashboard();
     })
-    .catch(err => console.error('Error fetching vendors:', err));
+    .catch(err => console.error('Vendor Load Error:', err));
 });
 
-// Initial load
+/* ================= INITIAL LOAD ================= */
 updateDashboard();
 </script>
+
+
 

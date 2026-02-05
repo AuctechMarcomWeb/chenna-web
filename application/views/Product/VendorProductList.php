@@ -112,70 +112,70 @@
         cursor: pointer;
     }
 
-    .slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #ccc;
-        -webkit-transition: .4s;
-        transition: .4s;
-    }
-
-    .slider:before {
-        position: absolute;
-        content: "";
-        height: 26px;
-        width: 26px;
-        left: 4px;
-        bottom: 4px;
-        background-color: white;
-        -webkit-transition: .4s;
-        transition: .4s;
-    }
-
-    input:checked+.slider {
-        background-color: #2196F3;
-    }
-
-    input:focus+.slider {
-        box-shadow: 0 0 1px #2196F3;
-    }
-
-    input:checked+.slider:before {
-        -webkit-transform: translateX(26px);
-        -ms-transform: translateX(26px);
-        transform: translateX(26px);
-    }
-
-    /* Rounded sliders */
-    .slider.round {
-        border-radius: 34px;
-    }
-
-    .slider.round:before {
-        border-radius: 50%;
-    }
-
-    .switch {
+    /* Toggle wrapper */
+    .custom-toggle {
         position: relative;
         display: inline-block;
-        width: 60px;
-        height: 34px;
+        width: 52px;
+        height: 26px;
     }
 
-    .switch input {
+    /* Hide default checkbox */
+    .custom-toggle input {
         opacity: 0;
         width: 0;
         height: 0;
     }
-      .vendor-logo {
-    width: 80px;
-    height: 50px;
-    object-fit: contain;
-  }
+
+    /* Slider background */
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        inset: 0;
+        background-color: #ccc;
+        transition: 0.4s;
+        border-radius: 30px;
+    }
+
+    /* Slider knob */
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 20px;
+        width: 20px;
+        left: 3px;
+        bottom: 3px;
+        background-color: #fff;
+        transition: 0.4s;
+        border-radius: 50%;
+    }
+
+    /* Checked state */
+    .custom-toggle input:checked+.toggle-slider {
+        background-color: #28a745;
+    }
+
+    /* Move knob */
+    .custom-toggle input:checked+.toggle-slider:before {
+        transform: translateX(26px);
+    }
+
+    /* COD special color */
+    .custom-toggle.cod input:checked+.toggle-slider {
+        background-color: #0d6efd;
+    }
+
+    /* Seller approve color */
+    .custom-toggle.seller input:checked+.toggle-slider {
+        background-color: #198754;
+    }
+
+
+    .vendor-logo {
+        width: 80px;
+        height: 50px;
+        object-fit: contain;
+    }
 </style>
 <div class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -236,6 +236,8 @@
                                         <th>Rate / MRP</th>
                                         <th>Stock</th>
                                         <th>Date</th>
+                                        <th>Cash On Delivery</th>
+                                        <th>Seller Status</th>
                                         <th>Verify</th>
                                         <th>Action</th>
                                     </tr>
@@ -245,7 +247,7 @@
                                     <?php foreach ($results as $value): ?>
                                         <tr>
                                             <td><?= $counter; ?></td>
-                                            <td><?= $value['name'] ?? ''; ?></td>
+                                            <td><?= $value['parent_category_name'] ?? ''; ?></td>
                                             <td><?= $value['category_name'] ?? ''; ?></td>
                                             <td><?= $value['sub_category_name'] ?? ''; ?></td>
                                             <td><?= $value['product_name']; ?><br>Color: <?= $value['color'] ?? ''; ?> |
@@ -254,10 +256,10 @@
                                                 <?php
                                                 if ($value['added_type'] == '2')
                                                 {
-                                                  
+
                                                     $img = !empty($value['vendor_logo']) ? base_url($value['vendor_logo']) : base_url('plugins/images/logo.png');
                                                     $shop_name = $value['shop_logo'] ?? $value['promoter_name'];
-                                                } 
+                                                }
                                                 ?>
                                                 <img src="<?= $img; ?>" alt="Shop Logo" class="vendor-logo"
                                                     onerror="this.src='<?= base_url('plugins/images/logo.png'); ?>'">
@@ -272,7 +274,25 @@
                                             <td>
                                                 <?= date('d-m-Y | h:i:s A', strtotime($v->add_date ?? date('Y-m-d H:i:s'))); ?>
                                             </td>
+                                            <!-- CASH ON DELIVERY TOGGLE -->
+                                            <td>
+                                                <label class="custom-toggle cod">
+                                                    <input type="checkbox" class="codToggle" data-id="<?= $value['id']; ?>"
+                                                        <?= ($value['cash_on_delivery'] == 1) ? 'checked' : '' ?>>
 
+                                                    <span class="toggle-slider"></span>
+                                                </label>
+                                            </td>
+
+                                            <!-- SELLER APPROVE TOGGLE -->
+                                            <td><label class="custom-toggle seller">
+                                                    <input type="checkbox" class="sellerToggle"
+                                                        data-id="<?= $value['id']; ?>"
+                                                        <?= ($value['seller_approve_status'] == 1) ? 'checked' : '' ?>
+                                                        <?= ($adminData['Type'] == 1) ? 'disabled' : '' ?>>
+                                                    <span class="toggle-slider"></span>
+                                                </label>
+                                            </td>
                                             <td>
                                                 <?php if ($adminData['Type'] == 1)
                                                 { ?>
@@ -343,12 +363,12 @@
 
         </div>
     </div>
-
-
-
-
-
 </div>
+
+<!-- Bootstrap 5 -->
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
 
 
 <script src="<?php echo base_url('assets/admin/plugins/select2/select2.full.min.js'); ?>"></script>
@@ -398,6 +418,29 @@
             }
         });
     }
+
+
+</script>
+<script>
+    $(document).on('change', '.codToggle', function () {
+        let id = $(this).attr('data-id');
+        let value = $(this).is(':checked') ? 1 : 0;
+        console.log('COD ID:', id, 'Value:', value);
+
+        $.post("<?= base_url('admin/product/update_cod') ?>", { id: id, value: value }, function (response) {
+            console.log(response);
+        });
+    });
+
+    $(document).on('change', '.sellerToggle', function () {
+        let id = $(this).attr('data-id');
+        let value = $(this).is(':checked') ? 1 : 0;
+        console.log('Seller ID:', id, 'Value:', value);
+
+        $.post("<?= base_url('admin/product/update_seller_status') ?>", { id: id, value: value }, function (response) {
+            console.log(response);
+        });
+    });
 
 
 </script>
