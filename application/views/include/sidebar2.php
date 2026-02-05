@@ -100,6 +100,28 @@
           </li>
         </ul>
       </li>
+      <li class="treeview <?php echo (($index == 'Product') ? 'active' : ''); ?>">
+        <a href="#">
+          <i class="fa fa-user-plus"></i> <span>Advertisement Plans</span>
+          <span class="pull-right-container">
+            <i class="fa fa-angle-left pull-right"></i>
+          </span>
+        </a>
+
+        <ul class="treeview-menu">
+          <li class="<?php echo (($index2 == 'AdvertismentUpdatePlan') ? 'active' : ''); ?>">
+            <a href="<?php echo site_url('admin/Subscription/AdvertismentUpdatePlan'); ?>">
+              <i class="fa fa-circle-o"></i> <span>Update Advertisement Plans</span>
+            </a>
+          </li>
+          <li class="treeview <?php echo (($index == 'vendor') ? 'active' : ''); ?>">
+            <a href="<?php echo site_url('admin/Subscription/subscription_list'); ?>">
+              <i class="fa fa-circle-o"></i>
+              <span>Manage Plan Vendors</span>
+            </a>
+          </li>
+        </ul>
+      </li>
 
       <li class="<?php echo (($index2 == 'ContactUsList') ? 'active' : ''); ?>">
         <a href="<?php echo site_url('admin/Users/all_contact_list'); ?>">
