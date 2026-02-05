@@ -4154,7 +4154,7 @@ class Product extends CI_Controller
       ['cash_on_delivery' => $value]
     );
 
-    echo $updated ? 'success' : 'error';
+    // echo $updated ? 'success' : 'error';
   }
 
 
@@ -4168,8 +4168,6 @@ class Product extends CI_Controller
       echo 'error';
       return;
     }
-
-    // ❌ Admin not allowed
     if ($user['Type'] == 1)
     {
       echo 'not_allowed';
@@ -4181,7 +4179,6 @@ class Product extends CI_Controller
 
     if (!$id)
     {
-      // echo 'error';
       return;
     }
 
@@ -4193,8 +4190,6 @@ class Product extends CI_Controller
       'sub_product_master',
       ['seller_approve_status' => $value]
     );
-
-    // echo $updated ? 'success' : 'error';
   }
 
 
