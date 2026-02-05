@@ -483,11 +483,11 @@ class Subscription extends CI_Controller
         $this->load->view('include/footer');
     }
 
-   public function UpdateadvertismentPlan($id)
+    public function UpdateadvertismentPlan($id)
     {
         $data['plan'] = $this->db->get_where('admin_advertisement_plans_master', ['id' => $id])->row_array();
         $data['title'] = 'Update Advertisement Plan';
-        
+
         $this->load->view('include/header', $data);
         $this->load->view('admin/UpdateadvertismentPlan', $data);
         $this->load->view('include/footer');
@@ -515,6 +515,75 @@ class Subscription extends CI_Controller
         $this->session->set_flashdata('message', 'Advertisement Plan Updated Successfully!');
         redirect('admin/Subscription/AdvertismentUpdatePlan');
     }
+
+
+    public function AdvertismentSelectPlan()
+    {
+        $adminData = $this->session->userdata('adminData');
+
+        // Fetch all active plans
+        $data['plans'] = $this->db
+            ->where('status', 1)
+            ->order_by('plan_type', 'ASC')
+            ->get('admin_advertisement_plans_master')
+            ->result_array();
+
+        $data['adminData'] = $adminData; // needed for JS
+        $data['title'] = 'Advertisement Plans';
+
+        $this->load->view('include/header', $data);
+        $this->load->view('admin/AdvertismentSelectPlan', $data);
+        $this->load->view('include/footer');
+    }
+
+
+   public function check_user_plan()
+{
+    $user_id = $this->input->post('user_id');
+    $user_type = $this->input->post('user_type');
+
+    $this->db->where('user_id', $user_id);
+    $this->db->where('user_type', $user_type);
+    $this->db->where('status', 1);
+    $this->db->where('end_date >=', date('Y-m-d'));
+    $query = $this->db->get('advertisement_purchases_master');
+
+    $has_plan = $query->num_rows() > 0 ? true : false;
+    echo json_encode(['has_plan' => $has_plan]);
+}
+
+public function create_advetisment_plan()
+{
+    $user_id = $this->input->post('user_id');
+    $user_type = $this->input->post('user_type');
+    $plan_id = $this->input->post('plan_id');
+
+    $plan = $this->db->get_where('admin_advertisement_plans_master', ['id'=>$plan_id])->row_array();
+    if(!$plan){
+        echo json_encode(['status'=>'error','message'=>'Plan not found']);
+        return;
+    }
+
+    $start_date = date('Y-m-d');
+    $end_date = date('Y-m-d', strtotime("+{$plan['duration_days']} days"));
+
+    $insert = [
+        'plan_id'=>$plan_id,
+        'user_type'=>$user_type,
+        'user_id'=>$user_id,
+        'start_date'=>$start_date,
+        'end_date'=>$end_date,
+        'products_used'=>0,
+        'payment_status'=>'paid', // or pending
+        'status'=>1,
+        'created_at'=>date('Y-m-d H:i:s')
+    ];
+
+    $this->db->insert('advertisement_purchases_master', $insert);
+
+    echo json_encode(['status'=>'success']);
+}
+
 
 
 }

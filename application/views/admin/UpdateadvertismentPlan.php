@@ -168,8 +168,8 @@
                                     </div>
 
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="featured_product" value="1" <?= ($plan['featured_product']==1)?'checked':''; ?>>
-                                        <label class="form-check-label">Featured Product</label>
+                                        <input class="form-check-input" type="checkbox" name="product_for_you" value="1" <?= ($plan['product_for_you']==1)?'checked':''; ?>>
+                                        <label class="form-check-label">Product For You </label>
                                     </div>
 
                                     <div class="form-check">

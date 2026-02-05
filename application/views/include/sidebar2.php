@@ -209,6 +209,28 @@
           <i class="fa fa-id-card"></i> <span>Subsciption Plans</span>
         </a>
       </li>
+      <li class="treeview <?php echo (($index == 'Product') ? 'active' : ''); ?>">
+        <a href="#">
+          <i class="fa fa-user-plus"></i> <span>Advertisement Plans</span>
+          <span class="pull-right-container">
+            <i class="fa fa-angle-left pull-right"></i>
+          </span>
+        </a>
+
+        <ul class="treeview-menu">
+          <li class="<?php echo (($index2 == 'AdvertismentUpdatePlan') ? 'active' : ''); ?>">
+            <a href="<?php echo site_url('admin/Subscription/AdvertismentSelectPlan'); ?>">
+              <i class="fa fa-circle-o"></i> <span> Advertisement Plans</span>
+            </a>
+          </li>
+          <li class="treeview <?php echo (($index == 'vendor') ? 'active' : ''); ?>">
+            <a href="<?php echo site_url('admin/Subscription/subscription_list'); ?>">
+              <i class="fa fa-circle-o"></i>
+              <span>Manage Plan Vendors</span>
+            </a>
+          </li>
+        </ul>
+      </li>
       <!-- SETTINGS -->
       <li class="<?php echo (($index == 'VendorSetting') ? 'active' : ''); ?>">
         <a href="<?php echo site_url('admin/Vendor/UpdateVendorProfile/' . $adminData['Id']); ?>">
