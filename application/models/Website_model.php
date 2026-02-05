@@ -81,7 +81,6 @@ class Website_model extends CI_Model
     public function getAllTagSections()
     {
         $sections = [];
-
         $tags = $this->db->where('status', 1)
             ->order_by('id', 'ASC')
             ->get('tag_master')
@@ -90,23 +89,39 @@ class Website_model extends CI_Model
         foreach ($tags as $tag)
         {
             if (empty($tag['product_ids']))
+            {
                 continue;
+            }
 
             $product_ids = json_decode($tag['product_ids'], true);
             if (empty($product_ids))
+            {
                 continue;
+            }
 
-            // Fetch products
-            $this->db->select('id, product_name, price, final_price, main_image');
+            $this->db->select('
+            id,
+            product_name,
+            price,
+            final_price,
+            main_image,
+            cash_on_delivery,
+            seller_approve_status,
+            verify_status
+        ');
             $this->db->where_in('id', $product_ids);
             $this->db->where('status', 1);
+            $this->db->where('seller_approve_status', 1);
+            $this->db->where('verify_status', 1);
             $this->db->limit(12);
+
             $products = $this->db->get('sub_product_master')->result_array();
 
             if (empty($products))
+            {
                 continue;
+            }
 
-            // Rating
             foreach ($products as &$product)
             {
                 $avg = $this->db->select_avg('rating')
@@ -116,6 +131,7 @@ class Website_model extends CI_Model
                     ->row();
 
                 $product['average_rating'] = round($avg->rating ?? 0, 1);
+                $product['cod_available'] = ($product['cash_on_delivery'] == 1) ? true : false;
             }
 
             $sections[] = [
@@ -127,6 +143,7 @@ class Website_model extends CI_Model
 
         return $sections;
     }
+
 
 
 

@@ -1216,7 +1216,8 @@ if (!empty($getData['image5']))
                                 <div class="vendor-image" style="flex-shrink: 0;">
                                     <img src="<?= !empty($vendorData['vendor_logo'])
                                         ? base_url($vendorData['vendor_logo'])
-                                        : base_url('assets/images/no-image.png'); ?>" alt="<?= $vendorData['shop_name'] ?? 'Vendor'; ?>"
+                                        : base_url('assets/images/no-image.png'); ?>"
+                                        alt="<?= $vendorData['shop_name'] ?? 'Vendor'; ?>"
                                         style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;">
                                 </div>
 
@@ -1415,6 +1416,23 @@ if (!empty($getData['image5']))
                                                 Description</th>
                                             <td><?= $getData['pro_description'] ?? 'No data found'; ?></td>
                                         </tr>
+                                        <tr>
+                                            <th scope="row">Cash On Delivery</th>
+                                            <td>
+                                                <?php
+                                                if (isset($getData['cash_on_delivery']))
+                                                {
+                                                    echo ($getData['cash_on_delivery'] == 1)
+                                                        ? '<span class="">Available</span>'
+                                                        : '<span class="">Not Available</span>';
+                                                } else
+                                                {
+                                                    echo '<span class="text-muted">No data found</span>';
+                                                }
+                                                ?>
+                                            </td>
+                                        </tr>
+
                                     </tbody>
                                 </table>
                             </div>

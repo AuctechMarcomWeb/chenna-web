@@ -695,9 +695,7 @@ class Web extends CI_Controller
   public function category_product_list($mainSlug, $categorySlug)
   {
     $user_id = $this->session->userdata('User')['id'] ?? null;
-    $wishlist_count = !empty($userData)
-      ? $this->web_model->get_total_wishlist_by_user($userData['id'])
-      : 0;
+
     // Get main category
     $mainCategory = $this->db->get_where('parent_category_master', [
       'slug' => $mainSlug,
@@ -706,7 +704,7 @@ class Web extends CI_Controller
     if (!$mainCategory)
       show_404();
 
-    // Get category under main
+    // Get category
     $categoryRow = $this->db->get_where('category_master', [
       'mai_id' => $mainCategory['id'],
       'slug' => $categorySlug,
@@ -715,11 +713,10 @@ class Web extends CI_Controller
     if (!$categoryRow)
       show_404();
 
-    // Get all sibling categories + subcategories
+    // Categories & subcategories
     $categories = $this->db->select('id, category_name, slug')
       ->where('mai_id', $mainCategory['id'])
       ->where('status', 1)
-      ->order_by('id', 'ASC')
       ->get('category_master')
       ->result_array();
 
@@ -732,17 +729,20 @@ class Web extends CI_Controller
         ->result_array();
     }
 
-    // Price range for this category
+    // Price range (ONLY approved + verified products)
     $priceRange = $this->db->select('MIN(final_price) as min_price, MAX(final_price) as max_price')
       ->from('sub_product_master')
-      ->where('status', 1)
-      ->where('parent_category_id', $mainCategory['id'])
-      ->where('category_id', $categoryRow['id'])
+      ->where([
+        'status' => 1,
+        'seller_approve_status' => 1,
+        'verify_status' => 1,
+        'parent_category_id' => $mainCategory['id'],
+        'category_id' => $categoryRow['id']
+      ])
       ->get()->row_array();
 
     $data = [
       'user_id' => $user_id,
-      'wishlist_count' => $wishlist_count,
       'mainCategory' => $mainCategory,
       'categoryRow' => $categoryRow,
       'mainCategoryId' => $mainCategory['id'],
@@ -750,7 +750,6 @@ class Web extends CI_Controller
       'categories' => $categories,
       'min_price_range' => $priceRange['min_price'] ?? 0,
       'max_price_range' => $priceRange['max_price'] ?? 100000,
-      'user_id' => $user_id,
       'title' => $categoryRow['category_name'] . ' - ' . $mainCategory['name']
     ];
 
@@ -758,6 +757,7 @@ class Web extends CI_Controller
     $this->load->view('web/category_product_list', $data);
     $this->load->view('web/include/footer');
   }
+
 
   // AJAX - Filter products
   public function ajax_filter_products()
@@ -772,52 +772,77 @@ class Web extends CI_Controller
     $size = $this->input->post('size');
     $rating = $this->input->post('rating');
     $page = $this->input->post('page') ?: 1;
+
     $limit = 12;
     $offset = ($page - 1) * $limit;
 
-    // Latest product per SKU
+    /* ========= SUB QUERY (LATEST SKU) ========= */
     $subQuery = $this->db->select('sku_code, MAX(id) as max_id')
       ->from('sub_product_master')
-      ->where('status', 1);
+      ->where('status', 1)
+      ->where('verify_status', 1)
+      ->where('seller_approve_status', 1);
 
     if ($mainCategoryId)
       $subQuery->where('parent_category_id', $mainCategoryId);
+
     if ($categoryId)
       $subQuery->where_in('category_id', explode(',', $categoryId));
+
     if ($subCategoryId)
       $subQuery->where_in('sub_category_id', explode(',', $subCategoryId));
+
     if ($size)
       $subQuery->where_in('size', explode(',', $size));
 
     $subQuery->group_by('sku_code');
     $subQueryStr = $subQuery->get_compiled_select();
 
-    // Main Query
-    $this->db->select("sp.id, sp.sku_code, sp.product_name, sp.price, sp.final_price, sp.main_image, sp.size, COALESCE(AVG(cr.rating),0) as avg_rating");
+    /* ========= MAIN QUERY ========= */
+    $this->db->select("
+        sp.id,
+        sp.sku_code,
+        sp.product_name,
+        sp.price,
+        sp.final_price,
+        sp.main_image,
+        sp.size,
+        sp.cash_on_delivery,
+        sp.seller_approve_status,
+        sp.verify_status,
+        COALESCE(AVG(cr.rating),0) as avg_rating
+    ");
+
     $this->db->from("sub_product_master sp");
-    $this->db->join("($subQueryStr) latest", "sp.id=latest.max_id", "inner");
-    $this->db->join("customer_review cr", "sp.id=cr.product_id AND cr.status=1", "left");
+    $this->db->join("($subQueryStr) latest", "sp.id = latest.max_id", "inner");
+    $this->db->join("customer_review cr", "sp.id = cr.product_id AND cr.status = 1", "left");
 
     $this->db->where('sp.status', 1);
     $this->db->where('sp.verify_status', 1);
+    $this->db->where('sp.seller_approve_status', 1);
+
+    if ($min_price !== null && $max_price !== null)
+      $this->db->where('sp.final_price >=', $min_price)
+        ->where('sp.final_price <=', $max_price);
 
     $this->db->group_by('sp.id');
-
 
     if (!empty($rating))
       $this->db->having('avg_rating >=', $rating);
 
-    $cloneDB = clone $this->db;
-    $total_result = $cloneDB->get()->num_rows();
+    /* ========= TOTAL ========= */
+    $clone = clone $this->db;
+    $total = $clone->get()->num_rows();
 
+    /* ========= DATA ========= */
     $this->db->limit($limit, $offset);
     $result = $this->db->get()->result_array();
 
-    // Wishlist
-    $wishlist_product_ids = [];
+    /* ========= WISHLIST ========= */
+    $wishlist_ids = [];
     if ($user_id)
     {
-      $wishlist_product_ids = array_column(
+      $wishlist_ids = array_column(
         $this->db->select('product_id')
           ->from('wish_list_master')
           ->where('user_id', $user_id)
@@ -838,27 +863,20 @@ class Web extends CI_Controller
         'main_image' => $p['main_image'],
         'size' => $p['size'],
         'avg' => round($p['avg_rating'], 1),
-        'in_wishlist' => in_array($p['id'], $wishlist_product_ids)
+        'cash_on_delivery' => (int) $p['cash_on_delivery'],
+        'seller_approve_status' => (int) $p['seller_approve_status'],
+        'verify_status' => (int) $p['verify_status'],
+        'in_wishlist' => in_array($p['id'], $wishlist_ids)
       ];
     }
 
-
-    $sizeQuery = $this->db->distinct()->select('size')->from('sub_product_master')->where('status', 1);
-    if ($mainCategoryId)
-      $sizeQuery->where('parent_category_id', $mainCategoryId);
-    if ($categoryId)
-      $sizeQuery->where_in('category_id', explode(',', $categoryId));
-    if ($subCategoryId)
-      $sizeQuery->where_in('sub_category_id', explode(',', $subCategoryId));
-    $sizesArr = array_column($sizeQuery->get()->result_array(), 'size');
-
     echo json_encode([
       'products' => $products,
-      'total' => $total_result,
-      'limit' => $limit,
-      'sizes' => $sizesArr
+      'total' => $total,
+      'limit' => $limit
     ]);
   }
+
 
 
 
@@ -870,14 +888,28 @@ class Web extends CI_Controller
   {
     $userData = $this->session->userdata('User');
     $user_id = !empty($userData) ? $userData['id'] : null;
-    $wishlist_count = !empty($userData)
-      ? $this->web_model->get_total_wishlist_by_user($userData['id'])
+
+    $wishlist_count = $user_id
+      ? $this->web_model->get_total_wishlist_by_user($user_id)
       : 0;
 
-    // Fetch IDs by slug
-    $mainCategory = $this->db->get_where('parent_category_master', ['slug' => $mainSlug, 'status' => 1])->row_array();
-    $categoryRow = $this->db->get_where('category_master', ['slug' => $categorySlug, 'mai_id' => $mainCategory['id'] ?? 0, 'status' => 1])->row_array();
-    $subCategoryRow = $this->db->get_where('sub_category_master', ['slug' => $subSlug, 'category_master_id' => $categoryRow['id'] ?? 0, 'status' => 1])->row_array();
+    /* ================= SLUG TO ID ================= */
+    $mainCategory = $this->db->get_where('parent_category_master', [
+      'slug' => $mainSlug,
+      'status' => 1
+    ])->row_array();
+
+    $categoryRow = $this->db->get_where('category_master', [
+      'slug' => $categorySlug,
+      'mai_id' => $mainCategory['id'] ?? 0,
+      'status' => 1
+    ])->row_array();
+
+    $subCategoryRow = $this->db->get_where('sub_category_master', [
+      'slug' => $subSlug,
+      'category_master_id' => $categoryRow['id'] ?? 0,
+      'status' => 1
+    ])->row_array();
 
     if (!$mainCategory || !$categoryRow || !$subCategoryRow)
       show_404();
@@ -886,16 +918,21 @@ class Web extends CI_Controller
     $categoryId = $categoryRow['id'];
     $subCategoryId = $subCategoryRow['id'];
 
-    // Price range
+    /* ================= PRICE RANGE (ONLY VALID PRODUCTS) ================= */
     $priceRange = $this->db->select('MIN(final_price) as min_price, MAX(final_price) as max_price')
       ->from('sub_product_master')
-      ->where('status', 1)
-      ->where('parent_category_id', $mainCategoryId)
-      ->where('category_id', $categoryId)
-      ->where('sub_category_id', $subCategoryId)
-      ->get()->row_array();
+      ->where([
+        'status' => 1,
+        'verify_status' => 1,
+        'seller_approve_status' => 1,
+        'parent_category_id' => $mainCategoryId,
+        'category_id' => $categoryId,
+        'sub_category_id' => $subCategoryId
+      ])
+      ->get()
+      ->row_array();
 
-    // Categories + Subcategories
+    /* ================= CATEGORY TREE ================= */
     $categories = $this->db->select('id, category_name, slug')
       ->from('category_master')
       ->where('status', 1)
@@ -918,8 +955,8 @@ class Web extends CI_Controller
       'categoryId' => $categoryId,
       'subCategoryId' => $subCategoryId,
       'categories' => $categories,
-      'min_price_range' => $priceRange['min_price'] ?? 0,
-      'max_price_range' => $priceRange['max_price'] ?? 0,
+      'min_price_range' => (int) ($priceRange['min_price'] ?? 0),
+      'max_price_range' => (int) ($priceRange['max_price'] ?? 0),
       'title' => ucfirst($mainSlug) . ' | ' . ucfirst($categorySlug) . ' | ' . ucfirst($subSlug)
     ];
 
@@ -927,6 +964,7 @@ class Web extends CI_Controller
     $this->load->view('web/sub_category_product_list', $data);
     $this->load->view('web/include/footer');
   }
+
 
 
   // AJAX filter
@@ -942,17 +980,16 @@ class Web extends CI_Controller
     $size = $this->input->post('size');
     $rating = $this->input->post('rating');
     $page = (int) $this->input->post('page') ?: 1;
-    $perPage = (int) $this->input->post('perPage') ?: 12;
+    $perPage = 12;
 
-    /* =====================================================
-       MAIN PRODUCT QUERY (SKU GROUPED)
-    ====================================================== */
-    $this->db->select('*')
-      ->from('sub_product_master')
-      ->where('status', 1)
-      ->where('verify_status', 1)
+    /* ================= BASE QUERY ================= */
+    $this->db->from('sub_product_master')
+      ->where([
+        'status' => 1,
+        'verify_status' => 1,
+        'seller_approve_status' => 1,
+      ])
       ->group_by('sku_code');
-
 
     if ($mainCategoryId)
       $this->db->where('parent_category_id', $mainCategoryId);
@@ -968,116 +1005,70 @@ class Web extends CI_Controller
       $this->db->where('final_price <=', $max_price);
 
     $allProducts = $this->db->order_by('id', 'DESC')->get()->result_array();
-    $totalProducts = count($allProducts);
 
-    /* =====================================================
-       AVG RATING
-    ====================================================== */
-    $product_ids = array_column($allProducts, 'id');
-    $product_avg = [];
+    /* ================= AVG RATING ================= */
+    $ids = array_column($allProducts, 'id');
+    $avgRatings = [];
 
-    if (!empty($product_ids))
+    if ($ids)
     {
-      $ratings = $this->db->select('product_id, AVG(rating) as avg_rating')
+      $ratings = $this->db->select('product_id, ROUND(AVG(rating),1) avg')
         ->from('customer_review')
-        ->where_in('product_id', $product_ids)
         ->where('status', 1)
+        ->where_in('product_id', $ids)
         ->group_by('product_id')
         ->get()->result_array();
 
       foreach ($ratings as $r)
-      {
-        $product_avg[$r['product_id']] = round($r['avg_rating'], 1);
-      }
+        $avgRatings[$r['product_id']] = $r['avg'];
     }
 
     foreach ($allProducts as &$p)
     {
-      $p['avg'] = $product_avg[$p['id']] ?? 0;
-      $p['is_in_wishlist'] = $user_id
-        ? $this->db->where('user_id', $user_id)
-          ->where('product_id', $p['id'])
-          ->count_all_results('wish_list_master') > 0
+      $p['avg'] = $avgRatings[$p['id']] ?? 0;
+      $p['in_wishlist'] = $user_id
+        ? $this->db->where([
+          'user_id' => $user_id,
+          'product_id' => $p['id']
+        ])->count_all_results('wish_list_master') > 0
         : 0;
     }
     unset($p);
 
-    /* =====================================================
-       RATING FILTER (POST PROCESS)
-    ====================================================== */
+    /* ================= RATING FILTER ================= */
     if ($rating)
     {
-      $ratingsArr = explode(',', $rating);
-      $allProducts = array_filter($allProducts, function ($p) use ($ratingsArr) {
-        foreach ($ratingsArr as $r)
-        {
-          $r = (float) $r;
-          if ($r < 5 && $p['avg'] >= $r && $p['avg'] < ($r + 1))
-            return true;
-          if ($r == 5 && $p['avg'] == 5)
-            return true;
-        }
-        return false;
-      });
-      $allProducts = array_values($allProducts);
+      $allProducts = array_values(array_filter($allProducts, function ($p) use ($rating) {
+        return floor($p['avg']) >= (int) $rating;
+      }));
     }
 
-    $totalProducts = count($allProducts);
-
-    /* =====================================================
-       PAGINATION
-    ====================================================== */
+    /* ================= PAGINATION ================= */
+    $total = count($allProducts);
     $offset = ($page - 1) * $perPage;
     $products = array_slice($allProducts, $offset, $perPage);
 
-    /* =====================================================
-       SIZE FILTER DATA
-    ====================================================== */
-    $sizeQuery = $this->db->distinct()->select('size')
+    /* ================= SIZE LIST ================= */
+    $sizes = $this->db->distinct()
+      ->select('size')
       ->from('sub_product_master')
-      ->where('status', 1);
+      ->where([
+        'status' => 1,
+        'verify_status' => 1,
+        'seller_approve_status' => 1,
+        'cash_on_delivery' => 1
+      ])
+      ->get()->result_array();
 
-    if ($mainCategoryId)
-      $sizeQuery->where('parent_category_id', $mainCategoryId);
-    if ($categoryId)
-      $sizeQuery->where_in('category_id', explode(',', $categoryId));
-    if ($subCategoryId)
-      $sizeQuery->where_in('sub_category_id', explode(',', $subCategoryId));
-
-    $sizesArr = array_column($sizeQuery->get()->result_array(), 'size');
-
-    /* =====================================================
-       🔥 DYNAMIC MIN & MAX PRICE (STATIC ISSUE FIX)
-    ====================================================== */
-    $priceQuery = $this->db->select('MIN(final_price) as min_price, MAX(final_price) as max_price')
-      ->from('sub_product_master')
-      ->where('status', 1);
-
-    if ($mainCategoryId)
-      $priceQuery->where('parent_category_id', $mainCategoryId);
-    if ($categoryId)
-      $priceQuery->where_in('category_id', explode(',', $categoryId));
-    if ($subCategoryId)
-      $priceQuery->where_in('sub_category_id', explode(',', $subCategoryId));
-
-    $priceRow = $priceQuery->get()->row_array();
-
-    $dynamicMin = (int) ($priceRow['min_price'] ?? 0);
-    $dynamicMax = (int) ($priceRow['max_price'] ?? 10000);
-
-    /* =====================================================
-       RESPONSE
-    ====================================================== */
+    /* ================= RESPONSE ================= */
     echo json_encode([
       'products' => $products,
-      'total' => $totalProducts,
-      'totalPages' => ceil($totalProducts / $perPage),
+      'total' => $total,
       'limit' => $perPage,
-      'sizes' => $sizesArr,
-      'min_price' => $dynamicMin,
-      'max_price' => $dynamicMax
+      'sizes' => array_column($sizes, 'size')
     ]);
   }
+
 
   public function home_product_list($tag, $id)
   {
@@ -1192,7 +1183,6 @@ class Web extends CI_Controller
   }
 
 
-
   // public function product_detail()
   // {
   //   $userData = $this->session->userdata('User');
@@ -1202,17 +1192,15 @@ class Web extends CI_Controller
   //     ? $this->web_model->get_total_wishlist_by_user($user_id)
   //     : 0;
 
-  //   // product id from URLYYYYYYYY
+  //   // Product ID from URL
   //   $product_id = $this->uri->segment(2);
 
   //   // 🔹 PRODUCT DATA
   //   $data['getData'] = $this->web_model->productDetails($product_id);
-
   //   if (empty($data['getData']))
   //   {
   //     show_404();
   //   }
-
   //   $data['product'] = $data['getData'];
 
   //   // 🔹 BRAND NAME
@@ -1221,7 +1209,6 @@ class Web extends CI_Controller
   //     $brand = $this->db
   //       ->get_where('brand_master', ['id' => $data['getData']['brand_id']])
   //       ->row_array();
-
   //     $data['product']['brand_name'] = $brand['brand_name'] ?? 'N/A';
   //   } else
   //   {
@@ -1230,8 +1217,8 @@ class Web extends CI_Controller
 
   //   // 🔹 VARIATIONS
   //   $data['variations'] = $this->db
-  //     ->select('id, vendor_id,promoter_id, size, color, quantity, price, final_price,
-  //                 main_image, product_code, image1, image2, image3, image4, image5')
+  //     ->select('id, vendor_id, promoter_id, size, color, quantity, price, final_price,
+  //               main_image, product_code, image1, image2, image3, image4, image5')
   //     ->where('product_code', $data['getData']['product_code'])
   //     ->where('status', 1)
   //     ->get('sub_product_master')
@@ -1241,41 +1228,44 @@ class Web extends CI_Controller
   //   $data['sizeData'] = array_values(array_unique(array_column($data['variations'], 'size')));
   //   $data['extra_fields'] = $this->web_model->getProductExtraFields($product_id);
 
-
   //   // =====================================================
-  //   // 🔥 VENDOR + SHOP DATA (MAIN REQUIREMENT)
+  //   // 🔹 VENDOR + SHOP DATA
   //   // =====================================================
   //   $vendorData = [];
-
   //   if (!empty($data['getData']['vendor_id']))
   //   {
-
   //     $vendorData = $this->db
-  //       ->select('
-  //               v.id AS vendor_id,
-  //               v.vendor_logo AS vendor_logo,
-  //               v.shop_name,
-  //               v.state,
-  //               v.city
-  //           ')
+  //       ->select('v.id AS vendor_id, v.vendor_logo, v.shop_name, v.state, v.city')
   //       ->from('vendors v')
   //       ->join('shop_master sm', 'sm.id = v.id', 'left')
   //       ->where('v.id', $data['getData']['vendor_id'])
   //       ->get()
   //       ->row_array();
   //   }
-
   //   $data['vendorData'] = $vendorData;
+
+  //   // =====================================================
+  //   // 🔹 PROMOTER DATA
+  //   // =====================================================
+  //   $promoterData = [];
+  //   if (!empty($data['getData']['promoter_id']))
+  //   {
+  //     $promoterData = $this->db
+  //       ->select('p.id AS promoter_id, p.name AS promoter_name, p.email, p.state, p.city,p.promoter_logo')
+  //       ->from('promoters p')
+  //       ->where('p.id', $data['getData']['promoter_id'])
+  //       ->get()
+  //       ->row_array();
+  //   }
+  //   $data['promoterData'] = $promoterData;
 
   //   // 🔹 RELATED PRODUCTS
   //   $current_product_code = $data['getData']['product_code'];
   //   $sub_category_id = $data['getData']['sub_category_id'];
-
   //   $relatedProducts = [];
 
   //   if ($sub_category_id && $current_product_code)
   //   {
-
   //     $related = $this->db
   //       ->select('id, product_name, product_code, main_image, final_price, price, quantity')
   //       ->where('status', 1)
@@ -1287,12 +1277,10 @@ class Web extends CI_Controller
   //       ->result_array();
 
   //     $unique = [];
-
   //     foreach ($related as $prod)
   //     {
   //       if (!isset($unique[$prod['product_code']]))
   //       {
-
   //         $prod['total_qty'] = $this->db
   //           ->select_max('quantity')
   //           ->where('product_code', $prod['product_code'])
@@ -1307,14 +1295,11 @@ class Web extends CI_Controller
   //             ->row()->rating ?? 0,
   //           1
   //         );
-
   //         $unique[$prod['product_code']] = $prod;
   //       }
   //     }
-
   //     $relatedProducts = array_values($unique);
   //   }
-
   //   $data['relatedProducts'] = $relatedProducts;
 
   //   // 🔹 REVIEWS
@@ -1354,125 +1339,146 @@ class Web extends CI_Controller
     $userData = $this->session->userdata('User');
     $user_id = !empty($userData) ? $userData['id'] : null;
 
-    $wishlist_count = !empty($user_id)
+    $wishlist_count = $user_id
       ? $this->web_model->get_total_wishlist_by_user($user_id)
       : 0;
 
-    // Product ID from URL
-    $product_id = $this->uri->segment(2);
+    // Product ID
+    $product_id = (int) $this->uri->segment(2);
 
-    // 🔹 PRODUCT DATA
-    $data['getData'] = $this->web_model->productDetails($product_id);
-    if (empty($data['getData']))
-    {
+    /* =====================================================
+       🔒 MAIN PRODUCT (SECURITY FILTERS)
+    ====================================================== */
+    $product = $this->db
+      ->where([
+        'id' => $product_id,
+        'status' => 1,
+        'verify_status' => 1,
+        'seller_approve_status' => 1
+      ])
+      ->get('sub_product_master')
+      ->row_array();
+
+    if (!$product)
       show_404();
-    }
-    $data['product'] = $data['getData'];
 
-    // 🔹 BRAND NAME
-    if (!empty($data['getData']['brand_id']))
+    $data['product'] = $product;
+    $data['getData'] = $product;
+
+    /* =====================================================
+       🔹 BRAND
+    ====================================================== */
+    if (!empty($product['brand_id']))
     {
-      $brand = $this->db
-        ->get_where('brand_master', ['id' => $data['getData']['brand_id']])
-        ->row_array();
+      $brand = $this->db->get_where('brand_master', [
+        'id' => $product['brand_id'],
+        'status' => 1
+      ])->row_array();
+
       $data['product']['brand_name'] = $brand['brand_name'] ?? 'N/A';
     } else
     {
       $data['product']['brand_name'] = 'N/A';
     }
 
-    // 🔹 VARIATIONS
+    /* =====================================================
+       🔹 VARIATIONS (ONLY APPROVED)
+    ====================================================== */
     $data['variations'] = $this->db
-      ->select('id, vendor_id, promoter_id, size, color, quantity, price, final_price,
-                main_image, product_code, image1, image2, image3, image4, image5')
-      ->where('product_code', $data['getData']['product_code'])
-      ->where('status', 1)
-      ->get('sub_product_master')
+      ->select('id, vendor_id, promoter_id, size, color, quantity, price,
+                 final_price, main_image, product_code,
+                 image1,image2,image3,image4,image5,cash_on_delivery')
+      ->from('sub_product_master')
+      ->where([
+        'product_code' => $product['product_code'],
+        'status' => 1,
+        'verify_status' => 1,
+        'seller_approve_status' => 1
+      ])
+      ->order_by('final_price', 'ASC')
+      ->get()
       ->result_array();
 
     $data['colorData'] = array_values(array_unique(array_column($data['variations'], 'color')));
     $data['sizeData'] = array_values(array_unique(array_column($data['variations'], 'size')));
+
+    // COD availability (any variation has COD)
+    $data['cod_available'] = in_array(1, array_column($data['variations'], 'cash_on_delivery'));
+
+    /* =====================================================
+       🔹 EXTRA FIELDS
+    ====================================================== */
     $data['extra_fields'] = $this->web_model->getProductExtraFields($product_id);
 
-    // =====================================================
-    // 🔹 VENDOR + SHOP DATA
-    // =====================================================
-    $vendorData = [];
-    if (!empty($data['getData']['vendor_id']))
+    /* =====================================================
+       🔹 VENDOR DATA
+    ====================================================== */
+    $data['vendorData'] = [];
+    if (!empty($product['vendor_id']))
     {
-      $vendorData = $this->db
-        ->select('v.id AS vendor_id, v.vendor_logo, v.shop_name, v.state, v.city')
+      $data['vendorData'] = $this->db
+        ->select('v.id,v.vendor_logo,v.shop_name,v.state,v.city')
         ->from('vendors v')
-        ->join('shop_master sm', 'sm.id = v.id', 'left')
-        ->where('v.id', $data['getData']['vendor_id'])
+        ->where('v.id', $product['vendor_id'])
         ->get()
         ->row_array();
     }
-    $data['vendorData'] = $vendorData;
 
-    // =====================================================
-    // 🔹 PROMOTER DATA
-    // =====================================================
-    $promoterData = [];
-    if (!empty($data['getData']['promoter_id']))
+    /* =====================================================
+       🔹 PROMOTER DATA
+    ====================================================== */
+    $data['promoterData'] = [];
+    if (!empty($product['promoter_id']))
     {
-      $promoterData = $this->db
-        ->select('p.id AS promoter_id, p.name AS promoter_name, p.email, p.state, p.city,p.promoter_logo')
-        ->from('promoters p')
-        ->where('p.id', $data['getData']['promoter_id'])
+      $data['promoterData'] = $this->db
+        ->select('id,name,email,state,city,promoter_logo')
+        ->from('promoters')
+        ->where('id', $product['promoter_id'])
         ->get()
         ->row_array();
     }
-    $data['promoterData'] = $promoterData;
 
-    // 🔹 RELATED PRODUCTS
-    $current_product_code = $data['getData']['product_code'];
-    $sub_category_id = $data['getData']['sub_category_id'];
+    /* =====================================================
+       🔹 RELATED PRODUCTS (APPROVED ONLY)
+    ====================================================== */
     $relatedProducts = [];
+    $related = $this->db
+      ->select('id,product_name,product_code,main_image,final_price,price')
+      ->from('sub_product_master')
+      ->where([
+        'status' => 1,
+        'verify_status' => 1,
+        'seller_approve_status' => 1,
+        'sub_category_id' => $product['sub_category_id']
+      ])
+      ->where('product_code !=', $product['product_code'])
+      ->group_by('product_code')
+      ->order_by('id', 'DESC')
+      ->limit(12)
+      ->get()
+      ->result_array();
 
-    if ($sub_category_id && $current_product_code)
+    foreach ($related as &$rp)
     {
-      $related = $this->db
-        ->select('id, product_name, product_code, main_image, final_price, price, quantity')
-        ->where('status', 1)
-        ->where('sub_category_id', $sub_category_id)
-        ->where('product_code !=', $current_product_code)
-        ->order_by('id', 'DESC')
-        ->limit(12)
-        ->get('sub_product_master')
-        ->result_array();
-
-      $unique = [];
-      foreach ($related as $prod)
-      {
-        if (!isset($unique[$prod['product_code']]))
-        {
-          $prod['total_qty'] = $this->db
-            ->select_max('quantity')
-            ->where('product_code', $prod['product_code'])
-            ->where('status', 1)
-            ->get('sub_product_master')
-            ->row()->quantity ?? 0;
-
-          $prod['average_rating'] = round(
-            $this->db->select_avg('rating')
-              ->where('product_id', $prod['id'])
-              ->get('customer_review')
-              ->row()->rating ?? 0,
-            1
-          );
-          $unique[$prod['product_code']] = $prod;
-        }
-      }
-      $relatedProducts = array_values($unique);
+      $rp['average_rating'] = round(
+        $this->db->select_avg('rating')
+          ->where('product_id', $rp['id'])
+          ->where('status', 1)
+          ->get('customer_review')
+          ->row()->rating ?? 0,
+        1
+      );
     }
-    $data['relatedProducts'] = $relatedProducts;
 
-    // 🔹 REVIEWS
+    $data['relatedProducts'] = $related;
+
+    /* =====================================================
+       🔹 REVIEWS
+    ====================================================== */
     $data['reviews'] = $this->db->query("
-        SELECT cr.*, 
-            SUM(CASE WHEN rld.action='like' THEN 1 ELSE 0 END) AS like_count,
-            SUM(CASE WHEN rld.action='dislike' THEN 1 ELSE 0 END) AS dislike_count
+        SELECT cr.*,
+            SUM(CASE WHEN rld.action='like' THEN 1 ELSE 0 END) like_count,
+            SUM(CASE WHEN rld.action='dislike' THEN 1 ELSE 0 END) dislike_count
         FROM customer_review cr
         LEFT JOIN review_like_dislike rld ON rld.review_id = cr.id
         WHERE cr.product_id = ?
@@ -1481,19 +1487,26 @@ class Web extends CI_Controller
         ORDER BY cr.created_at DESC
     ", [$product_id])->result();
 
-    $data['average_rating'] = $this->db
-      ->select_avg('rating')
-      ->where('product_id', $product_id)
-      ->get('customer_review')
-      ->row()->rating ?? 0;
+    $data['average_rating'] = round(
+      $this->db->select_avg('rating')
+        ->where('product_id', $product_id)
+        ->where('status', 1)
+        ->get('customer_review')
+        ->row()->rating ?? 0,
+      1
+    );
 
-    // 🔹 COMMON DATA
+    /* =====================================================
+       🔹 COMMON DATA
+    ====================================================== */
+    $data['wishlist_count'] = $wishlist_count;
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['wishlist_count'] = $wishlist_count;
-    $data['title'] = url_title($data['getData']['product_name'], '-', true);
+    $data['title'] = url_title($product['product_name'], '-', true);
 
-    // 🔹 LOAD VIEW
+    /* =====================================================
+       🔹 VIEW
+    ====================================================== */
     $this->load->view('web/include/header', $data);
     $this->load->view('web/product_detail', $data);
     $this->load->view('web/include/footer');
@@ -2585,6 +2598,230 @@ class Web extends CI_Controller
     echo json_encode(['status' => 'success']);
   }
 
+  // public function checkout()
+  // {
+  //   $userData = $this->session->userdata('User');
+  //   if (empty($userData))
+  //   {
+  //     redirect('web/login');
+  //   }
+  //   $user_id = $userData['id'];
+
+  //   // Header ke liye common data
+  //   $data['wishlist_count'] = $this->web_model->get_total_wishlist_by_user($user_id);
+  //   $data['userInfo'] = $this->db->get_where('user_master', ['id' => $user_id])->row_array();
+  //   $data['bannerList'] = $this->web_model->getBannerList();
+  //   $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
+  //   $data['getData'] = $this->db->get_where('user_address_master', ['user_master_id' => $user_id])->result_array();
+  //   $data['title'] = 'Checkout | Chenna';
+
+  //   // ===================== CHECKOUT ITEMS BANAYE =====================
+  //   $checkout_items = [];
+  //   $buyNow = $this->session->userdata('buy_now');
+
+  //   if (!empty($buyNow) && !empty($buyNow['pro_id']))
+  //   {
+  //     $product = $this->db->get_where('sub_product_master', ['id' => $buyNow['pro_id']])->row_array();
+  //     if ($product)
+  //     {
+  //       $checkout_items[] = [
+  //         'id' => $product['id'],
+  //         'name' => $product['product_name'],
+  //         'final_price' => $product['final_price'],
+  //         'image' => $product['main_image'],
+  //         'size' => $product['size'] ?? '',
+  //         'qty' => (int) $buyNow['qty'],
+  //         'gst' => $product['gst'] ?? 0,
+  //         'vendor_id' => $product['vendor_id'] ?? null,
+  //         'promoter_id' => $product['promoter_id'] ?? null
+  //       ];
+  //     }
+  //   } else
+  //   {
+  //     foreach ($this->cart->contents() as $item)
+  //     {
+  //       $product = $this->db->get_where('sub_product_master', ['id' => $item['id']])->row_array();
+  //       if ($product)
+  //       {
+  //         $checkout_items[] = [
+  //           'id' => $item['id'],
+  //           'name' => $item['name'],
+  //           'final_price' => $item['final_price'],
+  //           'image' => $item['image'],
+  //           'size' => $item['size'] ?? '',
+  //           'qty' => $item['qty'],
+  //           'gst' => $product['gst'] ?? 0,
+  //           'vendor_id' => $product['vendor_id'] ?? null,
+  //           'promoter_id' => $product['promoter_id'] ?? null
+  //         ];
+  //       }
+  //     }
+  //   }
+
+  //   // Agar cart khali hai to home pe bhej do
+  //   if (empty($checkout_items))
+  //   {
+  //     redirect('web/cart');
+  //   }
+
+  //   // Session mein save karo taaki payment page pe use ho sake
+  //   $this->session->set_userdata('checkout_items', $checkout_items);
+
+  //   // ===================== CALCULATIONS =====================
+  //   $total_cost = 0;
+  //   foreach ($checkout_items as $item)
+  //   {
+  //     $total_cost += $item['final_price'] * $item['qty'];
+  //   }
+
+  //   // Coupon
+  //   $applied_coupon = $this->session->userdata('applied_coupon');
+  //   $coupon_discount = 0;
+  //   if (!empty($applied_coupon))
+  //   {
+  //     if ($applied_coupon['discount_type'] == 'percent')
+  //     {
+  //       $coupon_discount = ($applied_coupon['discount_value'] / 100) * $total_cost;
+  //       if (!empty($applied_coupon['max_discount_amount']) && $coupon_discount > $applied_coupon['max_discount_amount'])
+  //       {
+  //         $coupon_discount = $applied_coupon['max_discount_amount'];
+  //       }
+  //     } else
+  //     {
+  //       $coupon_discount = $applied_coupon['discount_value'];
+  //     }
+  //   }
+
+  //   $subtotal_after_coupon = $total_cost - $coupon_discount;
+
+  //   // GST calculation (discounted price pe)
+  //   $gst_total = 0;
+  //   foreach ($checkout_items as $item)
+  //   {
+  //     $item_total = $item['final_price'] * $item['qty'];
+  //     $item_discount = ($total_cost > 0) ? ($item_total / $total_cost) * $coupon_discount : 0;
+  //     $gst_total += ($item_total - $item_discount) * ($item['gst'] / 100);
+  //   }
+
+  //   // Shipping
+  //   $settings = $this->db->get_where('settings', ['id' => 1])->row_array();
+  //   $shipping = ($subtotal_after_coupon >= $settings['min_order_bal']) ? 0 : $settings['shipping_amount'];
+
+  //   $grand_total = $subtotal_after_coupon + $gst_total + $shipping;
+
+  //   // View ko data pass karo
+  //   $data['checkout_items'] = $checkout_items;
+  //   $data['total_cost'] = $total_cost;
+  //   $data['coupon_discount'] = $coupon_discount;
+  //   $data['subtotal_after_coupon'] = $subtotal_after_coupon;
+  //   $data['gst_total'] = $gst_total;
+  //   $data['shipping'] = $shipping;
+  //   $data['grand_total'] = $grand_total;
+  //   $data['applied_coupon'] = $applied_coupon;
+
+  //   $this->load->view('web/include/header', $data);
+  //   $this->load->view('web/checkout', $data);
+  //   $this->load->view('web/include/footer');
+  // }
+
+  // public function checkout_payment()
+  // {
+  //   $userData = $this->session->userdata('User');
+  //   $data['wishlist_count'] = !empty($userData) ? $this->web_model->get_total_wishlist_by_user($userData['id']) : 0;
+  //   if (empty($userData))
+  //   {
+  //     redirect('web/login');
+  //   }
+
+  //   $user_id = $userData['id'];
+  //   $address_id = $this->input->post('address_id');
+  //   $paymentType = $this->input->post('paymentType') ?? 1; // 1=COD, 2=Online
+  //   $tid = $this->input->post('tid'); // Frontend se aayega online payment ke liye
+
+  //   if (empty($address_id))
+  //   {
+  //     $this->session->set_flashdata('error', 'Please select a delivery address.');
+  //     redirect('web/checkout');
+  //   }
+
+  //   // Address verify karo
+  //   $address = $this->db->get_where('user_address_master', [
+  //     'id' => $address_id,
+  //     'user_master_id' => $user_id
+  //   ])->row_array();
+
+  //   if (empty($address))
+  //   {
+  //     $this->session->set_flashdata('error', 'Invalid address selected.');
+  //     redirect('web/checkout');
+  //   }
+
+  //   // Checkout items session se lo (checkout() mein save kiya tha)
+  //   $checkout_items = $this->session->userdata('checkout_items') ?? [];
+  //   if (empty($checkout_items))
+  //   {
+  //     redirect('web/checkout');
+  //   }
+
+  //   // Same calculations as checkout() — duplicate avoid karne ke liye function bana sakte ho baad mein
+  //   $total_cost = 0;
+  //   foreach ($checkout_items as $item)
+  //   {
+  //     $total_cost += $item['final_price'] * $item['qty'];
+  //   }
+
+  //   $applied_coupon = $this->session->userdata('applied_coupon');
+  //   $coupon_discount = 0;
+  //   if (!empty($applied_coupon))
+  //   {
+  //     if ($applied_coupon['discount_type'] == 'percent')
+  //     {
+  //       $coupon_discount = ($applied_coupon['discount_value'] / 100) * $total_cost;
+  //       if (!empty($applied_coupon['max_discount_amount']) && $coupon_discount > $applied_coupon['max_discount_amount'])
+  //       {
+  //         $coupon_discount = $applied_coupon['max_discount_amount'];
+  //       }
+  //     } else
+  //     {
+  //       $coupon_discount = $applied_coupon['discount_value'];
+  //     }
+  //   }
+
+  //   $subtotal_after_coupon = $total_cost - $coupon_discount;
+
+  //   $gst_total = 0;
+  //   foreach ($checkout_items as $item)
+  //   {
+  //     $item_total = $item['final_price'] * $item['qty'];
+  //     $item_discount = ($total_cost > 0) ? ($item_total / $total_cost) * $coupon_discount : 0;
+  //     $gst_total += ($item_total - $item_discount) * ($item['gst'] / 100);
+  //   }
+
+  //   $settings = $this->db->get_where('settings', ['id' => 1])->row_array();
+  //   $shipping = ($subtotal_after_coupon >= $settings['min_order_bal']) ? 0 : $settings['shipping_amount'];
+
+  //   $grand_total = $subtotal_after_coupon + $gst_total + $shipping;
+
+  //   // Data view ko pass karo
+  //   $data = [
+  //     'title' => 'Payment | Chenna',
+  //     'address_data' => $address,
+  //     'checkout_items' => $checkout_items,
+  //     'applied_coupon' => $applied_coupon,
+  //     'coupon_discount_amount' => $coupon_discount,
+  //     'subtotal_after_coupon' => $subtotal_after_coupon,
+  //     'gst_total' => $gst_total,
+  //     'shipping' => $shipping,
+  //     'grand_total' => $grand_total,
+  //     'paymentType' => $paymentType,
+  //     'tid' => $tid
+  //   ];
+
+  //   $this->load->view('web/include/header', $data);
+  //   $this->load->view('web/checkout_payment', $data);
+  //   $this->load->view('web/include/footer');
+  // }
+
   public function checkout()
   {
     $userData = $this->session->userdata('User');
@@ -2592,23 +2829,33 @@ class Web extends CI_Controller
     {
       redirect('web/login');
     }
+
     $user_id = $userData['id'];
 
-    // Header ke liye common data
+    /* ================= HEADER DATA ================= */
     $data['wishlist_count'] = $this->web_model->get_total_wishlist_by_user($user_id);
     $data['userInfo'] = $this->db->get_where('user_master', ['id' => $user_id])->row_array();
     $data['bannerList'] = $this->web_model->getBannerList();
     $data['MainCategoryList'] = $this->web_model->getMainCategoryList();
-    $data['getData'] = $this->db->get_where('user_address_master', ['user_master_id' => $user_id])->result_array();
+    $data['getData'] = $this->db
+      ->get_where('user_address_master', ['user_master_id' => $user_id])
+      ->result_array();
     $data['title'] = 'Checkout | Chenna';
 
-    // ===================== CHECKOUT ITEMS BANAYE =====================
+    /* ================= BUILD CHECKOUT ITEMS ================= */
     $checkout_items = [];
     $buyNow = $this->session->userdata('buy_now');
 
     if (!empty($buyNow) && !empty($buyNow['pro_id']))
     {
-      $product = $this->db->get_where('sub_product_master', ['id' => $buyNow['pro_id']])->row_array();
+
+      $product = $this->db->where([
+        'id' => $buyNow['pro_id'],
+        'status' => 1,
+        'seller_approve_status' => 1,
+        'verify_status' => 1
+      ])->get('sub_product_master')->row_array();
+
       if ($product)
       {
         $checkout_items[] = [
@@ -2620,56 +2867,83 @@ class Web extends CI_Controller
           'qty' => (int) $buyNow['qty'],
           'gst' => $product['gst'] ?? 0,
           'vendor_id' => $product['vendor_id'] ?? null,
-          'promoter_id' => $product['promoter_id'] ?? null
+          'promoter_id' => $product['promoter_id'] ?? null,
+          'cash_on_delivery' => $product['cash_on_delivery']
         ];
       }
+
     } else
     {
+
       foreach ($this->cart->contents() as $item)
       {
-        $product = $this->db->get_where('sub_product_master', ['id' => $item['id']])->row_array();
-        if ($product)
+
+        $product = $this->db->where([
+          'id' => $item['id'],
+          'status' => 1,
+          'seller_approve_status' => 1,
+          'verify_status' => 1
+        ])->get('sub_product_master')->row_array();
+
+        if (!$product)
         {
-          $checkout_items[] = [
-            'id' => $item['id'],
-            'name' => $item['name'],
-            'final_price' => $item['final_price'],
-            'image' => $item['image'],
-            'size' => $item['size'] ?? '',
-            'qty' => $item['qty'],
-            'gst' => $product['gst'] ?? 0,
-            'vendor_id' => $product['vendor_id'] ?? null,
-            'promoter_id' => $product['promoter_id'] ?? null
-          ];
+          continue;
         }
+
+        $checkout_items[] = [
+          'id' => $product['id'],
+          'name' => $product['product_name'],
+          'final_price' => $product['final_price'],
+          'image' => $product['main_image'],
+          'size' => $item['size'] ?? '',
+          'qty' => $item['qty'],
+          'gst' => $product['gst'] ?? 0,
+          'vendor_id' => $product['vendor_id'] ?? null,
+          'promoter_id' => $product['promoter_id'] ?? null,
+          'cash_on_delivery' => $product['cash_on_delivery']
+        ];
       }
     }
 
-    // Agar cart khali hai to home pe bhej do
     if (empty($checkout_items))
     {
       redirect('web/cart');
     }
 
-    // Session mein save karo taaki payment page pe use ho sake
-    $this->session->set_userdata('checkout_items', $checkout_items);
+    /* ================= COD AVAILABILITY CHECK ================= */
+    $cod_available = true;
+    foreach ($checkout_items as $item)
+    {
+      if ($item['cash_on_delivery'] == 0)
+      {
+        $cod_available = false;
+        break;
+      }
+    }
 
-    // ===================== CALCULATIONS =====================
+    // Save for payment page
+    $this->session->set_userdata('checkout_items', $checkout_items);
+    $this->session->set_userdata('cod_available', $cod_available);
+
+    /* ================= CALCULATIONS ================= */
     $total_cost = 0;
     foreach ($checkout_items as $item)
     {
       $total_cost += $item['final_price'] * $item['qty'];
     }
 
-    // Coupon
     $applied_coupon = $this->session->userdata('applied_coupon');
     $coupon_discount = 0;
+
     if (!empty($applied_coupon))
     {
       if ($applied_coupon['discount_type'] == 'percent')
       {
         $coupon_discount = ($applied_coupon['discount_value'] / 100) * $total_cost;
-        if (!empty($applied_coupon['max_discount_amount']) && $coupon_discount > $applied_coupon['max_discount_amount'])
+        if (
+          !empty($applied_coupon['max_discount_amount']) &&
+          $coupon_discount > $applied_coupon['max_discount_amount']
+        )
         {
           $coupon_discount = $applied_coupon['max_discount_amount'];
         }
@@ -2681,22 +2955,24 @@ class Web extends CI_Controller
 
     $subtotal_after_coupon = $total_cost - $coupon_discount;
 
-    // GST calculation (discounted price pe)
     $gst_total = 0;
     foreach ($checkout_items as $item)
     {
       $item_total = $item['final_price'] * $item['qty'];
-      $item_discount = ($total_cost > 0) ? ($item_total / $total_cost) * $coupon_discount : 0;
+      $item_discount = ($total_cost > 0)
+        ? ($item_total / $total_cost) * $coupon_discount
+        : 0;
       $gst_total += ($item_total - $item_discount) * ($item['gst'] / 100);
     }
 
-    // Shipping
     $settings = $this->db->get_where('settings', ['id' => 1])->row_array();
-    $shipping = ($subtotal_after_coupon >= $settings['min_order_bal']) ? 0 : $settings['shipping_amount'];
+    $shipping = ($subtotal_after_coupon >= $settings['min_order_bal'])
+      ? 0
+      : $settings['shipping_amount'];
 
     $grand_total = $subtotal_after_coupon + $gst_total + $shipping;
 
-    // View ko data pass karo
+    /* ================= PASS TO VIEW ================= */
     $data['checkout_items'] = $checkout_items;
     $data['total_cost'] = $total_cost;
     $data['coupon_discount'] = $coupon_discount;
@@ -2705,6 +2981,7 @@ class Web extends CI_Controller
     $data['shipping'] = $shipping;
     $data['grand_total'] = $grand_total;
     $data['applied_coupon'] = $applied_coupon;
+    $data['cod_available'] = $cod_available;
 
     $this->load->view('web/include/header', $data);
     $this->load->view('web/checkout', $data);
@@ -2714,24 +2991,23 @@ class Web extends CI_Controller
   public function checkout_payment()
   {
     $userData = $this->session->userdata('User');
-    $data['wishlist_count'] = !empty($userData) ? $this->web_model->get_total_wishlist_by_user($userData['id']) : 0;
     if (empty($userData))
     {
       redirect('web/login');
     }
 
     $user_id = $userData['id'];
+    $data['wishlist_count'] = $this->web_model->get_total_wishlist_by_user($user_id);
+
     $address_id = $this->input->post('address_id');
     $paymentType = $this->input->post('paymentType') ?? 1; // 1=COD, 2=Online
-    $tid = $this->input->post('tid'); // Frontend se aayega online payment ke liye
+    $tid = $this->input->post('tid');
 
     if (empty($address_id))
     {
-      $this->session->set_flashdata('error', 'Please select a delivery address.');
       redirect('web/checkout');
     }
 
-    // Address verify karo
     $address = $this->db->get_where('user_address_master', [
       'id' => $address_id,
       'user_master_id' => $user_id
@@ -2739,38 +3015,56 @@ class Web extends CI_Controller
 
     if (empty($address))
     {
-      $this->session->set_flashdata('error', 'Invalid address selected.');
       redirect('web/checkout');
     }
 
-    // Checkout items session se lo (checkout() mein save kiya tha)
     $checkout_items = $this->session->userdata('checkout_items') ?? [];
     if (empty($checkout_items))
     {
       redirect('web/checkout');
     }
 
-    // Same calculations as checkout() — duplicate avoid karne ke liye function bana sakte ho baad mein
+    /* ================= COD AVAILABILITY CHECK ================= */
+    $cod_available = true;
+
+    foreach ($checkout_items as $item)
+    {
+      // sub_product_master se cash_on_delivery aata hona chahiye
+      if (isset($item['cash_on_delivery']) && $item['cash_on_delivery'] == 0)
+      {
+        $cod_available = false;
+        break;
+      }
+    }
+
+    // Agar COD select hai but allowed nahi
+    if ($paymentType == 1 && !$cod_available)
+    {
+      $paymentType = 2; // force online
+    }
+
+    /* ================= CALCULATIONS ================= */
     $total_cost = 0;
     foreach ($checkout_items as $item)
     {
       $total_cost += $item['final_price'] * $item['qty'];
     }
 
-    $applied_coupon = $this->session->userdata('applied_coupon');
+    $coupon = $this->session->userdata('applied_coupon');
     $coupon_discount = 0;
-    if (!empty($applied_coupon))
+
+    if (!empty($coupon))
     {
-      if ($applied_coupon['discount_type'] == 'percent')
+      if ($coupon['discount_type'] == 'percent')
       {
-        $coupon_discount = ($applied_coupon['discount_value'] / 100) * $total_cost;
-        if (!empty($applied_coupon['max_discount_amount']) && $coupon_discount > $applied_coupon['max_discount_amount'])
+        $coupon_discount = ($coupon['discount_value'] / 100) * $total_cost;
+        if (!empty($coupon['max_discount_amount']) && $coupon_discount > $coupon['max_discount_amount'])
         {
-          $coupon_discount = $applied_coupon['max_discount_amount'];
+          $coupon_discount = $coupon['max_discount_amount'];
         }
       } else
       {
-        $coupon_discount = $applied_coupon['discount_value'];
+        $coupon_discount = $coupon['discount_value'];
       }
     }
 
@@ -2780,28 +3074,32 @@ class Web extends CI_Controller
     foreach ($checkout_items as $item)
     {
       $item_total = $item['final_price'] * $item['qty'];
-      $item_discount = ($total_cost > 0) ? ($item_total / $total_cost) * $coupon_discount : 0;
+      $item_discount = ($total_cost > 0)
+        ? ($item_total / $total_cost) * $coupon_discount
+        : 0;
+
       $gst_total += ($item_total - $item_discount) * ($item['gst'] / 100);
     }
 
     $settings = $this->db->get_where('settings', ['id' => 1])->row_array();
-    $shipping = ($subtotal_after_coupon >= $settings['min_order_bal']) ? 0 : $settings['shipping_amount'];
+    $shipping = ($subtotal_after_coupon >= $settings['min_order_bal'])
+      ? 0
+      : $settings['shipping_amount'];
 
     $grand_total = $subtotal_after_coupon + $gst_total + $shipping;
 
-    // Data view ko pass karo
-    $data = [
+    $data += [
       'title' => 'Payment | Chenna',
       'address_data' => $address,
       'checkout_items' => $checkout_items,
-      'applied_coupon' => $applied_coupon,
       'coupon_discount_amount' => $coupon_discount,
       'subtotal_after_coupon' => $subtotal_after_coupon,
       'gst_total' => $gst_total,
       'shipping' => $shipping,
       'grand_total' => $grand_total,
       'paymentType' => $paymentType,
-      'tid' => $tid
+      'tid' => $tid,
+      'cod_available' => $cod_available
     ];
 
     $this->load->view('web/include/header', $data);
@@ -3642,11 +3940,23 @@ class Web extends CI_Controller
     $total_vendor_earning = 0;
     $total_promoter_earning = 0;
 
-    /* ================= PURCHASE LOOP ================= */
+
     /* ================= PURCHASE LOOP ================= */
     foreach ($total_items as $itm)
     {
-      $this->db->query("UPDATE sub_product_master SET quantity = quantity - {$itm['qty']} WHERE id = {$itm['id']}");
+      // ===== STOCK UPDATE =====
+      $this->db->query(
+        "UPDATE sub_product_master 
+         SET quantity = quantity - {$itm['qty']} 
+         WHERE id = {$itm['id']}"
+      );
+
+      // ===== BASE CALCULATIONS =====
+      $base_amount = $itm['final_price'] * $itm['qty'];   // without GST
+      $gst_amount = ($base_amount * $itm['gst']) / 100;  // GST value
+      $gross_amount = $base_amount + $gst_amount;         // with GST
+
+      // ===== PURCHASE INSERT =====
       $this->db->insert($purchase_table, [
         'order_master_id' => $lastId,
         'vendor_id' => $itm['vendor_id'],
@@ -3659,6 +3969,7 @@ class Web extends CI_Controller
         'size' => $itm['size'],
         'color' => $itm['color'],
         'gst' => $itm['gst'],
+       
         'main_image' => $itm['main_image'],
         'product_hsn' => $itm['product_hsn'],
         'sku_code' => $itm['sku_code'],
@@ -3666,38 +3977,50 @@ class Web extends CI_Controller
         'modify_date' => date('Y-m-d H:i:s'),
         'status' => 1
       ]);
-      /* ===== COMMISSIONS ===== */
+
+      // ===== COMMISSIONS =====
       $admin_commission = 0;
       $promoter_commission = 0;
+
+      // --- Admin / Vendor Subscription ---
       $vendor_sub = $this->db->get_where('vendor_subscriptions_master', [
         'vendor_id' => $itm['vendor_id'],
         'status' => 1
       ])->row_array();
-      if ($vendor_sub && $vendor_sub['commission_percent'] > 0)
+
+      if (!empty($vendor_sub) && $vendor_sub['commission_percent'] > 0)
       {
-        $admin_commission += ($itm['final_price'] * $vendor_sub['commission_percent'] / 100) * $itm['qty'];
+        $admin_commission =
+          ($base_amount * $vendor_sub['commission_percent']) / 100;
       }
+
+      // --- Promoter Subscription ---
       $promoter_sub = $this->db->get_where('promoter_subscriptions_master', [
         'promoter_id' => $itm['promoter_id'],
         'status' => 1
       ])->row_array();
-      if ($promoter_sub && $promoter_sub['commission_percent'] > 0)
+
+      if (!empty($promoter_sub) && $promoter_sub['commission_percent'] > 0)
       {
-        $promoter_commission = ($itm['final_price'] * $promoter_sub['commission_percent'] / 100) * $itm['qty'];
+        $promoter_commission =
+          ($base_amount * $promoter_sub['commission_percent']) / 100;
+
         $this->db->insert('promoter_earnings_master', [
           'promoter_id' => $itm['promoter_id'],
           'vendor_id' => $itm['vendor_id'],
           'product_id' => $itm['id'],
           'order_id' => $lastId,
           'qty' => $itm['qty'],
-          'product_price' => $itm['final_price'],
+         
           'commission_percent' => $promoter_sub['commission_percent'],
           'commission_amount' => $promoter_commission,
           'earning_amount' => $promoter_commission,
-          'status' => 0,  // Pending
+          'status' => 0,
           'created_at' => date('Y-m-d H:i:s')
         ]);
       }
+
+      // ===== ADMIN EARNING =====
       if ($admin_commission > 0)
       {
         $this->db->insert('admin_earnings_master', [
@@ -3708,28 +4031,29 @@ class Web extends CI_Controller
           'created_at' => date('Y-m-d H:i:s')
         ]);
       }
-      $vendor_earning = ($itm['final_price'] * $itm['qty']) - $admin_commission;
+
+      // ===== VENDOR EARNING (GST INCLUDED) =====
+      $vendor_earning =
+        $gross_amount - $admin_commission - $promoter_commission;
+
       $this->db->insert('vendor_earnings_master', [
         'vendor_id' => $itm['vendor_id'],
         'promoter_id' => $itm['promoter_id'],
         'product_id' => $itm['id'],
         'order_id' => $lastId,
         'qty' => $itm['qty'],
+      
         'earning_amount' => $vendor_earning,
-        'status' => 0,  // Pending
+        'status' => 0,
         'created_at' => date('Y-m-d H:i:s')
       ]);
+
+      // ===== TOTALS =====
       $total_admin_earning += $admin_commission;
       $total_vendor_earning += $vendor_earning;
       $total_promoter_earning += $promoter_commission;
     }
 
-    /* ================= UPDATE ORDER EARNINGS ================= */
-    $this->db->where('id', $lastId)->update($order_table, [
-      'admin_earning' => $total_admin_earning,
-      'vendor_earning' => $total_vendor_earning,
-      'promoter_earning' => $total_promoter_earning
-    ]);
 
     /* ================= ADDRESS ================= */
     $address = $this->db->get_where('user_address_master', ['id' => $data['address_id']])->row_array();
@@ -4054,23 +4378,37 @@ class Web extends CI_Controller
   public function order_success($order_id)
   {
     $userData = $this->session->userdata('User');
-    $data['wishlist_count'] = !empty($userData) ? $this->web_model->get_total_wishlist_by_user($userData['id']) : 0;
+
+    $data['wishlist_count'] = !empty($userData)
+      ? $this->web_model->get_total_wishlist_by_user($userData['id'])
+      : 0;
+
     $decoded_order_id = base64_decode($order_id);
 
+    // Default tables
     $tables = [
       'order' => 'order_master',
       'address' => 'order_address_master',
       'purchase' => 'purchase_master'
     ];
 
-    $order = $this->db->get_where($tables['order'], ['id' => $decoded_order_id])->row_array();
+    // Fetch order
+    $order = $this->db->get_where($tables['order'], [
+      'id' => $decoded_order_id
+    ])->row_array();
 
+    // If not found → fallback tables
     if (empty($order))
     {
-      $tables['order'] = 'order_master2';
-      $tables['address'] = 'order_address_master2';
-      $tables['purchase'] = 'purchase_master2';
-      $order = $this->db->get_where($tables['order'], ['id' => $decoded_order_id])->row_array();
+      $tables = [
+        'order' => 'order_master2',
+        'address' => 'order_address_master2',
+        'purchase' => 'purchase_master2'
+      ];
+
+      $order = $this->db->get_where($tables['order'], [
+        'id' => $decoded_order_id
+      ])->row_array();
     }
 
     if (empty($order))
@@ -4078,31 +4416,48 @@ class Web extends CI_Controller
       show_404();
     }
 
-    $address_data = $this->db->get_where($tables['address'], ['order_master_id' => $decoded_order_id])->row_array();
+    // Address
+    $address_data = $this->db->get_where($tables['address'], [
+      'order_master_id' => $decoded_order_id
+    ])->row_array();
 
-    $purchase_items = $this->db->get_where($tables['purchase'], ['order_master_id' => $decoded_order_id])->result_array();
+    // Purchase items
+    $purchase_items = $this->db->get_where($tables['purchase'], [
+      'order_master_id' => $decoded_order_id
+    ])->result_array();
 
+    // Payment type
     $paymentTypeMap = [
       1 => 'Cash on Delivery',
       2 => 'Online Payment',
       3 => 'Wallet'
     ];
 
-    $payment_type = isset($order['payment_type']) ? (int) $order['payment_type'] : 0;
-    $paymentTypeName = $paymentTypeMap[$payment_type] ?? 'Unknown';
+    $paymentTypeName = $paymentTypeMap[$order['payment_type']] ?? 'Unknown';
 
-    $data = [
-      'title' => 'Order Success | Chenna',
-      'order_data' => $order,
-      'address_data' => $address_data,
-      'purchase_items' => $purchase_items,
-      'paymentTypeName' => $paymentTypeName
-    ];
+    // COD Status
+    $cod_status = ($order['cash_on_delivery'] == 1)
+      ? 'Available'
+      : 'Not Available';
+
+    // Seller Approval Status
+    $seller_status = ($order['seller_approve'] == 1)
+      ? 'Approved'
+      : 'Not Approved';
+
+    $data['title'] = 'Order Success | Chenna';
+    $data['order_data'] = $order;
+    $data['address_data'] = $address_data;
+    $data['purchase_items'] = $purchase_items;
+    $data['paymentTypeName'] = $paymentTypeName;
+    $data['cod_status'] = $cod_status;
+    $data['seller_status'] = $seller_status;
 
     $this->load->view('web/include/header', $data);
     $this->load->view('web/order_complete', $data);
-    $this->load->view('web/include/footer', $data);
+    $this->load->view('web/include/footer');
   }
+
   public function order_success2($order_number)
   {
     $userData = $this->session->userdata('User');

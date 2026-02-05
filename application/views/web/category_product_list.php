@@ -637,6 +637,7 @@
                 const img = (p.main_image || "").startsWith("http") ? p.main_image : baseProductImagePath + (p.main_image || 'default.png');
                 const rating = parseFloat(p.avg) || 0;
                 const urlName = cleanUrlName(p.product_name || '');
+                
 
                 html += `
            <div class="col-6 col-sm-6 col-md-4 col-lg-3 col-xl-2 product-card">
