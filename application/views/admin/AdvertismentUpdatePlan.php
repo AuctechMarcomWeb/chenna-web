@@ -120,7 +120,8 @@
     <!-- Content Header (Page header) -->
     <section class="content-header">
         <h1> Manage Advertisment Plans</h1>
-
+        <a href="<?php echo base_url('admin/Product/AddProduct/'); ?>" class="btn btn-info"
+        style="float: right; padding-right: 10px; ">Add Product</a>
     </section>
 
     <section class="content">
