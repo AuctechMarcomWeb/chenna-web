@@ -455,110 +455,83 @@ class Phonepe extends CI_Controller
     }
 
     /* ================= RESPONSE ================= */
-    public function response_ad()
-    {
-        $txnId = $this->input->get('oid');
-        if (!$txnId)
-            show_error('Transaction missing');
+/* ===========================
+    Save Advertisement after payment
+=========================== */
+public function response_ad()
+{
+    $txnId = $this->input->get('oid');
+    if(!$txnId) show_error('Transaction missing');
 
-        $token = $this->getToken();
-        if (!$token)
-            show_error('Token error');
+    $token = $this->getToken();
+    if(!$token) show_error('Token error');
 
-        $ch = curl_init(STATUS_URL . $txnId . '/status');
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => ['Authorization: O-Bearer ' . $token],
-            CURLOPT_SSL_VERIFYPEER => false
-        ]);
+    $ch = curl_init(STATUS_URL . $txnId . '/status');
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER => ['Authorization: O-Bearer ' . $token],
+        CURLOPT_SSL_VERIFYPEER => false
+    ]);
+    $res = json_decode(curl_exec($ch), true);
+    curl_close($ch);
 
-        $res = json_decode(curl_exec($ch), true);
-        curl_close($ch);
+    $success = in_array(strtoupper($res['state'] ?? ''), ['COMPLETED','SUCCESS','CHARGED']);
 
-        $success = in_array(strtoupper($res['state'] ?? ''), ['COMPLETED', 'SUCCESS', 'CHARGED']);
+    if(strpos($txnId,'AD') !== 0) show_error('Invalid transaction');
 
-        /* ================= ADVERTISEMENT ================= */
-        if (strpos($txnId, 'AD') === 0)
-        {
-            $admin = $this->checkVendorPromoter();
-            $plan = $this->session->userdata('selected_ad_plan');
-            $products = $this->session->userdata('selected_ad_products');
+    $admin = $this->checkVendorPromoter();
+    $plan = $this->session->userdata('selected_ad_plan');
+    $products = $this->session->userdata('selected_ad_products');
 
-            if (!$plan || !$products)
-                show_error('Advertisement data missing');
-
-            if ($success)
-            {
-                $purchase = [
-                    'plan_id' => $plan['plan_id'],
-                    'price' => $plan['price'],
-                    'user_type' => $admin['Type'],
-                    'user_id' => $admin['Id'],
-                    'vendor_id' => ($admin['Type'] == 2) ? $admin['Id'] : 0,
-                    'promoter_id' => ($admin['Type'] == 3) ? $admin['Id'] : 0,
-                    'plan_product_limit' => $plan['plan_product_limit'],
-                    'products_used' => count($products),
-                    'transaction_id' => $txnId,
-                    'payment_status' => 'paid',
-                    'start_date' => date('Y-m-d'),
-                    'end_date' => date('Y-m-d', strtotime("+{$plan['duration_days']} days")),
-                    'status' => 1,
-                    'created_at' => date('Y-m-d H:i:s')
-                ];
-
-                $this->db->insert('advertisement_purchases_master', $purchase);
-                $purchaseId = $this->db->insert_id();
-
-                $adType = 'featured'; // default
-
-                if (!empty($plan['product_for_you']) && $plan['product_for_you'] == 1)
-                {
-                    $adType = 'product_for_you';
-
-                } elseif (!empty($plan['hot_deal']) && $plan['hot_deal'] == 1)
-                {
-                    $adType = 'hot_deal';
-
-                } elseif (!empty($plan['spacial_offer']) && $plan['spacial_offer'] == 1)
-                {
-                    $adType = 'spacial_offer';
-
-                } elseif (!empty($plan['banner']) && $plan['banner'] == 1)
-                {
-                    $adType = 'banner';
-                }
-
-
-                foreach ($products as $pid)
-                {
-                    $this->db->insert('advertisement_products_master', [
-                        'purchase_id' => $purchaseId,
-                        'product_id' => $pid,
-                        'ad_type' => $adType,
-                        'start_date' => $purchase['start_date'],
-                        'end_date' => $purchase['end_date'],
-                        'status' => 1
-                    ]);
-                }
-
-                $this->session->unset_userdata([
-                    'selected_ad_plan',
-                    'selected_ad_products',
-                    'ad_txn_id'
-                ]);
-
-                $this->session->set_flashdata('success', 'Advertisement activated successfully');
-            } else
-            {
-                $this->session->set_flashdata('error', 'Advertisement payment failed');
-            }
-
-            redirect('admin/Subscription/AdvertismentSelectPlan');
-            return;
-        }
-
-        show_error('Invalid transaction');
+    if(!$plan || empty($products)) show_error('Advertisement data missing');
+    if(!$success){
+        $this->session->set_flashdata('error','Advertisement payment failed');
+        redirect('admin/Subscription/AdvertismentSelectPlan');
     }
+
+    // Insert purchase
+    $purchase = [
+        'plan_id' => $plan['plan_id'],
+        'price' => $plan['price'],
+        'user_type' => $admin['Type'],
+        'user_id' => $admin['Id'],
+        'vendor_id' => ($admin['Type']==2)?$admin['Id']:0,
+        'promoter_id'=>($admin['Type']==3)?$admin['Id']:0,
+        'plan_product_limit'=>$plan['plan_product_limit'],
+        'products_used'=>count($products),
+        'transaction_id'=>$txnId,
+        'payment_status'=>'paid',
+        'start_date'=>date('Y-m-d'),
+        'end_date'=>date('Y-m-d', strtotime("+{$plan['duration_days']} days")),
+        'status'=>0,
+        'created_at'=>date('Y-m-d H:i:s')
+    ];
+    $this->db->insert('advertisement_purchases_master', $purchase);
+    $purchaseId = $this->db->insert_id();
+
+    // Insert products × benefits
+    $benefitKeys = ['product_for_you','hot_deal','spacial_offer','banner'];
+    foreach($products as $pid){
+        foreach($benefitKeys as $key){
+            if(!empty($plan[$key]) && (int)$plan[$key]===1){
+                $this->db->insert('advertisement_products_master', [
+                    'purchase_id'=>$purchaseId,
+                    'product_id'=>$pid,
+                    'ad_type'=>$key,
+                    'start_date'=>$purchase['start_date'],
+                    'end_date'=>$purchase['end_date'],
+                    'status'=>1
+                ]);
+            }
+        }
+    }
+
+    $this->session->unset_userdata(['selected_ad_plan','selected_ad_products','ad_txn_id']);
+    $this->session->set_flashdata('success','Advertisement activated successfully');
+    redirect('admin/Subscription/AdvertismentSelectPlan');
+}
+
+
 
     private function checkVendorPromoter()
     {

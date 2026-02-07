@@ -619,7 +619,122 @@
   .choose-plan {
     color: #000;
   }
+
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 46px;
+    height: 24px;
+  }
+
+  .switch input {
+    display: none;
+  }
+
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: #ccc;
+    transition: .4s;
+    border-radius: 50px;
+  }
+
+  .slider:before {
+    content: "";
+    position: absolute;
+    height: 18px;
+    width: 18px;
+    left: 4px;
+    bottom: 3px;
+    background: white;
+    transition: .4s;
+    border-radius: 50%;
+  }
+
+  input:checked+.slider {
+    background: #28a745;
+  }
+
+  input:checked+.slider:before {
+    transform: translateX(20px);
+  }
+
+  .table thead th {
+    background: #3c8dbc;
+    color: #fff;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .table tbody tr:hover {
+    background: #f5f9ff;
+    transition: 0.3s;
+  }
+
+  .badge-paid {
+    background: #28a745;
+    color: #fff;
+  }
+
+  .badge-pending {
+    background: #ffc107;
+    color: #000;
+  }
+
+  .product-list {
+    padding-left: 18px;
+    margin: 0;
+  }
+
+  .product-list li {
+    margin-bottom: 6px;
+    font-size: 13px;
+  }
+
+  .product-list img {
+    width: 50px;
+    height: 70px;
+    object-fit: scale-down;
+    border-radius: 4px;
+    margin-right: 6px;
+    border: 1px solid #f96522;
+  }
+
+  .expired {
+    color: red;
+    font-weight: 600;
+  }
+
+  .progress {
+    height: 18px;
+    background: #e9ecef;
+  }
+
+  .progress-bar {
+    font-size: 11px;
+  }
 </style>
+<?php
+function timeAgo($datetime)
+{
+  $time = time() - strtotime($datetime);
+
+  if ($time < 60)
+    return 'Just now';
+  if ($time < 3600)
+    return floor($time / 60) . ' min ago';
+  if ($time < 86400)
+    return floor($time / 3600) . ' hours ago';
+  if ($time < 2592000)
+    return floor($time / 86400) . ' days ago';
+  if ($time < 31536000)
+    return floor($time / 2592000) . ' months ago';
+
+  return floor($time / 31536000) . ' years ago';
+}
+?>
+
 <div class="content-wrapper">
   <!-- Content Header (Page header) -->
   <section class="content-header">
@@ -642,63 +757,119 @@
                   <table class="table table-bordered table-striped">
                     <thead>
                       <tr>
-                        <th>S.No.</th>
-                        <th>User Name</th>
-                        <th>User Type</th>
+                        <th>S.No</th>
+                        <th>User</th>
+                        <th>Type</th>
+                        <th>Product</th>
                         <th>Plan Name</th>
-                        <th>Price</th>
-                        <th>Duration (Days)</th>
-                        <th>Product Limit</th>
-                        <th>Benefits</th>
-                        <th>Status</th>
+                        <th>Payment</th>
+                        <th>Approval</th>
                         <th>Start Date</th>
                         <th>End Date</th>
+                        <th>Expire In</th>
+                        <th>Transaction</th>
                         <th>Registered Date</th>
+                        <th>Date</th>
                       </tr>
                     </thead>
-                    <tbody>
-                      <?php foreach ($activePlans as $i => $ap): ?>
-                        <tr>
-                          <td><?= $i + 1 ?></td>
-                          <td><?= $ap['user_name'] ?></td>
-                          <td>
-                            <?= ($ap['user_type'] == 2) ? 'Vendor' : (($ap['user_type'] == 3) ? 'Promoter' : 'Admin') ?>
-                          </td>
-                          <td><?= $ap['plan_name'] ?></td>
-                          <td>₹<?= $ap['paid_price'] ?></td>
-                          <td><?= $ap['duration_days'] ?></td>
-                          <td><?= $ap['plan_product_limit'] ?></td>
-                          <td>
-                            <?php
-                            $benefits = [];
-                            $plan = $this->db->where('id', $ap['plan_id'])->get('admin_advertisement_plans_master')->row_array();
-                            if ($plan['product_for_you'])
-                              $benefits[] = 'Product for you';
-                            if ($plan['hot_deal'])
-                              $benefits[] = 'Hot Deal';
-                            if ($plan['spacial_offer'])
-                              $benefits[] = 'Special Offer';
-                            if ($plan['banner'])
-                              $benefits[] = 'Banner';
-                            echo implode(', ', $benefits);
+                   <tbody>
+                        <?php if(!empty($activePlans)): ?>
+                            <?php foreach ($activePlans as $i => $ap):
+                                $expireDays = floor((strtotime($ap['end_date']) - time()) / 86400);
                             ?>
-                          </td>
-                          <td><?= ($ap['payment_status'] == 'paid') ? 'Active' : 'Pending' ?></td>
-                          <td><?= date('d-m-Y h:i A', strtotime($ap['start_date'])) ?></td>
-                          <td><?= date('d-m-Y h:i A', strtotime($ap['end_date'])) ?></td>
-                          <td><?= date('d-m-Y h:i A', strtotime($ap['created_at'])) ?></td>
-
-                        </tr>
-                      <?php endforeach; ?>
+                            <tr>
+                                <td><?= $i + 1 ?></td>
+                                <td>
+                                  <?= $ap['user_name'] ?><br>
+                                  <span>
+                                    <a class="btn btn-danger" href="<?= base_url('admin/Subscription/AdvertismentUserDetails/' . $ap['purchase_id']) ?>" class="user-link">
+                                      View Details
+                                    </a>
+                                  </span> 
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">
+                                        <?= ($ap['user_type'] == 2) ? 'Vendor' : 'Promoter' ?>
+                                    </span>
+                                </td>
+                                <td style="min-width:220px;">
+                                    <?php
+                                    if (!empty($ap['product_names'])) {
+                                        $names  = explode('||', $ap['product_names']);
+                                        $images = explode('||', $ap['product_images']);
+                                        echo '<ol class="product-list">';
+                                        foreach ($names as $k => $n) {
+                                            $img = $images[$k] ?? '';
+                                            echo '<li>';
+                                            if ($img) echo '<img src="' . base_url('assets/product_images/' . $img) . '">';
+                                            echo $n;
+                                            echo '</li>';
+                                        }
+                                        echo '</ol>';
+                                    } else {
+                                        echo '-';
+                                    }
+                                    ?>
+                                </td>
+                                <td>
+                                    <b><?= $ap['plan_name'] ?></b><br>
+                                    ₹<?= $ap['paid_price'] ?>
+                                </td>
+                                <td>
+                                    <?php if ($ap['payment_status'] == 'paid') { ?>
+                                        <span class="badge badge-paid">Paid</span>
+                                    <?php } else { ?>
+                                        <span class="badge badge-pending">Pending</span>
+                                    <?php } ?>
+                                </td>
+                                <td>
+                                    <?php if ($adminData['Type'] == 1) { ?>
+                                        <label class="switch">
+                                            <input type="checkbox" class="planStatusToggle"
+                                                  data-id="<?= $ap['purchase_id'] ?>"
+                                                  <?= ($ap['purchase_status'] == 1) ? 'checked' : '' ?>>
+                                            <span class="slider"></span>
+                                        </label>
+                                    <?php } else { ?>
+                                        <span class="badge bg-success">Running</span>
+                                    <?php } ?>
+                                </td>
+                                <td><?= date('d-m-Y', strtotime($ap['start_date'])) ?></td>
+                                <td><?= date('d-m-Y', strtotime($ap['end_date'])) ?></td>
+                                <td>
+                                    <?php
+                                    if ($expireDays < 0)
+                                        echo '<span class="expired">Expired</span>';
+                                    elseif ($expireDays == 0)
+                                        echo 'Today';
+                                    else
+                                        echo $expireDays . ' days';
+                                    ?>
+                                </td>
+                                <td><?= $ap['transaction_id'] ?></td>
+                                <td><?= date('d-m-Y h:i:s A', strtotime($ap['created_at'])) ?></td>
+                                <td><?= timeAgo($ap['created_at']) ?></td>
+                            </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="13" class="text-center" style="padding:20px; font-weight:600; color:#555; background:#f9f9f9;">
+                                    No Plan Available
+                                </td>
+                            </tr>
+                        <?php endif; ?>
                     </tbody>
+
+
                   </table>
                 </div>
-
               </div>
             </div>
+
           </div>
         </div>
       </div>
+    </div>
   </section>
 
 </div>
@@ -715,59 +886,54 @@
         <div class="text-center mb-5">
           <h3 class="fw-bold choose-plan">Choose Your Advertisement Plan</h3>
           <p class="text-muted">Select a plan to promote your products</p>
-        </div><br>
+        </div>
 
         <div class="row g-4">
-
-          <!-- RIGHT : Plans -->
           <div class="col-md-12">
             <div class="row g-3">
               <?php foreach ($plans as $plan): ?>
-                <div class="col-md-4">
-                  <div class="card select-plan p-3 cursor-pointer" data-id="<?= $plan['id'] ?>"
-                    data-name="<?= $plan['plan_name'] ?>" data-price="<?= $plan['price'] ?>"
-                    data-duration="<?= $plan['duration_days'] ?>" data-limit="<?= $plan['product_limit'] ?>"
-                    data-hotdeal="<?= $plan['hot_deal'] ?>" data-featured="<?= $plan['product_for_you'] ?>"
-                    data-banner="<?= $plan['banner'] ?>" data-special="<?= $plan['spacial_offer'] ?>">
+              <div class="col-md-4">
+                <div class="card select-plan p-3 cursor-pointer"
+                     data-id="<?= $plan['id'] ?>"
+                     data-name="<?= $plan['plan_name'] ?>"
+                     data-price="<?= $plan['price'] ?>"
+                     data-duration="<?= $plan['duration_days'] ?>"
+                     data-limit="<?= $plan['product_limit'] ?>"
+                     data-hotdeal="<?= $plan['hot_deal'] ?>"
+                     data-productforyou="<?= $plan['product_for_you'] ?>"
+                     data-banner="<?= $plan['banner'] ?>"
+                     data-spacialoffer="<?= $plan['spacial_offer'] ?>">
 
-                    <h6 class="bold plan-name"><?= $plan['plan_name'] ?></h6>
-                    <div class="card-price mt-2">
-                      ₹<?= $plan['price'] ?> <small>/<?= $plan['duration_days'] ?> Days</small>
-                    </div>
-
-                    <small class="text-muted d-block mt-1 mb-2 fw-bold">Benefits:</small>
-                    <ul class="plan-benefits">
-                      <?php if ($plan['product_for_you']): ?>
-                        <li><i class="bi bi-check-circle-fill text-success"></i> Product for you</li>
-                      <?php endif; ?>
-
-                      <?php if ($plan['hot_deal']): ?>
-                        <li><i class="bi bi-check-circle-fill text-success"></i> Hot Deal</li>
-                      <?php endif; ?>
-
-                      <?php if ($plan['spacial_offer']): ?>
-                        <li><i class="bi bi-check-circle-fill text-success"></i> Special Offer</li>
-                      <?php endif; ?>
-
-                      <?php if ($plan['banner']): ?>
-                        <li><i class="bi bi-check-circle-fill text-success"></i> Banner </li>
-                      <?php endif; ?>
-                      <li>Product Limit: <?= $plan['product_limit'] ?></li>
-                    </ul>
-
-                    <!-- <small class="text-muted ">Product Limit: <?= $plan['product_limit'] ?></small> -->
+                  <h6 class="bold plan-name"><?= $plan['plan_name'] ?></h6>
+                  <div class="card-price mt-2">
+                    ₹<?= $plan['price'] ?> <small>/<?= $plan['duration_days'] ?> Days</small>
                   </div>
+
+                  <small class="text-muted d-block mt-1 mb-2 fw-bold">Benefits:</small>
+                  <ul class="plan-benefits">
+                    <?php if ($plan['product_for_you']): ?>
+                      <li><i class="bi bi-check-circle-fill text-success"></i> Product for you</li>
+                    <?php endif; ?>
+                    <?php if ($plan['hot_deal']): ?>
+                      <li><i class="bi bi-check-circle-fill text-success"></i> Hot Deal</li>
+                    <?php endif; ?>
+                    <?php if ($plan['spacial_offer']): ?>
+                      <li><i class="bi bi-check-circle-fill text-success"></i> Special Offer</li>
+                    <?php endif; ?>
+                    <?php if ($plan['banner']): ?>
+                      <li><i class="bi bi-check-circle-fill text-success"></i> Banner </li>
+                    <?php endif; ?>
+                    <li>Product Limit: <?= $plan['product_limit'] ?></li>
+                  </ul>
                 </div>
+              </div>
               <?php endforeach; ?>
             </div>
           </div>
-
         </div>
 
         <div class="text-center mt-4">
-          <button class="btn btn-proceed px-5" id="proceedPlanBtn">
-            Proceed to Payment →
-          </button>
+          <button class="btn btn-proceed px-5" id="proceedPlanBtn">Proceed to Payment →</button>
         </div>
 
       </div>
@@ -775,94 +941,65 @@
   </div>
 </div>
 
-
-
-
-
-
-
-
 <script>
-  $(document).ready(function () {
+$(document).ready(function () {
 
-    let selectedPlan = null;
-    $('#addProductBtn').on('click', function () {
-      $.post("<?= base_url('admin/Subscription/check_active_plan') ?>", {
-        user_id: <?= $adminData['Id'] ?>,
-        user_type: <?= $adminData['Type'] ?>
-      }, function (res) {
-        if (res.has_plan) {
-          window.location.href = "<?= base_url('admin/Subscription/AdvertismentProducts') ?>";
-        } else {
-          $('#advertisementModal').modal('show');
-        }
-      }, 'json');
-    });
-    $(document).on('click', '.select-plan', function () {
+  let selectedPlan = null;
 
-      $('.select-plan')
-        .removeClass('active border border-success');
+  $('#addProductBtn').on('click', function () {
+    $.post("<?= base_url('admin/Subscription/check_active_plan') ?>", {
+      user_id: <?= $adminData['Id'] ?>,
+      user_type: <?= $adminData['Type'] ?>
+    }, function (res) {
+      if(res.has_plan){
+        window.location.href = "<?= base_url('admin/Subscription/AdvertismentProducts') ?>";
+      } else {
+        $('#advertisementModal').modal('show');
+      }
+    }, 'json');
+  });
 
-      $(this)
-        .addClass('active border border-success');
+  // Select plan
+  $(document).on('click', '.select-plan', function(){
+    $('.select-plan').removeClass('active border border-success');
+    $(this).addClass('active border border-success');
+    selectedPlan = $(this);
 
-      selectedPlan = $(this);
+    let benefits = [];
+    if($(this).data('productforyou') == 1) benefits.push('Product For You');
+    if($(this).data('hotdeal') == 1) benefits.push('Hot Deal');
+    if($(this).data('spacialoffer') == 1) benefits.push('Special Offer');
+    if($(this).data('banner') == 1) benefits.push('Banner');
 
-      let benefits = [];
-
-      if ($(this).data('featured') == 1) benefits.push('Featured Product');
-      if ($(this).data('hotdeal') == 1) benefits.push('Hot Deal');
-      if ($(this).data('special') == 1) benefits.push('Special Offer');
-      if ($(this).data('banner') == 1) benefits.push('Banner Promotion');
-
-      $('#selectedPlanBox').html(`
+    $('#selectedPlanBox').html(`
       <h6 class="fw-bold">${$(this).data('name')}</h6>
-      <div class="price-tag fw-bold text-success">
-        ₹${$(this).data('price')}
-      </div>
-      <small class="text-muted">
-        Product Limit: ${$(this).data('limit')}
-      </small>
-
+      <div class="price-tag fw-bold text-success">₹${$(this).data('price')}</div>
+      <small class="text-muted">Product Limit: ${$(this).data('limit')}</small>
       <ul class="plan-benefits mt-2">
-        ${benefits.length
-          ? benefits.map(b =>
-            `<li>
-                <i class="bi bi-check-circle-fill text-success"></i> ${b}
-              </li>`
-          ).join('')
-          : `<li>No extra promotion</li>`
-        }
+        ${benefits.length ? benefits.map(b => `<li><i class="bi bi-check-circle-fill text-success"></i> ${b}</li>`).join('') : '<li>No extra promotion</li>'}
       </ul>
     `);
-    });
-
-    /* ===============================
-       3️⃣ PROCEED BUTTON
-    =============================== */
-    $('#proceedPlanBtn').on('click', function () {
-
-      if (!selectedPlan) {
-        alert('Please select a plan');
-        return;
-      }
-
-      $.post("<?= base_url('admin/Subscription/create_advetisment_plan') ?>", {
-        plan_id: selectedPlan.data('id'),
-        user_id: <?= $adminData['Id'] ?>,
-        user_type: <?= $adminData['Type'] ?>
-      }, function (res) {
-
-        if (res.status === 'success') {
-          // Plan created → go to product select page
-          window.location.href =
-            "<?= base_url('admin/Subscription/AdvertismentProducts') ?>";
-        } else {
-          alert(res.message || 'Something went wrong');
-        }
-
-      }, 'json');
-    });
-
   });
+
+  // Proceed button → Create session & redirect
+  $('#proceedPlanBtn').on('click', function(){
+    if(!selectedPlan){
+      alert('Please select a plan');
+      return;
+    }
+
+    $.post("<?= base_url('admin/Subscription/create_advetisment_plan') ?>", {
+      plan_id: selectedPlan.data('id'),
+      user_id: <?= $adminData['Id'] ?>,
+      user_type: <?= $adminData['Type'] ?>
+    }, function(res){
+      if(res.status === 'success'){
+        window.location.href = "<?= base_url('admin/Subscription/AdvertismentProducts') ?>";
+      } else {
+        alert(res.message || 'Something went wrong');
+      }
+    }, 'json');
+  });
+
+});
 </script>

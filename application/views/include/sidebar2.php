@@ -115,9 +115,9 @@
             </a>
           </li>
           <li class="treeview <?php echo (($index == 'vendor') ? 'active' : ''); ?>">
-            <a href="<?php echo site_url('admin/Subscription/subscription_list'); ?>">
+            <a href="<?php echo site_url('admin/Subscription/AdvertismentSelectPlan'); ?>">
               <i class="fa fa-circle-o"></i>
-              <span>Manage Plan Vendors</span>
+              <span>Manage Ad Plan Request</span>
             </a>
           </li>
         </ul>

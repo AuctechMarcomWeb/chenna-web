@@ -636,66 +636,69 @@
 
                         <div class="box-body" style="overflow-x:auto;"><br>
                             <div class="col-sm-12">
-                                <div class="container mt-4">
-
-                                    <small class="text-muted">
-                                        (Limit: <?= (int) $plan['plan_product_limit'] ?>)
-                                    </small>
 
 
-                                    <!-- Parent Category -->
-                                    <div class="row mb-3">
-                                        <div class="col-md-4">
-                                            <label>Parent Category</label>
-                                            <select id="parent_category" class="form-control">
-                                                <option value="">Select Parent Category</option>
-                                            </select>
-                                        </div>
-
-                                        <div class="col-md-4">
-                                            <label>Category</label>
-                                            <select id="category" class="form-control">
-                                                <option value="">Select Category</option>
-                                            </select>
-                                        </div>
-
-                                        <div class="col-md-4">
-                                            <label>Sub Category</label>
-                                            <select id="sub_category" class="form-control">
-                                                <option value="">Select Sub Category</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label>Products</label>
-                                            <select id="product_list" class="form-control" multiple>
-                                                <option value="">Select Products</option>
-                                            </select>
-                                            <small class="text-muted">Hold Ctrl to select multiple products</small>
-                                        </div>
-
-                                        <h4 class="mb-2">
-                                            Plan: <strong><?= $plan['plan_name'] ?></strong>
+                                <div class="row mb-2">
+                                    <div class="col-md-4">
+                                        <h4><strong> Plan Name : </strong> <span class="text-red"><?= $plan['plan_name'] ?></span></h4>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <h4 class="text-black">
+                                            <strong> Plan Amount : </strong> <span  class="text-success">₹<?= number_format($plan['price'], 2) ?></span>
                                         </h4>
-
-                                        <h5 class="text-success">
-                                            Amount Payable: ₹<?= number_format($plan['price'], 2) ?>
-                                        </h5>
-
+                                    </div>
+                                    <div class="col-md-4">
                                         <small class="text-muted">
-                                            Product Limit: <?= (int) $plan['plan_product_limit'] ?>
+                                            <strong> Product Limit: </strong> <span class="text-red"><?= (int) $plan['plan_product_limit'] ?></span>
                                         </small>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="row g-3">
 
+                                    <!-- Parent -->
+                                    <div class="col-md-3">
+                                        <label>Parent Category</label>
+                                        <select id="parent_category" class="form-control select2">
+                                            <option value="">Select Product Parent Category</option>
+                                        </select>
                                     </div>
 
-                                    <!-- Product List -->
+                                    <!-- Category -->
+                                    <div class="col-md-3">
+                                        <label>Category</label>
+                                        <select id="category" class="form-control select2">
+                                            <option value="">Select ProductCategory</option>
+                                        </select>
+                                    </div>
 
+                                    <!-- Sub -->
+                                    <div class="col-md-3">
+                                        <label>Sub Category</label>
+                                        <select id="sub_category" class="form-control select2">
+                                            <option value="">Select Product Sub Category</option>
+                                        </select>
+                                    </div>
 
-                                    <div class="text-center mt-4">
+                                    <!-- Products -->
+                                    <div class="col-md-3">
+                                        <label>Products</label>
+                                        <select id="product_list" class="form-control select2" multiple>
+                                            <option value="">Select Product</option>
+                                        </select>
+                                    </div><br><br>
+                                    
+
+                                </div>
+                               <div class="row"><br>
+                                 <div class="col-md-12 text-start mt-4">
                                         <button class="btn btn-primary px-5" id="submitAds">
                                             Submit & Pay
                                         </button>
                                     </div>
-                                </div>
+                                    
+                               </div>
+                               <br>
                             </div>
                         </div>
                     </div>
@@ -707,64 +710,122 @@
 
 
 <script src="<?php echo base_url('assets/admin/plugins/select2/select2.full.min.js'); ?>"></script>
-
-
-
-
-
-
-
-
-
 <script>
     $(document).ready(function () {
 
-        // Parent Category
+        // =============================
+        // SELECT2 WITH CHECKBOX STYLE
+        // =============================
+        function formatOption(option) {
+            if (!option.id) return option.text;
+
+            return $(`
+            <span>
+                <input type="checkbox" class="me-2" />
+                ${option.text}
+            </span>
+        `);
+        }
+
+        $('.select2').select2({
+            width: '100%',
+            closeOnSelect: false,
+            templateResult: formatOption,
+            templateSelection: function (data) {
+                return data.text;
+            },
+            escapeMarkup: function (m) { return m; }
+        });
+
+
+        // =============================
+        // LOAD PARENT CATEGORY
+        // =============================
         $.get("<?= base_url('admin/Subscription/get_parent_category') ?>", function (res) {
+
+            $('#parent_category').html('<option value="">Select Product Parent Category</option>');
+
             res.forEach(r => {
                 $('#parent_category').append(`<option value="${r.id}">${r.name}</option>`);
             });
+
+            $('#parent_category').trigger('change.select2');
+
         }, 'json');
 
-        $('#parent_category').change(function () {
-            $('#category').html('<option value="">Select Category</option>');
-            $('#sub_category').html('<option value="">Select Sub Category</option>');
-            $('#product_list').html('');
+
+        // =============================
+        // PARENT → CATEGORY
+        // =============================
+        $('#parent_category').on('change', function () {
+
+            $('#category').html('<option value="">Select Category</option>').trigger('change');
+            $('#sub_category').html('<option value="">Select Product Sub Category</option>').trigger('change');
+            $('#product_list').html('').trigger('change');
+
+            if (!this.value) return;
 
             $.post("<?= base_url('admin/Subscription/get_category') ?>",
-                { id: this.value }, res => {
+                { id: this.value }, function (res) {
+
                     res.forEach(c => {
                         $('#category').append(`<option value="${c.id}">${c.category_name}</option>`);
                     });
+
+                    $('#category').trigger('change.select2');
+
                 }, 'json');
         });
 
-        $('#category').change(function () {
-            $('#sub_category').html('<option value="">Select Sub Category</option>');
-            $('#product_list').html('');
+
+        // =============================
+        // CATEGORY → SUB
+        // =============================
+        $('#category').on('change', function () {
+
+            $('#sub_category').html('<option value="">Select Product Sub Category</option>').trigger('change');
+            $('#product_list').html('').trigger('change');
+
+            if (!this.value) return;
 
             $.post("<?= base_url('admin/Subscription/get_sub_category') ?>",
-                { id: this.value }, res => {
+                { id: this.value }, function (res) {
+
                     res.forEach(s => {
                         $('#sub_category').append(`<option value="${s.id}">${s.sub_category_name}</option>`);
                     });
+
+                    $('#sub_category').trigger('change.select2');
+
                 }, 'json');
         });
 
-        $('#sub_category').change(function () {
-            $('#product_list').html('');
+
+        // =============================
+        // SUB → PRODUCTS
+        // =============================
+        $('#sub_category').on('change', function () {
+
+            $('#product_list').html('').trigger('change');
+
+            if (!this.value) return;
 
             $.post("<?= base_url('admin/Subscription/get_products') ?>",
-                { id: this.value }, res => {
+                { id: this.value }, function (res) {
+
                     res.forEach(p => {
-                        $('#product_list').append(`
-            <option value="${p.id}">${p.product_name}</option>
-          `);
+                        $('#product_list').append(`<option value="${p.id}">${p.product_name}</option>`);
                     });
+
+                    $('#product_list').trigger('change.select2');
+
                 }, 'json');
         });
 
+
+        // =============================
         // SUBMIT & PAY
+        // =============================
         $('#submitAds').click(function () {
 
             let products = $('#product_list').val();
@@ -786,6 +847,6 @@
             );
         });
 
-
     });
+
 </script>
