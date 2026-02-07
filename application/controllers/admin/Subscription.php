@@ -516,73 +516,181 @@ class Subscription extends CI_Controller
         redirect('admin/Subscription/AdvertismentUpdatePlan');
     }
 
-
-    public function AdvertismentSelectPlan()
+    private function checkVendorPromoter()
     {
         $adminData = $this->session->userdata('adminData');
+        if (!$adminData)
+        {
+            redirect('admin/login');
+        }
+        return $adminData;
+    }
+public function AdvertismentSelectPlan()
+{
+    $adminData = $this->checkVendorPromoter();
 
-        // Fetch all active plans
-        $data['plans'] = $this->db
+    // Vendors & Promoters combined
+    $sql = "
+    SELECT ap.id as purchase_id, ap.plan_id, ap.price as paid_price, ap.user_type, ap.user_id, ap.vendor_id, ap.promoter_id,
+           ap.plan_product_limit, ap.products_used, ap.transaction_id, ap.payment_status, ap.status as purchase_status, ap.start_date, ap.end_date, ap.created_at,
+           p.plan_name, p.price as plan_price, p.duration_days, p.product_limit,
+           CASE 
+               WHEN ap.user_type = 2 THEN v.name 
+               WHEN ap.user_type = 3 THEN pr.name 
+           END as user_name
+    FROM advertisement_purchases_master ap
+    LEFT JOIN admin_advertisement_plans_master p ON p.id = ap.plan_id
+    LEFT JOIN vendors v ON v.id = ap.vendor_id
+    LEFT JOIN promoters pr ON pr.id = ap.promoter_id
+    WHERE ap.status = 1 AND ap.end_date >= CURDATE()
+    ORDER BY ap.created_at DESC
+    ";
+
+    $data['activePlans'] = $this->db->query($sql)->result_array();
+
+    // All available plans
+    $data['plans'] = $this->db
+        ->where('status', 1)
+        ->order_by('plan_type', 'ASC')
+        ->get('admin_advertisement_plans_master')
+        ->result_array();
+
+    $data['adminData'] = $adminData;
+
+    $this->load->view('include/header', $data);
+    $this->load->view('admin/AdvertismentSelectPlan', $data);
+    $this->load->view('include/footer');
+}
+
+    public function create_advetisment_plan()
+    {
+        $adminData = $this->checkVendorPromoter();
+        $plan_id = $this->input->post('plan_id');
+
+        $plan = $this->db
+            ->where('id', $plan_id)
             ->where('status', 1)
-            ->order_by('plan_type', 'ASC')
             ->get('admin_advertisement_plans_master')
-            ->result_array();
+            ->row_array();
 
-        $data['adminData'] = $adminData; // needed for JS
-        $data['title'] = 'Advertisement Plans';
+        if (!$plan)
+        {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid plan']);
+            return;
+        }
+
+        // ✅ SAVE COMPLETE PLAN INFO
+        $this->session->set_userdata('selected_ad_plan', [
+            'plan_id' => $plan['id'],
+            'plan_name' => $plan['plan_name'],
+            'price' => $plan['price'],
+            'plan_product_limit' => $plan['product_limit'],
+            'duration_days' => $plan['duration_days'],
+            'hot_deal' => $plan['hot_deal'],
+            'featured' => $plan['product_for_you'],
+            'banner' => $plan['banner']
+        ]);
+
+        echo json_encode(['status' => 'success']);
+    }
+
+    public function AdvertismentProducts()
+    {
+        $adminData = $this->checkVendorPromoter();
+        $plan = $this->session->userdata('selected_ad_plan');
+
+        if (!$plan)
+        {
+            redirect('admin/Subscription/AdvertismentSelectPlan');
+        }
+
+        $data['plan'] = $plan;
+        $data['adminData'] = $adminData;
 
         $this->load->view('include/header', $data);
-        $this->load->view('admin/AdvertismentSelectPlan', $data);
+        $this->load->view('admin/AdvertismentProducts', $data);
         $this->load->view('include/footer');
     }
 
+    public function select_ad_plan($planId)
+    {
+        $admin = $this->checkVendorPromoter();
 
-   public function check_user_plan()
-{
-    $user_id = $this->input->post('user_id');
-    $user_type = $this->input->post('user_type');
+        $plan = $this->db->where('id', $planId)
+            ->where('status', 1)
+            ->get('admin_advertisement_plans_master')
+            ->row_array();
 
-    $this->db->where('user_id', $user_id);
-    $this->db->where('user_type', $user_type);
-    $this->db->where('status', 1);
-    $this->db->where('end_date >=', date('Y-m-d'));
-    $query = $this->db->get('advertisement_purchases_master');
+        if (!$plan)
+            show_error('Invalid plan');
 
-    $has_plan = $query->num_rows() > 0 ? true : false;
-    echo json_encode(['has_plan' => $has_plan]);
-}
+        $this->session->set_userdata('selected_ad_plan', [
+            'plan_id' => $plan['id'],
+            'price' => $plan['price'],
+            'duration_days' => $plan['duration_days'],
+            'plan_product_limit' => $plan['product_limit'],
+            'hot_deal' => $plan['hot_deal'],
+            'spacial_offer' => $plan['spacial_offer'],
+            'banner' => $plan['banner']
+        ]);
 
-public function create_advetisment_plan()
-{
-    $user_id = $this->input->post('user_id');
-    $user_type = $this->input->post('user_type');
-    $plan_id = $this->input->post('plan_id');
-
-    $plan = $this->db->get_where('admin_advertisement_plans_master', ['id'=>$plan_id])->row_array();
-    if(!$plan){
-        echo json_encode(['status'=>'error','message'=>'Plan not found']);
-        return;
+        redirect('admin/advertisement-products');
     }
 
-    $start_date = date('Y-m-d');
-    $end_date = date('Y-m-d', strtotime("+{$plan['duration_days']} days"));
+    public function save_ad_session()
+    {
+        $this->checkVendorPromoter();
 
-    $insert = [
-        'plan_id'=>$plan_id,
-        'user_type'=>$user_type,
-        'user_id'=>$user_id,
-        'start_date'=>$start_date,
-        'end_date'=>$end_date,
-        'products_used'=>0,
-        'payment_status'=>'paid', // or pending
-        'status'=>1,
-        'created_at'=>date('Y-m-d H:i:s')
-    ];
+        $products = $this->input->post('products');
+        $plan = $this->session->userdata('selected_ad_plan');
 
-    $this->db->insert('advertisement_purchases_master', $insert);
+        if (!$plan || empty($products))
+        {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid selection']);
+            return;
+        }
 
-    echo json_encode(['status'=>'success']);
-}
+        if (count($products) > $plan['plan_product_limit'])
+        {
+            echo json_encode(['status' => 'error', 'message' => 'Product limit exceeded']);
+            return;
+        }
+
+        $this->session->set_userdata('selected_ad_products', $products);
+
+        echo json_encode(['status' => 'success']);
+    }
+
+    public function get_parent_category()
+    {
+        echo json_encode(
+            $this->db->where('status', 1)->get('parent_category_master')->result_array()
+        );
+    }
+
+    public function get_category()
+    {
+        echo json_encode(
+            $this->db->where('mai_id', $this->input->post('id'))
+                ->where('status', 1)->get('category_master')->result_array()
+        );
+    }
+
+    public function get_sub_category()
+    {
+        echo json_encode(
+            $this->db->where('category_master_id', $this->input->post('id'))
+                ->where('status', 1)->get('sub_category_master')->result_array()
+        );
+    }
+
+    public function get_products()
+    {
+        echo json_encode(
+            $this->db->where('sub_category_id', $this->input->post('id'))
+                ->where('status', 1)->get('sub_product_master')->result_array()
+        );
+    }
 
 
 

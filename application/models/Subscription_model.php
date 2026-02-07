@@ -232,4 +232,34 @@ class Subscription_model extends CI_Model
             ->result_array();
     }
 
+ public function get_active_plan($vendor_id)
+    {
+        return $this->db->select('ap.*')
+            ->from('advertisement_plans ap')
+            ->where('ap.status', 1)
+            ->limit(1)
+            ->get()
+            ->row_array();
+    }
+
+    public function count_vendor_ads($vendor_id)
+    {
+        return $this->db->where('vendor_id', $vendor_id)
+            ->from('advertisement_products')
+            ->count_all_results();
+    }
+
+    public function insert_advertisement($data)
+    {
+        return $this->db->insert('advertisement_products', $data);
+    }
+
+    public function get_vendor_ads($vendor_id)
+    {
+        return $this->db->where('vendor_id', $vendor_id)
+            ->order_by('id', 'DESC')
+            ->get('advertisement_products')
+            ->result_array();
+    }
+
 }
