@@ -115,71 +115,93 @@
     .dropdown-menu>.active>a {
         background: none;
     }
+
+    .table thead th {
+        background: #3c8dbc;
+        color: #fff;
+        font-weight: 600;
+        white-space: nowrap;
+    }
 </style>
 <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
         <h1> Manage Advertisment Plans</h1>
         <a href="<?php echo base_url('admin/Product/AddProduct/'); ?>" class="btn btn-info"
-        style="float: right; padding-right: 10px; ">Add Product</a>
+            style="float: right; padding-right: 10px; ">Add Product</a>
     </section>
 
     <section class="content">
         <div class="row">
-            <div class="col-md-12">
-                <div class="box">
-                    <table class="table table-bordered table-striped">
-                        <thead>
-                            <tr>
-                                <th>S.No.</th>
-                                <th>Plan Name</th>
-                                <th>Price (₹)</th>
-                                <th>Duration (Days)</th>
-                                <th>Product Limit</th>
-                                <th>Hot Deal</th>
-                                <th>Featured Product</th>
-                                <th>Banner</th>
-                                <th>Status</th>
-                                <th>Date</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (!empty($plans)):
-                                $i = 1;
-                                foreach ($plans as $plan): ?>
-                                    <tr>
-                                        <td><?= $i++; ?></td>
-                                        <td><?= $plan['plan_name']; ?></td>
-                                        <td>₹ <?= number_format($plan['price'], 2); ?></td>
-                                        <td><?= $plan['duration_days']; ?></td>
-                                        <td><?= $plan['product_limit']; ?></td>
-                                        <td><?= ($plan['hot_deal']) ? '<span class="badge bg-green">Yes</span>' : 'No'; ?></td>
-                                        <td><?= ($plan['featured_product']) ? '<span class="badge bg-green">Yes</span>' : 'No'; ?>
-                                        </td>
-                                        <td><?= ($plan['banner']) ? '<span class="badge bg-green">Yes</span>' : 'No'; ?></td>
-                                        <td><?= ($plan['status'] == 1) ? '<span class="badge bg-green">Active</span>' : '<span class="badge bg-red">Inactive</span>'; ?>
-                                        </td>
-                                        <td><?= date('d-m-Y', strtotime($plan['created_at'])); ?></td>
-                                        <td>
-                                            <a href="<?= base_url('admin/Subscription/UpdateadvertismentPlan/' . $plan['id']); ?>"
-                                                class="btn btn-info">
-                                                <i class="fa-solid fa-pen-to-square"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                <?php endforeach;
-                            else: ?>
-                                <tr>
-                                    <td colspan="11" class="text-center">No Plans Found</td>
-                                </tr>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
+            <div id="msg">
+                <div class="col-xs-12">
+                    <div class="box">
 
+                        <div class="box-body" style="overflow-x:auto;"><br>
+                            <div class="col-sm-12">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>S.No.</th>
+                                                <th>Plan Name</th>
+                                                <th>Price (₹)</th>
+                                                <th>Duration (Days)</th>
+                                                <th>Product Limit</th>
+                                                <th>Hot Deal</th>
+                                                <th>Spacial Offer</th>
+                                                <th>Product For You</th>
+                                                <th>Banner</th>
+                                                <th>Status</th>
+                                                <th>Date</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php if (!empty($plans)):
+                                                $i = 1;
+                                                foreach ($plans as $plan): ?>
+                                                    <tr>
+                                                        <td><?= $i++; ?></td>
+                                                        <td><?= $plan['plan_name']; ?></td>
+                                                        <td>₹ <?= number_format($plan['price'], 2); ?></td>
+                                                        <td><?= $plan['duration_days']; ?></td>
+                                                        <td><?= $plan['product_limit']; ?></td>
+                                                        <td><?= ($plan['hot_deal']) ? '<span class="badge bg-green">Yes</span>' : 'No'; ?>
+                                                        </td>
+                                                        <td><?= ($plan['spacial_offer']) ? '<span class="badge bg-green">Yes</span>' : 'No'; ?>
+                                                        </td>
+                                                        <td><?= ($plan['product_for_you']) ? '<span class="badge bg-green">Yes</span>' : 'No'; ?>
+                                                        </td>
+                                                        <td><?= ($plan['banner']) ? '<span class="badge bg-green">Yes</span>' : 'No'; ?>
+                                                        </td>
+                                                        <td><?= ($plan['status'] == 1) ? '<span class="badge bg-green">Active</span>' : '<span class="badge bg-red">Inactive</span>'; ?>
+                                                        </td>
+                                                        <td><?= date('d-m-Y', strtotime($plan['created_at'])); ?></td>
+                                                        <td>
+                                                            <a href="<?= base_url('admin/Subscription/UpdateadvertismentPlan/' . $plan['id']); ?>"
+                                                                class="btn btn-info">
+                                                                <i class="fa-solid fa-pen-to-square"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                <?php endforeach;
+                                            else: ?>
+                                                <tr>
+                                                    <td colspan="11" class="text-center">No Plans Found</td>
+                                                </tr>
+                                            <?php endif; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             </div>
         </div>
+
     </section>
 
 

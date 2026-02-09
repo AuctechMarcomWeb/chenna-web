@@ -640,16 +640,19 @@
 
                                 <div class="row mb-2">
                                     <div class="col-md-4">
-                                        <h4><strong> Plan Name : </strong> <span class="text-red"><?= $plan['plan_name'] ?></span></h4>
+                                        <h4><strong> Plan Name : </strong> <span
+                                                class="text-red"><?= $plan['plan_name'] ?></span></h4>
                                     </div>
                                     <div class="col-md-4">
                                         <h4 class="text-black">
-                                            <strong> Plan Amount : </strong> <span  class="text-success">₹<?= number_format($plan['price'], 2) ?></span>
+                                            <strong> Plan Amount : </strong> <span
+                                                class="text-success">₹<?= number_format($plan['price'], 2) ?></span>
                                         </h4>
                                     </div>
                                     <div class="col-md-4">
                                         <small class="text-muted">
-                                            <strong> Product Limit: </strong> <span class="text-red"><?= (int) $plan['plan_product_limit'] ?></span>
+                                            <strong> Product Limit: </strong> <span
+                                                class="text-red"><?= (int) $plan['plan_product_limit'] ?></span>
                                         </small>
                                     </div>
                                 </div>
@@ -659,7 +662,7 @@
                                     <!-- Parent -->
                                     <div class="col-md-3">
                                         <label>Parent Category</label>
-                                        <select id="parent_category" class="form-control select2">
+                                        <select id="parent_category" class="form-control select2" multiple>
                                             <option value="">Select Product Parent Category</option>
                                         </select>
                                     </div>
@@ -667,7 +670,7 @@
                                     <!-- Category -->
                                     <div class="col-md-3">
                                         <label>Category</label>
-                                        <select id="category" class="form-control select2">
+                                        <select id="category" class="form-control select2" multiple>
                                             <option value="">Select ProductCategory</option>
                                         </select>
                                     </div>
@@ -675,7 +678,7 @@
                                     <!-- Sub -->
                                     <div class="col-md-3">
                                         <label>Sub Category</label>
-                                        <select id="sub_category" class="form-control select2">
+                                        <select id="sub_category" class="form-control select2" multiple>
                                             <option value="">Select Product Sub Category</option>
                                         </select>
                                     </div>
@@ -687,18 +690,18 @@
                                             <option value="">Select Product</option>
                                         </select>
                                     </div><br><br>
-                                    
+
 
                                 </div>
-                               <div class="row"><br>
-                                 <div class="col-md-12 text-start mt-4">
+                                <div class="row"><br>
+                                    <div class="col-md-12 text-start mt-4">
                                         <button class="btn btn-primary px-5" id="submitAds">
                                             Submit & Pay
                                         </button>
                                     </div>
-                                    
-                               </div>
-                               <br>
+
+                                </div>
+                                <br>
                             </div>
                         </div>
                     </div>
@@ -713,9 +716,6 @@
 <script>
     $(document).ready(function () {
 
-        // =============================
-        // SELECT2 WITH CHECKBOX STYLE
-        // =============================
         function formatOption(option) {
             if (!option.id) return option.text;
 
@@ -737,10 +737,6 @@
             escapeMarkup: function (m) { return m; }
         });
 
-
-        // =============================
-        // LOAD PARENT CATEGORY
-        // =============================
         $.get("<?= base_url('admin/Subscription/get_parent_category') ?>", function (res) {
 
             $('#parent_category').html('<option value="">Select Product Parent Category</option>');
@@ -753,79 +749,84 @@
 
         }, 'json');
 
-
-        // =============================
-        // PARENT → CATEGORY
-        // =============================
         $('#parent_category').on('change', function () {
 
-            $('#category').html('<option value="">Select Category</option>').trigger('change');
-            $('#sub_category').html('<option value="">Select Product Sub Category</option>').trigger('change');
+            let ids = $(this).val();
+
+            $('#category').html('').trigger('change');
+            $('#sub_category').html('').trigger('change');
             $('#product_list').html('').trigger('change');
 
-            if (!this.value) return;
+            if (!ids || ids.length === 0) return;
 
             $.post("<?= base_url('admin/Subscription/get_category') ?>",
-                { id: this.value }, function (res) {
+                { ids: ids },
+                function (res) {
 
                     res.forEach(c => {
-                        $('#category').append(`<option value="${c.id}">${c.category_name}</option>`);
+                        $('#category').append(
+                            `<option value="${c.id}">${c.category_name}</option>`
+                        );
                     });
 
                     $('#category').trigger('change.select2');
-
-                }, 'json');
+                },
+                'json'
+            );
         });
 
-
-        // =============================
-        // CATEGORY → SUB
-        // =============================
         $('#category').on('change', function () {
 
-            $('#sub_category').html('<option value="">Select Product Sub Category</option>').trigger('change');
+            let ids = $(this).val();
+
+            $('#sub_category').html('').trigger('change');
             $('#product_list').html('').trigger('change');
 
-            if (!this.value) return;
+            if (!ids || ids.length === 0) return;
 
             $.post("<?= base_url('admin/Subscription/get_sub_category') ?>",
-                { id: this.value }, function (res) {
+                { ids: ids },
+                function (res) {
 
                     res.forEach(s => {
-                        $('#sub_category').append(`<option value="${s.id}">${s.sub_category_name}</option>`);
+                        $('#sub_category').append(
+                            `<option value="${s.id}">${s.sub_category_name}</option>`
+                        );
                     });
 
                     $('#sub_category').trigger('change.select2');
-
-                }, 'json');
+                },
+                'json'
+            );
         });
 
-
-        // =============================
-        // SUB → PRODUCTS
-        // =============================
         $('#sub_category').on('change', function () {
+
+            let ids = $(this).val(); 
 
             $('#product_list').html('').trigger('change');
 
-            if (!this.value) return;
+            if (!ids || ids.length === 0) return;
 
             $.post("<?= base_url('admin/Subscription/get_products') ?>",
-                { id: this.value }, function (res) {
+                { ids: ids },
+                function (res) {
 
                     res.forEach(p => {
-                        $('#product_list').append(`<option value="${p.id}">${p.product_name}</option>`);
+                        $('#product_list').append(
+                            `<option value="${p.sku_code}">
+                        ${p.product_name} (${p.sizes})
+                    </option>`
+                        );
                     });
 
-                    $('#product_list').trigger('change.select2');
 
-                }, 'json');
+                    $('#product_list').trigger('change.select2');
+                },
+                'json'
+            );
         });
 
-
-        // =============================
-        // SUBMIT & PAY
-        // =============================
         $('#submitAds').click(function () {
 
             let products = $('#product_list').val();

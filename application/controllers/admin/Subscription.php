@@ -459,7 +459,8 @@ class Subscription extends CI_Controller
                 'duration_days' => $this->input->post('duration_days'),
                 'product_limit' => $this->input->post('product_limit'),
                 'hot_deal' => $this->input->post('hot_deal') ?? 0,
-                'featured_product' => $this->input->post('featured_product') ?? 0,
+                'spacial_offer' => $this->input->post('spacial_offer') ?? 0,
+                'product_for_you' => $this->input->post('product_for_you') ?? 0,
                 'banner' => $this->input->post('banner') ?? 0,
                 'status' => 1,
                 'created_at' => date('Y-m-d H:i:s')
@@ -503,7 +504,8 @@ class Subscription extends CI_Controller
             'duration_days' => $data['duration_days'] ?? 0,
             'product_limit' => $data['product_limit'] ?? 0,
             'hot_deal' => isset($data['hot_deal']) ? 1 : 0,
-            'featured_product' => isset($data['featured_product']) ? 1 : 0,
+            'spacial_offer' => isset($data['spacial_offer']) ? 1 : 0,
+            'product_for_you' => isset($data['product_for_you']) ? 1 : 0,
             'banner' => isset($data['banner']) ? 1 : 0,
             'status' => $data['status'],
             'created_at' => date('Y-m-d H:i:s')
@@ -525,81 +527,76 @@ class Subscription extends CI_Controller
         }
         return $adminData;
     }
-  public function AdvertismentSelectPlan()
-{
-    $adminData = $this->checkVendorPromoter();
+    public function AdvertismentSelectPlan()
+    {
+        $adminData = $this->checkVendorPromoter();
 
-    $sql = "
-    SELECT 
-        ap.id as purchase_id,
-        ap.plan_id,
-        ap.price as paid_price,
-        ap.user_type,
-        ap.user_id,
-        ap.vendor_id,
-        ap.promoter_id,
-        ap.plan_product_limit,
-        ap.products_used,
-        ap.transaction_id,
-        ap.payment_status,
-        ap.status as purchase_status,
-        ap.start_date,
-        ap.end_date,
-        ap.created_at,
+        $sql = "
+        SELECT 
+            ap.id as purchase_id,
+            ap.plan_id,
+            ap.price as paid_price,
+            ap.user_type,
+            ap.user_id,
+            ap.vendor_id,
+            ap.promoter_id,
+            ap.plan_product_limit,
+            ap.products_used,
+            ap.transaction_id,
+            ap.payment_status,
+            ap.status as status,
+            ap.start_date,
+            ap.end_date,
+            ap.created_at,
 
-        p.plan_name,
-        p.duration_days,
-        p.product_limit,
-        p.hot_deal,
-        p.spacial_offer,
-        p.product_for_you,
-        p.banner,
+            p.plan_name,
+            p.duration_days,
+            p.product_limit,
+            p.hot_deal,
+            p.spacial_offer,
+            p.product_for_you,
+            p.banner,
 
-        -- 🔥 GROUPED PRODUCTS
-        GROUP_CONCAT(sp.product_name SEPARATOR '||') as product_names,
-        GROUP_CONCAT(sp.main_image SEPARATOR '||') as product_images,
+            GROUP_CONCAT(sp.product_name SEPARATOR '||') as product_names,
+            GROUP_CONCAT(sp.main_image SEPARATOR '||') as product_images,
 
-        CASE 
-            WHEN ap.user_type = 2 THEN v.name 
-            WHEN ap.user_type = 3 THEN pr.name 
-        END as user_name
+            CASE 
+                WHEN ap.user_type = 2 THEN v.name 
+                WHEN ap.user_type = 3 THEN pr.name 
+            END as user_name
 
-    FROM advertisement_purchases_master ap
+        FROM advertisement_purchases_master ap
+        LEFT JOIN admin_advertisement_plans_master p ON p.id = ap.plan_id
+        LEFT JOIN advertisement_products_master adp ON adp.purchase_id = ap.id
+        LEFT JOIN sub_product_master sp ON sp.id = adp.product_id
+        LEFT JOIN vendors v ON v.id = ap.vendor_id
+        LEFT JOIN promoters pr ON pr.id = ap.promoter_id
+        WHERE ap.payment_status = 'paid'
+        GROUP BY ap.id
+        ORDER BY ap.created_at DESC
+        ";
 
-    LEFT JOIN admin_advertisement_plans_master p ON p.id = ap.plan_id
-    LEFT JOIN advertisement_products_master adp ON adp.purchase_id = ap.id
-    LEFT JOIN sub_product_master sp ON sp.id = adp.product_id
-    LEFT JOIN vendors v ON v.id = ap.vendor_id
-    LEFT JOIN promoters pr ON pr.id = ap.promoter_id
+        $plans = $this->db->where('status', 1)
+            ->get('admin_advertisement_plans_master')
+            ->result_array();
 
-    WHERE ap.payment_status = 'paid'
+        $data['plans'] = $plans;
+        $data['adminData'] = $adminData;
+        $data['activePlans'] = $this->db->query($sql)->result_array();
+        $data['title'] = 'Manage Advertisement Plan Request';
 
-    -- VERY IMPORTANT
-    GROUP BY ap.id
+        $this->load->view('include/header', $data);
+        $this->load->view('admin/AdvertismentSelectPlan', $data);
+        $this->load->view('include/footer');
+    }
 
-    ORDER BY ap.created_at DESC
-    ";
- $plans = $this->db
-        ->where('status', 1)
-        ->get('admin_advertisement_plans_master')
-        ->result_array();
 
-    $data['plans'] = $plans;
-    $data['adminData'] = $adminData;
-    $data['activePlans'] = $this->db->query($sql)->result_array();
-    $data['adminData'] = $adminData;
-    $data['title'] = 'Manage Advertisement Plan Request';
-    $this->load->view('include/header', $data);
-    $this->load->view('admin/AdvertismentSelectPlan', $data);
-    $this->load->view('include/footer');
-}
+    public function AdvertismentUserDetails($purchase_id)
+    {
+        $adminData = $this->checkVendorPromoter();
 
-public function AdvertismentUserDetails($purchase_id)
-{
-    $adminData = $this->checkVendorPromoter();
-
-    // Purchase + plan + user info
-    $sql = "
+        // Purchase + plan + user info
+        $sql = "
     SELECT 
         ap.*,
         p.plan_name, p.duration_days, p.product_limit,
@@ -617,9 +614,9 @@ public function AdvertismentUserDetails($purchase_id)
     WHERE ap.id = $purchase_id
     ";
 
-    $data['purchase'] = $this->db->query($sql)->row_array();
+        $data['purchase'] = $this->db->query($sql)->row_array();
 
-    $sql2 = "
+        $sql2 = "
     SELECT 
         adp.*,
         sp.product_name,
@@ -629,47 +626,47 @@ public function AdvertismentUserDetails($purchase_id)
     WHERE adp.purchase_id = $purchase_id
     ";
 
-    $data['products'] = $this->db->query($sql2)->result_array();
+        $data['products'] = $this->db->query($sql2)->result_array();
 
-    $data['adminData'] = $adminData;
-    $data['title'] = 'Advertisement Details';
-    $this->load->view('include/header', $data);
-    $this->load->view('admin/AdvertismentUserDetails', $data);
-    $this->load->view('include/footer');
-}
-
-
-public function create_advetisment_plan()
-{
-    $adminData = $this->checkVendorPromoter();
-    $plan_id = $this->input->post('plan_id');
-
-    $plan = $this->db
-        ->where('id', $plan_id)
-        ->where('status', 1)
-        ->get('admin_advertisement_plans_master')
-        ->row_array();
-
-    if (!$plan)
-    {
-        echo json_encode(['status' => 'error', 'message' => 'Invalid plan']);
-        return;
+        $data['adminData'] = $adminData;
+        $data['title'] = 'Advertisement Details';
+        $this->load->view('include/header', $data);
+        $this->load->view('admin/AdvertismentUserDetails', $data);
+        $this->load->view('include/footer');
     }
 
-    // ✅ Save exact DB columns to session
-    $this->session->set_userdata('selected_ad_plan', [
-        'plan_id' => $plan['id'],
-        'price' => $plan['price'],
-        'duration_days' => $plan['duration_days'],
-        'plan_product_limit' => $plan['product_limit'],
-        'hot_deal' => $plan['hot_deal'],
-        'spacial_offer' => $plan['spacial_offer'],
-        'banner' => $plan['banner'],
-        'product_for_you' => $plan['product_for_you']
-    ]);
 
-    echo json_encode(['status' => 'success']);
-}
+    public function create_advetisment_plan()
+    {
+        $this->checkVendorPromoter();
+
+        $plan_id = $this->input->post('plan_id');
+
+        $plan = $this->db->where('id', $plan_id)
+            ->where('status', 1)
+            ->get('admin_advertisement_plans_master')
+            ->row_array();
+
+        if (!$plan)
+        {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid plan']);
+            return;
+        }
+
+        $this->session->set_userdata('selected_ad_plan', [
+            'plan_id' => $plan['id'],
+            'price' => $plan['price'],
+            'duration_days' => $plan['duration_days'],
+            'plan_product_limit' => $plan['product_limit'],
+            'hot_deal' => $plan['hot_deal'],
+            'spacial_offer' => $plan['spacial_offer'],
+            'banner' => $plan['banner'],
+            'product_for_you' => $plan['product_for_you']
+        ]);
+
+        echo json_encode(['status' => 'success']);
+    }
+
 
 
     public function AdvertismentProducts()
@@ -719,25 +716,54 @@ public function create_advetisment_plan()
     }
 
 
-public function save_ad_session()
-{
-    $this->checkVendorPromoter();
-    $products = $this->input->post('products');
-    $plan = $this->session->userdata('selected_ad_plan');
+    public function save_ad_session()
+    {
+        $this->checkVendorPromoter();
 
-    if(!$plan || empty($products)){
-        echo json_encode(['status'=>'error','message'=>'Invalid selection']);
-        return;
+        $products = $this->input->post('products');
+        $plan = $this->session->userdata('selected_ad_plan');
+
+        if (!$plan || empty($products))
+        {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid selection']);
+            return;
+        }
+
+        $uniqueProducts = array_unique($products);
+
+        if (count($uniqueProducts) > $plan['plan_product_limit'])
+        {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Product limit exceeded'
+            ]);
+            return;
+        }
+
+        $ad_session = [
+            'plan_id' => $plan['plan_id'],
+            'price' => $plan['price'],
+            'duration_days' => $plan['duration_days'],
+            'plan_product_limit' => $plan['plan_product_limit'],
+            'hot_deal' => $plan['hot_deal'],
+            'spacial_offer' => $plan['spacial_offer'],
+            'banner' => $plan['banner'],
+            'product_for_you' => $plan['product_for_you'],
+            'selected_products' => $uniqueProducts
+        ];
+
+        // echo "<pre>";
+        // print_r($ad_session);
+        // echo "</pre>";
+        // exit;
+
+        $this->session->set_userdata('ad_full_session', $ad_session);
+
+        echo json_encode(['status' => 'success']);
     }
 
-    if(count($products) > $plan['plan_product_limit']){
-        echo json_encode(['status'=>'error','message'=>'Product limit exceeded']);
-        return;
-    }
 
-    $this->session->set_userdata('selected_ad_products', $products);
-    echo json_encode(['status'=>'success']);
-}
+
 
 
     public function get_parent_category()
@@ -749,55 +775,108 @@ public function save_ad_session()
 
     public function get_category()
     {
+        $ids = $this->input->post('ids');
+
         echo json_encode(
-            $this->db->where('mai_id', $this->input->post('id'))
-                ->where('status', 1)->get('category_master')->result_array()
+            $this->db->where_in('mai_id', $ids)
+                ->where('status', 1)
+                ->get('category_master')
+                ->result_array()
         );
     }
 
     public function get_sub_category()
     {
+        $ids = $this->input->post('ids');
+
         echo json_encode(
-            $this->db->where('category_master_id', $this->input->post('id'))
-                ->where('status', 1)->get('sub_category_master')->result_array()
+            $this->db->where_in('category_master_id', $ids)
+                ->where('status', 1)
+                ->get('sub_category_master')
+                ->result_array()
         );
     }
+
 
     public function get_products()
     {
-        echo json_encode(
-            $this->db->where('sub_category_id', $this->input->post('id'))
-                ->where('status', 1)->get('sub_product_master')->result_array()
-        );
+        $ids = $this->input->post('ids');
+
+        if (empty($ids))
+        {
+            echo json_encode([]);
+            return;
+        }
+
+        $this->db->select('
+        sku_code,
+        product_name,
+        size,
+        main_image
+    ');
+        $this->db->from('sub_product_master');
+        $this->db->where_in('sub_category_id', $ids);
+        $this->db->where('status', 1);
+        $this->db->where('seller_approve_status', 1);
+
+        $rows = $this->db->get()->result_array();
+        $final = [];
+
+        foreach ($rows as $r)
+        {
+
+            $sku = $r['sku_code'];
+
+            if (!isset($final[$sku]))
+            {
+                $final[$sku] = [
+                    'sku_code' => $sku,
+                    'product_name' => $r['product_name'],
+                    'image' => $r['main_image'],
+                    'sizes' => []
+                ];
+            }
+
+            if (!in_array($r['size'], $final[$sku]['sizes']))
+            {
+                $final[$sku]['sizes'][] = $r['size'];
+            }
+        }
+
+        foreach ($final as $k => $v)
+        {
+            $final[$k]['sizes'] = implode(',', $v['sizes']);
+        }
+
+        echo json_encode(array_values($final));
     }
 
-    public function changeAdPlanStatus()
+    public function updatePlanStatus()
     {
-        $admin = $this->session->userdata('admin');
+        $admin = $this->session->userdata('adminData');
 
-        // ONLY ADMIN
-        if ($admin['Type'] != 1)
+        if (!$admin || $admin['Type'] != 1)
         {
             echo json_encode(['status' => 0, 'msg' => 'Unauthorized']);
-            exit;
+            return;
         }
 
         $id = $this->input->post('id');
         $status = $this->input->post('status');
 
-        $this->db->where('id', $id);
-        $update = $this->db->update('advertisement_purchases_master', [
-            'payment_status' => $status == 1 ? 'paid' : 'pending'
-        ]);
-
-        if ($update)
+        if (!$id)
         {
-            echo json_encode(['status' => 1]);
-        } else
-        {
-            echo json_encode(['status' => 0]);
+            echo json_encode(['status' => 0, 'msg' => 'Invalid ID']);
+            return;
         }
+        $update = $this->db->where('id', $id)
+            ->update('advertisement_purchases_master', ['status' => $status]);
+        $this->db->where('purchase_id', $id)
+            ->update('advertisement_products_master', ['status' => $status]);
+
+        echo json_encode(['status' => $update ? 1 : 0]);
     }
+
 
 
 
