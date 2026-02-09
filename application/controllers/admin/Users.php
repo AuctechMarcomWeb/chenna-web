@@ -9,8 +9,8 @@ class Users extends CI_Controller
 		$this->load->library('session');
 		$this->load->helper('message');
 		$this->load->model('Manage_Users_Model');
-		 is_not_logged_in();
-		 
+		is_not_logged_in();
+
 
 	}
 
@@ -233,8 +233,8 @@ class Users extends CI_Controller
 		$data['index2'] = '';
 		$data['title'] = 'Manage Users';
 		$data['getData'] = $this->Manage_Users_Model->getSingleUsersData($id);
-		$data['user_address'] = $this->Manage_Users_Model->GetData('user_addressmaster', array('user_master_id' => $id), '', $id);
-		$data['countries_list'] = $this->Manage_Users_Model->GetData('countries_list', array(), array('column' => 'name', 'columnData' => 'asc'), '');
+		// $data['user_address'] = $this->Manage_Users_Model->GetData('user_addressmaster', array('user_master_id' => $id), '', $id);
+		// $data['countries_list'] = $this->Manage_Users_Model->GetData('countries_list', array(), array('column' => 'name', 'columnData' => 'asc'), '');
 		/* echo "<pre>";
 		print_r($data['user_address']); exit;*/
 
