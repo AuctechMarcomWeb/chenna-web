@@ -111,7 +111,7 @@
         <ul class="treeview-menu">
           <li class="<?php echo (($index2 == 'AdvertismentUpdatePlan') ? 'active' : ''); ?>">
             <a href="<?php echo site_url('admin/Subscription/AdvertismentUpdatePlan'); ?>">
-              <i class="fa fa-circle-o"></i> <span>Update Advertisement Plans</span>
+              <i class="fa fa-circle-o"></i> <span>Advertisement Plans</span>
             </a>
           </li>
           <li class="treeview <?php echo (($index == 'vendor') ? 'active' : ''); ?>">

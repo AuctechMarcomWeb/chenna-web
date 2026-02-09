@@ -127,7 +127,8 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="box box-info">
-                    <form class="form-horizontal" method="post" action="<?= base_url('admin/Subscription/updateadvertismentPlans'); ?>">
+                    <form class="form-horizontal" method="post"
+                        action="<?= base_url('admin/Subscription/updateadvertismentPlans'); ?>">
 
                         <input type="hidden" name="id" value="<?= $plan['id']; ?>">
 
@@ -140,7 +141,8 @@
                             <div class="form-group col-lg-4">
                                 <label>Plan Type</label>
                                 <input type="text" class="form-control"
-                                    value="<?= ($plan['plan_type'] == 1) ? 'Basic Plan' : (($plan['plan_type'] == 2) ? 'Medium Plan' : 'Premium Plan'); ?>" readonly>
+                                    value="<?= ($plan['plan_type'] == 1) ? 'Basic Plan' : (($plan['plan_type'] == 2) ? 'Medium Plan' : 'Premium Plan'); ?>"
+                                    readonly>
                             </div>
                             <div class="form-group col-lg-4">
                                 <label>Price (₹)</label>
@@ -163,17 +165,24 @@
                                 <label>Advertisement Options</label>
                                 <div class="ad-options d-flex flex-wrap gap-3 mt-2">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="hot_deal" value="1" <?= ($plan['hot_deal']==1)?'checked':''; ?>>
+                                        <input class="form-check-input" type="checkbox" name="hot_deal" value="1"
+                                            <?= ($plan['hot_deal'] == 1) ? 'checked' : ''; ?>>
                                         <label class="form-check-label">Hot Deal</label>
                                     </div>
-
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="product_for_you" value="1" <?= ($plan['product_for_you']==1)?'checked':''; ?>>
+                                        <input class="form-check-input" type="checkbox" name="spacial_offer" value="1"
+                                            <?= ($plan['spacial_offer'] == 1) ? 'checked' : ''; ?>>
+                                        <label class="form-check-label">Spacial Offer</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="product_for_you" value="1"
+                                            <?= ($plan['product_for_you'] == 1) ? 'checked' : ''; ?>>
                                         <label class="form-check-label">Product For You </label>
                                     </div>
 
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="banner" value="1" <?= ($plan['banner']==1)?'checked':''; ?>>
+                                        <input class="form-check-input" type="checkbox" name="banner" value="1"
+                                            <?= ($plan['banner'] == 1) ? 'checked' : ''; ?>>
                                         <label class="form-check-label">Banner</label>
                                     </div>
                                 </div>

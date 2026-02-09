@@ -523,59 +523,6 @@
     border-radius: 10px;
   }
 
-  /* Toggle wrapper */
-  .custom-toggle {
-    position: relative;
-    display: inline-block;
-    width: 52px;
-    height: 26px;
-  }
-
-  /* Hide default checkbox */
-  .custom-toggle input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-
-  /* Slider background */
-  .toggle-slider {
-    position: absolute;
-    cursor: pointer;
-    inset: 0;
-    background-color: #ccc;
-    transition: 0.4s;
-    border-radius: 30px;
-  }
-
-  /* Slider knob */
-  .toggle-slider:before {
-    position: absolute;
-    content: "";
-    height: 20px;
-    width: 20px;
-    left: 3px;
-    bottom: 3px;
-    background-color: #fff;
-    transition: 0.4s;
-    border-radius: 50%;
-  }
-
-  .custom-toggle input:checked+.toggle-slider {
-    background-color: #28a745;
-  }
-
-  .custom-toggle input:checked+.toggle-slider:before {
-    transform: translateX(26px);
-  }
-
-  .custom-toggle.cod input:checked+.toggle-slider {
-    background-color: #0d6efd;
-  }
-
-  .custom-toggle.seller input:checked+.toggle-slider {
-    background-color: #198754;
-  }
 
   .plan-benefits {
     list-style: none;
@@ -620,45 +567,7 @@
     color: #000;
   }
 
-  .switch {
-    position: relative;
-    display: inline-block;
-    width: 46px;
-    height: 24px;
-  }
 
-  .switch input {
-    display: none;
-  }
-
-  .slider {
-    position: absolute;
-    cursor: pointer;
-    inset: 0;
-    background: #ccc;
-    transition: .4s;
-    border-radius: 50px;
-  }
-
-  .slider:before {
-    content: "";
-    position: absolute;
-    height: 18px;
-    width: 18px;
-    left: 4px;
-    bottom: 3px;
-    background: white;
-    transition: .4s;
-    border-radius: 50%;
-  }
-
-  input:checked+.slider {
-    background: #28a745;
-  }
-
-  input:checked+.slider:before {
-    transform: translateX(20px);
-  }
 
   .table thead th {
     background: #3c8dbc;
@@ -714,6 +623,48 @@
   .progress-bar {
     font-size: 11px;
   }
+
+  .ad-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+  }
+
+  .ad-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .ad-slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 50px;
+  }
+
+  .ad-slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+  }
+
+  .ad-switch input:checked+.ad-slider {
+    background-color: #28a745;
+  }
+
+  .ad-switch input:checked+.ad-slider:before {
+    transform: translateX(26px);
+  }
 </style>
 <?php
 function timeAgo($datetime)
@@ -763,104 +714,93 @@ function timeAgo($datetime)
                         <th>Product</th>
                         <th>Plan Name</th>
                         <th>Payment</th>
-                        <th>Approval</th>
                         <th>Start Date</th>
                         <th>End Date</th>
                         <th>Expire In</th>
-                        <th>Transaction</th>
+                        <th>Transaction ID</th>
+                        <th>Approval</th>
                         <th>Registered Date</th>
                         <th>Date</th>
                       </tr>
                     </thead>
-                   <tbody>
-                        <?php if(!empty($activePlans)): ?>
-                            <?php foreach ($activePlans as $i => $ap):
-                                $expireDays = floor((strtotime($ap['end_date']) - time()) / 86400);
-                            ?>
-                            <tr>
-                                <td><?= $i + 1 ?></td>
-                                <td>
-                                  <?= $ap['user_name'] ?><br>
-                                  <span>
-                                    <a class="btn btn-danger" href="<?= base_url('admin/Subscription/AdvertismentUserDetails/' . $ap['purchase_id']) ?>" class="user-link">
-                                      View Details
-                                    </a>
-                                  </span> 
-                                </td>
-                                <td>
-                                    <span class="badge bg-info">
-                                        <?= ($ap['user_type'] == 2) ? 'Vendor' : 'Promoter' ?>
-                                    </span>
-                                </td>
-                                <td style="min-width:220px;">
-                                    <?php
-                                    if (!empty($ap['product_names'])) {
-                                        $names  = explode('||', $ap['product_names']);
-                                        $images = explode('||', $ap['product_images']);
-                                        echo '<ol class="product-list">';
-                                        foreach ($names as $k => $n) {
-                                            $img = $images[$k] ?? '';
-                                            echo '<li>';
-                                            if ($img) echo '<img src="' . base_url('assets/product_images/' . $img) . '">';
-                                            echo $n;
-                                            echo '</li>';
-                                        }
-                                        echo '</ol>';
-                                    } else {
-                                        echo '-';
-                                    }
-                                    ?>
-                                </td>
-                                <td>
-                                    <b><?= $ap['plan_name'] ?></b><br>
-                                    ₹<?= $ap['paid_price'] ?>
-                                </td>
-                                <td>
-                                    <?php if ($ap['payment_status'] == 'paid') { ?>
-                                        <span class="badge badge-paid">Paid</span>
-                                    <?php } else { ?>
-                                        <span class="badge badge-pending">Pending</span>
-                                    <?php } ?>
-                                </td>
-                                <td>
-                                    <?php if ($adminData['Type'] == 1) { ?>
-                                        <label class="switch">
-                                            <input type="checkbox" class="planStatusToggle"
-                                                  data-id="<?= $ap['purchase_id'] ?>"
-                                                  <?= ($ap['purchase_status'] == 1) ? 'checked' : '' ?>>
-                                            <span class="slider"></span>
-                                        </label>
-                                    <?php } else { ?>
-                                        <span class="badge bg-success">Running</span>
-                                    <?php } ?>
-                                </td>
-                                <td><?= date('d-m-Y', strtotime($ap['start_date'])) ?></td>
-                                <td><?= date('d-m-Y', strtotime($ap['end_date'])) ?></td>
-                                <td>
-                                    <?php
-                                    if ($expireDays < 0)
-                                        echo '<span class="expired">Expired</span>';
-                                    elseif ($expireDays == 0)
-                                        echo 'Today';
-                                    else
-                                        echo $expireDays . ' days';
-                                    ?>
-                                </td>
-                                <td><?= $ap['transaction_id'] ?></td>
-                                <td><?= date('d-m-Y h:i:s A', strtotime($ap['created_at'])) ?></td>
-                                <td><?= timeAgo($ap['created_at']) ?></td>
-                            </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <tr>
-                                <td colspan="13" class="text-center" style="padding:20px; font-weight:600; color:#555; background:#f9f9f9;">
-                                    No Plan Available
-                                </td>
-                            </tr>
-                        <?php endif; ?>
+                    <tbody>
+                      <?php if (!empty($activePlans)): ?>
+                        <?php foreach ($activePlans as $i => $ap):
+                          $expireDays = floor((strtotime($ap['end_date']) - time()) / 86400); ?>
+                          <tr>
+                            <td><?= $i + 1 ?></td>
+                            <td>
+                              <?= $ap['user_name'] ?><br>
+                              <a class="btn btn-primary"
+                                href="<?= base_url('admin/Subscription/AdvertismentUserDetails/' . $ap['purchase_id']) ?>">View
+                                Details</a>
+                            </td>
+                            <td><?= ($ap['user_type'] == 2) ? 'Vendor' : 'Promoter' ?></td>
+                            <td style="min-width:220px;">
+                              <?php
+                              if (!empty($ap['product_names']))
+                              {
+                                $names = explode('||', $ap['product_names']);
+                                $images = explode('||', $ap['product_images']);
+                                echo '<ol class="product-list">';
+                                foreach ($names as $k => $n)
+                                {
+                                  $img = $images[$k] ?? '';
+                                  echo '<li>';
+                                  if ($img)
+                                    echo '<img src="' . base_url('assets/product_images/' . $img) . '">';
+                                  echo $n . '</li>';
+                                }
+                                echo '</ol>';
+                              } else
+                                echo '-';
+                              ?>
+                            </td>
+                            <td><b><?= $ap['plan_name'] ?></b><br>₹<?= $ap['paid_price'] ?></td>
+                            <td>
+                              <?php if ($ap['payment_status'] == 'paid'): ?>
+                                <span class="badge badge-paid">Paid</span>
+                              <?php else: ?>
+                                <span class="badge badge-pending">Pending</span>
+                              <?php endif; ?>
+                            </td>
+                            <td><?= date('d-m-Y', strtotime($ap['start_date'])) ?></td>
+                            <td><?= date('d-m-Y', strtotime($ap['end_date'])) ?></td>
+                            <td>
+                              <?php
+                              if ($expireDays < 0)
+                                echo '<span class="expired">Expired</span>';
+                              elseif ($expireDays == 0)
+                                echo 'Today';
+                              else
+                                echo $expireDays . ' days';
+                              ?>
+                            </td>
+                            <td><?= $ap['transaction_id'] ?></td>
+                            <td>
+                              <?php if ($adminData['Type'] == 1): ?>
+                                <label class="ad-switch">
+                                  <input type="checkbox" class="planStatusToggle" data-id="<?= $ap['purchase_id'] ?>"
+                                    <?= ($ap['status'] == 1) ? 'checked' : '' ?>>
+                                  <span class="ad-slider"></span>
+                                </label>
+                              <?php else: ?>
+                                <label class="ad-switch">
+                                  <input type="checkbox" disabled <?= ($ap['status'] == 1) ? 'checked' : '' ?>>
+                                  <span class="ad-slider" style="opacity:0.5;"></span>
+                                </label>
+                              <?php endif; ?>
+                            </td>
+                            <td><?= date('d-m-Y h:i:s A', strtotime($ap['created_at'])) ?></td>
+                            <td><?= timeAgo($ap['created_at']) ?></td>
+                          </tr>
+                        <?php endforeach; ?>
+                      <?php else: ?>
+                        <tr>
+                          <td colspan="13" class="text-center">No Plan Available</td>
+                        </tr>
+                      <?php endif; ?>
                     </tbody>
-
-
                   </table>
                 </div>
               </div>
@@ -892,41 +832,36 @@ function timeAgo($datetime)
           <div class="col-md-12">
             <div class="row g-3">
               <?php foreach ($plans as $plan): ?>
-              <div class="col-md-4">
-                <div class="card select-plan p-3 cursor-pointer"
-                     data-id="<?= $plan['id'] ?>"
-                     data-name="<?= $plan['plan_name'] ?>"
-                     data-price="<?= $plan['price'] ?>"
-                     data-duration="<?= $plan['duration_days'] ?>"
-                     data-limit="<?= $plan['product_limit'] ?>"
-                     data-hotdeal="<?= $plan['hot_deal'] ?>"
-                     data-productforyou="<?= $plan['product_for_you'] ?>"
-                     data-banner="<?= $plan['banner'] ?>"
-                     data-spacialoffer="<?= $plan['spacial_offer'] ?>">
+                <div class="col-md-4">
+                  <div class="card select-plan p-3 cursor-pointer" data-id="<?= $plan['id'] ?>"
+                    data-name="<?= $plan['plan_name'] ?>" data-price="<?= $plan['price'] ?>"
+                    data-duration="<?= $plan['duration_days'] ?>" data-limit="<?= $plan['product_limit'] ?>"
+                    data-hotdeal="<?= $plan['hot_deal'] ?>" data-productforyou="<?= $plan['product_for_you'] ?>"
+                    data-banner="<?= $plan['banner'] ?>" data-spacialoffer="<?= $plan['spacial_offer'] ?>">
 
-                  <h6 class="bold plan-name"><?= $plan['plan_name'] ?></h6>
-                  <div class="card-price mt-2">
-                    ₹<?= $plan['price'] ?> <small>/<?= $plan['duration_days'] ?> Days</small>
+                    <h6 class="bold plan-name"><?= $plan['plan_name'] ?></h6>
+                    <div class="card-price mt-2">
+                      ₹<?= $plan['price'] ?> <small>/<?= $plan['duration_days'] ?> Days</small>
+                    </div>
+
+                    <small class="text-muted d-block mt-1 mb-2 fw-bold">Benefits:</small>
+                    <ul class="plan-benefits">
+                      <?php if ($plan['product_for_you']): ?>
+                        <li><i class="bi bi-check-circle-fill text-success"></i> Product for you</li>
+                      <?php endif; ?>
+                      <?php if ($plan['hot_deal']): ?>
+                        <li><i class="bi bi-check-circle-fill text-success"></i> Hot Deal</li>
+                      <?php endif; ?>
+                      <?php if ($plan['spacial_offer']): ?>
+                        <li><i class="bi bi-check-circle-fill text-success"></i> Special Offer</li>
+                      <?php endif; ?>
+                      <?php if ($plan['banner']): ?>
+                        <li><i class="bi bi-check-circle-fill text-success"></i> Banner </li>
+                      <?php endif; ?>
+                      <li>Product Limit: <?= $plan['product_limit'] ?></li>
+                    </ul>
                   </div>
-
-                  <small class="text-muted d-block mt-1 mb-2 fw-bold">Benefits:</small>
-                  <ul class="plan-benefits">
-                    <?php if ($plan['product_for_you']): ?>
-                      <li><i class="bi bi-check-circle-fill text-success"></i> Product for you</li>
-                    <?php endif; ?>
-                    <?php if ($plan['hot_deal']): ?>
-                      <li><i class="bi bi-check-circle-fill text-success"></i> Hot Deal</li>
-                    <?php endif; ?>
-                    <?php if ($plan['spacial_offer']): ?>
-                      <li><i class="bi bi-check-circle-fill text-success"></i> Special Offer</li>
-                    <?php endif; ?>
-                    <?php if ($plan['banner']): ?>
-                      <li><i class="bi bi-check-circle-fill text-success"></i> Banner </li>
-                    <?php endif; ?>
-                    <li>Product Limit: <?= $plan['product_limit'] ?></li>
-                  </ul>
                 </div>
-              </div>
               <?php endforeach; ?>
             </div>
           </div>
@@ -942,36 +877,36 @@ function timeAgo($datetime)
 </div>
 
 <script>
-$(document).ready(function () {
+  $(document).ready(function () {
 
-  let selectedPlan = null;
+    let selectedPlan = null;
 
-  $('#addProductBtn').on('click', function () {
-    $.post("<?= base_url('admin/Subscription/check_active_plan') ?>", {
-      user_id: <?= $adminData['Id'] ?>,
-      user_type: <?= $adminData['Type'] ?>
-    }, function (res) {
-      if(res.has_plan){
-        window.location.href = "<?= base_url('admin/Subscription/AdvertismentProducts') ?>";
-      } else {
-        $('#advertisementModal').modal('show');
-      }
-    }, 'json');
-  });
+    $('#addProductBtn').on('click', function () {
+      $.post("<?= base_url('admin/Subscription/check_active_plan') ?>", {
+        user_id: <?= $adminData['Id'] ?>,
+        user_type: <?= $adminData['Type'] ?>
+      }, function (res) {
+        if (res.has_plan) {
+          window.location.href = "<?= base_url('admin/Subscription/AdvertismentProducts') ?>";
+        } else {
+          $('#advertisementModal').modal('show');
+        }
+      }, 'json');
+    });
 
-  // Select plan
-  $(document).on('click', '.select-plan', function(){
-    $('.select-plan').removeClass('active border border-success');
-    $(this).addClass('active border border-success');
-    selectedPlan = $(this);
+    // Select plan
+    $(document).on('click', '.select-plan', function () {
+      $('.select-plan').removeClass('active border border-success');
+      $(this).addClass('active border border-success');
+      selectedPlan = $(this);
 
-    let benefits = [];
-    if($(this).data('productforyou') == 1) benefits.push('Product For You');
-    if($(this).data('hotdeal') == 1) benefits.push('Hot Deal');
-    if($(this).data('spacialoffer') == 1) benefits.push('Special Offer');
-    if($(this).data('banner') == 1) benefits.push('Banner');
+      let benefits = [];
+      if ($(this).data('productforyou') == 1) benefits.push('Product For You');
+      if ($(this).data('hotdeal') == 1) benefits.push('Hot Deal');
+      if ($(this).data('spacialoffer') == 1) benefits.push('Special Offer');
+      if ($(this).data('banner') == 1) benefits.push('Banner');
 
-    $('#selectedPlanBox').html(`
+      $('#selectedPlanBox').html(`
       <h6 class="fw-bold">${$(this).data('name')}</h6>
       <div class="price-tag fw-bold text-success">₹${$(this).data('price')}</div>
       <small class="text-muted">Product Limit: ${$(this).data('limit')}</small>
@@ -979,27 +914,51 @@ $(document).ready(function () {
         ${benefits.length ? benefits.map(b => `<li><i class="bi bi-check-circle-fill text-success"></i> ${b}</li>`).join('') : '<li>No extra promotion</li>'}
       </ul>
     `);
-  });
+    });
 
-  // Proceed button → Create session & redirect
-  $('#proceedPlanBtn').on('click', function(){
-    if(!selectedPlan){
-      alert('Please select a plan');
-      return;
-    }
-
-    $.post("<?= base_url('admin/Subscription/create_advetisment_plan') ?>", {
-      plan_id: selectedPlan.data('id'),
-      user_id: <?= $adminData['Id'] ?>,
-      user_type: <?= $adminData['Type'] ?>
-    }, function(res){
-      if(res.status === 'success'){
-        window.location.href = "<?= base_url('admin/Subscription/AdvertismentProducts') ?>";
-      } else {
-        alert(res.message || 'Something went wrong');
+    // Proceed button → Create session & redirect
+    $('#proceedPlanBtn').on('click', function () {
+      if (!selectedPlan) {
+        alert('Please select a plan');
+        return;
       }
-    }, 'json');
-  });
 
+      $.post("<?= base_url('admin/Subscription/create_advetisment_plan') ?>", {
+        plan_id: selectedPlan.data('id'),
+        user_id: <?= $adminData['Id'] ?>,
+        user_type: <?= $adminData['Type'] ?>
+      }, function (res) {
+        if (res.status === 'success') {
+          window.location.href = "<?= base_url('admin/Subscription/AdvertismentProducts') ?>";
+        } else {
+          alert(res.message || 'Something went wrong');
+        }
+      }, 'json');
+    });
+
+  });
+</script>
+<script>
+ $(document).ready(function(){
+  $('.planStatusToggle').change(function(){
+    var id = $(this).data('id');
+    var status = $(this).is(':checked') ? 1 : 0;
+    $.ajax({
+      url:'<?= base_url("admin/Subscription/updatePlanStatus") ?>',
+      type:'POST',
+      data:{id:id,status:status},
+      dataType:'json',
+      success:function(res){
+        if(res.status==1){
+          alert('Plan status updated!');
+          location.reload();
+        } else {
+          alert(res.msg || 'Failed!');
+        }
+      },
+      error:function(){ alert('Server error!'); }
+    });
+  });
 });
+
 </script>
