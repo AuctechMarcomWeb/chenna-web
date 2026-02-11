@@ -56,16 +56,36 @@
           <i class="fa fa-cart-plus"></i> <span>Manage Orders</span>
         </a>
       </li>
-      <li class="<?php echo (($index == 'VendorWallet') ? 'active' : ''); ?>">
-        <a href="<?php echo site_url('admin/Dashboard/TransactionAmount'); ?>">
-          <i class="fa fa-wallet text-black"></i> <span>Transaction Requests</span>
+
+      <li class="treeview <?php echo (($index == 'Wallet') ? 'active' : ''); ?>">
+        <a href="#">
+          <i class="fa fa-wallet text-black"></i> <span>Manage Transaction</span>
+          <span class="pull-right-container">
+            <i class="fa fa-angle-left pull-right"></i>
+          </span>
         </a>
+
+        <ul class="treeview-menu">
+          <li class="<?php echo (($index2 == 'Wallet') ? 'active' : ''); ?>">
+            <a href="<?php echo site_url('admin/Vendor/MyWallet'); ?>">
+              <i class="fa fa-circle-o"></i> <span>My Wallet</span>
+            </a>
+          </li>
+          <li class="treeview <?php echo (($index == 'vendor') ? 'active' : ''); ?>">
+            <a href="<?php echo site_url('admin/Dashboard/TransactionAmount'); ?>">
+              <i class="fa fa-circle-o"></i>
+              <span>Withdrawal Requests</span>
+            </a>
+          </li>
+          <li class="treeview <?php echo (($index == 'TransactionHistoryList') ? 'active' : ''); ?>">
+            <a href="<?php echo site_url('admin/Dashboard/AllTransactionHistoryList'); ?>">
+              <i class="fa fa-circle-o"></i>
+              <span>Transaction History</span>
+            </a>
+          </li>
+        </ul>
       </li>
-      <li class="<?php echo (($index == 'DashboardWallet') ? 'active' : ''); ?>">
-        <a href="<?php echo site_url('admin/Dashboard/WalletTransactionHistoryList'); ?>">
-          <i class="fa fa-wallet text-black"></i> <span>Wllate Transaction History</span>
-        </a>
-      </li>
+
       <li class="<?php echo (($index == 'Banner') ? 'active' : ''); ?>">
         <a href="<?php echo site_url('admin/Dashboard/BannerList'); ?>">
           <i class="fa fa-picture-o"></i> <span>Manage Banners</span>
@@ -198,11 +218,35 @@
           <i class="fa fa-cart-plus"></i> <span>Manage Orders</span>
         </a>
       </li>
-      <li class="<?php echo (($index == 'VendorWallet') ? 'active' : ''); ?>">
-        <a href="<?php echo site_url('admin/Vendor/MyWallet'); ?>">
-          <i class="fa fa-wallet text-black"></i> <span>My Wallet</span>
+      <li class="treeview <?php echo (($index == 'Wallet') ? 'active' : ''); ?>">
+        <a href="#">
+          <i class="fa fa-wallet text-black"></i> <span>Manage Transaction</span>
+          <span class="pull-right-container">
+            <i class="fa fa-angle-left pull-right"></i>
+          </span>
         </a>
+
+        <ul class="treeview-menu">
+          <li class="<?php echo (($index2 == 'Wallet') ? 'active' : ''); ?>">
+            <a href="<?php echo site_url('admin/Vendor/MyWallet'); ?>">
+              <i class="fa fa-circle-o"></i> <span>My Wallet</span>
+            </a>
+          </li>
+          <li class="treeview <?php echo (($index == 'vendor') ? 'active' : ''); ?>">
+            <a href="<?php echo site_url('admin/Dashboard/TransactionAmount'); ?>">
+              <i class="fa fa-circle-o"></i>
+              <span>Withdrawal Requests</span>
+            </a>
+          </li>
+          <li class="treeview <?php echo (($index == 'VendorTransactionHistoryList') ? 'active' : ''); ?>">
+            <a href="<?php echo site_url('admin/Dashboard/VendorTransactionHistoryList'); ?>">
+              <i class="fa fa-circle-o"></i>
+              <span>Transaction History</span>
+            </a>
+          </li>
+        </ul>
       </li>
+
       <!-- SALES / ORDERS -->
       <li class="<?php echo (($index == 'VendorPromoterPlans') ? 'active' : ''); ?>">
         <a href="<?php echo site_url('admin/Vendor/VendorPromoterPlans'); ?>">
@@ -276,11 +320,35 @@
           <i class="fa fa-cart-plus"></i> <span>Manage Orders</span>
         </a>
       </li>
-      <li class="<?php echo (($index == 'VendorWallet') ? 'active' : ''); ?>">
-        <a href="<?php echo site_url('admin/Vendor/MyWallet'); ?>">
-          <i class="fa fa-wallet text-black"></i> <span>My Wallet</span>
+      <li class="treeview <?php echo (($index == 'Wallet') ? 'active' : ''); ?>">
+        <a href="#">
+          <i class="fa fa-wallet text-black"></i> <span>Manage Transaction</span>
+          <span class="pull-right-container">
+            <i class="fa fa-angle-left pull-right"></i>
+          </span>
         </a>
+
+        <ul class="treeview-menu">
+          <li class="<?php echo (($index2 == 'Wallet') ? 'active' : ''); ?>">
+            <a href="<?php echo site_url('admin/Vendor/MyWallet'); ?>">
+              <i class="fa fa-circle-o"></i> <span>My Wallet</span>
+            </a>
+          </li>
+          <li class="treeview <?php echo (($index == 'vendor') ? 'active' : ''); ?>">
+            <a href="<?php echo site_url('admin/Dashboard/TransactionAmount'); ?>">
+              <i class="fa fa-circle-o"></i>
+              <span>Withdrawal Requests</span>
+            </a>
+          </li>
+          <li class="treeview <?php echo (($index == 'VendorTransactionHistoryList') ? 'active' : ''); ?>">
+            <a href="<?php echo site_url('admin/Dashboard/VendorTransactionHistoryList'); ?>">
+              <i class="fa fa-circle-o"></i>
+              <span>Transaction History</span>
+            </a>
+          </li>
+        </ul>
       </li>
+
       <li class="<?php echo (($index == 'VendorPromoterPlans') ? 'active' : ''); ?>">
         <a href="<?php echo site_url('admin/Vendor/VendorPromoterPlans'); ?>">
           <i class="fa fa-id-card"></i> <span>Subsciption Plans</span>

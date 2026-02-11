@@ -263,7 +263,8 @@
                     <th>Invoice</th>
                     <th>View&nbsp;Order</th>
                     <th>Customer&nbsp;Name</th>
-                    <th>Final&nbsp;Amount</th>
+                    <th>Order&nbsp;Amount</th>
+                    <th>Earning Amount</th>
                     <th>Payment&nbsp;Type</th>
                     <th>Payment&nbsp;Status</th>
                     <th>Order&nbsp;Date</th>
@@ -341,6 +342,9 @@
 
                         <td>
                           <i class="fa fa-inr"></i> <?= number_format($value['final_price'], 2); ?>
+                        </td>
+                        <td>
+                            <i class="fa fa-inr"></i> <?= number_format($value['vendor_earning'], 2); ?>
                         </td>
 
                         <td>

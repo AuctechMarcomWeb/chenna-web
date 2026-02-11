@@ -185,6 +185,46 @@
         vertical-align: middle;
         background-color: #ff4400;
     }
+
+    .wallet-card {
+        background: #fff box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        margin: 20px 0;
+    }
+
+    .wallet-card table th,
+    .wallet-card table td {
+        vertical-align: middle !important;
+        text-align: center;
+    }
+
+    .wallet-card .badge {
+        font-size: 0.9rem;
+        padding: 5px 10px;
+    }
+
+    .wallet-card .empty-state {
+        text-align: center;
+        padding: 50px 20px;
+    }
+
+    .wallet-card .empty-state img {
+        width: 150px;
+        opacity: 0.5;
+    }
+
+    .wallet-card .empty-state h5 {
+        margin-top: 20px;
+        font-weight: 500;
+    }
+
+    .wallet-card .empty-state p {
+        color: #777;
+        margin-top: 10px;
+    }
+
+    .wallet-card .empty-state .btn {
+        margin-top: 20px;
+    }
 </style>
 
 <div class="content-wrapper">
@@ -208,8 +248,7 @@
                     </div>
 
                     <div class="wallet-actions">
-                        <button class="btn btn-primary btn-lg"
-                            onclick="handleRedeem(<?= $has_bank_account ? 'true' : 'false'; ?>)">
+                        <button class="btn btn-primary btn-lg" onclick="handleRedeem()">
                             <i class="fa fa-exchange"></i> Redeem Amount
                         </button>
 
@@ -217,6 +256,7 @@
                             <i class="fa fa-plus-circle"></i> Add More Amount
                         </a>
                     </div>
+
 
                     <div class="wallet-note">
                         <i class="fa fa-info-circle"></i>
@@ -228,76 +268,79 @@
         </div>
     </section>
 
-    <section class="content">
-        <!-- Wallet Transactions Table -->
-        <div class="row mt-4">
-            <div class="col-md-12">
-                <div class="wallet-card">
-                    <?php if (!empty($transactions)): ?>
-                        <table class="table table-bordered table-striped mt-2">
-                            <thead class="bg-primary text-white">
+<section class="content">
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="wallet-card">
+                <?php if (!empty($transactions)): ?>
+                    <table class="table table-bordered table-striped mt-2">
+                        <thead class="bg-primary text-white">
+                            <tr>
+                                <th>S.No.</th>
+                                <th>Amount Requested</th>
+                                <th>Wallet Balance</th>
+                                <th>Bank Name</th>
+                                <th>Account No</th>
+                                <th>IFSC</th>
+                                <th>Status</th>
+                                <th>Request Date</th>
+                                <th>Approval Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php $i = 1; foreach ($transactions as $txn): ?>
+                                <?php
+                                // Safe bank info
+                                $bankName = !empty($txn->bank_name) ? $txn->bank_name : '<span class="text-muted">Not Added</span>';
+                                $accountNo = !empty($txn->account_no) ? 'XXXXXX' . substr($txn->account_no, -4) : '<span class="text-muted">Not Added</span>';
+                                $ifsc = !empty($txn->ifsc_code) ? $txn->ifsc_code : '<span class="text-muted">Not Added</span>';
+
+                                // Status badge
+                                if ($txn->status == 0)
+                                    $status = '<span class="badge badge-warning">Pending</span>';
+                                elseif ($txn->status == 1)
+                                    $status = '<span class="badge badge-success">Approved</span>';
+                                else
+                                    $status = '<span class="badge badge-danger">Rejected</span>';
+
+                                // Show same date if approval missing
+                                $dateToShow = $txn->approval_date ?? $txn->request_date;
+                                $requestDate = date('d M Y, h:i A', strtotime($txn->request_date));
+                                $approvalDate = date('d M Y, h:i A', strtotime($dateToShow));
+                                ?>
                                 <tr>
-                                    <th>S.No.</th>
-                                    <th>Amount Requested</th>
-                                    <th>Wallet Balance</th>
-                                    <th>Bank Name</th>
-                                    <th>Account No</th>
-                                    <th>IFSC</th>
-                                    <th>Status</th>
-                                    <th>Request Date</th>
-                                    <th>Approval Date</th>
+                                    <td><?= $i++; ?></td>
+                                    <td><strong>₹<?= number_format($txn->amount, 2); ?></strong></td>
+                                    <td>₹<?= number_format($txn->wallet_amount, 2); ?></td>
+                                    <td><?= $bankName; ?></td>
+                                    <td><?= $accountNo; ?></td>
+                                    <td><?= $ifsc; ?></td>
+                                    <td><?= $status; ?></td>
+                                    <td>
+                                        <?= $requestDate; ?><br>
+                                        <small class="text-muted"><?= time_ago($txn->request_date); ?></small>
+                                    </td>
+                                    <td>
+                                        <?= $approvalDate; ?><br>
+                                        <small class="text-muted"><?= time_ago($dateToShow); ?></small>
+                                    </td>
+                                    
                                 </tr>
-                            </thead>
-                            <tbody>
-                                <?php $i = 1;
-                                foreach ($transactions as $txn): ?>
-                                    <tr>
-                                        <td><?= $i++; ?></td>
-                                        <td>₹<?= number_format($txn->amount, 2); ?></td>
-                                        <td>₹<?= number_format($txn->wallet_amount, 2); ?></td>
-                                        <td><?= $txn->bank_name; ?></td>
-                                        <td><?= $txn->account_no; ?></td>
-                                        <td><?= $txn->ifsc_code; ?></td>
-                                        <td>
-                                            <?php
-                                            if ($txn->status == 0)
-                                                echo '<span class="badge badge-warning">Pending</span>';
-                                            elseif ($txn->status == 1)
-                                                echo '<span class="badge badge-success">Approved</span>';
-                                            else
-                                                echo '<span class="badge badge-danger">Rejected</span>';
-                                            ?>
-                                        </td>
-                                        <td>
-                                            <?= date('d-m-Y h:i A', strtotime($txn->request_date)); ?><br>
-                                            <small class="text-muted">
-                                                <?= time_ago($txn->request_date); ?>
-                                            </small>
-                                        </td>
-
-
-                                        <td>
-                                            <?= $txn->approval_date
-                                                ? date('d-m-Y h:i A', strtotime($txn->approval_date)) .
-                                                '<br><small class="text-muted">' . time_ago($txn->approval_date) . '</small>'
-                                                : '-';
-                                            ?>
-                                        </td>
-
-
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    <?php else: ?>
-                        <div class="alert alert-info mt-2">
-                            No withdrawal requests found.
-                        </div>
-                    <?php endif; ?>
-                </div>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php else: ?>
+                    <div class="empty-state text-center mt-4">
+                        <img src="https://img.icons8.com/ios/150/null/wallet--v1.png" alt="No Data" class="mb-3">
+                        <h5>No withdrawal requests found</h5>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
-    </section>
+    </div>
+</section>
+
+
 </div>
 
 <div class="modal fade" id="bankModal">
@@ -334,7 +377,7 @@
 
                     <div class="form-group">
                         <label>Branch Name</label>
-                        <input type="text" name="brnch_name" class="form-control" required>
+                        <input type="text" name="branch_name" class="form-control" required>
                     </div>
 
                     <div class="form-group">
@@ -399,25 +442,39 @@
             var enteredAmount = parseFloat($('input[name="amount"]').val());
 
             if (enteredAmount > walletBalance) {
-                e.preventDefault(); // form submit nahi hoga
-                $('#amountError').show(); // custom message dikhao
+                e.preventDefault();
+                $('#amountError').show();
             } else {
                 $('#amountError').hide();
             }
         });
     });
 </script>
+<script>
+    var hasBankAccount = <?= $has_bank_account ? 'true' : 'false'; ?>;
+    var userType = "<?= $user_type ?>";
+</script>
+
 
 
 <script>
-    function handleRedeem(hasBank) {
-        if (hasBank) {
+    function handleRedeem() {
+
+        // ADMIN → direct redeem
+        if (userType === 'admin') {
+            $('#redeemModal').modal('show');
+            return;
+        }
+
+        // Vendor / Promoter
+        if (hasBankAccount) {
             $('#redeemModal').modal('show');
         } else {
             $('#bankModal').modal('show');
         }
     }
 </script>
+
 <script>
     $('#bankForm').on('submit', function (e) {
         e.preventDefault();
@@ -429,19 +486,24 @@
             dataType: "json",
             success: function (res) {
                 if (res.status === 'success') {
+
+                    hasBankAccount = true;
+
                     $('#bankModal').modal('hide');
 
-                    // thoda delay taaki smooth lage
                     setTimeout(function () {
                         $('#redeemModal').modal('show');
                     }, 400);
+
                 } else {
                     alert(res.msg);
                 }
             }
         });
     });
+
 </script>
+
 <?php
 function time_ago($datetime)
 {

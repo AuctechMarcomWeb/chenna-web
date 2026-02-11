@@ -80,18 +80,32 @@ class Manage_Users_Model extends CI_Model {
   }
 
 
-  //ratna code 
-  public function getTotalOrders($user_id) {
-    $this->db->from('order_master');
-    $this->db->where('user_master_id', $user_id);
-    return $this->db->count_all_results();
-}
-public function getTotalAmountSpent($user_id) {
-    $this->db->select_sum('final_price'); // or 'total_price' if that's preferred
-    $this->db->where('user_master_id', $user_id);
-    $result = $this->db->get('order_master')->row();
-    return $result->final_price ?? 0;
-}
+ public function getTotalOrders($user_id) {
+        $this->db->from('order_master');
+        $this->db->where('user_master_id', $user_id);
+        $cod = $this->db->count_all_results();
+
+        $this->db->from('order_master2');
+        $this->db->where('user_master_id', $user_id);
+        $online = $this->db->count_all_results();
+
+        return $cod + $online; // total orders combined
+    }
+
+    // Get total amount spent (COD + Online)
+    public function getTotalAmountSpent($user_id) {
+        // COD
+        $this->db->select_sum('final_price');
+        $this->db->where('user_master_id', $user_id);
+        $cod = $this->db->get('order_master')->row()->final_price ?? 0;
+
+        // Online
+        $this->db->select_sum('final_price');
+        $this->db->where('user_master_id', $user_id);
+        $online = $this->db->get('order_master2')->row()->final_price ?? 0;
+
+        return $cod + $online;
+    }
 
 
 }
