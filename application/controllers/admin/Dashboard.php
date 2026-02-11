@@ -3918,6 +3918,188 @@ class Dashboard extends CI_Controller
 	}
 
 
+// public function updateTransaction()
+// {
+//     is_not_logged_in();
+
+//     $txn_id = $this->input->post('txn_id');
+//     $action = $this->input->post('action');
+
+//     if (!$txn_id || !$action) {
+//         $this->session->set_flashdata('error', 'Invalid request');
+//         return redirect('admin/Dashboard/TransactionAmount');
+//     }
+
+//     $withdrawal = $this->db->get_where('withdrawal_requests', ['id' => $txn_id])->row();
+//     if (!$withdrawal) {
+//         $this->session->set_flashdata('error', 'Withdrawal request not found');
+//         return redirect('admin/Dashboard/TransactionAmount');
+//     }
+
+//     // make lower case safe
+//     $user_type = strtolower(trim($withdrawal->user_type));
+
+//     if ($user_type == 'vendor') {
+//         $user_table = 'vendors';
+//         $wallet_column = 'wallet_amount';
+//     } elseif ($user_type == 'promoter') {
+//         $user_table = 'promoters';
+//         $wallet_column = 'wallet_amount';
+//     } else {
+//         $user_table = 'admin_master';
+//         $wallet_column = 'wallet';
+//     }
+
+//     $user = $this->db->get_where($user_table, ['id' => $withdrawal->user_id])->row();
+//     if (!$user) {
+//         $this->session->set_flashdata('error', 'User not found');
+//         return redirect('admin/Dashboard/TransactionAmount');
+//     }
+
+//     $this->db->trans_begin();
+
+//     // =====================================================
+//     // APPROVE
+//     // =====================================================
+//     if ($action === 'approve') {
+
+//         if ($wallet_column && $user->$wallet_column < $withdrawal->amount) {
+//             $this->session->set_flashdata('error', 'Insufficient wallet balance');
+//             return redirect('admin/Dashboard/TransactionAmount');
+//         }
+
+//         // wallet deduct
+//         if ($wallet_column) {
+//             $this->db->set($wallet_column, "$wallet_column - " . (float)$withdrawal->amount, false)
+//                 ->where('id', $withdrawal->user_id)
+//                 ->update($user_table);
+//         }
+
+//         // approve request
+//         $this->db->where('id', $txn_id)->update('withdrawal_requests', [
+//             'status' => 1,
+//             'approval_date' => date('Y-m-d H:i:s')
+//         ]);
+
+//         $remaining = $withdrawal->amount;
+
+//         // =====================================================
+//         // FETCH CREDIT FIFO
+//         // =====================================================
+//         $this->db->where('transaction_type', 'wallet_credit');
+//         $this->db->where('status', 1);
+
+//         if ($user_type == 'vendor') {
+//             $this->db->where('vendor_id', $withdrawal->user_id);
+//         } elseif ($user_type == 'promoter') {
+//             $this->db->where('promoter_id', $withdrawal->user_id);
+//         } else {
+//             $this->db->where('admin_id', $withdrawal->user_id);
+//         }
+
+//         $this->db->order_by('id', 'ASC');
+//         $credits = $this->db->get('transaction_history_master')->result();
+
+//         foreach ($credits as $credit) {
+
+//             if ($remaining <= 0) break;
+
+//             // already debited
+//             $this->db->select_sum('debit_amount', 'used_amount');
+//             $this->db->where('order_id', $credit->order_id);
+//             $this->db->where('product_id', $credit->product_id);
+//             $this->db->where('transaction_type', 'wallet_debit');
+
+//             if ($user_type == 'vendor') {
+//                 $this->db->where('vendor_id', $withdrawal->user_id);
+//             } elseif ($user_type == 'promoter') {
+//                 $this->db->where('promoter_id', $withdrawal->user_id);
+//             } else {
+//                 $this->db->where('admin_id', $withdrawal->user_id);
+//             }
+
+//             $used = $this->db->get('transaction_history_master')->row()->used_amount ?? 0;
+
+//             $available = $credit->credit_amount - $used;
+//             if ($available <= 0) continue;
+
+//             $deduct = min($available, $remaining);
+
+//             // =====================================================
+//             // INSERT DEBIT
+//             // =====================================================
+//             $insert = [
+//                 'withdrawal_request_id' => $withdrawal->id,
+//                 'order_id' => $credit->order_id,
+//                 'order_number' => $credit->order_number,
+//                 'product_id' => $credit->product_id,
+//                 'product_name' => $credit->product_name,
+//                 'main_image' => $credit->main_image,
+//                 'plan_type' => $credit->plan_type,
+//                 'plan_id' => $credit->plan_id,
+//                 'final_price' => $credit->final_price,
+//                 'price' => $credit->price,
+//                 'qty' => $credit->qty,
+//                 'admin_amount' => $credit->admin_amount,
+//                 'vendor_amount' => $credit->vendor_amount,
+//                 'promoter_amount' => $credit->promoter_amount,
+//                 'transaction_type' => 'wallet_debit',
+//                 'credit_amount' => 0,
+//                 'debit_amount' => $deduct,
+//                 'source' => 'Withdrawal',
+//                 'remark' => 'Withdrawal adjusted',
+//                 'status' => 1,
+//                 'created_at' => date('Y-m-d H:i:s')
+//             ];
+
+//             // 🔥 MOST IMPORTANT PART
+//             if ($user_type == 'vendor') {
+//                 $insert['vendor_id'] = $withdrawal->user_id;
+//                 $insert['promoter_id'] = 0;
+//                 $insert['admin_id'] = 0;
+//             }
+//             elseif ($user_type == 'promoter') {
+//                 $insert['promoter_id'] = $withdrawal->user_id;
+//                 $insert['vendor_id'] = 0;
+//                 $insert['admin_id'] = 0;
+//             }
+//             else {
+//                 $insert['admin_id'] = $withdrawal->user_id;
+//                 $insert['vendor_id'] = 0;
+//                 $insert['promoter_id'] = 0;
+//             }
+
+//             $this->db->insert('transaction_history_master', $insert);
+
+//             $remaining -= $deduct;
+//         }
+
+//         $this->db->trans_commit();
+//         $this->session->set_flashdata('success', ucfirst($user_type) . ' withdrawal approved successfully');
+//     }
+
+//     // =====================================================
+//     // REJECT
+//     // =====================================================
+//     else if ($action === 'reject') {
+
+//         $this->db->where('id', $txn_id)->update('withdrawal_requests', [
+//             'status' => 2,
+//             'approval_date' => date('Y-m-d H:i:s')
+//         ]);
+
+//         $this->db->trans_commit();
+//         $this->session->set_flashdata('success', ucfirst($user_type) . ' withdrawal rejected');
+//     }
+
+//     else {
+//         $this->db->trans_rollback();
+//         $this->session->set_flashdata('error', 'Invalid action');
+//     }
+
+//     redirect('admin/Dashboard/TransactionAmount');
+// }
+
 
 
 

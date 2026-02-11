@@ -61,7 +61,7 @@
 
 <div class="content-wrapper">
     <section class="content-header">
-        <h1>Full Transaction History</h1>
+        <h1> Transaction History</h1>
     </section>
     <section class="content">
         <div class="row">
@@ -74,33 +74,35 @@
                                 <th>User (Type)</th>
                                 <th>Type</th>
                                 <th>Source</th>
-
                                 <th>Amount</th>
                                 <th>Opening</th>
                                 <th>Closing</th>
                             </tr>
                         </thead>
+
                         <tbody>
                             <?php if (!empty($transactions)): ?>
-                                <?php $walletBalances = [];?>
+                                <?php $walletBalances = []; ?>
+
                                 <?php foreach ($transactions as $row): ?>
                                     <?php
-                                 
-                                    if (!empty($row->wr_user_type))
+                                   
+                                    if (!empty($row->wr_user_type) && !empty($row->wr_user_id))
                                     {
-                                        $userTypeRow = $row->wr_user_type;
+                                        $userTypeRow = ucfirst($row->wr_user_type);
                                         $userIdRow = $row->wr_user_id;
                                     } else
                                     {
-                                        if (!empty($row->vendor_id))
+                                        // Priority 2 → Order data
+                                        if (isset($row->vendor_id) && $row->vendor_id > 0)
                                         {
                                             $userTypeRow = 'Vendor';
                                             $userIdRow = $row->vendor_id;
-                                        } elseif (!empty($row->promoter_id))
+                                        } elseif (isset($row->promoter_id) && $row->promoter_id > 0)
                                         {
                                             $userTypeRow = 'Promoter';
                                             $userIdRow = $row->promoter_id;
-                                        } elseif (!empty($row->admin_id))
+                                        } elseif (isset($row->admin_id) && $row->admin_id > 0)
                                         {
                                             $userTypeRow = 'Admin';
                                             $userIdRow = $row->admin_id;
@@ -111,30 +113,32 @@
                                         }
                                     }
 
-                                 
                                     if ($userTypeRow == 'Vendor')
                                     {
-                                        $username = 'Vendor [' . ($row->vendor_random_number ?? '-') . ']';
+                                        $rand = $row->vendor_random_number ?? '-';
+                                        $username = 'Vendor [' . $rand . ']';
                                     } elseif ($userTypeRow == 'Promoter')
                                     {
-                                        $username = 'Promoter [' . ($row->promoter_random_number ?? '-') . ']';
+                                        $rand = $row->promoter_random_number ?? '-';
+                                        $username = 'Promoter [' . $rand . ']';
                                     } elseif ($userTypeRow == 'Admin')
                                     {
-                                        $username = 'Chenna';
+                                        $username = 'Admin';
                                     } else
                                     {
                                         $username = 'Unknown';
                                     }
 
-                                 
-                                    if (in_array($row->transaction_type, ['wallet_credit', 'order']))
+
+                                  
+                                    if ($row->credit_amount > 0)
                                     {
-                                        $amount = $row->credit_amount ?? 0;
+                                        $amount = $row->credit_amount;
                                         $type = 'Credit';
                                         $displayAmount = '+' . $amount;
-                                    } elseif (in_array($row->transaction_type, ['wallet_debit', 'withdrawal']))
+                                    } elseif ($row->debit_amount > 0)
                                     {
-                                        $amount = $row->debit_amount ?? 0;
+                                        $amount = $row->debit_amount;
                                         $type = 'Debit';
                                         $displayAmount = '-' . $amount;
                                     } else
@@ -144,11 +148,11 @@
                                         $displayAmount = 0;
                                     }
 
-                                
+
+                                   
                                     $key = $userTypeRow . '_' . $userIdRow;
                                     $opening = $walletBalances[$key] ?? 0;
 
-                                  
                                     if ($type == 'Credit')
                                     {
                                         $closing = $opening + $amount;
@@ -160,32 +164,39 @@
                                         $closing = $opening;
                                     }
 
-                                  
                                     $walletBalances[$key] = $closing;
 
-                                   
-                                    $refId = $row->wr_order_id ?? $row->order_id ?? '-';
-                                    $date = date('d-M-Y', strtotime($row->created_at ?? $row->request_date));
+                                    $date = '-';
+                                    if (!empty($row->created_at))
+                                    {
+                                        $date = date('d-M-Y', strtotime($row->created_at));
+                                    } elseif (!empty($row->request_date))
+                                    {
+                                        $date = date('d-M-Y', strtotime($row->request_date));
+                                    }
                                     ?>
+
                                     <tr>
                                         <td><?= $date; ?></td>
                                         <td><?= $username; ?></td>
                                         <td><?= $type; ?></td>
                                         <td><?= ucfirst($row->source ?? '-'); ?></td>
+                                        <td>₹ <?= ($type == 'Credit') . number_format((float) $amount, 2); ?></td>
+                                        <td>₹ <?= number_format((float) $opening, 2); ?></td>
+                                        <td>₹ <?= number_format((float) $closing, 2); ?></td>
 
-                                        <td><?= number_format($displayAmount, 2); ?></td>
-                                        <td><?= number_format($opening, 2); ?></td>
-                                        <td><?= number_format($closing, 2); ?></td>
                                     </tr>
+
                                 <?php endforeach; ?>
+
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="8" class="text-center">No Transactions Found</td>
+                                    <td colspan="7" class="text-center">No Transactions Found</td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>
-
                     </table>
+
 
 
                 </div>

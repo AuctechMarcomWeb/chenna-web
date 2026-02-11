@@ -98,7 +98,7 @@
                                                             : base_url('assets/img/no-image.jpg');
                                                         ?>
                                                         <img src="<?= $img ?>" class="rounded"
-                                                            style="width:48px;height:auto;object-fit:contain;border:1px solid #dd4b39;border-radius:5px;">
+                                                            style="width:70px;height:auto;object-fit:contain;border:1px solid #dd4b39;border-radius:5px;padding:4px;">
 
                                                         <span class="small fw-medium">
                                                             Price : ₹

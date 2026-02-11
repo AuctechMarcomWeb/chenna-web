@@ -509,102 +509,6 @@ class Vendor extends CI_Controller
 		echo 'success';
 	}
 
-
-	// public function VendorOrderList()
-	// {
-	// 	is_not_logged_in();
-	// 	$this->load->library('pagination');
-
-	// 	$limit = 10;
-	// 	$pageNo = $this->input->get('per_page');
-	// 	$pageNo = (!empty($pageNo) && $pageNo > 0) ? $pageNo : 1;
-	// 	$offset = ($pageNo - 1) * $limit;
-
-	// 	// ================= FILTERS =================
-	// 	$keywords = $this->input->post('keywords');
-	// 	$fromDate = $this->input->post('fromDate');
-	// 	$toDate = $this->input->post('toDate');
-	// 	$order_status = $this->input->post('order_status');
-	// 	$delete_status = $this->input->post('delete_status');
-	// 	$customer_name = $this->input->post('customer_name');
-
-	// 	$vendor_id = $this->session->userdata('adminData')['Id'];
-
-	// 	// ================= BASE QUERY =================
-	// 	$this->db->select('o.*, u.username, u.mobile');
-	// 	$this->db->from('order_master o');
-	// 	$this->db->join('purchase_master p', 'p.order_master_id = o.id', 'inner');
-	// 	$this->db->join('user_master u', 'u.id = o.user_master_id', 'left');
-	// 	$this->db->where('p.vendor_id', $vendor_id);
-	// 	$this->db->group_by('o.id');
-
-	// 	// ================= APPLY FILTERS =================
-
-	// 	// 1️⃣ Keywords (Order Number)
-	// 	if (!empty($keywords))
-	// 	{
-	// 		$this->db->like('o.order_number', $keywords);
-	// 	}
-	// 	// 2️⃣ Customer Name
-	// 	elseif (!empty($customer_name))
-	// 	{
-	// 		$this->db->like('u.username', $customer_name);
-	// 	}
-	// 	// 3️⃣ Order Status
-	// 	elseif (!empty($order_status))
-	// 	{
-	// 		$this->db->where('o.status', $order_status);
-	// 	}
-	// 	// 4️⃣ Delete Status
-	// 	elseif (!empty($delete_status) && $delete_status == 'delete')
-	// 	{
-	// 		$this->db->where('o.action_payment', 'delete');
-	// 	}
-	// 	// 5️⃣ Date Range (apply only if BOTH dates are selected)
-	// 	elseif (!empty($fromDate) && !empty($toDate))
-	// 	{
-	// 		$this->db->where("DATE(FROM_UNIXTIME(o.add_date)) >=", $fromDate);
-	// 		$this->db->where("DATE(FROM_UNIXTIME(o.add_date)) <=", $toDate);
-	// 	} else
-	// 	{
-	// 		// Default: only active orders
-	// 		$this->db->where('o.action_payment', 'Yes');
-	// 	}
-
-	// 	// ================= TOTAL RECORDS =================
-	// 	$clone = clone $this->db;
-	// 	$totalRecords = $clone->count_all_results();
-
-	// 	// ================= FETCH DATA =================
-	// 	$this->db->order_by('o.id', 'DESC');
-	// 	$this->db->limit($limit, $offset);
-	// 	$AllRecord = $this->db->get()->result_array();
-
-	// 	// ================= PAGINATION =================
-	// 	$config['base_url'] = base_url('admin/Vendor/VendorOrderList');
-	// 	$config['total_rows'] = $totalRecords;
-	// 	$config['per_page'] = $limit;
-	// 	$config['use_page_numbers'] = TRUE;
-	// 	$config['page_query_string'] = TRUE;
-	// 	$config['num_links'] = 3;
-	// 	$this->pagination->initialize($config);
-
-	// 	$entries = 'Showing ' . ($offset + 1) . ' to ' . ($offset + count($AllRecord)) . ' of ' . $totalRecords . ' entries';
-
-	// 	$data = [
-	// 		'results' => $AllRecord,
-	// 		'links' => $this->pagination->create_links(),
-	// 		'entries' => $entries,
-	// 		'index' => 'VendorOrder',
-	// 		'title' => 'Sales Report'
-	// 	];
-
-	// 	$this->load->view('include/header', $data);
-	// 	$this->load->view('Vendor/VendorOrderList', $data);
-	// 	$this->load->view('include/footer');
-	// }
-
-
 	public function VendorOrderList()
 	{
 		is_not_logged_in();
@@ -662,59 +566,77 @@ class Vendor extends CI_Controller
 
 		// ========= COD ORDERS =========
 		$codQuery = "
-        SELECT 
-            o.id,
-            o.order_number,
-            o.final_price,
-            o.payment_type,
-            o.payment_status,
-            o.status,
-            o.add_date,
-            u.username,
-            u.mobile,
-            a.address,
-            a.city,
-            a.state,
-            a.pincode,
-            a.contact_person,
-            a.mobile_number
-        FROM order_master o
-        INNER JOIN purchase_master p ON p.order_master_id = o.id
-        LEFT JOIN user_master u ON u.id = o.user_master_id
-        LEFT JOIN order_address_master a ON a.order_master_id = o.id
-        WHERE p.vendor_id = '$vendor_id'
-        $whereFilters
-        GROUP BY o.id
-    ";
+		SELECT 
+			o.id,
+			o.order_number,
+			o.final_price,
+			o.payment_type,
+			o.payment_status,
+			o.status,
+			o.add_date,
+			u.username,
+			u.mobile,
+			a.address,
+			a.city,
+			a.state,
+			a.pincode,
+			a.contact_person,
+			a.mobile_number,
+			IFNULL(SUM(vem.earning_amount),0) as vendor_earning
+
+		FROM order_master o
+		INNER JOIN purchase_master p ON p.order_master_id = o.id
+		LEFT JOIN user_master u ON u.id = o.user_master_id
+		LEFT JOIN order_address_master a ON a.order_master_id = o.id
+
+		LEFT JOIN vendor_earnings_master vem 
+		ON vem.order_id = o.id
+		AND vem.vendor_id = '$vendor_id'
+		AND vem.status IN (0,1)
+
+		WHERE p.vendor_id = '$vendor_id'
+		$whereFilters
+
+		GROUP BY o.id
+		";
+
 
 		// ========= ONLINE ORDERS =========
 		$onlineQuery = "
-        SELECT 
-            o.id,
-            o.order_number,
-            o.final_price,
-            o.payment_type,
-            o.payment_status,
-            o.status,
-            o.add_date,
-            u.username,
-            u.mobile,
-            a.address,
-            a.city,
-            a.state,
-            a.pincode,
-            a.contact_person,
-            a.mobile_number
-        FROM order_master2 o
-        INNER JOIN purchase_master2 p ON p.order_master_id = o.id
-        LEFT JOIN user_master u ON u.id = o.user_master_id
-        LEFT JOIN order_address_master2 a ON a.order_master_id = o.id
-        WHERE p.vendor_id = '$vendor_id'
-        $whereFilters
-        GROUP BY o.id
-    ";
+		SELECT 
+			o.id,
+			o.order_number,
+			o.final_price,
+			o.payment_type,
+			o.payment_status,
+			o.status,
+			o.add_date,
+			u.username,
+			u.mobile,
+			a.address,
+			a.city,
+			a.state,
+			a.pincode,
+			a.contact_person,
+			a.mobile_number,
+			IFNULL(SUM(vem.earning_amount),0) as vendor_earning
 
-		// ========= FINAL UNION =========
+		FROM order_master2 o
+		INNER JOIN purchase_master2 p ON p.order_master_id = o.id
+		LEFT JOIN user_master u ON u.id = o.user_master_id
+		LEFT JOIN order_address_master2 a ON a.order_master_id = o.id
+
+		LEFT JOIN vendor_earnings_master vem 
+		ON vem.order_id = o.id
+		AND vem.vendor_id = '$vendor_id'
+		AND vem.status IN (0,1)
+
+		WHERE p.vendor_id = '$vendor_id'
+		$whereFilters
+
+		GROUP BY o.id
+		";
+
 		$finalQuery = "
         ($codQuery)
         UNION ALL
@@ -881,41 +803,58 @@ class Vendor extends CI_Controller
 
 		/* ================= COD ORDERS ================= */
 		$codQuery = "
-        SELECT 
-            o.id,
-            o.order_number,
-            o.final_price,
-            o.payment_type,
-            o.payment_status,
-            o.status,
-            o.add_date,
-            u.username,
-            u.mobile
-        FROM order_master o
-        INNER JOIN purchase_master p ON p.order_master_id = o.id
-        LEFT JOIN user_master u ON u.id = o.user_master_id
-        $whereCod
-        GROUP BY o.id
-    ";
+		SELECT 
+			o.id,
+			o.order_number,
+			o.final_price,
+			o.payment_type,
+			o.payment_status,
+			o.status,
+			o.add_date,
+			u.username,
+			u.mobile,
+			IFNULL(SUM(vem.earning_amount),0) as promoter_earning
+
+		FROM order_master o
+		INNER JOIN purchase_master p ON p.order_master_id = o.id
+		LEFT JOIN user_master u ON u.id = o.user_master_id
+
+		LEFT JOIN vendor_earnings_master vem 
+		ON vem.order_id = o.id 
+		AND vem.promoter_id = '$promoter_id'
+		AND vem.status IN (0,1)
+
+		$whereCod
+		GROUP BY o.id
+		";
 
 		/* ================= ONLINE ORDERS ================= */
 		$onlineQuery = "
-        SELECT 
-            o.id,
-            o.order_number,
-            o.final_price,
-            o.payment_type,
-            o.payment_status,
-            o.status,
-            UNIX_TIMESTAMP(o.add_date) AS add_date,
-            u.username,
-            u.mobile
-        FROM order_master2 o
-        INNER JOIN purchase_master2 p ON p.order_master_id = o.id
-        LEFT JOIN user_master u ON u.id = o.user_master_id
-        $whereOnline
-        GROUP BY o.id
-    ";
+		SELECT 
+			o.id,
+			o.order_number,
+			o.final_price,
+			o.payment_type,
+			o.payment_status,
+			o.status,
+			UNIX_TIMESTAMP(o.add_date) AS add_date,
+			u.username,
+			u.mobile,
+			IFNULL(SUM(vem.earning_amount),0) as promoter_earning
+
+		FROM order_master2 o
+		INNER JOIN purchase_master2 p ON p.order_master_id = o.id
+		LEFT JOIN user_master u ON u.id = o.user_master_id
+
+		LEFT JOIN vendor_earnings_master vem 
+		ON vem.order_id = o.id 
+		AND vem.promoter_id = '$promoter_id'
+		AND vem.status IN (0,1)
+
+		$whereOnline
+		GROUP BY o.id
+		";
+
 
 		/* ================= FINAL UNION ================= */
 		$finalQuery = "
