@@ -389,44 +389,99 @@
 
 
   // ratna code 
+  // public function getOrderSummary()
+  // {
+  //   $summary = [];
+
+
+  //   $summary['delivered_orders'] = $this->db->where('status', 3)
+  //     ->from('order_master')
+  //     ->count_all_results();
+
+
+  //   $summary['pending_orders'] = $this->db->where('status !=', 3)
+  //     ->from('order_master')
+  //     ->count_all_results();
+  //   $summary['failed_orders'] = $this->db->where('status', 2)
+  //     ->from('order_master')
+  //     ->count_all_results();
+
+  //   $summary['cancelled_orders'] = $this->db->where('status', 4)
+  //     ->from('order_master')
+  //     ->count_all_results();
+
+
+  //   $summary['shipped_orders'] = $this->db->where('status', 5)
+  //     ->from('order_master')
+  //     ->count_all_results();
+
+
+  //   $summary['waiting_approval_orders'] = $this->db->where('status', 1)
+  //     ->from('order_master')
+  //     ->count_all_results();
+
+
+  //   $summary['rejected_orders'] = $this->db->where('status', 6)
+  //     ->from('order_master')
+  //     ->count_all_results();
+
+  //   $summary['total_orders'] = $this->db->count_all('order_master');
+
+  //   return $summary;
+  // }
+
   public function getOrderSummary()
-  {
+{
     $summary = [];
 
+    // Delivered (3)
+    $summary['delivered_orders'] =
+        $this->db->where('status', 3)->from('order_master')->count_all_results()
+        +
+        $this->db->where('status', 3)->from('order_master2')->count_all_results();
 
-    $summary['delivered_orders'] = $this->db->where('status', 3)
-      ->from('order_master')
-      ->count_all_results();
+    // Failed (2)
+    $summary['failed_orders'] =
+        $this->db->where('status', 2)->from('order_master')->count_all_results()
+        +
+        $this->db->where('status', 2)->from('order_master2')->count_all_results();
 
+    // Cancelled (4)
+    $summary['cancelled_orders'] =
+        $this->db->where('status', 4)->from('order_master')->count_all_results()
+        +
+        $this->db->where('status', 4)->from('order_master2')->count_all_results();
 
-    $summary['pending_orders'] = $this->db->where('status !=', 3)
-      ->from('order_master')
-      ->count_all_results();
-    $summary['failed_orders'] = $this->db->where('status', 2)
-      ->from('order_master')
-      ->count_all_results();
+    // Shipped (5)
+    $summary['shipped_orders'] =
+        $this->db->where('status', 5)->from('order_master')->count_all_results()
+        +
+        $this->db->where('status', 5)->from('order_master2')->count_all_results();
 
-    $summary['cancelled_orders'] = $this->db->where('status', 4)
-      ->from('order_master')
-      ->count_all_results();
+    // Waiting Approval (1)
+    $summary['waiting_approval_orders'] =
+        $this->db->where('status', 1)->from('order_master')->count_all_results()
+        +
+        $this->db->where('status', 1)->from('order_master2')->count_all_results();
 
+    // Rejected (6)
+    $summary['rejected_orders'] =
+        $this->db->where('status', 6)->from('order_master')->count_all_results()
+        +
+        $this->db->where('status', 6)->from('order_master2')->count_all_results();
 
-    $summary['shipped_orders'] = $this->db->where('status', 5)
-      ->from('order_master')
-      ->count_all_results();
+    // Pending = NOT delivered
+    $summary['pending_orders'] =
+        $this->db->where('status !=', 3)->from('order_master')->count_all_results()
+        +
+        $this->db->where('status !=', 3)->from('order_master2')->count_all_results();
 
-
-    $summary['waiting_approval_orders'] = $this->db->where('status', 1)
-      ->from('order_master')
-      ->count_all_results();
-
-
-    $summary['rejected_orders'] = $this->db->where('status', 6)
-      ->from('order_master')
-      ->count_all_results();
-
-    $summary['total_orders'] = $this->db->count_all('order_master');
+    // Total
+    $summary['total_orders'] =
+        $this->db->count_all('order_master') +
+        $this->db->count_all('order_master2');
 
     return $summary;
-  }
+}
+
 }

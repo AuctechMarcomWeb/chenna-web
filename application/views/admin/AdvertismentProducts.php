@@ -3,6 +3,10 @@
         $("#hiddenSms").fadeOut(5000);
     }
 </script>
+<?php
+
+$plan = $this->session->userdata('selected_ad_plan');
+?>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
 <style type="text/css">
     .ratingpoint {
@@ -623,7 +627,7 @@
 <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
-        <h1>Manage Products
+        <h1>Advertisement Base Products
         </h1>
     </section>
 
@@ -650,10 +654,11 @@
                                         </h4>
                                     </div>
                                     <div class="col-md-4">
-                                        <small class="text-muted">
-                                            <strong> Product Limit: </strong> <span
+                                        <h4 class="text-black">
+                                            <strong> Product Limit : </strong> <span
                                                 class="text-red"><?= (int) $plan['plan_product_limit'] ?></span>
-                                        </small>
+                                        </h4>
+                                       
                                     </div>
                                 </div>
                                 <hr>
@@ -662,37 +667,41 @@
                                     <!-- Parent -->
                                     <div class="col-md-3">
                                         <label>Parent Category</label>
-                                        <select id="parent_category" class="form-control select2" multiple>
-                                            <option value="">Select Product Parent Category</option>
+                                        <select id="parent_category" class="form-control select2" multiple
+                                            data-placeholder="Select Product Parent Category">
+                                            <option value=""></option>
                                         </select>
                                     </div>
 
                                     <!-- Category -->
                                     <div class="col-md-3">
                                         <label>Category</label>
-                                        <select id="category" class="form-control select2" multiple>
-                                            <option value="">Select ProductCategory</option>
+                                        <select id="category" class="form-control select2" multiple
+                                            data-placeholder="Select Product Category">
+                                            <option value=""></option>
                                         </select>
                                     </div>
 
                                     <!-- Sub -->
                                     <div class="col-md-3">
                                         <label>Sub Category</label>
-                                        <select id="sub_category" class="form-control select2" multiple>
-                                            <option value="">Select Product Sub Category</option>
+                                        <select id="sub_category" class="form-control select2" multiple
+                                            data-placeholder="Select Product Sub Category">
+                                            <option value=""></option>
                                         </select>
                                     </div>
 
                                     <!-- Products -->
                                     <div class="col-md-3">
                                         <label>Products</label>
-                                        <select id="product_list" class="form-control select2" multiple>
-                                            <option value="">Select Product</option>
+                                        <select id="product_list" class="form-control select2" multiple
+                                            data-placeholder="Select Product">
+                                            <option value=""></option>
                                         </select>
-                                    </div><br><br>
-
+                                    </div>
 
                                 </div>
+
                                 <div class="row"><br>
                                     <div class="col-md-12 text-start mt-4">
                                         <button class="btn btn-primary px-5" id="submitAds">
@@ -734,12 +743,16 @@
             templateSelection: function (data) {
                 return data.text;
             },
-            escapeMarkup: function (m) { return m; }
+            escapeMarkup: function (m) { return m; },
+            placeholder: function () {
+                return $(this).data('placeholder'); 
+            }
         });
+
 
         $.get("<?= base_url('admin/Subscription/get_parent_category') ?>", function (res) {
 
-            $('#parent_category').html('<option value="">Select Product Parent Category</option>');
+            $('#parent_category').html('<option value="">--Select Parent Category--</option>');
 
             res.forEach(r => {
                 $('#parent_category').append(`<option value="${r.id}">${r.name}</option>`);
@@ -802,7 +815,7 @@
 
         $('#sub_category').on('change', function () {
 
-            let ids = $(this).val(); 
+            let ids = $(this).val();
 
             $('#product_list').html('').trigger('change');
 

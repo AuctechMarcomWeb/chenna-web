@@ -68,18 +68,18 @@
         <ul class="treeview-menu">
           <li class="<?php echo (($index2 == 'Wallet') ? 'active' : ''); ?>">
             <a href="<?php echo site_url('admin/Vendor/MyWallet'); ?>">
-              <i class="fa fa-circle-o"></i> <span>My Wallet</span>
+              <i class="fa-regular fa-circle" style="font-size:10px;"></i> <span>My Wallet</span>
             </a>
           </li>
           <li class="treeview <?php echo (($index == 'vendor') ? 'active' : ''); ?>">
             <a href="<?php echo site_url('admin/Dashboard/TransactionAmount'); ?>">
-              <i class="fa fa-circle-o"></i>
+              <i class="fa-regular fa-circle" style="font-size:10px;"></i>
               <span>Withdrawal Requests</span>
             </a>
           </li>
           <li class="treeview <?php echo (($index == 'TransactionHistoryList') ? 'active' : ''); ?>">
             <a href="<?php echo site_url('admin/Dashboard/AllTransactionHistoryList'); ?>">
-              <i class="fa fa-circle-o"></i>
+              <i class="fa-regular fa-circle" style="font-size:10px;"></i>
               <span>Transaction History</span>
             </a>
           </li>
@@ -88,7 +88,8 @@
 
       <li class="<?php echo (($index == 'Banner') ? 'active' : ''); ?>">
         <a href="<?php echo site_url('admin/Dashboard/BannerList'); ?>">
-          <i class="fa fa-picture-o"></i> <span>Manage Banners</span>
+          <i class="fa fa-image"></i>
+          <span>Manage Banners</span>
         </a>
       </li>
 
@@ -100,7 +101,7 @@
 
       <li class="treeview <?php echo (($index == 'Product') ? 'active' : ''); ?>">
         <a href="#">
-          <i class="fa fa-user-plus"></i> <span>Manage Plan</span>
+          <i class="fa fa-user-plus"></i> <span>Manage Subscription Plan</span>
           <span class="pull-right-container">
             <i class="fa fa-angle-left pull-right"></i>
           </span>
@@ -109,20 +110,20 @@
         <ul class="treeview-menu">
           <li class="<?php echo (($index2 == 'AddPlan') ? 'active' : ''); ?>">
             <a href="<?php echo site_url('admin/Subscription/AddPlan'); ?>">
-              <i class="fa fa-circle-o"></i> <span>Add Plan</span>
+              <i class="fa-regular fa-circle" style="font-size:10px;"></i> <span>Subscription Plan</span>
             </a>
           </li>
           <li class="treeview <?php echo (($index == 'vendor') ? 'active' : ''); ?>">
             <a href="<?php echo site_url('admin/Subscription/subscription_list'); ?>">
-              <i class="fa fa-circle-o"></i>
-              <span>Manage Plan Vendors</span>
+              <i class="fa-regular fa-circle" style="font-size:10px;"></i>
+              <span>Request Subscription Plan </span>
             </a>
           </li>
         </ul>
       </li>
       <li class="treeview <?php echo (($index == 'Product') ? 'active' : ''); ?>">
         <a href="#">
-          <i class="fa fa-user-plus"></i> <span>Advertisement Plans</span>
+          <i class="fa fa-user-plus"></i> <span>Manage Advertisment Plans</span>
           <span class="pull-right-container">
             <i class="fa fa-angle-left pull-right"></i>
           </span>
@@ -131,13 +132,13 @@
         <ul class="treeview-menu">
           <li class="<?php echo (($index2 == 'AdvertismentUpdatePlan') ? 'active' : ''); ?>">
             <a href="<?php echo site_url('admin/Subscription/AdvertismentUpdatePlan'); ?>">
-              <i class="fa fa-circle-o"></i> <span>Advertisement Plans</span>
+              <i class="fa-regular fa-circle" style="font-size:10px;"></i> <span>Advertisment Plans</span>
             </a>
           </li>
           <li class="treeview <?php echo (($index == 'vendor') ? 'active' : ''); ?>">
             <a href="<?php echo site_url('admin/Subscription/AdvertismentSelectPlan'); ?>">
-              <i class="fa fa-circle-o"></i>
-              <span>Manage Ad Plan Request</span>
+              <i class="fa-regular fa-circle" style="font-size:10px;"></i>
+              <span>Request Advertisment Plan</span>
             </a>
           </li>
         </ul>
@@ -200,13 +201,13 @@
         <ul class="treeview-menu">
           <li class="<?php echo (($index == 'VendorProduct') ? 'active' : ''); ?>">
             <a href="<?php echo site_url('admin/Product/VendorProductList'); ?>">
-              <i class="fa fa-circle-o"></i> Manage Products
+              <i class="fa-regular fa-circle" style="font-size:10px;"></i> Manage Products
             </a>
           </li>
 
           <li class="<?php echo (($index == 'ProductList') ? 'active' : ''); ?>">
             <a href="<?php echo site_url('admin/Product/all-product-list-vendor/' . $adminData['Id']); ?>">
-              <i class="fa fa-circle-o"></i> Product List
+              <i class="fa-regular fa-circle" style="font-size:10px;"></i> Product List
             </a>
           </li>
         </ul>
@@ -229,18 +230,18 @@
         <ul class="treeview-menu">
           <li class="<?php echo (($index2 == 'Wallet') ? 'active' : ''); ?>">
             <a href="<?php echo site_url('admin/Vendor/MyWallet'); ?>">
-              <i class="fa fa-circle-o"></i> <span>My Wallet</span>
+              <i class="fa-regular fa-circle" style="font-size:10px;"></i> <span>My Wallet</span>
             </a>
           </li>
           <li class="treeview <?php echo (($index == 'vendor') ? 'active' : ''); ?>">
             <a href="<?php echo site_url('admin/Dashboard/TransactionAmount'); ?>">
-              <i class="fa fa-circle-o"></i>
+              <i class="fa-regular fa-circle" style="font-size:10px;"></i>
               <span>Withdrawal Requests</span>
             </a>
           </li>
           <li class="treeview <?php echo (($index == 'VendorTransactionHistoryList') ? 'active' : ''); ?>">
             <a href="<?php echo site_url('admin/Dashboard/VendorTransactionHistoryList'); ?>">
-              <i class="fa fa-circle-o"></i>
+              <i class="fa-regular fa-circle" style="font-size:10px;"></i>
               <span>Transaction History</span>
             </a>
           </li>
@@ -255,7 +256,7 @@
       </li>
       <li class="treeview <?php echo (($index == 'Product') ? 'active' : ''); ?>">
         <a href="#">
-          <i class="fa fa-user-plus"></i> <span>Advertisement Plans</span>
+          <i class="fa fa-user-plus"></i> <span>Manage Advertisment Plans</span>
           <span class="pull-right-container">
             <i class="fa fa-angle-left pull-right"></i>
           </span>
@@ -264,15 +265,10 @@
         <ul class="treeview-menu">
           <li class="<?php echo (($index2 == 'AdvertismentUpdatePlan') ? 'active' : ''); ?>">
             <a href="<?php echo site_url('admin/Subscription/AdvertismentSelectPlan'); ?>">
-              <i class="fa fa-circle-o"></i> <span> Advertisement Plans</span>
+              <i class="fa-regular fa-circle" style="font-size:10px;"></i> <span> Advertisement Plans</span>
             </a>
           </li>
-          <li class="treeview <?php echo (($index == 'vendor') ? 'active' : ''); ?>">
-            <a href="<?php echo site_url('admin/Subscription/subscription_list'); ?>">
-              <i class="fa fa-circle-o"></i>
-              <span>Manage Plan Vendors</span>
-            </a>
-          </li>
+
         </ul>
       </li>
       <!-- SETTINGS -->
@@ -304,13 +300,13 @@
         <ul class="treeview-menu">
           <li class="<?php echo (($index == 'PromoterProduct') ? 'active' : ''); ?>">
             <a href="<?php echo site_url('admin/Product/PromoterProductList'); ?>">
-              <i class="fa fa-circle-o"></i> Manage Products
+              <i class="fa-regular fa-circle" style="font-size:10px;"></i> Manage Products
             </a>
           </li>
 
           <li class="<?php echo (($index == 'VendorProductListByPromoter') ? 'active' : ''); ?>">
             <a href="<?php echo site_url('admin/Product/AllVendorProductListByPromoter/' . $adminData['Id']); ?>">
-              <i class="fa fa-circle-o"></i> Product List
+              <i class="fa-regular fa-circle" style="font-size:10px;"></i> Product List
             </a>
           </li>
         </ul>
@@ -331,18 +327,18 @@
         <ul class="treeview-menu">
           <li class="<?php echo (($index2 == 'Wallet') ? 'active' : ''); ?>">
             <a href="<?php echo site_url('admin/Vendor/MyWallet'); ?>">
-              <i class="fa fa-circle-o"></i> <span>My Wallet</span>
+              <i class="fa-regular fa-circle" style="font-size:10px;"></i> <span>My Wallet</span>
             </a>
           </li>
           <li class="treeview <?php echo (($index == 'vendor') ? 'active' : ''); ?>">
             <a href="<?php echo site_url('admin/Dashboard/TransactionAmount'); ?>">
-              <i class="fa fa-circle-o"></i>
+              <i class="fa-regular fa-circle" style="font-size:10px;"></i>
               <span>Withdrawal Requests</span>
             </a>
           </li>
           <li class="treeview <?php echo (($index == 'VendorTransactionHistoryList') ? 'active' : ''); ?>">
             <a href="<?php echo site_url('admin/Dashboard/VendorTransactionHistoryList'); ?>">
-              <i class="fa fa-circle-o"></i>
+              <i class="fa-regular fa-circle" style="font-size:10px;"></i>
               <span>Transaction History</span>
             </a>
           </li>
@@ -353,6 +349,23 @@
         <a href="<?php echo site_url('admin/Vendor/VendorPromoterPlans'); ?>">
           <i class="fa fa-id-card"></i> <span>Subsciption Plans</span>
         </a>
+      </li>
+      <li class="treeview <?php echo (($index == 'Product') ? 'active' : ''); ?>">
+        <a href="#">
+          <i class="fa fa-user-plus"></i> <span>Manage Advertisment Plans</span>
+          <span class="pull-right-container">
+            <i class="fa fa-angle-left pull-right"></i>
+          </span>
+        </a>
+
+        <ul class="treeview-menu">
+          <li class="<?php echo (($index2 == 'AdvertismentUpdatePlan') ? 'active' : ''); ?>">
+            <a href="<?php echo site_url('admin/Subscription/AdvertismentSelectPlan'); ?>">
+              <i class="fa-regular fa-circle" style="font-size:10px;"></i> <span> Advertisement Plans</span>
+            </a>
+          </li>
+
+        </ul>
       </li>
       <li class="treeview <?php echo (($index == 'VendorSetting') ? 'active' : ''); ?>">
         <a href="#">
