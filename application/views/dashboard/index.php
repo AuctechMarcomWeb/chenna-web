@@ -497,13 +497,13 @@
         <div class="col-lg-3 col-xs-6">
           <div class="small-box bg-red">
             <div class="inner">
-              <h3><?php echo $this->user_model->TotalGetOrders() ?></h3>
-              <p>Total Orders</p>
+              <h3><?php echo $total_promoters; ?></h3>
+              <p>Total Promoters</p>
             </div>
             <div class="icon">
               <i class="ion ion-ios-cart-outline"></i>
             </div>
-            <a href="<?php echo site_url('admin/Order/'); ?>" class="small-box-footer">View Orders <i
+            <a href="<?php echo site_url('admin/Vendor/promoter_list/'); ?>" class="small-box-footer">View Promoters <i
                 class="fa fa-arrow-circle-right"></i></a>
           </div>
         </div>

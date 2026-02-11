@@ -267,6 +267,7 @@ class Dashboard extends CI_Controller
 			$data['title'] = 'Admin Dashboard';
 			$data['order_summary'] = $this->Order_model->getOrderSummary();
 			$data['total_vendors'] = count($this->Vendor_model->get_all_vendors());
+			$data['total_promoters'] = count($this->Vendor_model->get_all_promoters());
 		} else if ($user['Type'] == 2)
 		{
 			// ================= VENDOR =================
