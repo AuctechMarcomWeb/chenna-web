@@ -1960,36 +1960,56 @@ class Vendor extends CI_Controller
 	public function MyWallet()
 	{
 		is_not_logged_in();
+
 		$session = $this->session->userdata('adminData');
 		$userId = $session['Id'];
 		$type = $session['Type'];
 
-		// 🔹 Default
 		$data['wallet_balance'] = 0;
 		$data['has_bank_account'] = false;
+
+		// Determine user type & wallet field
 		if ($type == 2)
 		{
-			$userType = 'vendor';
+			$userType = 'Vendor';
 			$user = $this->db->get_where('vendors', ['id' => $userId])->row();
+			$walletField = 'wallet_amount';
 		} elseif ($type == 3)
 		{
 			$userType = 'promoter';
 			$user = $this->db->get_where('promoters', ['id' => $userId])->row();
+			$walletField = 'wallet_amount';
+		} elseif ($type == 1)
+		{
+			$userType = 'Admin';
+			$user = $this->db->get_where('admin_master', ['id' => $userId])->row();
+			$walletField = 'wallet';
 		} else
 		{
 			redirect('admin/dashboard');
 			return;
 		}
+
 		if ($user)
 		{
-			$data['wallet_balance'] = $user->wallet_amount;
+			$data['wallet_balance'] = $user->{$walletField};
 
-			$data['has_bank_account'] = (
-				!empty($user->bank_name) &&
-				!empty($user->account_no) &&
-				!empty($user->ifsc_code)
-			);
+			// Check bank details only for vendor/promoter
+			if ($type != 1)
+			{
+				$data['has_bank_account'] =
+					!empty($user->bank_name) &&
+					!empty($user->account_no) &&
+					!empty($user->ifsc_code);
+			} else
+			{
+				$data['has_bank_account'] = true;
+			}
 		}
+
+		$data['user_type'] = $userType;
+
+		// Fetch all withdrawal requests for this user (dynamic user_type)
 		$data['transactions'] = $this->db
 			->where('user_id', $userId)
 			->where('user_type', $userType)
@@ -2005,10 +2025,17 @@ class Vendor extends CI_Controller
 
 
 
+
+
+
+
 	public function SaveVendorBankdetails()
 	{
-		$vendor_id = $this->session->userdata('adminData')['Id'];
-		if (!$vendor_id)
+		$session = $this->session->userdata('adminData');
+		$user_id = $session['Id'] ?? 0;
+		$type = $session['Type'] ?? 0;
+
+		if (!$user_id)
 		{
 			echo json_encode(['status' => 'error', 'msg' => 'Login required']);
 			return;
@@ -2023,8 +2050,22 @@ class Vendor extends CI_Controller
 			'upi_id' => $this->input->post('upi_id'),
 			'modify_date' => date('Y-m-d H:i:s')
 		];
+		if ($type == 2)
+		{
+			$table = 'vendors';
+		} elseif ($type == 3)
+		{
+			$table = 'promoters';
+		} elseif ($type == 1)
+		{
+			$table = 'admin_master';
+		} else
+		{
+			echo json_encode(['status' => 'error', 'msg' => 'Invalid user type']);
+			return;
+		}
 
-		$this->db->where('id', $vendor_id)->update('vendors', $data);
+		$this->db->where('id', $user_id)->update($table, $data);
 
 		if ($this->db->affected_rows() >= 0)
 		{
@@ -2036,104 +2077,155 @@ class Vendor extends CI_Controller
 	}
 
 	public function redeemVendorRequest()
-{
-    is_not_logged_in();
+	{
+		is_not_logged_in();
 
-    $vendor_id = $this->session->userdata('adminData')['Id'];
-    $amount = (float)$this->input->post('amount');
+		$session = $this->session->userdata('adminData');
+		$userId = $session['Id'];
+		$type = $session['Type'];
+		$amount = (float) $this->input->post('amount');
 
-    $vendor = $this->db->get_where('vendors', ['id' => $vendor_id])->row();
+		if ($type == 1)
+		{
+			$table = 'admin_master';
+			$walletCol = 'wallet';
+			$userType = 'admin';
+		} elseif ($type == 2)
+		{
+			$table = 'vendors';
+			$walletCol = 'wallet_amount';
+			$userType = 'vendor';
+		} elseif ($type == 3)
+		{
+			$table = 'promoters';
+			$walletCol = 'wallet_amount';
+			$userType = 'promoter';
+		} else
+		{
+			$this->session->set_flashdata('error', 'Invalid user type');
+			redirect('admin/dashboard');
+			return;
+		}
 
-    if (!$vendor || $amount <= 0 || $amount > $vendor->wallet_amount)
-    {
-        $this->session->set_flashdata('error', 'Invalid amount');
-        redirect('admin/Vendor/MyWallet');
-    }
+		$user = $this->db->get_where($table, ['id' => $userId])->row();
 
-    // ONLY REQUEST INSERT (no wallet minus)
-    $this->db->insert('withdrawal_requests', [
-        'user_id'        => $vendor_id,
-        'user_type'      => 'vendor',
-        'amount'         => $amount,
-        'wallet_amount'  => $vendor->wallet_amount,
-        'bank_name'      => $vendor->bank_name,
-        'account_no'     => $vendor->account_no,
-        'ifsc_code'      => $vendor->ifsc_code,
-        'status'         => 0,
-        'request_date'   => date('Y-m-d H:i:s')
-    ]);
+		if (!$user || $amount <= 0 || $amount > ($user->$walletCol ?? 0))
+		{
+			$this->session->set_flashdata('error', 'Invalid amount');
+			redirect('admin/Vendor/MyWallet');
+			return;
+		}
+		if ($type == 2)
+		{
+			$this->db->where('vendor_id', $userId);
+		} elseif ($type == 3)
+		{
+			$this->db->where('promoter_id', $userId);
+		}
 
-    $this->session->set_flashdata(
-        'success',
-        'Redeem request sent. Amount will be credited after admin approval.'
-    );
+		$this->db->where('status', 1);
+		$this->db->order_by('id', 'DESC');
+		$earning = $this->db->get('vendor_earnings_master')->row();
 
-    redirect('admin/Vendor/MyWallet');
-}
+		$orderId = $earning->order_id ?? NULL;
+		$this->db->insert('withdrawal_requests', [
+			'user_id' => $userId,
+			'order_id' => $orderId,
+			'user_type' => $userType,
+			'amount' => $amount,
+			'wallet_amount' => $user->$walletCol,
+			'bank_name' => $user->bank_name ?? null,
+			'account_no' => $user->account_no ?? null,
+			'ifsc_code' => $user->ifsc_code ?? null,
+			'status' => 0,
+			'request_date' => date('Y-m-d H:i:s')
+		]);
+
+		$this->session->set_flashdata('success', 'Redeem request sent. Waiting for admin approval.');
+		redirect('admin/Vendor/MyWallet');
+	}
+
 
 	public function WithdrawalRequests()
-{
-    is_not_logged_in();
+	{
+		is_not_logged_in();
 
-    $user = $this->session->userdata('adminData');
-    if (!$user)
-        redirect('admin/Welcome');
+		$session = $this->session->userdata('adminData');
+		if (!$session)
+			redirect('admin/Welcome');
 
-    $vendor_id = $user['Id'];
+		$userId = $session['Id'];
+		$type = $session['Type'];
+		if ($type == 1)
+		{
+			$table = 'admin_master';
+			$nameCol = 'name';
+			$userType = 'admin';
+		} elseif ($type == 2)
+		{
+			$table = 'vendors';
+			$nameCol = 'name';
+			$userType = 'vendor';
+		} elseif ($type == 3)
+		{
+			$table = 'promoters';
+			$nameCol = 'name';
+			$userType = 'promoter';
+		} else
+		{
+			redirect('admin/dashboard');
+			return;
+		}
 
-    // Fetch withdrawal requests with order info
-    $this->db->select('
+		// Fetch withdrawal requests
+		$this->db->select('
         wr.*, 
-        v.name as vendor_name, 
-        v.shop_name,
-        om.id as order_id,
-        om.order_number,
-        om.final_price,
-        om.admin_earning,
-        om.vendor_earning,
-        om.promoter_earning
+        u.' . $nameCol . ' as user_name,
+        u.shop_name
     ');
-    $this->db->from('withdrawal_requests wr');
-    $this->db->join('vendors v', 'v.id = wr.user_id', 'left');
+		$this->db->from('withdrawal_requests wr');
+		$this->db->join($table . ' u', 'u.id = wr.user_id', 'left');
+		$this->db->where('wr.user_id', $userId);
+		$this->db->where('wr.user_type', $userType);
+		$this->db->order_by('wr.request_date', 'DESC');
 
-    // Join COD orders
-    $this->db->join('order_master om', 'om.id = wr.order_id', 'left');
-    // Join Online orders (order_master2)
-    $this->db->join('order_master2 om2', 'om2.id = wr.order_id', 'left');
+		$requests = $this->db->get()->result();
 
-    $this->db->where('wr.user_id', $vendor_id);
-    $this->db->order_by('wr.request_date', 'DESC');
+		// Fetch purchase and address for each request
+		foreach ($requests as $req)
+		{
+			if ($req->order_id)
+			{
+				$purchase = $this->db->get_where('purchase_master', ['order_master_id' => $req->order_id])->row();
+				if (!$purchase)
+					$purchase = $this->db->get_where('purchase_master2', ['order_master_id' => $req->order_id])->row();
+				$req->purchase = $purchase;
 
-    $requests = $this->db->get()->result();
+				$address = $this->db->get_where('order_address_master', ['order_master_id' => $req->order_id])->row();
+				if (!$address)
+					$address = $this->db->get_where('order_address_master2', ['order_master_id' => $req->order_id])->row();
+				$req->address = $address;
+			}
+		}
 
-    // Fetch purchase and address for each request
-    foreach ($requests as $req) {
-        if ($req->order_id) {
-           
-            $purchase = $this->db->get_where('purchase_master', ['order_master_id' => $req->order_id])->row();
-            if (!$purchase) {
-              
-                $purchase = $this->db->get_where('purchase_master2', ['order_master_id' => $req->order_id])->row();
-            }
-            $req->purchase = $purchase;
+		$data['requests'] = $requests;
+		$data['title'] = 'My Withdrawal Requests';
+		if ($type == 2)
+		{
+			$view = 'Vendor/WithdrawalRequests';
+		} elseif ($type == 3)
+		{
+			$view = 'Promoter/WithdrawalRequests';
+		} else
+		{
+			$view = 'Admin/WithdrawalRequests';
+		}
 
-          
-            $address = $this->db->get_where('order_address_master', ['order_master_id' => $req->order_id])->row();
-            if (!$address) {
-               
-                $address = $this->db->get_where('order_address_master2', ['order_master_id' => $req->order_id])->row();
-            }
-            $req->address = $address;
-        }
-    }
+		$this->load->view('include/header', $data);
+		$this->load->view($view, $data);
+		$this->load->view('include/footer');
+	}
 
-    $data['requests'] = $requests;
-    $data['title'] = 'My Withdrawal Requests';
-
-    $this->load->view('include/header', $data);
-    $this->load->view('Vendor/WithdrawalRequests', $data);
-    $this->load->view('include/footer');
-}
 
 
 }

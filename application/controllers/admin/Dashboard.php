@@ -3686,225 +3686,393 @@ class Dashboard extends CI_Controller
 	{
 		is_not_logged_in();
 
+		$session = $this->session->userdata('adminData');
+		$userType = $session['Type']; // 1=Admin, 2=Vendor, 3=Promoter
+		$userId = $session['Id'];
+
 		$this->db->select('
-    wr.*,
-
-    v.name as vendor_name,
-    v.vendor_random_number as vendor_reg,
-    v.bank_name as vendor_bank_name,
-    v.branch_name as vendor_branch,
-    v.account_name as vendor_account_name,
-    v.account_no as vendor_account_no,
-    v.ifsc_code as vendor_ifsc,
-    v.upi_id as vendor_upi,
-
-    p.name as promoter_name,
-    p.promoter_random_number as promoter_reg,
-    p.bank_name as promoter_bank_name,
-    p.branch_name as promoter_branch,
-    p.account_name as promoter_account_name,
-    p.account_no as promoter_account_no,
-    p.ifsc_code as promoter_ifsc,
-    p.upi_id as promoter_upi
-');
-
+        wr.*,
+        v.name as vendor_name,
+        v.vendor_random_number as vendor_reg,
+        v.bank_name as vendor_bank_name,
+        v.branch_name as vendor_branch,
+        v.account_name as vendor_account_name,
+        v.account_no as vendor_account_no,
+        v.ifsc_code as vendor_ifsc,
+        v.upi_id as vendor_upi,
+        p.name as promoter_name,
+        p.promoter_random_number as promoter_reg,
+        p.bank_name as promoter_bank_name,
+        p.branch_name as promoter_branch,
+        p.account_name as promoter_account_name,
+        p.account_no as promoter_account_no,
+        p.ifsc_code as promoter_ifsc,
+        p.upi_id as promoter_upi,
+        a.name as admin_name,
+        a.wallet as admin_wallet,
+        a.bank_name as admin_bank_name,
+        a.branch_name as admin_branch,
+        a.account_name as admin_account_name,
+        a.account_no as admin_account_no,
+        a.ifsc_code as admin_ifsc,
+        a.upi_id as admin_upi
+    ');
 
 		$this->db->from('withdrawal_requests wr');
-		$this->db->join('vendors v', 'v.id = wr.user_id AND wr.user_type="vendor"', 'left');
-		$this->db->join('promoters p', 'p.id = wr.user_id AND wr.user_type="promoter"', 'left');
-		$this->db->order_by('wr.request_date', 'DESC');
 
+		// Join vendors
+		$this->db->join('vendors v', 'v.id = wr.user_id AND wr.user_type="vendor"', 'left');
+		// Join promoters
+		$this->db->join('promoters p', 'p.id = wr.user_id AND wr.user_type="promoter"', 'left');
+		// Join admins
+		$this->db->join('admin_master a', 'a.id = wr.user_id AND wr.user_type="admin"', 'left');
+
+		// Vendor / Promoter filter: show only their own transactions
+		if ($userType == 2)
+		{ // Vendor
+			$this->db->where('wr.user_type', 'vendor');
+			$this->db->where('wr.user_id', $userId);
+		} elseif ($userType == 3)
+		{ // Promoter
+			$this->db->where('wr.user_type', 'promoter');
+			$this->db->where('wr.user_id', $userId);
+		}
+
+		$this->db->order_by('wr.request_date', 'DESC');
 		$data['transactions'] = $this->db->get()->result();
 		$data['title'] = 'Transaction Request';
+		$data['userType'] = $userType; // send to view
 
 		$this->load->view('include/header', $data);
 		$this->load->view('Admin/TransactionAmount', $data);
 		$this->load->view('include/footer');
 	}
 
+
+
+
+
 	public function updateTransaction()
-{
-    is_not_logged_in();
+	{
+		is_not_logged_in();
 
-    $txn_id = $this->input->post('txn_id');
-    $action = $this->input->post('action');
+		$txn_id = $this->input->post('txn_id');
+		$action = $this->input->post('action');
 
-    if (!$txn_id || !$action) {
-        $this->session->set_flashdata('error', 'Invalid request');
-        redirect('admin/Dashboard/TransactionAmount');
-    }
+		if (!$txn_id || !$action)
+		{
+			$this->session->set_flashdata('error', 'Invalid request');
+			return redirect('admin/Dashboard/TransactionAmount');
+		}
+		$withdrawal = $this->db->get_where('withdrawal_requests', ['id' => $txn_id])->row();
+		if (!$withdrawal)
+		{
+			$this->session->set_flashdata('error', 'Withdrawal request not found');
+			return redirect('admin/Dashboard/TransactionAmount');
+		}
 
-    /* =========================
-       1️⃣ Withdrawal Request
-    ==========================*/
-    $withdrawal = $this->db
-        ->get_where('withdrawal_requests', ['id' => $txn_id])
-        ->row();
+		$user_type = strtolower($withdrawal->user_type);
+		if ($user_type == 'vendor')
+		{
+			$user_table = 'vendors';
+			$wallet_column = 'wallet_amount';
+		} elseif ($user_type == 'promoter')
+		{
+			$user_table = 'promoters';
+			$wallet_column = 'wallet_amount';
+		} else
+		{ // admin
+			$user_table = 'admin_master';
+			$wallet_column = 'wallet';
+		}
 
-    if (!$withdrawal) {
-        $this->session->set_flashdata('error', 'Withdrawal not found');
-        redirect('admin/Dashboard/TransactionAmount');
-    }
+		// Fetch user
+		$user = $this->db->get_where($user_table, ['id' => $withdrawal->user_id])->row();
+		if (!$user)
+		{
+			$this->session->set_flashdata('error', 'User not found');
+			return redirect('admin/Dashboard/TransactionAmount');
+		}
 
-    /* =========================
-       2️⃣ User (Vendor / Promoter)
-    ==========================*/
-    $user_table = ($withdrawal->user_type == 'vendor') ? 'vendors' : 'promoters';
+		$this->db->trans_begin();
 
-    $user = $this->db
-        ->get_where($user_table, ['id' => $withdrawal->user_id])
-        ->row();
+		if ($action === 'approve')
+		{
+			if ($wallet_column && $user->$wallet_column < $withdrawal->amount)
+			{
+				$this->session->set_flashdata('error', 'Insufficient wallet balance');
+				return redirect('admin/Dashboard/TransactionAmount');
+			}
+			if ($wallet_column)
+			{
+				$this->db->set($wallet_column, "$wallet_column - " . (float) $withdrawal->amount, false)
+					->where('id', $withdrawal->user_id)
+					->update($user_table);
+			}
 
-    if (!$user) {
-        $this->session->set_flashdata('error', 'User not found');
-        redirect('admin/Dashboard/TransactionAmount');
-    }
-
-    /* =========================
-       ONLY APPROVE FLOW
-    ==========================*/
-    if ($action !== 'approve') {
-        redirect('admin/Dashboard/TransactionAmount');
-    }
-
-    /* =========================
-       3️⃣ Wallet Check
-    ==========================*/
-    if ($user->wallet_amount < $withdrawal->amount) {
-        $this->session->set_flashdata('error', 'Insufficient wallet balance');
-        redirect('admin/Dashboard/TransactionAmount');
-    }
-
-    $this->db->trans_begin();
-
-    /* =========================
-       4️⃣ Wallet Debit
-    ==========================*/
-    $this->db->set('wallet_amount', 'wallet_amount - ' . (float)$withdrawal->amount, false)
-        ->where('id', $withdrawal->user_id)
-        ->update($user_table);
-
-    /* =========================
-       5️⃣ Withdrawal Status Update
-    ==========================*/
-    $this->db->where('id', $withdrawal->id)->update('withdrawal_requests', [
-        'status' => 1,
-        'approval_date' => date('Y-m-d H:i:s')
-    ]);
-
-    /* =========================
-       6️⃣ Order + Product Fetch
-    ==========================*/
-    $order = null;
-    $earning = null;
-
-    if (!empty($withdrawal->order_id)) {
-
-        // Order
-        $order = $this->db
-            ->get_where('order_master', ['id' => $withdrawal->order_id])
-            ->row();
-
-        // Vendor earning (MOST IMPORTANT)
-        $earning = $this->db
-            ->get_where('vendor_earnings_master', [
-                'order_id' => $withdrawal->order_id,
-                'vendor_id' => ($withdrawal->user_type == 'vendor') ? $withdrawal->user_id : null
-            ])
-            ->row();
-    }
-
-    /* =========================
-       7️⃣ Transaction History Data
-    ==========================*/
-    $txnData = [
-        'withdrawal_request_id' => $withdrawal->id,
-
-        'order_id'     => $order->id ?? $earning->order_id ?? null,
-        'order_number' => $order->order_number ?? null,
-
-        'product_id'   => $order->product_id ?? $earning->product_id ?? null,
-        'product_name' => $order->product_name ?? $earning->product_name ?? null,
-        'main_image'   => $order->main_image ?? null,
-
-        'vendor_id'    => ($withdrawal->user_type == 'vendor') ? $withdrawal->user_id : null,
-        'promoter_id'  => ($withdrawal->user_type == 'promoter') ? $withdrawal->user_id : null,
-
-        'plan_type' => $earning->plan_type ?? null,
-        'plan_id'   => $earning->plan_id ?? null,
-
-        'final_price' => $order->final_price ?? null,
-        'price'       => $order->price ?? null,
-        'qty'         => $order->qty ?? 1,
-
-        'admin_amount'    => $order->admin_amount ?? 0,
-        'vendor_amount'   => $earning->earning_amount ?? 0,
-        'promoter_amount' => $order->promoter_amount ?? 0,
-
-        'transaction_type' => 'wallet_debit',
-        'credit_amount'    => 0,
-        'debit_amount'     => $withdrawal->amount,
-
-        'source' => 'Withdrawal',
-        'remark' => 'Wallet amount debited after admin approval',
-        'status' => 1,
-        'created_at' => date('Y-m-d H:i:s')
-    ];
-
-    /* =========================
-       8️⃣ Insert / Update History
-    ==========================*/
-    $exists = $this->db
-        ->get_where('transaction_history_master', [
-            'withdrawal_request_id' => $withdrawal->id
-        ])->row();
-
-    if ($exists) {
-        $this->db->where('id', $exists->id)
-            ->update('transaction_history_master', $txnData);
-    } else {
-        $this->db->insert('transaction_history_master', $txnData);
-    }
-
-    /* =========================
-       9️⃣ Commit / Rollback
-    ==========================*/
-    if ($this->db->trans_status() === FALSE) {
-        $this->db->trans_rollback();
-        $this->session->set_flashdata('error', 'Transaction failed');
-    } else {
-        $this->db->trans_commit();
-        $this->session->set_flashdata('success', 'Withdrawal approved & wallet debited successfully');
-    }
-
-    redirect('admin/Dashboard/TransactionAmount');
-}
+			$this->db->where('id', $txn_id)->update('withdrawal_requests', [
+				'status' => 1,
+				'approval_date' => date('Y-m-d H:i:s')
+			]);
+			$remaining = $withdrawal->amount;
 
 
+			$this->db->where('transaction_type', 'wallet_credit');
+			$this->db->where('status', 1);
+			if ($user_type == 'vendor')
+			{
+				$this->db->where('vendor_id', $withdrawal->user_id);
+			} elseif ($user_type == 'promoter')
+			{
+				$this->db->where('promoter_id', $withdrawal->user_id);
+			} elseif ($user_type == 'admin')
+			{
+				$this->db->where('admin_id', $withdrawal->user_id);
+			}
+			$this->db->order_by('id', 'ASC');
+			$credits = $this->db->get('transaction_history_master')->result();
+
+			foreach ($credits as $credit)
+			{
+				if ($remaining <= 0)
+					break;
+
+				// Already used debit amount
+				$this->db->select_sum('debit_amount', 'used_amount');
+				$this->db->where('order_id', $credit->order_id);
+				$this->db->where('product_id', $credit->product_id);
+				$this->db->where('transaction_type', 'wallet_debit');
+				if ($user_type == 'vendor')
+				{
+					$this->db->where('vendor_id', $withdrawal->user_id);
+				} elseif ($user_type == 'promoter')
+				{
+					$this->db->where('promoter_id', $withdrawal->user_id);
+				} elseif ($user_type == 'admin')
+				{
+					$this->db->where('admin_id', $withdrawal->user_id);
+				}
+				$used = $this->db->get('transaction_history_master')->row()->used_amount ?? 0;
+
+				$available = $credit->credit_amount - $used;
+				if ($available <= 0)
+					continue;
+
+				$deduct = min($available, $remaining);
+
+				// Insert debit entry
+				$insert = [
+					'withdrawal_request_id' => $withdrawal->id,
+					'order_id' => $credit->order_id,
+					'order_number' => $credit->order_number,
+					'product_id' => $credit->product_id,
+					'product_name' => $credit->product_name,
+					'main_image' => $credit->main_image,
+					'plan_type' => $credit->plan_type,
+					'plan_id' => $credit->plan_id,
+					'final_price' => $credit->final_price,
+					'price' => $credit->price,
+					'qty' => $credit->qty,
+					'admin_amount' => $credit->admin_amount,
+					'vendor_amount' => $credit->vendor_amount,
+					'promoter_amount' => $credit->promoter_amount,
+					'transaction_type' => 'wallet_debit',
+					'credit_amount' => 0,
+					'debit_amount' => $deduct,
+					'source' => 'Withdrawal',
+					'remark' => 'Withdrawal adjusted',
+					'status' => 1,
+					'created_at' => date('Y-m-d H:i:s')
+				];
+
+				if ($user_type == 'vendor')
+					$insert['vendor_id'] = $withdrawal->user_id;
+				elseif ($user_type == 'promoter')
+					$insert['promoter_id'] = $withdrawal->user_id;
+				else
+					$insert['admin_id'] = $withdrawal->user_id;
+
+				$this->db->insert('transaction_history_master', $insert);
+
+				$remaining -= $deduct;
+			}
+
+			$this->db->trans_commit();
+			$this->session->set_flashdata('success', ucfirst($user_type) . ' withdrawal approved successfully');
+		} else if ($action === 'reject')
+		{
+			// Reject
+			$this->db->where('id', $txn_id)->update('withdrawal_requests', [
+				'status' => 2,
+				'approval_date' => date('Y-m-d H:i:s')
+			]);
+			$this->db->trans_commit();
+			$this->session->set_flashdata('success', ucfirst($user_type) . ' withdrawal rejected');
+		} else
+		{
+			$this->db->trans_rollback();
+			$this->session->set_flashdata('error', 'Invalid action');
+		}
+
+		redirect('admin/Dashboard/TransactionAmount');
+	}
 
 
-	public function WalletTransactionHistoryList()
-{
-    is_not_logged_in();
 
-    // Fetch transaction history with linked withdrawal requests and user info
-    $this->db->select('th.*, wr.user_id, wr.user_type, wr.order_id as linked_order_id, wr.wallet_amount, wr.bank_name, wr.account_no, wr.ifsc_code, wr.request_date, wr.approval_date,
-                       v.name as vendor_name, v.shop_name,
-                       p.name as promoter_name')
-             ->from('transaction_history_master th')
-             ->join('withdrawal_requests wr', 'wr.id = th.withdrawal_request_id', 'left')
-             ->join('vendors v', 'v.id = wr.user_id AND wr.user_type="vendor"', 'left')
-             ->join('promoters p', 'p.id = wr.user_id AND wr.user_type="promoter"', 'left')
-             ->order_by('th.created_at', 'DESC');
 
-    $data['transactions'] = $this->db->get()->result();
 
-    $data['title'] = 'Transaction History List';
 
-    $this->load->view('include/header', $data);
-    $this->load->view('Admin/WalletTransactionHistoryList', $data);
-    $this->load->view('include/footer');
-}
+
+
+	public function AllTransactionHistoryList()
+	{
+		is_not_logged_in();
+
+		$session = $this->session->userdata('adminData');
+		$userType = $session['Type'];
+		$userId = $session['Id'];
+
+		$this->db->select("
+        th.*,
+        wr.id as withdrawal_id,
+        wr.user_id as wr_user_id,
+        wr.user_type as wr_user_type,
+        wr.order_id as wr_order_id,
+        wr.wallet_amount,
+        wr.bank_name,
+        wr.account_no,
+        wr.ifsc_code,
+        wr.request_date,
+        wr.approval_date,
+        wr.remarks as withdrawal_remarks,
+        IF(th.vendor_id IS NOT NULL, v1.name, v.name) as vendor_name,
+        IF(th.vendor_id IS NOT NULL, v1.vendor_random_number, v.vendor_random_number) as vendor_random_number,
+        IF(th.promoter_id IS NOT NULL, p1.name, p.name) as promoter_name,
+        IF(th.promoter_id IS NOT NULL, p1.promoter_random_number, p.promoter_random_number) as promoter_random_number,
+        IF(th.admin_id IS NOT NULL, a1.name, a.name) as admin_name
+    ");
+
+		$this->db->from('transaction_history_master th');
+
+		// Withdrawal joins
+		$this->db->join('withdrawal_requests wr', 'wr.id = th.withdrawal_request_id', 'left');
+		$this->db->join('vendors v', 'v.id = wr.user_id AND wr.user_type="Vendor"', 'left');
+		$this->db->join('promoters p', 'p.id = wr.user_id AND wr.user_type="promoter"', 'left');
+		$this->db->join('admin_master a', 'a.id = wr.user_id AND wr.user_type="Admin"', 'left');
+
+		// Order joins (for wallet_credit)
+		$this->db->join('vendors v1', 'v1.id = th.vendor_id', 'left');
+		$this->db->join('promoters p1', 'p1.id = th.promoter_id', 'left');
+		$this->db->join('admin_master a1', 'a1.id = th.admin_id', 'left');
+
+		// Vendor / Promoter filters
+		if ($userType == 2)
+		{ // Vendor login
+			$this->db->where('(wr.user_type="Vendor" AND wr.user_id=' . $userId . ')');
+		} elseif ($userType == 3)
+		{ // Promoter login
+			$this->db->where('(wr.user_type="promoter" AND wr.user_id=' . $userId . ')');
+		}
+
+		$this->db->order_by('th.created_at', 'ASC');
+		$data['transactions'] = $this->db->get()->result();
+		$data['title'] = 'Wallet Transaction History';
+
+		$this->load->view('include/header', $data);
+		$this->load->view('Admin/AllTransactionHistoryList', $data);
+		$this->load->view('include/footer');
+	}
+
+	public function VendorTransactionHistoryList()
+	{
+		is_not_logged_in();
+
+		$session = $this->session->userdata('adminData');
+		$userType = $session['Type'];
+		$userId = $session['Id'];
+
+		$this->db->select("
+        th.id,
+        th.withdrawal_request_id,
+        th.order_id,
+        th.order_number,
+        th.product_id,
+        th.product_name,
+        th.main_image AS product_image,
+        th.vendor_id,
+        th.promoter_id,
+        th.admin_id,
+        th.plan_type,
+        th.plan_id,
+        th.price AS product_price,
+        th.final_price,
+        th.qty,
+        th.admin_amount,
+        th.vendor_amount,
+        th.promoter_amount,
+        th.transaction_type,
+        th.credit_amount,
+        th.debit_amount,
+        th.source,
+        th.remark,
+        th.status,
+        th.created_at,
+
+        wr.id as withdrawal_id,
+        wr.user_id as wr_user_id,
+        wr.user_type as wr_user_type,
+        wr.order_id as wr_order_id,
+        wr.wallet_amount,
+        wr.bank_name,
+        wr.account_no,
+        wr.ifsc_code,
+        wr.request_date,
+        wr.approval_date,
+        wr.remarks as withdrawal_remarks,
+
+        IF(th.vendor_id IS NOT NULL, v1.name, v.name) as vendor_name,
+        IF(th.vendor_id IS NOT NULL, v1.vendor_random_number, v.vendor_random_number) as vendor_random_number,
+        IF(th.promoter_id IS NOT NULL, p1.name, p.name) as promoter_name,
+        IF(th.promoter_id IS NOT NULL, p1.promoter_random_number, p.promoter_random_number) as promoter_random_number,
+        IF(th.admin_id IS NOT NULL, a1.name, a.name) as admin_name
+    ");
+
+		$this->db->from('transaction_history_master th');
+
+		// Joins for withdrawal requests
+		$this->db->join('withdrawal_requests wr', 'wr.id = th.withdrawal_request_id', 'left');
+		$this->db->join('vendors v', 'v.id = wr.user_id AND wr.user_type="Vendor"', 'left');
+		$this->db->join('promoters p', 'p.id = wr.user_id AND wr.user_type="promoter"', 'left');
+		$this->db->join('admin_master a', 'a.id = wr.user_id AND wr.user_type="Admin"', 'left');
+
+		// Joins for order / product info
+		$this->db->join('vendors v1', 'v1.id = th.vendor_id', 'left');
+		$this->db->join('promoters p1', 'p1.id = th.promoter_id', 'left');
+		$this->db->join('admin_master a1', 'a1.id = th.admin_id', 'left');
+
+		// FILTER: Vendor login shows only their transactions
+		if ($userType == 2)
+		{ // Vendor login
+			$this->db->where('th.vendor_id', $userId);
+		} elseif ($userType == 3)
+		{ // Promoter login
+			$this->db->where('th.promoter_id', $userId);
+		}
+
+		$this->db->order_by('th.created_at', 'ASC');
+		$data['transactions'] = $this->db->get()->result();
+		$data['title'] = 'Wallet Transaction History';
+
+		$this->load->view('include/header', $data);
+		$this->load->view('Admin/VendorTransactionHistoryList', $data);
+		$this->load->view('include/footer');
+	}
+
+
+
+
+
+
 
 
 

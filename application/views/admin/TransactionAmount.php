@@ -1,203 +1,76 @@
 <style>
     .wallet-card {
-        background: white;
-        color: #030101;
-        border-radius: 0px;
-        padding: 30px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-    }
-
-    .wallet-icon {
-        font-size: 50px;
-        margin-bottom: 10px;
-        opacity: 0.9;
-    }
-
-    .wallet-balance {
-        font-size: 42px;
-        font-weight: bold;
-        margin: 15px 0;
-    }
-
-    .wallet-actions .btn {
-        min-width: 200px;
-        margin: 10px;
-        border-radius: 30px;
-        font-size: 16px;
-    }
-
-    .wallet-actions .btn-primary {
-        background: #c52409;
-        color: #ffffff;
-        border: none;
-    }
-
-    .wallet-actions .btn-primary:hover {
-        background: #46a716;
-        color: #fff;
-    }
-
-    .wallet-actions .btn-success {
-        background: #155724;
-        border: none;
-    }
-
-    .wallet-actions .btn-success:hover {
-        background: #0b2e13;
-    }
-
-    .wallet-note {
-        margin-top: 20px;
-        font-size: 14px;
-        opacity: 0.9;
-    }
-
-    .fa-wallet {
-        --fa: "\f555";
-        color: #f39c12;
-    }
-
-    .bank-modal-header {
-
-        color: #f34812;
-        border-top-left-radius: 6px;
-        border-top-right-radius: 6px;
-    }
-
-    .bank-modal-header h4 {
-        margin: 0;
-        font-weight: 600;
-    }
-
-    .bank-form label {
-        font-weight: 600;
-        color: #111;
-    }
-
-    .bank-form .form-control {
+        background: #fff;
         border-radius: 6px;
-        height: 42px;
+        padding: 20px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, .05)
     }
 
-    .bank-form .form-control:focus {
-        border-color: #007bff;
-        box-shadow: none;
-    }
-
-    .bank-note {
-        font-size: 13px;
-        color: #666;
-        margin-bottom: 10px;
-    }
-
-    .bank-submit-btn {
-        border-radius: 5px;
-
-        padding: 7px;
-    }
-
-    .close {
-        float: right;
-        font-size: 21px;
-        font-weight: 700;
-        line-height: 1;
-        color: #000;
-        text-shadow: 0 1px 0 #fff;
-        filter: alpha(opacity=20);
-        opacity: 1;
-
-    }
-
-    .modal-header .close {
-        margin-top: -27px;
-        width: 30px;
-        height: 30px;
-        background: #ff00008a;
-        color: #fff;
-        border-radius: 50px;
-    }
-
-    .btn-success {
-        background-color: #d7311c;
-        border-color: #d7311c;
-    }
-
-    .btn:active:focus,
-    .btn:focus {
-        outline: thin dotted;
-        outline: -1px auto -webkit-focus-ring-color;
-        outline-offset: -0px;
-    }
-
-    .btn-success:hover {
-        background-color: #1bab0f;
-    }
-
-    .form-control {
-        border-radius: 0;
-        box-shadow: none;
-        border-color: #dd4b3985;
-    }
-
-    #amountError {
-        font-size: 15px;
+    .wallet-card table th,
+    .wallet-card table td {
+        text-align: center;
+        vertical-align: middle
     }
 
     .badge {
-        display: inline-block;
-        min-width: 10px;
-        padding: 6px 14px;
-        font-size: 12px;
-        font-weight: 700;
-        line-height: 1;
-        color: #fff;
-        text-align: center;
-        white-space: nowrap;
-        vertical-align: middle;
-        background-color: #f39c12;
-        border-radius: 21px;
+        padding: 6px 12px;
+        border-radius: 20px
+    }
+
+    .badge-warning {
+        background: #f39c12;
+        color: #fff
     }
 
     .badge-success {
-        display: inline-block;
-        min-width: 10px;
-        padding: 8px 14px;
-        font-size: 12px;
-        font-weight: 700;
-        line-height: 1;
-        color: #fff;
-        text-align: center;
-        white-space: nowrap;
-        vertical-align: middle;
-        background-color: #1ca70f;
+        background: #28a745;
+        color: #fff
     }
 
     .badge-danger {
-        display: inline-block;
-        min-width: 10px;
-        padding: 8px 14px;
-        font-size: 12px;
-        font-weight: 700;
-        line-height: 1;
+        background: #dc3545;
+        color: #fff
+    }
+
+    .modal-header .close {
+        margin-top: -24px;
+    }
+
+    .close {
+        color: white;
+        opacity: 0.10;
+        opacity: inherit;
+    }
+
+    button.close {
+        width: 30px;
+        height: 30px;
+        border-radius: 50px;
+        background: #dd4b39;
+    }
+
+    .close:hover {
         color: #fff;
-        text-align: center;
-        white-space: nowrap;
-        vertical-align: middle;
-        background-color: #ff4400;
+        text-decoration: none;
+        cursor: pointer;
+        filter: alpha(opacity=50);
+        opacity: inherit;
+        background: red;
     }
 </style>
+
 <div class="content-wrapper">
     <section class="content-header">
         <h1>Transaction Request</h1>
     </section>
 
     <section class="content">
-        <!-- Wallet Transactions Table -->
-        <div class="row mt-4">
+        <div class="row">
             <div class="col-md-12">
                 <div class="wallet-card">
+
                     <?php if (!empty($transactions)): ?>
-                        <table class="table table-bordered table-striped mt-2">
+                        <table class="table table-bordered table-striped">
                             <thead class="bg-primary text-white">
                                 <tr>
                                     <th>S.No.</th>
@@ -205,39 +78,39 @@
                                     <th>Reg. No</th>
                                     <th>Name</th>
                                     <th>Amount</th>
-                                    <th>Wallet Balance</th>
-                                    <th>Bank</th>
+                                    <th>Wallet</th>
                                     <th>Status</th>
                                     <th>Requested</th>
-                                    <th>Approval Date</th>
+                                    <th>Date</th>
+                                    <th>Approval</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
+
                             <tbody>
                                 <?php $i = 1;
-                                foreach ($transactions as $txn): ?>
+                                foreach ($transactions as $txn):
+                                    $type = strtolower($txn->user_type ?? '');
+                                    $typeLabel = $type ? ucfirst($type) : 'Admin';
+                                    ?>
                                     <tr>
                                         <td><?= $i++; ?></td>
 
+                                        <td><?= $typeLabel; ?></td>
+
                                         <td>
-                                            <?= ucfirst($txn->user_type); ?>
+                                            <?= $type == 'vendor' ? $txn->vendor_reg :
+                                                ($type == 'promoter' ? $txn->promoter_reg : 'ADMIN'); ?>
                                         </td>
 
                                         <td>
-                                            <?= $txn->user_type == 'vendor'
-                                                ? $txn->vendor_reg
-                                                : $txn->promoter_reg; ?>
+                                            <?= $type == 'vendor' ? $txn->vendor_name :
+                                                ($type == 'promoter' ? $txn->promoter_name : ($txn->admin_name ?? 'Admin')); ?>
                                         </td>
 
-                                        <td>
-                                            <?= $txn->user_type == 'vendor'
-                                                ? $txn->vendor_name
-                                                : $txn->promoter_name; ?>
-                                        </td>
+                                        <td><b>₹<?= number_format($txn->amount, 2); ?></b></td>
 
-                                        <td>₹<?= number_format($txn->amount, 2); ?></td>
                                         <td>₹<?= number_format($txn->wallet_amount, 2); ?></td>
-                                        <td><?= $txn->bank_name; ?></td>
 
                                         <td>
                                             <?php
@@ -251,43 +124,47 @@
                                         </td>
 
                                         <td><?= timeAgo($txn->request_date); ?></td>
+                                        <td><?= $txn->request_date ? date('d-m-Y H:i:s A', strtotime($txn->request_date)) : '-'; ?>
+                                        </td>
+                                        <td><?= $txn->approval_date ? date('d-m-Y H:i: A', strtotime($txn->approval_date)) : '-'; ?>
+                                        </td>
 
                                         <td>
-                                            <?= $txn->approval_date
-                                                ? date('d-m-Y H:i', strtotime($txn->approval_date))
-                                                : '-' ?>
-                                        </td>
-                                        <td>
                                             <a href="javascript:void(0)" class="btn btn-sm btn-info viewTxn"
-                                                data-id="<?= $txn->id ?>" data-user="<?= ucfirst($txn->user_type) ?>"
-                                                data-reg="<?= $txn->user_type == 'vendor' ? $txn->vendor_reg : $txn->promoter_reg ?>"
-                                                data-name="<?= $txn->user_type == 'vendor' ? $txn->vendor_name : $txn->promoter_name ?>"
+                                                data-id="<?= $txn->id ?>" data-user="<?= $typeLabel ?>"
+                                                data-reg="<?= $type == 'vendor' ? $txn->vendor_reg : ($type == 'promoter' ? $txn->promoter_reg : 'ADMIN') ?>"
+                                                data-name="<?= $type == 'vendor' ? $txn->vendor_name : ($type == 'promoter' ? $txn->promoter_name : ($txn->admin_name ?? 'Admin')) ?>"
                                                 data-amount="<?= $txn->amount ?>" data-wallet="<?= $txn->wallet_amount ?>"
-                                                data-aname="<?= $txn->user_type == 'vendor' ? $txn->vendor_account_name : $txn->promoter_account_name ?>"
-                                                data-bank="<?= $txn->user_type == 'vendor' ? $txn->vendor_bank_name : $txn->promoter_bank_name ?>"
-                                                data-branch="<?= $txn->user_type == 'vendor' ? $txn->vendor_branch : $txn->promoter_branch ?>"
-                                                data-account="<?= $txn->user_type == 'vendor' ? $txn->vendor_account_no : $txn->promoter_account_no ?>"
-                                                data-ifsc="<?= $txn->user_type == 'vendor' ? $txn->vendor_ifsc : $txn->promoter_ifsc ?>"
-                                                data-upi="<?= $txn->user_type == 'vendor' ? $txn->vendor_upi : $txn->promoter_upi ?>"
+                                                data-aname="<?= $type == 'vendor' ? $txn->vendor_account_name : ($type == 'promoter' ? $txn->promoter_account_name : ($txn->admin_account_name ?? '-')) ?>"
+                                                data-bank="<?= $type == 'vendor' ? $txn->vendor_bank_name : ($type == 'promoter' ? $txn->promoter_bank_name : ($txn->admin_bank_name ?? '-')) ?>"
+                                                data-branch="<?= $type == 'vendor' ? $txn->vendor_branch : ($type == 'promoter' ? $txn->promoter_branch : ($txn->admin_branch ?? '-')) ?>"
+                                                data-account="<?= $type == 'vendor' ? $txn->vendor_account_no : ($type == 'promoter' ? $txn->promoter_account_no : ($txn->admin_account_no ?? '')) ?>"
+                                                data-ifsc="<?= $type == 'vendor' ? $txn->vendor_ifsc : ($type == 'promoter' ? $txn->promoter_ifsc : ($txn->admin_ifsc ?? '-')) ?>"
+                                                data-upi="<?= $type == 'vendor' ? $txn->vendor_upi : ($type == 'promoter' ? $txn->promoter_upi : ($txn->admin_upi ?? '-')) ?>"
                                                 data-status="<?= $txn->status ?>">
                                                 View
                                             </a>
-
                                         </td>
+
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
+
                     <?php else: ?>
-                        <div class="alert alert-info mt-2">
-                            No withdrawal requests found.
+                        <div class="text-center p-5">
+                            <h5>No withdrawal requests found</h5>
                         </div>
                     <?php endif; ?>
+
                 </div>
             </div>
         </div>
     </section>
 </div>
+
+
+<!-- MODAL -->
 <div class="modal fade" id="txnModal">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
@@ -320,23 +197,23 @@
                             <td id="m_amount"></td>
                         </tr>
                         <tr>
-                            <th>Wallet Balance</th>
+                            <th>Wallet</th>
                             <td id="m_wallet"></td>
                         </tr>
                         <tr>
-                            <th>Account Holder Name</th>
+                            <th>Account Holder</th>
                             <td id="m_aname"></td>
                         </tr>
                         <tr>
-                            <th>Bank Name</th>
+                            <th>Bank</th>
                             <td id="m_bank"></td>
                         </tr>
                         <tr>
-                            <th>Branch Name</th>
+                            <th>Branch</th>
                             <td id="m_branch"></td>
                         </tr>
                         <tr>
-                            <th>Account No</th>
+                            <th>Account</th>
                             <td id="m_account"></td>
                         </tr>
                         <tr>
@@ -344,63 +221,60 @@
                             <td id="m_ifsc"></td>
                         </tr>
                         <tr>
-                            <th>Status</th>
-                            <td id="m_status"></td>
+                            <th>UPI</th>
+                            <td id="m_upi"></td>
                         </tr>
                         <tr>
-                            <th>UPI ID</th>
-                            <td id="m_upi"></td>
+                            <th>Status</th>
+                            <td id="m_status"></td>
                         </tr>
                     </table>
 
                 </div>
 
                 <div class="modal-footer" id="txnButtons">
-                    <button type="submit" name="action" value="reject" class="btn btn-danger">
-                        Reject
-                    </button>
+                    <?php if ($userType == 1): ?>
+                        <button type="submit" name="action" value="reject" class="btn btn-danger actionBtn">
+                            Reject
+                        </button>
 
-                    <button type="submit" name="action" value="approve" class="btn btn-success">
-                        Approve
-                    </button>
+                        <button type="submit" name="action" value="approve" class="btn btn-success actionBtn">
+                            Approve
+                        </button>
+                    <?php endif; ?>
                 </div>
-            </form>
 
+            </form>
         </div>
     </div>
 </div>
+
 
 <?php
 function timeAgo($datetime)
 {
     $time = strtotime($datetime);
     $diff = time() - $time;
-
     if ($diff < 60)
-        $ago = 'Just now';
-    elseif ($diff < 3600)
-        $ago = floor($diff / 60) . ' minutes ago';
-    elseif ($diff < 86400)
-        $ago = floor($diff / 3600) . ' hours ago';
-    elseif ($diff < 2592000)
-        $ago = floor($diff / 86400) . ' days ago';
-    else
-        $ago = floor($diff / 2592000) . ' months ago';
-
-    // exact date + time
-    $date = date('d M Y, h:i A', $time);
-
-    return $ago . ' <br><small class="text-muted">(' . $date . ')</small>';
+        return 'Just now';
+    if ($diff < 3600)
+        return floor($diff / 60) . ' min ago';
+    if ($diff < 86400)
+        return floor($diff / 3600) . ' hrs ago';
+    return floor($diff / 86400) . ' days ago';
 }
 ?>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
 <script>
     $(document).on('click', '.viewTxn', function () {
 
-        // Fill data
         $('#txn_id').val($(this).data('id'));
-        $('#m_user').text($(this).data('user'));
+
+        let user = $(this).data('user');
+        if (!user) user = 'Admin';
+        $('#m_user').text(user);
+
         $('#m_reg').text($(this).data('reg'));
         $('#m_name').text($(this).data('name'));
         $('#m_amount').text('₹' + $(this).data('amount'));
@@ -408,26 +282,23 @@ function timeAgo($datetime)
         $('#m_aname').text($(this).data('aname'));
         $('#m_bank').text($(this).data('bank'));
         $('#m_branch').text($(this).data('branch'));
-        $('#m_account').text($(this).data('account'));
+
+        let acc = $(this).data('account');
+        acc = acc ? 'XXXXXX' + acc.toString().slice(-4) : '-';
+        $('#m_account').text(acc);
+
         $('#m_ifsc').text($(this).data('ifsc'));
         $('#m_upi').text($(this).data('upi'));
 
         let status = $(this).data('status');
-        let statusText = 'Pending';
-        let statusClass = 'badge-warning';
 
-        if (status == 1) {
-            statusText = 'Approved';
-            statusClass = 'badge-success';
-        }
-        if (status == 2) {
-            statusText = 'Rejected';
-            statusClass = 'badge-danger';
-        }
+        let txt = 'Pending', cls = 'badge-warning';
+        if (status == 1) { txt = 'Approved'; cls = 'badge-success'; }
+        if (status == 2) { txt = 'Rejected'; cls = 'badge-danger'; }
 
-        $('#m_status').html('<span class="badge ' + statusClass + '">' + statusText + '</span>');
+        $('#m_status').html('<span class="badge ' + cls + '">' + txt + '</span>');
 
-        // Show or hide buttons
+        // 👉 BUTTON SHOW / HIDE LOGIC
         if (status == 0) {
             $('#txnButtons').show();
         } else {
@@ -436,28 +307,28 @@ function timeAgo($datetime)
 
         $('#txnModal').modal('show');
     });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    // SweetAlert confirmation
-    $('#txnForm button').on('click', function (e) {
-        e.preventDefault(); // prevent default form submit
-
-        let action = $(this).val(); // approve or reject
-        let actionText = (action == 'approve') ? 'Approve' : 'Reject';
-        let txnId = $('#txn_id').val();
+<script>
+    $(document).on('click', '.actionBtn', function (e) {
+        e.preventDefault();
+        let action = $(this).val();
+        let actionText = (action === 'approve') ? 'Approve' : 'Reject';
         let form = $('#txnForm');
 
         Swal.fire({
             title: 'Are you sure?',
-            text: "Do you want to " + actionText + " this transaction? (ID: " + txnId + ")",
+            text: 'Do you want to ' + actionText + ' this transaction?',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#28a745', // green for approve
-            cancelButtonColor: '#d33', // red for cancel/reject
-            confirmButtonText: 'Yes, ' + actionText + ' it!',
+            confirmButtonColor: action === 'approve' ? '#28a745' : '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, ' + actionText,
             cancelButtonText: 'Cancel'
         }).then((result) => {
             if (result.isConfirmed) {
-               
+                form.find('input[name="action"]').remove();
                 $('<input>').attr({
                     type: 'hidden',
                     name: 'action',
@@ -467,4 +338,5 @@ function timeAgo($datetime)
             }
         });
     });
+
 </script>

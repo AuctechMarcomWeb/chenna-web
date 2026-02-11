@@ -409,6 +409,8 @@ class Order extends CI_Controller
     return $this->db->query('SELECT * FROM `purchase_master` Where id =' . $id . ' ')->row_array();
   }
 
+
+
   // public function UpdateOrderStatus($orderid = '')
   // {
   //   is_not_logged_in();
@@ -422,8 +424,6 @@ class Order extends CI_Controller
   //     $this->session->set_flashdata('activate', getCustomAlert('D', 'Invalid request!'));
   //     redirect('admin/Order');
   //   }
-
-  //   /* ---------- Detect Order Table ---------- */
   //   $order = $this->db->get_where('order_master', ['id' => $orderid])->row_array();
   //   $orderTbl = 'order_master';
   //   $purchaseTbl = 'purchase_master';
@@ -440,8 +440,6 @@ class Order extends CI_Controller
   //     $this->session->set_flashdata('activate', getCustomAlert('D', 'Order not found'));
   //     redirect('admin/Order');
   //   }
-
-  //   /* ---------- Prevent double credit ---------- */
   //   if ($order['status'] == 3 && $StatusUpdate == 3)
   //   {
   //     $this->session->set_flashdata('activate', getCustomAlert('D', 'Order already delivered'));
@@ -449,32 +447,27 @@ class Order extends CI_Controller
   //   }
 
   //   $this->db->trans_begin();
-
-  //   /* ---------- Update Order ---------- */
   //   $this->db->where('id', $orderid)->update($orderTbl, [
   //     'status' => $StatusUpdate,
   //     'remark' => $remark,
   //     'modify_date' => date('Y-m-d H:i:s')
   //   ]);
-
-  //   /* =====================================================
-  //      CREDIT WALLET ONLY WHEN ORDER DELIVERED
-  //      ===================================================== */
+  //   $this->db->where('order_master_id', $orderid)
+  //     ->update($purchaseTbl, [
+  //       'status' => $StatusUpdate,
+  //       'modify_date' => date('Y-m-d H:i:s')
+  //     ]);
   //   if ($StatusUpdate == 3)
   //   {
-
   //     $products = $this->db->where('order_master_id', $orderid)
   //       ->get($purchaseTbl)
   //       ->result_array();
 
   //     foreach ($products as $item)
   //     {
-
-  //       /* ---------- Vendor Pending Earning ---------- */
   //       $earning = $this->db->get_where('vendor_earnings_master', [
   //         'order_id' => $orderid,
   //         'product_id' => $item['product_master_id'],
-  //         'vendor_id' => $item['vendor_id'],
   //         'status' => 0
   //       ])->row_array();
 
@@ -482,52 +475,65 @@ class Order extends CI_Controller
   //         continue;
 
   //       $vendorAmount = (float) $earning['earning_amount'];
+  //       $vendorId = $item['vendor_id'] ?? 0;
+  //       $promoterId = $earning['promoter_id'] ?? 0;
+  //       if ($vendorId > 0)
+  //       {
+  //         $vendor = $this->db->select('wallet_amount')->where('id', $vendorId)->get('vendors')->row_array();
+  //         $newVendorWallet = ($vendor['wallet_amount'] ?? 0) + $vendorAmount;
 
-  //       /* ---------- SAFE WALLET UPDATE ---------- */
-  //       $vendor = $this->db->select('wallet_amount')
-  //         ->where('id', $item['vendor_id'])
-  //         ->get('vendors')
-  //         ->row_array();
-
-  //       $currentWallet = $vendor['wallet_amount'] ?? 0;
-  //       $newWallet = $currentWallet + $vendorAmount;
-
-  //       $this->db->where('id', $item['vendor_id'])
-  //         ->update('vendors', [
-  //           'wallet_amount' => $newWallet,
+  //         $this->db->where('id', $vendorId)->update('vendors', [
+  //           'wallet_amount' => $newVendorWallet,
   //           'modify_date' => date('Y-m-d H:i:s')
   //         ]);
+  //       }
 
-  //       /* ---------- Mark earning paid ---------- */
-  //       $this->db->where('id', $earning['id'])
-  //         ->update('vendor_earnings_master', ['status' => 1]);
+  //       if ($vendorId == 0)
+  //       {
+  //         $admin = $this->db->select('wallet')->where('id', 1)->get('admin_master')->row_array();
+  //         $newAdminWallet = ($admin['wallet'] ?? 0) + $vendorAmount;
 
-  //       /* ---------- TRANSACTION HISTORY ---------- */
+  //         $this->db->where('id', 1)->update('admin_master', [
+  //           'wallet' => $newAdminWallet,
+  //           'modify_date' => date('Y-m-d H:i:s')
+  //         ]);
+  //       }
+  //       if ($promoterId > 0)
+  //       {
+  //         $promoter = $this->db->select('wallet_amount')->where('id', $promoterId)->get('promoters')->row_array();
+  //         $newPromoterWallet = ($promoter['wallet_amount'] ?? 0) + ($earning['promoter_amount'] ?? 0);
+
+  //         $this->db->where('id', $promoterId)->update('promoters', [
+  //           'wallet_amount' => $newPromoterWallet,
+  //           'modify_date' => date('Y-m-d H:i:s')
+  //         ]);
+  //       }
+  //       $this->db->where('id', $earning['id'])->update('vendor_earnings_master', ['status' => 1]);
+
   //       $this->db->insert('transaction_history_master', [
   //         'order_id' => $orderid,
-  //         'order_number' => $order['order_number'] ?? '',
+  //         'order_number' => $order['order_number'] ?? null,
   //         'product_id' => $item['product_master_id'],
-  //         'product_name' => $item['product_name'],
-  //         'main_image' => $item['main_image'],
-  //         'vendor_id' => $item['vendor_id'],
-  //         'plan_type' => $earning['plan_type'] ?? 2,
+  //         'product_name' => $item['product_name'] ?? null,
+  //         'main_image' => $item['main_image'] ?? null,
+  //         'vendor_id' => $vendorId,
+  //         'promoter_id' => $promoterId,
   //         'final_price' => $item['final_price'],
   //         'price' => $item['price'],
   //         'qty' => $item['qty'],
-  //         'admin_amount' => $item['admin_commission'] ?? 0,
-  //         'vendor_amount' => $vendorAmount,
+  //         'admin_amount' => ($vendorId == 0) ? $vendorAmount : 0,
+  //         'vendor_amount' => ($vendorId > 0) ? $vendorAmount : 0,
+  //         'promoter_amount' => $earning['promoter_amount'] ?? 0,
   //         'transaction_type' => 'wallet_credit',
   //         'credit_amount' => $vendorAmount,
   //         'debit_amount' => 0,
-  //         'source' => 'Order Delivered',
-  //         'remark' => 'Vendor wallet credited on order delivery',
+  //         'source' => 'Order',
+  //         'remark' => 'Wallet credited on order delivered',
   //         'status' => 1,
   //         'created_at' => date('Y-m-d H:i:s')
   //       ]);
   //     }
   //   }
-
-  //   /* ---------- Commit / Rollback ---------- */
   //   if ($this->db->trans_status() === FALSE)
   //   {
   //     $this->db->trans_rollback();
@@ -538,7 +544,6 @@ class Order extends CI_Controller
   //     $this->session->set_flashdata('activate', getCustomAlert('S', 'Order updated successfully'));
   //   }
 
-  //   /* ---------- Redirect ---------- */
   //   $type = $this->session->userdata('adminData')['Type'] ?? 1;
   //   if ($type == 2)
   //   {
@@ -553,251 +558,164 @@ class Order extends CI_Controller
   // }
 
 
-  public function UpdateOrderStatus($orderid = '')
-  {
+public function UpdateOrderStatus($orderid = '')
+{
     is_not_logged_in();
 
     $data = $this->input->post();
     $StatusUpdate = (int) ($data['StatusUpdate'] ?? 0);
     $remark = $data['remark'] ?? '';
 
-    if (!$orderid || !$StatusUpdate)
-    {
-      $this->session->set_flashdata('activate', getCustomAlert('D', 'Invalid request!'));
-      redirect('admin/Order');
+    if (!$orderid || !$StatusUpdate) {
+        $this->session->set_flashdata('activate', getCustomAlert('D', 'Invalid request!'));
+        redirect('admin/Order');
     }
 
-    /* ---------- Detect Order Table ---------- */
     $order = $this->db->get_where('order_master', ['id' => $orderid])->row_array();
     $orderTbl = 'order_master';
     $purchaseTbl = 'purchase_master';
 
-    if (!$order)
-    {
-      $order = $this->db->get_where('order_master2', ['id' => $orderid])->row_array();
-      $orderTbl = 'order_master2';
-      $purchaseTbl = 'purchase_master2';
+    if (!$order) {
+        $order = $this->db->get_where('order_master2', ['id' => $orderid])->row_array();
+        $orderTbl = 'order_master2';
+        $purchaseTbl = 'purchase_master2';
     }
 
-    if (!$order)
-    {
-      $this->session->set_flashdata('activate', getCustomAlert('D', 'Order not found'));
-      redirect('admin/Order');
-    }
-
-    /* ---------- Prevent double delivery ---------- */
-    if ($order['status'] == 3 && $StatusUpdate == 3)
-    {
-      $this->session->set_flashdata('activate', getCustomAlert('D', 'Order already delivered'));
-      redirect('admin/Order');
+    if (!$order) {
+        $this->session->set_flashdata('activate', getCustomAlert('D', 'Order not found'));
+        redirect('admin/Order');
     }
 
     $this->db->trans_begin();
 
-    /* ---------- Update ORDER MASTER ---------- */
+    /* ================= ORDER STATUS UPDATE ================= */
     $this->db->where('id', $orderid)->update($orderTbl, [
-      'status' => $StatusUpdate,
-      'remark' => $remark,
-      'modify_date' => date('Y-m-d H:i:s')
+        'status' => $StatusUpdate,
+        'remark' => $remark,
+        'modify_date' => date('Y-m-d H:i:s')
     ]);
 
-    /* ---------- UPDATE PURCHASE MASTER STATUS ---------- */
     $this->db->where('order_master_id', $orderid)
-      ->update($purchaseTbl, [
-        'status' => $StatusUpdate,
-        'modify_date' => date('Y-m-d H:i:s')
-      ]);
-
-    /* =====================================================
-       CREDIT WALLET ONLY WHEN ORDER DELIVERED
-       ===================================================== */
-    if ($StatusUpdate == 3)
-    {
-
-      $products = $this->db->where('order_master_id', $orderid)
-        ->get($purchaseTbl)
-        ->result_array();
-
-      foreach ($products as $item)
-      {
-
-        /* ---------- Vendor Pending Earning ---------- */
-        $earning = $this->db->get_where('vendor_earnings_master', [
-          'order_id' => $orderid,
-          'product_id' => $item['product_master_id'],
-          'vendor_id' => $item['vendor_id'],
-          'status' => 0
-        ])->row_array();
-
-        if (!$earning)
-          continue;
-
-        $vendorAmount = (float) $earning['earning_amount'];
-
-        /* ---------- WALLET UPDATE ---------- */
-        $vendor = $this->db->select('wallet_amount')
-          ->where('id', $item['vendor_id'])
-          ->get('vendors')
-          ->row_array();
-
-        $currentWallet = $vendor['wallet_amount'] ?? 0;
-        $newWallet = $currentWallet + $vendorAmount;
-
-        $this->db->where('id', $item['vendor_id'])
-          ->update('vendors', [
-            'wallet_amount' => $newWallet,
+        ->update($purchaseTbl, [
+            'status' => $StatusUpdate,
             'modify_date' => date('Y-m-d H:i:s')
-          ]);
-
-        /* ---------- Mark earning paid ---------- */
-        $this->db->where('id', $earning['id'])
-          ->update('vendor_earnings_master', ['status' => 1]);
-
-        /* ---------- TRANSACTION HISTORY ---------- */
-        $planType = ($item['subscription_type'] == 1) ? $earning['plan_type'] : null;
-        $planId = ($item['subscription_type'] == 1) ? $earning['plan_id'] : null;
-
-        $this->db->insert('transaction_history_master', [
-          'order_id' => $orderid,
-          'order_number' => $order['order_number'] ?? null,
-          'product_id' => $item['product_master_id'],
-          'product_name' => $item['product_name'] ?? null,
-          'main_image' => $item['main_image'] ?? null,
-          'vendor_id' => $item['vendor_id'],
-          'promoter_id' => $earning['promoter_id'] ?? null,
-          'plan_type' => $planType,
-          'plan_id' => $planId,
-          'final_price' => $item['final_price'],
-          'price' => $item['price'],
-          'qty' => $item['qty'],
-          'admin_amount' => $item['admin_commission'] ?? 0,
-          'vendor_amount' => $vendorAmount,
-          'promoter_amount' => $earning['promoter_amount'] ?? 0,
-          'transaction_type' => 'wallet_credit',
-          'credit_amount' => $vendorAmount,
-          'debit_amount' => 0,
-          'source' => 'Order',
-          'remark' => 'Wallet credited on order delivered',
-          'status' => 1,
-          'created_at' => date('Y-m-d H:i:s')
         ]);
-      }
 
+    /* ======================================================
+       PAYOUT WHEN STATUS = 3,4,5
+    ====================================================== */
+    if (in_array($StatusUpdate, [3, 4, 5])) {
+
+        $products = $this->db->where('order_master_id', $orderid)
+            ->get($purchaseTbl)
+            ->result_array();
+
+        foreach ($products as $item) {
+
+            $earning = $this->db->get_where('vendor_earnings_master', [
+                'order_id' => $orderid,
+                'product_id' => $item['product_master_id'],
+                'status' => 0   // not paid yet
+            ])->row_array();
+
+            if (!$earning) {
+                continue;
+            }
+
+            $amount = (float) $earning['earning_amount'];
+            $vendorId = $item['vendor_id'] ?? 0;
+            $promoterId = $earning['promoter_id'] ?? 0;
+
+            /* ================= VENDOR WALLET ================= */
+            if ($vendorId > 0) {
+                $vendor = $this->db->select('wallet_amount')
+                    ->where('id', $vendorId)
+                    ->get('vendors')
+                    ->row_array();
+
+                $newVendorWallet = ($vendor['wallet_amount'] ?? 0) + $amount;
+
+                $this->db->where('id', $vendorId)->update('vendors', [
+                    'wallet_amount' => $newVendorWallet,
+                    'modify_date' => date('Y-m-d H:i:s')
+                ]);
+            }
+
+            /* ================= ADMIN WALLET (IF NO VENDOR) ================= */
+            if ($vendorId == 0) {
+                $admin = $this->db->select('wallet')->where('id', 1)->get('admin_master')->row_array();
+                $newAdminWallet = ($admin['wallet'] ?? 0) + $amount;
+
+                $this->db->where('id', 1)->update('admin_master', [
+                    'wallet' => $newAdminWallet,
+                    'modify_date' => date('Y-m-d H:i:s')
+                ]);
+            }
+
+            /* ================= PROMOTER WALLET ================= */
+            if ($promoterId > 0) {
+                $promoter = $this->db->select('wallet_amount')
+                    ->where('id', $promoterId)
+                    ->get('promoters')
+                    ->row_array();
+
+                // promoter gets earning_amount
+                $newPromoterWallet = ($promoter['wallet_amount'] ?? 0) + $amount;
+
+                $this->db->where('id', $promoterId)->update('promoters', [
+                    'wallet_amount' => $newPromoterWallet,
+                    'modify_date' => date('Y-m-d H:i:s')
+                ]);
+            }
+
+            /* ================= MARK AS PAID ================= */
+            $this->db->where('id', $earning['id'])
+                ->update('vendor_earnings_master', ['status' => 1]);
+
+            /* ================= TRANSACTION HISTORY ================= */
+            $this->db->insert('transaction_history_master', [
+                'order_id' => $orderid,
+                'order_number' => $order['order_number'] ?? null,
+                'product_id' => $item['product_master_id'],
+                'product_name' => $item['product_name'] ?? null,
+                'main_image' => $item['main_image'] ?? null,
+                'vendor_id' => $vendorId,
+                'promoter_id' => $promoterId,
+                'final_price' => $item['final_price'],
+                'price' => $item['price'],
+                'qty' => $item['qty'],
+                'admin_amount' => ($vendorId == 0) ? $amount : 0,
+                'vendor_amount' => ($vendorId > 0) ? $amount : 0,
+                'promoter_amount' => ($promoterId > 0) ? $amount : 0,
+                'transaction_type' => 'wallet_credit',
+                'credit_amount' => $amount,
+                'debit_amount' => 0,
+                'source' => 'Order',
+                'remark' => 'Wallet credited on order status update',
+                'status' => 1,
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
+        }
     }
 
-    /* ---------- Commit / Rollback ---------- */
-    if ($this->db->trans_status() === FALSE)
-    {
-      $this->db->trans_rollback();
-      $this->session->set_flashdata('activate', getCustomAlert('D', 'Something went wrong'));
-    } else
-    {
-      $this->db->trans_commit();
-      $this->session->set_flashdata('activate', getCustomAlert('S', 'Order updated successfully'));
+    /* ================= TRANSACTION END ================= */
+    if ($this->db->trans_status() === FALSE) {
+        $this->db->trans_rollback();
+        $this->session->set_flashdata('activate', getCustomAlert('D', 'Something went wrong'));
+    } else {
+        $this->db->trans_commit();
+        $this->session->set_flashdata('activate', getCustomAlert('S', 'Order updated successfully'));
     }
 
-    /* ---------- Redirect ---------- */
     $type = $this->session->userdata('adminData')['Type'] ?? 1;
-    if ($type == 2)
-    {
-      redirect('admin/Vendor/VendorOrderList');
-    } elseif ($type == 3)
-    {
-      redirect('admin/Vendor/PromoterOrderList');
-    } else
-    {
-      redirect('admin/Order');
+    if ($type == 2) {
+        redirect('admin/Vendor/VendorOrderList');
+    } elseif ($type == 3) {
+        redirect('admin/Vendor/PromoterOrderList');
+    } else {
+        redirect('admin/Order');
     }
-  }
-
-
-  // public function UpdateOrderStatus($orderid = '', $vendor_id = '')
-// {
-//     $data = $this->input->post();
-//     $StatusUpdate = isset($data['StatusUpdate']) ? $data['StatusUpdate'] : '';
-//     $remark = isset($data['remark']) ? $data['remark'] : '';
-
-  //     if (empty($orderid) || empty($StatusUpdate)) {
-//         $this->session->set_flashdata('activate', getCustomAlert('D', '!Invalid request.'));
-//         redirect('admin/Order/');
-//     }
-
-  //     // Detect whether order is from order_master or order_master2
-//     $orderDetail = $this->db->get_where('order_master', ['id' => $orderid])->row_array();
-//     $orderTbl = 'order_master';
-//     $purchaseTbl = 'purchase_master';
-
-  //     if (empty($orderDetail)) {
-//         $orderDetail = $this->db->get_where('order_master2', ['id' => $orderid])->row_array();
-//         $orderTbl = 'order_master2';
-//         $purchaseTbl = 'purchase_master2';
-//     }
-
-  //     if (empty($orderDetail)) {
-//         $this->session->set_flashdata('activate', getCustomAlert('D', '!Order not found.'));
-//         redirect('admin/Order/');
-//     }
-
-  //     // Step 1: Update order status
-//     $updateData = [
-//         'status' => $StatusUpdate,
-//         'remark' => $remark,
-//         'modify_date' => date('Y-m-d H:i:s')
-//     ];
-//     $this->db->where('id', $orderid);
-//     $this->db->update($orderTbl, $updateData);
-
-  //     // Step 2: If order is delivered, update vendor wallet from pending earnings
-//     if ($StatusUpdate == 3) { // Delivered
-//         // Fetch all products for this order
-//         $purchases = $this->db->get_where($purchaseTbl, ['order_master_id' => $orderid])->result_array();
-
-  //         foreach ($purchases as $product) {
-//             $vendorId = $product['vendor_id'];
-//             $productId = $product['product_master_id'];
-
-  //             // Fetch pending earnings for this vendor + product + order
-//             $earning = $this->db->get_where('vendor_earnings_master', [
-//                 'vendor_id' => $vendorId,
-//                 'product_id' => $productId,
-//                 'order_id' => $orderid,
-//                 'status' => 0 // Only pending earnings
-//             ])->row_array();
-
-  //             if (!empty($earning)) {
-//                 $earningAmount = $earning['earning_amount'];
-
-  //                 // Fetch current wallet amount safely (if NULL, set to 0)
-//                 $vendorData = $this->db->get_where('vendors', ['id' => $vendorId])->row_array();
-//                 $currentWallet = isset($vendorData['wallet_amount']) ? $vendorData['wallet_amount'] : 0;
-//                 $newWallet = $currentWallet + $earningAmount;
-
-  //                 // Update vendor wallet
-//                 $this->db->where('id', $vendorId);
-//                 $this->db->update('vendors', ['wallet_amount' => $newWallet]);
-
-  //                 // Mark earning as paid
-//                 $this->db->where('id', $earning['id']);
-//                 $this->db->update('vendor_earnings_master', ['status' => 1]);
-//             }
-//         }
-//     }
-
-  //     // Step 3: Flash message
-//     $this->session->set_flashdata('activate', getCustomAlert('S', 'Order status updated successfully.'));
-
-  //     // Step 4: Redirect based on admin type
-//     $userType = $this->session->userdata('adminData')['Type'];
-//     if ($userType == 2) {
-//         redirect('admin/Vendor/VendorOrderList');
-//     } elseif ($userType == 3) {
-//         redirect('admin/Vendor/PromoterOrderList');
-//     } else {
-//         redirect('admin/Order');
-//     }
-// }
-
-
+}
 
   public function SendSMSAlert($alertType, $orderDetail)
   {
