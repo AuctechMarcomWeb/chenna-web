@@ -328,7 +328,7 @@ $daysLeft = ceil(($end - $today) / 86400);
                             <td><?= ucfirst(str_replace('_',' ',$p['ad_type'])) ?></td>
                             <td><?= date('d-m-Y h:m:s A', strtotime($p['start_date'])) ?></td>
                             <td><?= date('d-m-Y h:m:s A', strtotime($p['end_date'])) ?></td>
-                            <td><?php if($p['status']==1){ ?><span class="badge badge-active">Active</span><?php } else { ?><span class="badge badge-stop">Stopped</span><?php } ?></td>
+                            <td><?php if($p['status']==1){ ?><span class="badge badge-active">Active</span><?php } else { ?><span class="badge badge-stop">Pending</span><?php } ?></td>
                            <td><?= date('d-m-Y h:i:s A', strtotime($p['created_at'])) ?></td>
                             <td><?= timeAgo($p['created_at']) ?></td>
 

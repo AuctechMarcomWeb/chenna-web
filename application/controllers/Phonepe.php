@@ -515,7 +515,7 @@ class Phonepe extends CI_Controller
             'payment_status' => 'paid',
             'start_date' => date('Y-m-d'),
             'end_date' => date('Y-m-d', strtotime("+{$adData['duration_days']} days")),
-            'status' => 1,
+            'status' => 0,
             'created_at' => date('Y-m-d H:i:s')
         ];
 

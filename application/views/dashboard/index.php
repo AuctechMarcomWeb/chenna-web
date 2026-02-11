@@ -650,10 +650,19 @@
     ?>
 
     <section class="content">
-      <div class="admin-card">
-        <h3>Welcome, <?= ucwords($adminData['Name']); ?>!</h3>
-        <p>You are logged in as <strong>Admin</strong>.</p>
+
+      <div class="admin-card referral-card">
+        <div class="referral-row">
+          <!-- LEFT : WELCOME -->
+          <div class="referral-left">
+            <h3>Welcome, <?= ucwords($adminData['Name']); ?> 👋</h3>
+           
+          </div>
+
+          
+        </div>
       </div>
+      <br><br>
 
       <div class="row">
         <!-- Total Products -->

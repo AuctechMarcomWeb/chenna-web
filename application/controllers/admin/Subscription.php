@@ -531,51 +531,86 @@ class Subscription extends CI_Controller
     {
         $adminData = $this->checkVendorPromoter();
 
+        $userType = $adminData['Type'];   // 1=Admin, 2=Vendor, 3=Promoter
+        $userId = $adminData['Id'];
+
+        /*
+        ==========================================
+        LOGIN BASED FILTER
+        ==========================================
+        */
+        $loginWhere = "";
+
+        // Vendor login
+        if ($userType == 2)
+        {
+            $loginWhere = " AND ap.vendor_id = '$userId' ";
+        }
+        // Promoter login
+        elseif ($userType == 3)
+        {
+            $loginWhere = " AND ap.promoter_id = '$userId' ";
+        }
+        // Admin login → no filter (see all)
+
+        /*
+        ==========================================
+        MAIN QUERY
+        ==========================================
+        */
         $sql = "
-        SELECT 
-            ap.id as purchase_id,
-            ap.plan_id,
-            ap.price as paid_price,
-            ap.user_type,
-            ap.user_id,
-            ap.vendor_id,
-            ap.promoter_id,
-            ap.plan_product_limit,
-            ap.products_used,
-            ap.transaction_id,
-            ap.payment_status,
-            ap.status as status,
-            ap.start_date,
-            ap.end_date,
-            ap.created_at,
+    SELECT 
+        ap.id as purchase_id,
+        ap.plan_id,
+        ap.price as paid_price,
+        ap.user_type,
+        ap.user_id,
+        ap.vendor_id,
+        ap.promoter_id,
+        ap.plan_product_limit,
+        ap.products_used,
+        ap.transaction_id,
+        ap.payment_status,
+        ap.status as status,
+        ap.start_date,
+        ap.end_date,
+        ap.created_at,
 
-            p.plan_name,
-            p.duration_days,
-            p.product_limit,
-            p.hot_deal,
-            p.spacial_offer,
-            p.product_for_you,
-            p.banner,
+        p.plan_name,
+        p.duration_days,
+        p.product_limit,
+        p.hot_deal,
+        p.spacial_offer,
+        p.product_for_you,
+        p.banner,
 
-            GROUP_CONCAT(sp.product_name SEPARATOR '||') as product_names,
-            GROUP_CONCAT(sp.main_image SEPARATOR '||') as product_images,
+        GROUP_CONCAT(sp.product_name SEPARATOR '||') as product_names,
+        GROUP_CONCAT(sp.main_image SEPARATOR '||') as product_images,
 
-            CASE 
-                WHEN ap.user_type = 2 THEN v.name 
-                WHEN ap.user_type = 3 THEN pr.name 
-            END as user_name
+        CASE 
+            WHEN ap.user_type = 2 THEN v.name 
+            WHEN ap.user_type = 3 THEN pr.name 
+        END as user_name
 
-        FROM advertisement_purchases_master ap
-        LEFT JOIN admin_advertisement_plans_master p ON p.id = ap.plan_id
-        LEFT JOIN advertisement_products_master adp ON adp.purchase_id = ap.id
-        LEFT JOIN sub_product_master sp ON sp.id = adp.product_id
-        LEFT JOIN vendors v ON v.id = ap.vendor_id
-        LEFT JOIN promoters pr ON pr.id = ap.promoter_id
-        WHERE ap.payment_status = 'paid'
-        GROUP BY ap.id
-        ORDER BY ap.created_at DESC
-        ";
+    FROM advertisement_purchases_master ap
+    LEFT JOIN admin_advertisement_plans_master p ON p.id = ap.plan_id
+    LEFT JOIN advertisement_products_master adp ON adp.purchase_id = ap.id
+    LEFT JOIN sub_product_master sp ON sp.id = adp.product_id
+    LEFT JOIN vendors v ON v.id = ap.vendor_id
+    LEFT JOIN promoters pr ON pr.id = ap.promoter_id
 
+    WHERE ap.payment_status = 'paid'
+    $loginWhere
+
+    GROUP BY ap.id
+    ORDER BY ap.created_at DESC
+    ";
+
+        /*
+        ==========================================
+        PLAN LIST (FOR BUY)
+        ==========================================
+        */
         $plans = $this->db->where('status', 1)
             ->get('admin_advertisement_plans_master')
             ->result_array();
@@ -591,16 +626,46 @@ class Subscription extends CI_Controller
     }
 
 
+
     public function AdvertismentUserDetails($purchase_id)
     {
         $adminData = $this->checkVendorPromoter();
 
-        // Purchase + plan + user info
+        $userType = $adminData['Type'];   // 1=Admin, 2=Vendor, 3=Promoter
+        $userId = $adminData['Id'];
+
+        /*
+        =====================================
+        LOGIN BASED ACCESS CHECK
+        =====================================
+        */
+        $loginWhere = "";
+
+        if ($userType == 2)
+        { // Vendor
+            $loginWhere = " AND ap.vendor_id = '$userId' AND ap.user_type = 2 ";
+        } elseif ($userType == 3)
+        { // Promoter
+            $loginWhere = " AND ap.promoter_id = '$userId' AND ap.user_type = 3 ";
+        }
+        // Admin → no restriction
+
+
+        /*
+        =====================================
+        PURCHASE + PLAN + USER
+        =====================================
+        */
         $sql = "
     SELECT 
         ap.*,
-        p.plan_name, p.duration_days, p.product_limit,
-        p.hot_deal, p.spacial_offer, p.product_for_you, p.banner,
+        p.plan_name, 
+        p.duration_days, 
+        p.product_limit,
+        p.hot_deal, 
+        p.spacial_offer, 
+        p.product_for_you, 
+        p.banner,
 
         CASE 
             WHEN ap.user_type = 2 THEN v.name 
@@ -611,11 +676,31 @@ class Subscription extends CI_Controller
     LEFT JOIN admin_advertisement_plans_master p ON p.id = ap.plan_id
     LEFT JOIN vendors v ON v.id = ap.vendor_id
     LEFT JOIN promoters pr ON pr.id = ap.promoter_id
-    WHERE ap.id = $purchase_id
+
+    WHERE ap.id = '$purchase_id'
+    $loginWhere
     ";
 
-        $data['purchase'] = $this->db->query($sql)->row_array();
+        $purchase = $this->db->query($sql)->row_array();
 
+        /*
+        =====================================
+        IF NOT FOUND → UNAUTHORIZED
+        =====================================
+        */
+        if (empty($purchase))
+        {
+            show_error('Unauthorized Access', 403);
+        }
+
+        $data['purchase'] = $purchase;
+
+
+        /*
+        =====================================
+        PRODUCTS
+        =====================================
+        */
         $sql2 = "
     SELECT 
         adp.*,
@@ -623,16 +708,39 @@ class Subscription extends CI_Controller
         sp.main_image
     FROM advertisement_products_master adp
     LEFT JOIN sub_product_master sp ON sp.id = adp.product_id
-    WHERE adp.purchase_id = $purchase_id
+    WHERE adp.purchase_id = '$purchase_id'
     ";
 
         $data['products'] = $this->db->query($sql2)->result_array();
 
         $data['adminData'] = $adminData;
         $data['title'] = 'Advertisement Details';
+
         $this->load->view('include/header', $data);
         $this->load->view('admin/AdvertismentUserDetails', $data);
         $this->load->view('include/footer');
+    }
+
+    public function check_activead_plan()
+    {
+        $user_id = $this->input->post('user_id');
+        $user_type = $this->input->post('user_type');
+
+        $exists = $this->db
+            ->where('user_id', $user_id)
+            ->where('user_type', $user_type)
+            ->where('payment_status', 'paid')
+            ->where('status', 1)
+            ->get('advertisement_purchases_master')
+            ->num_rows();
+
+        if ($exists > 0)
+        {
+            echo json_encode(['has_plan' => true]);
+        } else
+        {
+            echo json_encode(['has_plan' => false]);
+        }
     }
 
 
@@ -655,6 +763,7 @@ class Subscription extends CI_Controller
 
         $this->session->set_userdata('selected_ad_plan', [
             'plan_id' => $plan['id'],
+            'plan_name' => $plan['plan_name'],
             'price' => $plan['price'],
             'duration_days' => $plan['duration_days'],
             'plan_product_limit' => $plan['product_limit'],
@@ -704,12 +813,13 @@ class Subscription extends CI_Controller
         $this->session->set_userdata('selected_ad_plan', [
             'plan_id' => $plan['id'],
             'price' => $plan['price'],
+            'plan_name' => $plan['plan_name'],
             'duration_days' => $plan['duration_days'],
             'plan_product_limit' => $plan['product_limit'],
             'hot_deal' => $plan['hot_deal'],
             'spacial_offer' => $plan['spacial_offer'],
             'banner' => $plan['banner'],
-            'product_for_you' => $plan['product_for_you'], // 🔥 VERY IMPORTANT
+            'product_for_you' => $plan['product_for_you'],
         ]);
 
         redirect('admin/advertisement-products');

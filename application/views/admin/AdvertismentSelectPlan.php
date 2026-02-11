@@ -665,6 +665,12 @@
   .ad-switch input:checked+.ad-slider:before {
     transform: translateX(26px);
   }
+  .bg-success{
+    background:green;
+  }
+  .bg-warning{
+    background:orange;
+  }
 </style>
 <?php
 function timeAgo($datetime)
@@ -779,16 +785,19 @@ function timeAgo($datetime)
                             <td><?= $ap['transaction_id'] ?></td>
                             <td>
                               <?php if ($adminData['Type'] == 1): ?>
+                               
                                 <label class="ad-switch">
                                   <input type="checkbox" class="planStatusToggle" data-id="<?= $ap['purchase_id'] ?>"
                                     <?= ($ap['status'] == 1) ? 'checked' : '' ?>>
                                   <span class="ad-slider"></span>
                                 </label>
                               <?php else: ?>
-                                <label class="ad-switch">
-                                  <input type="checkbox" disabled <?= ($ap['status'] == 1) ? 'checked' : '' ?>>
-                                  <span class="ad-slider" style="opacity:0.5;"></span>
-                                </label>
+                               
+                                <?php if ($ap['status'] == 1): ?>
+                                  <span class="badge bg-success">Active</span>
+                                <?php else: ?>
+                                  <span class="badge bg-warning text-dark">Pending</span>
+                                <?php endif; ?>
                               <?php endif; ?>
                             </td>
                             <td><?= date('d-m-Y h:i:s A', strtotime($ap['created_at'])) ?></td>
@@ -881,18 +890,47 @@ function timeAgo($datetime)
 
     let selectedPlan = null;
 
-    $('#addProductBtn').on('click', function () {
-      $.post("<?= base_url('admin/Subscription/check_active_plan') ?>", {
-        user_id: <?= $adminData['Id'] ?>,
-        user_type: <?= $adminData['Type'] ?>
+    $(document).ready(function () {
+
+  let selectedPlan = null;
+
+  // ✅ BUTTON CLICK → ALWAYS OPEN MODAL
+  $('#addProductBtn').on('click', function () {
+      $('#advertisementModal').modal('show');
+  });
+
+  // ✅ PLAN SELECT
+  $(document).on('click', '.select-plan', function () {
+      $('.select-plan').removeClass('border border-success');
+      $(this).addClass('border border-success');
+      selectedPlan = $(this);
+  });
+
+
+  $('#proceedPlanBtn').on('click', function () {
+
+      if (!selectedPlan) {
+          alert('Please select a plan');
+          return;
+      }
+
+      $.post("<?= base_url('admin/Subscription/create_advetisment_plan') ?>", {
+          plan_id: selectedPlan.data('id'),
+          user_id: <?= $adminData['Id'] ?>,
+          user_type: <?= $adminData['Type'] ?>
       }, function (res) {
-        if (res.has_plan) {
-          window.location.href = "<?= base_url('admin/Subscription/AdvertismentProducts') ?>";
-        } else {
-          $('#advertisementModal').modal('show');
-        }
+
+          if (res.status === 'success') {
+              window.location.href = "<?= base_url('admin/Subscription/AdvertismentProducts') ?>";
+          } else {
+              alert(res.message || 'Something went wrong');
+          }
+
       }, 'json');
-    });
+  });
+
+});
+
 
     // Select plan
     $(document).on('click', '.select-plan', function () {
