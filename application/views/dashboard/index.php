@@ -656,10 +656,10 @@
           <!-- LEFT : WELCOME -->
           <div class="referral-left">
             <h3>Welcome, <?= ucwords($adminData['Name']); ?> 👋</h3>
-           
+
           </div>
 
-          
+
         </div>
       </div>
       <br><br>
@@ -830,18 +830,18 @@
 
       <div class="row">
         <!-- Total Products -->
-
         <div class="col-lg-3 col-xs-6">
-          <div class="small-box bg-green">
+          <div class="small-box bg-aqua">
             <div class="inner">
-              <h3><?= $total_vendors ?? 0; ?></h3>
-              <p>Total Vendors Registered Through Me</p>
+              <h3><?= $own_products ?? 0; ?></h3>
+              <p>Total Products</p>
             </div>
-            <a href="<?= site_url('admin/Vendor/VendorsByPromoter'); ?>" class="small-box-footer">
-              View Vendors <i class="fa fa-arrow-circle-right"></i>
+            <a href="<?= site_url('admin/Product/VendorProductList'); ?>" class="small-box-footer">
+              View Products <i class="fa fa-arrow-circle-right"></i>
             </a>
           </div>
         </div>
+
         <!-- Total Orders -->
         <div class="col-lg-3 col-xs-6">
           <div class="small-box bg-blue">
@@ -867,14 +867,63 @@
             </a>
           </div>
         </div>
-        <div class="col-lg-3 col-xs-6">
+        
+        <!-- <div class="col-lg-3 col-xs-6">
           <div class="small-box bg-green">
             <div class="inner">
-              <h3><?= $order_summary['accepted_orders'] ?? 0; ?></h3>
-              <p>Delivered Orders</p>
+              <h3><?= $order_summary['accepted_orders']; ?></h3>
+              <p>Accept Orders</p>
             </div>
             <a href="<?= site_url('admin/Vendor/VendorOrderList'); ?>" class="small-box-footer">
-              View Delivered Orders <i class="fa fa-arrow-circle-right"></i>
+              View Accept Orders <i class="fa fa-arrow-circle-right"></i>
+            </a>
+          </div>
+        </div> -->
+        <!-- Cancelled Orders -->
+        <div class="col-lg-3 col-xs-6">
+          <div class="small-box bg-red">
+            <div class="inner">
+              <h3><?= $order_summary['cancelled_orders'] ?? 0; ?></h3>
+              <p>Cancelled Orders</p>
+            </div>
+            <a href="<?= site_url('admin/Vendor/VendorOrderList'); ?>" class="small-box-footer">
+              View Cancelled Orders<i class="fa fa-arrow-circle-right"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Pending Orders -->
+        <div class="col-lg-3 col-xs-6">
+          <div class="small-box bg-yellow">
+            <div class="inner">
+              <h3><?= $order_summary['pending_orders'] ?? 0; ?></h3>
+              <p>Pending Orders</p>
+            </div>
+            <a href="<?= site_url('admin/Vendor/VendorOrderList'); ?>" class="small-box-footer">
+              View Pending Orders<i class="fa fa-arrow-circle-right"></i>
+            </a>
+          </div>
+        </div>
+        <div class="col-lg-3 col-xs-6">
+          <div class="small-box bg-navy">
+            <div class="inner">
+              <h3><?= $total_referred_vendors ?? 0; ?></h3>
+              <p>Total My Vendors</p>
+            </div>
+            <a href="<?= site_url('admin/Vendor/VendorList'); ?>" class="small-box-footer">
+              View My Vendors <i class="fa fa-arrow-circle-right"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-xs-6">
+          <div class="small-box bg-maroon">
+            <div class="inner">
+              <h3><?= $vendor_products ?? 0; ?></h3>
+              <p>Total Vendors Products</p>
+            </div>
+            <a href="<?= site_url('admin/Product/vendorProducts'); ?>" class="small-box-footer">
+              View Products <i class="fa fa-arrow-circle-right"></i>
             </a>
           </div>
         </div>

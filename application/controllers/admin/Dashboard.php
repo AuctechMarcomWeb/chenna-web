@@ -216,7 +216,7 @@ class Dashboard extends CI_Controller
 			// ================= VENDOR =================
 			$data['title'] = 'Vendor Dashboard';
 			$data['order_summary'] = $this->Order_model->getPurchaseSummary($user['Id']);
-			$data['total_products'] = $this->Order_model->TotalGetProducts($user['Id']);
+			$data['total_products'] = $this->Order_model->TotalGetProductsbyVendors($user['Id']);
 
 			$active_subscription = $this->Subscription_model->getActiveSubscription($user['Id']);
 			$pending_request = $this->Subscription_model->getPendingSubscriptionRequest($user['Id'], 'vendor');
@@ -229,20 +229,28 @@ class Dashboard extends CI_Controller
 
 		} else if ($user['Type'] == 3)
 		{
-			// ================= PROMOTER =================
-			$data['title'] = 'Promoter Dashboard';
 
-			// 🔑 PROMOTER DATA FETCH
+			$data['title'] = 'Promoter Dashboard';
+			$data['order_summary'] = $this->Order_model->getPurchaseSummaryByPromoter($user['Id']);
+
+
+			$data['total_referred_vendors'] =
+				$this->Order_model->getVendorCountByPromoter($user['Id']);
+
+			$data['own_products'] =
+				$this->Order_model->getPromoterOwnProducts($user['Id']);
+
+			$data['vendor_products'] =
+				$this->Order_model->getVendorProductsUnderPromoter($user['Id']);
+
+			$data['total_products'] =
+				$this->Order_model->getTotalProductsNetwork($user['Id']);
 			$promoter = $this->db->where('status', 1)->group_start()->where('email', $user['Email'])->or_where('mobile', $user['Mobile'])
 				->group_end()->get('promoters')->row_array();
-
-			// REFERRAL CODE
 			$data['referral_code'] = (!empty($promoter['reference_code'])) ? $promoter['reference_code'] : 'NA';
 			$data['referral_url'] = base_url('web/vendor_registration?ref=' . $data['referral_code']);
-
 			$active_subscription = $this->Subscription_model->getActiveSubscription($user['Id'], 'promoter');
 			$pending_request = $this->Subscription_model->getPendingSubscriptionRequest($user['Id'], 'promoter');
-
 			$data['active_subscription'] = $active_subscription;
 			$data['plans'] = $this->db->where('status', 1)->get('admin_subscription_plans_master')->result_array();
 		}
@@ -3862,28 +3870,28 @@ class Dashboard extends CI_Controller
 	}
 
 
-// public function updateTransaction()
+	// public function updateTransaction()
 // {
 //     is_not_logged_in();
 
-//     $txn_id = $this->input->post('txn_id');
+	//     $txn_id = $this->input->post('txn_id');
 //     $action = $this->input->post('action');
 
-//     if (!$txn_id || !$action) {
+	//     if (!$txn_id || !$action) {
 //         $this->session->set_flashdata('error', 'Invalid request');
 //         return redirect('admin/Dashboard/TransactionAmount');
 //     }
 
-//     $withdrawal = $this->db->get_where('withdrawal_requests', ['id' => $txn_id])->row();
+	//     $withdrawal = $this->db->get_where('withdrawal_requests', ['id' => $txn_id])->row();
 //     if (!$withdrawal) {
 //         $this->session->set_flashdata('error', 'Withdrawal request not found');
 //         return redirect('admin/Dashboard/TransactionAmount');
 //     }
 
-//     // make lower case safe
+	//     // make lower case safe
 //     $user_type = strtolower(trim($withdrawal->user_type));
 
-//     if ($user_type == 'vendor') {
+	//     if ($user_type == 'vendor') {
 //         $user_table = 'vendors';
 //         $wallet_column = 'wallet_amount';
 //     } elseif ($user_type == 'promoter') {
@@ -3894,46 +3902,46 @@ class Dashboard extends CI_Controller
 //         $wallet_column = 'wallet';
 //     }
 
-//     $user = $this->db->get_where($user_table, ['id' => $withdrawal->user_id])->row();
+	//     $user = $this->db->get_where($user_table, ['id' => $withdrawal->user_id])->row();
 //     if (!$user) {
 //         $this->session->set_flashdata('error', 'User not found');
 //         return redirect('admin/Dashboard/TransactionAmount');
 //     }
 
-//     $this->db->trans_begin();
+	//     $this->db->trans_begin();
 
-//     // =====================================================
+	//     // =====================================================
 //     // APPROVE
 //     // =====================================================
 //     if ($action === 'approve') {
 
-//         if ($wallet_column && $user->$wallet_column < $withdrawal->amount) {
+	//         if ($wallet_column && $user->$wallet_column < $withdrawal->amount) {
 //             $this->session->set_flashdata('error', 'Insufficient wallet balance');
 //             return redirect('admin/Dashboard/TransactionAmount');
 //         }
 
-//         // wallet deduct
+	//         // wallet deduct
 //         if ($wallet_column) {
 //             $this->db->set($wallet_column, "$wallet_column - " . (float)$withdrawal->amount, false)
 //                 ->where('id', $withdrawal->user_id)
 //                 ->update($user_table);
 //         }
 
-//         // approve request
+	//         // approve request
 //         $this->db->where('id', $txn_id)->update('withdrawal_requests', [
 //             'status' => 1,
 //             'approval_date' => date('Y-m-d H:i:s')
 //         ]);
 
-//         $remaining = $withdrawal->amount;
+	//         $remaining = $withdrawal->amount;
 
-//         // =====================================================
+	//         // =====================================================
 //         // FETCH CREDIT FIFO
 //         // =====================================================
 //         $this->db->where('transaction_type', 'wallet_credit');
 //         $this->db->where('status', 1);
 
-//         if ($user_type == 'vendor') {
+	//         if ($user_type == 'vendor') {
 //             $this->db->where('vendor_id', $withdrawal->user_id);
 //         } elseif ($user_type == 'promoter') {
 //             $this->db->where('promoter_id', $withdrawal->user_id);
@@ -3941,20 +3949,20 @@ class Dashboard extends CI_Controller
 //             $this->db->where('admin_id', $withdrawal->user_id);
 //         }
 
-//         $this->db->order_by('id', 'ASC');
+	//         $this->db->order_by('id', 'ASC');
 //         $credits = $this->db->get('transaction_history_master')->result();
 
-//         foreach ($credits as $credit) {
+	//         foreach ($credits as $credit) {
 
-//             if ($remaining <= 0) break;
+	//             if ($remaining <= 0) break;
 
-//             // already debited
+	//             // already debited
 //             $this->db->select_sum('debit_amount', 'used_amount');
 //             $this->db->where('order_id', $credit->order_id);
 //             $this->db->where('product_id', $credit->product_id);
 //             $this->db->where('transaction_type', 'wallet_debit');
 
-//             if ($user_type == 'vendor') {
+	//             if ($user_type == 'vendor') {
 //                 $this->db->where('vendor_id', $withdrawal->user_id);
 //             } elseif ($user_type == 'promoter') {
 //                 $this->db->where('promoter_id', $withdrawal->user_id);
@@ -3962,14 +3970,14 @@ class Dashboard extends CI_Controller
 //                 $this->db->where('admin_id', $withdrawal->user_id);
 //             }
 
-//             $used = $this->db->get('transaction_history_master')->row()->used_amount ?? 0;
+	//             $used = $this->db->get('transaction_history_master')->row()->used_amount ?? 0;
 
-//             $available = $credit->credit_amount - $used;
+	//             $available = $credit->credit_amount - $used;
 //             if ($available <= 0) continue;
 
-//             $deduct = min($available, $remaining);
+	//             $deduct = min($available, $remaining);
 
-//             // =====================================================
+	//             // =====================================================
 //             // INSERT DEBIT
 //             // =====================================================
 //             $insert = [
@@ -3996,7 +4004,7 @@ class Dashboard extends CI_Controller
 //                 'created_at' => date('Y-m-d H:i:s')
 //             ];
 
-//             // 🔥 MOST IMPORTANT PART
+	//             // 🔥 MOST IMPORTANT PART
 //             if ($user_type == 'vendor') {
 //                 $insert['vendor_id'] = $withdrawal->user_id;
 //                 $insert['promoter_id'] = 0;
@@ -4013,35 +4021,35 @@ class Dashboard extends CI_Controller
 //                 $insert['promoter_id'] = 0;
 //             }
 
-//             $this->db->insert('transaction_history_master', $insert);
+	//             $this->db->insert('transaction_history_master', $insert);
 
-//             $remaining -= $deduct;
+	//             $remaining -= $deduct;
 //         }
 
-//         $this->db->trans_commit();
+	//         $this->db->trans_commit();
 //         $this->session->set_flashdata('success', ucfirst($user_type) . ' withdrawal approved successfully');
 //     }
 
-//     // =====================================================
+	//     // =====================================================
 //     // REJECT
 //     // =====================================================
 //     else if ($action === 'reject') {
 
-//         $this->db->where('id', $txn_id)->update('withdrawal_requests', [
+	//         $this->db->where('id', $txn_id)->update('withdrawal_requests', [
 //             'status' => 2,
 //             'approval_date' => date('Y-m-d H:i:s')
 //         ]);
 
-//         $this->db->trans_commit();
+	//         $this->db->trans_commit();
 //         $this->session->set_flashdata('success', ucfirst($user_type) . ' withdrawal rejected');
 //     }
 
-//     else {
+	//     else {
 //         $this->db->trans_rollback();
 //         $this->session->set_flashdata('error', 'Invalid action');
 //     }
 
-//     redirect('admin/Dashboard/TransactionAmount');
+	//     redirect('admin/Dashboard/TransactionAmount');
 // }
 
 

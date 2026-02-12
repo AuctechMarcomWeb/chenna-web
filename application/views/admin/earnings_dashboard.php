@@ -47,10 +47,11 @@
     <!-- Dashboard Cards -->
     <div id="dashboard-cards">
         <section class="content">
-
             <div class="row">
+
                 <?php if ($adminData['Type'] == 1): ?>
-                    <!-- Admin Cards -->
+                    <!-- ================= ADMIN ================= -->
+
                     <div class="col-lg-3 col-xs-6">
                         <div class="small-box bg-blue">
                             <div class="inner">
@@ -59,35 +60,33 @@
                             </div>
                         </div>
                     </div>
-                <?php endif; ?>
-                <!-- Common Cards -->
-                <div class="col-lg-3 col-xs-6">
-                    <div class="small-box bg-aqua">
-                        <div class="inner">
-                            <h3 id="total_orders"><?= $summary['total_orders'] ?></h3>
-                            <p>Total Orders</p>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="col-lg-3 col-xs-6">
-                    <div class="small-box bg-orange">
-                        <div class="inner">
-                            <h3 id="pending_orders"><?= $summary['total_pending'] ?></h3>
-                            <p>Pending Orders</p>
+                    <div class="col-lg-3 col-xs-6">
+                        <div class="small-box bg-aqua">
+                            <div class="inner">
+                                <h3 id="total_orders"><?= $summary['total_orders'] ?></h3>
+                                <p>Total Orders</p>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="col-lg-3 col-xs-6">
-                    <div class="small-box bg-yellow">
-                        <div class="inner">
-                            <h3 id="total_products"><?= $summary['total_products'] ?></h3>
-                            <p>Total Products</p>
+                    <div class="col-lg-3 col-xs-6">
+                        <div class="small-box bg-orange">
+                            <div class="inner">
+                                <h3 id="pending_orders"><?= $summary['total_pending'] ?></h3>
+                                <p>Pending Orders</p>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <?php if ($adminData['Type'] != 3): ?>
+                    <div class="col-lg-3 col-xs-6">
+                        <div class="small-box bg-yellow">
+                            <div class="inner">
+                                <h3 id="total_products"><?= $summary['total_products'] ?></h3>
+                                <p>Total Products</p>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="col-lg-3 col-xs-6">
                         <div class="small-box bg-purple">
                             <div class="inner">
@@ -104,9 +103,7 @@
                             </div>
                         </div>
                     </div>
-                <?php endif; ?>
 
-                <?php if ($adminData['Type'] != 2): ?>
                     <div class="col-lg-3 col-xs-6">
                         <div class="small-box bg-teal">
                             <div class="inner">
@@ -123,131 +120,205 @@
                             </div>
                         </div>
                     </div>
+
+                <?php elseif ($adminData['Type'] == 2): ?>
+                    <!-- ================= VENDOR ================= -->
+
+                    <div class="col-lg-3 col-xs-6">
+                        <div class="small-box bg-aqua">
+                            <div class="inner">
+                                <h3 id="total_orders"><?= $summary['total_orders'] ?></h3>
+                                <p>Total Orders</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-xs-6">
+                        <div class="small-box bg-orange">
+                            <div class="inner">
+                                <h3 id="pending_orders"><?= $summary['total_pending'] ?></h3>
+                                <p>Pending Orders</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-xs-6">
+                        <div class="small-box bg-yellow">
+                            <div class="inner">
+                                <h3 id="total_products"><?= $summary['total_products'] ?></h3>
+                                <p>Total Products</p>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="col-lg-3 col-xs-6">
+                        <div class="small-box bg-red">
+                            <div class="inner">
+                                <h3 id="vendor_earning">₹<?= number_format($summary['vendor_earning'], 2) ?></h3>
+                                <p>Vendor Earning</p>
+                            </div>
+                        </div>
+                    </div>
+
+                <?php elseif ($adminData['Type'] == 3): ?>
+                    <!-- ================= PROMOTER ================= -->
+
+                    <div class="col-lg-3 col-xs-6">
+                        <div class="small-box bg-aqua">
+                            <div class="inner">
+                                <h3 id="total_orders"><?= $summary['total_orders'] ?></h3>
+                                <p>Total Orders</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-xs-6">
+                        <div class="small-box bg-orange">
+                            <div class="inner">
+                                <h3 id="pending_orders"><?= $summary['total_pending'] ?></h3>
+                                <p>Pending Orders</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-xs-6">
+                        <div class="small-box bg-yellow">
+                            <div class="inner">
+                                <h3 id="total_products"><?= $summary['total_products'] ?></h3>
+                                <p>Total Products</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-xs-6">
+                        <div class="small-box bg-green">
+                            <div class="inner">
+                                <h3 id="promoter_earning">₹<?= number_format($summary['promoter_earning'], 2) ?></h3>
+                                <p>Promoter Earning</p>
+                            </div>
+                        </div>
+                    </div>
+
                 <?php endif; ?>
 
-
             </div>
-
         </section>
     </div>
 </div>
 
 <script>
-const form = document.getElementById('filterForm');
-const monthInput = document.getElementById('month');
-const fromDateInput = document.getElementById('from_date');
-const toDateInput = document.getElementById('to_date');
-const vendorInput = document.getElementById('vendor_id');
-const promoterInput = document.getElementById('promoter_id');
+    const form = document.getElementById('filterForm');
+    const monthInput = document.getElementById('month');
+    const fromDateInput = document.getElementById('from_date');
+    const toDateInput = document.getElementById('to_date');
+    const vendorInput = document.getElementById('vendor_id');
+    const promoterInput = document.getElementById('promoter_id');
 
 
-const boxTotalVendors = document.querySelector('.small-box.bg-purple');
-const boxVendorEarning = document.querySelector('.small-box.bg-red');
-const boxTotalPromoters = document.querySelector('.small-box.bg-teal');
-const boxPromoterEarning = document.querySelector('.small-box.bg-green');
+    const boxTotalVendors = document.querySelector('.small-box.bg-purple');
+    const boxVendorEarning = document.querySelector('.small-box.bg-red');
+    const boxTotalPromoters = document.querySelector('.small-box.bg-teal');
+    const boxPromoterEarning = document.querySelector('.small-box.bg-green');
 
 
-function updateDashboard() {
-    const formData = new FormData(form);
+    function updateDashboard() {
+        const formData = new FormData(form);
 
-    fetch('<?= base_url("admin/EarningsDashboard/getSummaryAjax") ?>', {
-        method: 'POST',
-        body: formData
-    })
-    .then(res => res.json())
-    .then(data => {
-        const setText = (id, val) => {
-            const el = document.getElementById(id);
-            if (el) el.innerText = val;
+        fetch('<?= base_url("admin/EarningsDashboard/getSummaryAjax") ?>', {
+            method: 'POST',
+            body: formData
+        })
+            .then(res => res.json())
+            .then(data => {
+                const setText = (id, val) => {
+                    const el = document.getElementById(id);
+                    if (el) el.innerText = val;
+                };
+
+                setText('total_earning', '₹' + (+data.total_earning || 0).toFixed(2));
+                setText('vendor_earning', '₹' + (+data.vendor_earning || 0).toFixed(2));
+                setText('promoter_earning', '₹' + (+data.promoter_earning || 0).toFixed(2));
+
+                setText('total_orders', data.total_orders || 0);
+                setText('pending_orders', data.pending_orders || 0);
+                setText('total_vendors', data.total_vendors || 0);
+                setText('total_promoters', data.total_promoters || 0);
+                setText('total_products', data.total_products || 0);
+
+                /* ================= CONDITIONAL BOX VISIBILITY ================= */
+                const isVendorSelected = vendorInput.value;
+                const isPromoterSelected = promoterInput.value;
+
+
+                if (isVendorSelected) {
+                    if (boxTotalVendors) boxTotalVendors.style.display = 'none';
+                    if (boxTotalPromoters) boxTotalPromoters.style.display = 'none';
+                    if (boxPromoterEarning) boxPromoterEarning.style.display = 'none';
+                    if (boxVendorEarning) boxVendorEarning.style.display = 'block';
+                }
+
+                else if (isPromoterSelected) {
+                    if (boxTotalVendors) boxTotalVendors.style.display = 'block';
+                    if (boxTotalPromoters) boxTotalPromoters.style.display = 'block';
+                    if (boxPromoterEarning) boxPromoterEarning.style.display = 'block';
+                    if (boxVendorEarning) boxVendorEarning.style.display = 'block';
+                }
+
+                else {
+                    if (boxTotalVendors) boxTotalVendors.style.display = 'block';
+                    if (boxTotalPromoters) boxTotalPromoters.style.display = 'block';
+                    if (boxPromoterEarning) boxPromoterEarning.style.display = 'block';
+                    if (boxVendorEarning) boxVendorEarning.style.display = 'block';
+                }
+            })
+            .catch(err => console.error('Dashboard Error:', err));
+    }
+
+
+    function resetDateRange() { fromDateInput.value = ''; toDateInput.value = ''; }
+    function resetMonth() { monthInput.value = ''; }
+    function resetVendor() { if (vendorInput) vendorInput.value = ''; }
+    function resetPromoter() { if (promoterInput) promoterInput.value = ''; }
+
+
+    monthInput?.addEventListener('change', () => { resetDateRange(); updateDashboard(); });
+    [fromDateInput, toDateInput].forEach(el => el?.addEventListener('change', () => {
+        if (fromDateInput.value && toDateInput.value) { resetMonth(); updateDashboard(); }
+    }));
+
+    vendorInput?.addEventListener('change', () => {
+        resetPromoter();
+        updateDashboard();
+    });
+
+    promoterInput?.addEventListener('change', () => {
+        const promoterId = promoterInput.value;
+        resetVendor();
+
+
+        const payload = {
+            promoter_id: promoterId,
+            month: monthInput.value,
+            from_date: fromDateInput.value,
+            to_date: toDateInput.value
         };
 
-        setText('total_earning', '₹' + (+data.total_earning || 0).toFixed(2));
-        setText('vendor_earning', '₹' + (+data.vendor_earning || 0).toFixed(2));
-        setText('promoter_earning', '₹' + (+data.promoter_earning || 0).toFixed(2));
+        fetch('<?= base_url("admin/EarningsDashboard/getVendorsByPromoter") ?>', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (!vendorInput) return;
 
-        setText('total_orders', data.total_orders || 0);
-        setText('pending_orders', data.pending_orders || 0);
-        setText('total_vendors', data.total_vendors || 0);
-        setText('total_promoters', data.total_promoters || 0);
-        setText('total_products', data.total_products || 0);
+                let html = '<option value="">All Vendors</option>';
+                data.forEach(v => { html += `<option value="${v.id}">${v.name}</option>`; });
 
-        /* ================= CONDITIONAL BOX VISIBILITY ================= */
-        const isVendorSelected = vendorInput.value;
-        const isPromoterSelected = promoterInput.value;
-
-       
-        if (isVendorSelected) {
-            if(boxTotalVendors) boxTotalVendors.style.display = 'none';
-            if(boxTotalPromoters) boxTotalPromoters.style.display = 'none';
-            if(boxPromoterEarning) boxPromoterEarning.style.display = 'none';
-            if(boxVendorEarning) boxVendorEarning.style.display = 'block';
-        } 
-        
-        else if (isPromoterSelected) {
-            if(boxTotalVendors) boxTotalVendors.style.display = 'block';
-            if(boxTotalPromoters) boxTotalPromoters.style.display = 'block';
-            if(boxPromoterEarning) boxPromoterEarning.style.display = 'block';
-            if(boxVendorEarning) boxVendorEarning.style.display = 'block';
-        } 
-       
-        else {
-            if(boxTotalVendors) boxTotalVendors.style.display = 'block';
-            if(boxTotalPromoters) boxTotalPromoters.style.display = 'block';
-            if(boxPromoterEarning) boxPromoterEarning.style.display = 'block';
-            if(boxVendorEarning) boxVendorEarning.style.display = 'block';
-        }
-    })
-    .catch(err => console.error('Dashboard Error:', err));
-}
+                vendorInput.innerHTML = html;
+                updateDashboard();
+            })
+            .catch(err => console.error('Vendor Load Error:', err));
+    });
 
 
-function resetDateRange() { fromDateInput.value = ''; toDateInput.value = ''; }
-function resetMonth() { monthInput.value = ''; }
-function resetVendor() { if (vendorInput) vendorInput.value = ''; }
-function resetPromoter() { if (promoterInput) promoterInput.value = ''; }
-
-
-monthInput?.addEventListener('change', () => { resetDateRange(); updateDashboard(); });
-[fromDateInput, toDateInput].forEach(el => el?.addEventListener('change', () => {
-    if(fromDateInput.value && toDateInput.value) { resetMonth(); updateDashboard(); }
-}));
-
-vendorInput?.addEventListener('change', () => {
-    resetPromoter();
     updateDashboard();
-});
-
-promoterInput?.addEventListener('change', () => {
-    const promoterId = promoterInput.value;
-    resetVendor();
-
-
-    const payload = {
-        promoter_id: promoterId,
-        month: monthInput.value,
-        from_date: fromDateInput.value,
-        to_date: toDateInput.value
-    };
-
-    fetch('<?= base_url("admin/EarningsDashboard/getVendorsByPromoter") ?>', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (!vendorInput) return;
-
-        let html = '<option value="">All Vendors</option>';
-        data.forEach(v => { html += `<option value="${v.id}">${v.name}</option>`; });
-
-        vendorInput.innerHTML = html;
-        updateDashboard();
-    })
-    .catch(err => console.error('Vendor Load Error:', err));
-});
-
-
-updateDashboard();
 </script>
-

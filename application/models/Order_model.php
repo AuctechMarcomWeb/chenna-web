@@ -8,43 +8,86 @@
   public function getPurchaseSummary($vendorId)
   {
     $summary = [
-      'total_orders'     => 0,
-      'pending_orders'   => 0,
-      'accepted_orders'  => 0,
+      'total_orders' => 0,
+      'pending_orders' => 0,  // earning pending
+      'completed_orders' => 0,  // earning completed
+      'accepted_orders' => 0,
       'cancelled_orders' => 0,
-      'shipped_orders'   => 0,
+      'shipped_orders' => 0,
       'delivered_orders' => 0,
-      'completed_orders' => 0 
     ];
+
+    /* ======================================================
+       1) EARNING STATUS (vendor_earnings_master)
+    ====================================================== */
+
+    $this->db->select('status, COUNT(*) as count');
+    $this->db->from('vendor_earnings_master');
+    $this->db->where('vendor_id', $vendorId);
+    $this->db->group_by('status');
+    $earning = $this->db->get()->result();
+
+    foreach ($earning as $row)
+    {
+      if ($row->status == 0)
+      {
+        $summary['pending_orders'] = $row->count;
+      }
+      if ($row->status == 1)
+      {
+        $summary['completed_orders'] = $row->count;
+      }
+    }
+
+    /* ======================================================
+       2) COD ORDERS (purchase_master)
+    ====================================================== */
 
     $this->db->select('status, COUNT(*) as count');
     $this->db->from('purchase_master');
     $this->db->where('vendor_id', $vendorId);
     $this->db->group_by('status');
-    $query = $this->db->get();
+    $codOrders = $this->db->get()->result();
 
-    if ($query->num_rows() > 0) {
-      foreach ($query->result() as $row) {
-        $summary['total_orders'] += $row->count;
+    /* ======================================================
+       3) ONLINE ORDERS (purchase_master2)
+    ====================================================== */
 
-        switch ($row->status) {
-          case 1:
-            $summary['pending_orders'] = $row->count;
-            break;
-          case 2:
-            $summary['cancelled_orders'] = $row->count;
-            break;
-          case 3:
-            $summary['accepted_orders'] = $row->count;
-            break;
-          case 4:
-            $summary['shipped_orders'] = $row->count;
-            break;
-          case 5:
-            $summary['delivered_orders'] = $row->count;
-            $summary['completed_orders'] = $row->count;
-            break;
-        }
+    $this->db->select('status, COUNT(*) as count');
+    $this->db->from('purchase_master2');
+    $this->db->where('vendor_id', $vendorId);
+    $this->db->group_by('status');
+    $onlineOrders = $this->db->get()->result();
+
+
+    /* ======================================================
+       4) MERGE BOTH ORDER TABLES
+    ====================================================== */
+
+    $allOrders = array_merge($codOrders, $onlineOrders);
+
+    foreach ($allOrders as $row)
+    {
+
+      $summary['total_orders'] += $row->count;
+
+      switch ($row->status)
+      {
+        case 2:
+          $summary['cancelled_orders'] += $row->count;
+          break;
+
+        case 3:
+          $summary['accepted_orders'] += $row->count;
+          break;
+
+        case 4:
+          $summary['shipped_orders'] += $row->count;
+          break;
+
+        case 5:
+          $summary['delivered_orders'] += $row->count;
+          break;
       }
     }
 
@@ -52,15 +95,167 @@
   }
 
 
+  public function getPurchaseSummaryByPromoter($promoterId)
+  {
+    $summary = [
+      'total_orders' => 0,
+      'pending_orders' => 0,  // earning pending
+      'completed_orders' => 0,  // earning done
+      'accepted_orders' => 0,
+      'cancelled_orders' => 0,
+      'shipped_orders' => 0,
+      'delivered_orders' => 0,
+    ];
+
+    /* ======================================================
+       1) EARNING STATUS
+    ====================================================== */
+
+    $this->db->select('status, COUNT(*) as count');
+    $this->db->from('vendor_earnings_master');
+    $this->db->where('promoter_id', $promoterId);
+    $this->db->group_by('status');
+    $earning = $this->db->get()->result();
+
+    foreach ($earning as $row)
+    {
+      if ($row->status == 0)
+      {
+        $summary['pending_orders'] = $row->count;
+      }
+      if ($row->status == 1)
+      {
+        $summary['completed_orders'] = $row->count;
+      }
+    }
+
+    /* ======================================================
+       2) COD ORDERS
+    ====================================================== */
+
+    $this->db->select('status, COUNT(*) as count');
+    $this->db->from('purchase_master');
+    $this->db->where('promoter_id', $promoterId);
+    $this->db->group_by('status');
+    $codOrders = $this->db->get()->result();
+
+    /* ======================================================
+       3) ONLINE ORDERS
+    ====================================================== */
+
+    $this->db->select('status, COUNT(*) as count');
+    $this->db->from('purchase_master2');
+    $this->db->where('promoter_id', $promoterId);
+    $this->db->group_by('status');
+    $onlineOrders = $this->db->get()->result();
+
+    /* ======================================================
+       4) MERGE
+    ====================================================== */
+
+    $allOrders = array_merge($codOrders, $onlineOrders);
+
+    foreach ($allOrders as $row)
+    {
+
+      $summary['total_orders'] += $row->count;
+
+      switch ($row->status)
+      {
+        case 2:
+          $summary['cancelled_orders'] += $row->count;
+          break;
+
+        case 3:
+          $summary['accepted_orders'] += $row->count;
+          break;
+
+        case 4:
+          $summary['shipped_orders'] += $row->count;
+          break;
+
+        case 5:
+          $summary['delivered_orders'] += $row->count;
+          break;
+      }
+    }
+
+    return $summary;
+  }
+
+
+
   // Total products added by vendor
-  public function TotalGetProducts($vendorId)
+  public function TotalGetProductsbyVendors($vendorId)
   {
     $this->db->where('added_type', 2);
     $this->db->where('addedBy', $vendorId);
-    $this->db->select('COUNT(DISTINCT product_code) as total');
+    $this->db->select('COUNT(DISTINCT id) as total');
     $query = $this->db->get('sub_product_master');
     return $query->row()->total ?? 0;
   }
+
+  // public function TotalGetProductsbyPromoters($promoterId)
+  // {
+  //   $this->db->where('added_type', 3);
+  //   $this->db->where('addedBy', $promoterId);
+  //   $this->db->select('COUNT(DISTINCT id) as total');
+  //   $query = $this->db->get('sub_product_master');
+  //   return $query->row()->total ?? 0;
+  // }
+
+
+ public function getVendorCountByPromoter($promoterId)
+    {
+        return $this->db
+            ->where('promoter_id', $promoterId)
+            ->where('role', 'vendor')
+            ->count_all_results('vendors');
+    }
+
+
+    // =============================
+    // PROMOTER OWN PRODUCTS
+    // =============================
+    public function getPromoterOwnProducts($promoterId)
+    {
+        return $this->db
+            ->where('added_type', 3)
+            ->where('addedBy', $promoterId)
+            ->count_all_results('sub_product_master');
+    }
+
+
+    // =============================
+    // VENDORS PRODUCTS UNDER PROMOTER
+    // =============================
+    public function getVendorProductsUnderPromoter($promoterId)
+    {
+        $vendors = $this->db->select('id')
+            ->where('promoter_id', $promoterId)
+            ->get('vendors')
+            ->result_array();
+
+        if (empty($vendors)) return 0;
+
+        $vendorIds = array_column($vendors, 'id');
+
+        return $this->db
+            ->where_in('vendor_id', $vendorIds)
+            ->where('added_type', 2)
+            ->count_all_results('sub_product_master');
+    }
+
+
+    // =============================
+    // TOTAL PRODUCTS NETWORK
+    // =============================
+    public function getTotalProductsNetwork($promoterId)
+    {
+        $own = $this->getPromoterOwnProducts($promoterId);
+        $vendor = $this->getVendorProductsUnderPromoter($promoterId);
+        return $own + $vendor;
+    }
 
   public function updateActionPaymentStatus($id)
   {
@@ -75,9 +270,11 @@
   public function getOrderList($type = '', $id = '')
   {
     $this->db->order_by('id', 'Desc');
-    if ($type == '1') {
+    if ($type == '1')
+    {
       return $this->db->query('SELECT  id    FROM order_master order by id Desc')->result_array();
-    } else {
+    } else
+    {
       return $this->db->query('SELECT DISTINCT  order_master_id FROM `purchase_master` Where vendor_master_id ="' . $id . '" order by order_master_id Desc ')->result_array();
     }
   }
@@ -123,9 +320,11 @@
 
   public function GetUserAddres($id = '', $diliver = '')
   {
-    if (!empty($diliver)) {
+    if (!empty($diliver))
+    {
       $sql = $this->db->query('SELECT * FROM `user_delivery_address` Where id =' . $id . '')->row_array();
-    } else {
+    } else
+    {
       $sql = $this->db->query('SELECT * FROM `user_address_master` Where id =' . $id . '')->row_array();
     }
 
@@ -150,10 +349,12 @@
   public function GetProductStatus($orderid = '', $type = '', $field = '', $vendor_id = '')
   {
     // echo $orderid."/".$type."/".$
-    if ($type == '1') {
+    if ($type == '1')
+    {
       $SQL = " SELECT * FROM `purchase_master` WHERE order_master_id = '" . $orderid . "'";
     }
-    if ($type == '2') {
+    if ($type == '2')
+    {
       $SQL = " SELECT * FROM `purchase_master` WHERE order_master_id = '" . $orderid . "'  AND vendor_master_id = '" . $vendor_id . "' ";
     }
     $status = $this->db->query($SQL)->row_array();
@@ -163,10 +364,12 @@
   {
 
 
-    if ($type == '1') {
+    if ($type == '1')
+    {
       $SQL = " SELECT Sum(" . $field . ") as items FROM `purchase_master` WHERE order_master_id = '" . $orderid . "'";
     }
-    if ($type == '2') {
+    if ($type == '2')
+    {
       $SQL = " SELECT Sum(" . $field . ") as items FROM `purchase_master` WHERE order_master_id ='" . $orderid . "'  AND vendor_master_id = '" . $vendor_id . "' ";
     }
     $status = $this->db->query($SQL)->row_array();
@@ -180,9 +383,11 @@
 
   public function getSingleOrderData($orderid = '', $type = '', $vendor_id = '')
   {
-    if ($type == '1') {
+    if ($type == '1')
+    {
       $SQL = " SELECT * FROM `purchase_master` WHERE order_master_id = '" . $orderid . "'";
-    } elseif ($type == '2') {
+    } elseif ($type == '2')
+    {
       $SQL = " SELECT * FROM `purchase_master` WHERE order_master_id = '" . $orderid . "'  AND vendor_master_id = '" . $vendor_id . "' ";
     }
 
@@ -245,7 +450,8 @@
     $arrayName['modify_date'] = time();
 
     $activity = 0;
-    if (!empty($request['activity'])) {
+    if (!empty($request['activity']))
+    {
       $activity = $request['activity'];
     }
 
@@ -256,34 +462,39 @@
     $this->db->where(array('order_master_id' => $request['order_id']));  #, 'vendor_master_id' => $request['vendor_id']
     $this->db->update('purchase_master', $arrayName);  #, 'vendor_master_id' => $request['vendor_id']
 
-    if ($request['StatusUpdate'] == 5) {
+    if ($request['StatusUpdate'] == 5)
+    {
       $this->db->where('id', $request['order_id']);
       $modify_date = time();
       $this->db->update('order_master', array('status' => 5, 'modify_date' => $modify_date, 'activity' => $activity));
       $orde_logstatus = 5;
     }
 
-    if ($request['StatusUpdate'] == 6) {
+    if ($request['StatusUpdate'] == 6)
+    {
       $this->db->where('id', $request['order_id']);
       $modify_date = time();
       $this->db->update('order_master', array('status' => 6, 'modify_date' => $modify_date, 'activity' => $activity));
       $orde_logstatus = 6;
     }
-    if ($request['StatusUpdate'] == 2) {
+    if ($request['StatusUpdate'] == 2)
+    {
       $this->db->where('id', $request['order_id']);
       $modify_date = time();
       $this->db->update('order_master', array('status' => 2, 'modify_date' => $modify_date, 'activity' => $activity));
       $orde_logstatus = 2;
     }
 
-    if ($request['StatusUpdate'] == 4) {
+    if ($request['StatusUpdate'] == 4)
+    {
       $this->db->where('id', $request['order_id']);
       $modify_date = time();
       $this->db->update('order_master', array('status' => 4, 'modify_date' => $modify_date, 'activity' => $activity));
       $orde_logstatus = 4;
     }
 
-    if ($request['StatusUpdate'] == 3) {
+    if ($request['StatusUpdate'] == 3)
+    {
       $this->db->where('id', $request['order_id']);
       $modify_date = time();
       $this->db->update('order_master', array('status' => 3, 'modify_date' => $modify_date, 'activity' => $activity));
@@ -314,7 +525,8 @@
     $check = $this->db->get('settings')->result_array();
 
     $fields = array();
-    foreach ($check as $key => $value) {
+    foreach ($check as $key => $value)
+    {
 
       $fields['version'] = $value['app_verison'];
       $fields['install_type'] = $value['type'];
@@ -322,10 +534,12 @@
       $array[] = $fields;
     }
 
-    if (COUNT($check) > 0) {
+    if (COUNT($check) > 0)
+    {
       $arr['Detail'] = $array;
       generateServerResponse(S, 'S', $arr);
-    } else {
+    } else
+    {
       generateServerResponse('0', 'E');
     }
   }
@@ -341,7 +555,8 @@
     $check = $this->db->get('settings')->result_array();
 
     $fields = array();
-    foreach ($check as $key => $value) {
+    foreach ($check as $key => $value)
+    {
 
       $fields['user_amount'] = $value['referel_to_get'];
       $fields['minimumPurchase'] = $value['min_first_purchase_amt'];
@@ -349,19 +564,24 @@
       $array[] = $fields;
     }
 
-    if (COUNT($check) > 0) {
+    if (COUNT($check) > 0)
+    {
       $arr['Detail'] = $array;
       generateServerResponse(S, 'S', $arr);
-    } else {
+    } else
+    {
       generateServerResponse('0', 'E');
     }
   }
   public function GetData($table, $condition, $order, $id)
   {
-    if (!empty($id)) {
+    if (!empty($id))
+    {
       $data = $this->db->get_where($table, $condition)->row_array();
-    } else {
-      if (!empty($order)) {
+    } else
+    {
+      if (!empty($order))
+      {
         $this->db->order_by($order['column'], $order['columnData']);
       }
       $data = $this->db->get_where($table, $condition)->result_array();
@@ -372,9 +592,11 @@
   {
     $this->db->select($column);
     $this->db->where($condition);
-    if (!empty($id)) {
+    if (!empty($id))
+    {
       $data = $this->db->get($table)->row_array();
-    } else {
+    } else
+    {
       $data = $this->db->get($table)->result_array();
     }
     return $data;
@@ -431,57 +653,57 @@
   // }
 
   public function getOrderSummary()
-{
+  {
     $summary = [];
 
     // Delivered (3)
     $summary['delivered_orders'] =
-        $this->db->where('status', 3)->from('order_master')->count_all_results()
-        +
-        $this->db->where('status', 3)->from('order_master2')->count_all_results();
+      $this->db->where('status', 3)->from('order_master')->count_all_results()
+      +
+      $this->db->where('status', 3)->from('order_master2')->count_all_results();
 
     // Failed (2)
     $summary['failed_orders'] =
-        $this->db->where('status', 2)->from('order_master')->count_all_results()
-        +
-        $this->db->where('status', 2)->from('order_master2')->count_all_results();
+      $this->db->where('status', 2)->from('order_master')->count_all_results()
+      +
+      $this->db->where('status', 2)->from('order_master2')->count_all_results();
 
     // Cancelled (4)
     $summary['cancelled_orders'] =
-        $this->db->where('status', 4)->from('order_master')->count_all_results()
-        +
-        $this->db->where('status', 4)->from('order_master2')->count_all_results();
+      $this->db->where('status', 4)->from('order_master')->count_all_results()
+      +
+      $this->db->where('status', 4)->from('order_master2')->count_all_results();
 
     // Shipped (5)
     $summary['shipped_orders'] =
-        $this->db->where('status', 5)->from('order_master')->count_all_results()
-        +
-        $this->db->where('status', 5)->from('order_master2')->count_all_results();
+      $this->db->where('status', 5)->from('order_master')->count_all_results()
+      +
+      $this->db->where('status', 5)->from('order_master2')->count_all_results();
 
     // Waiting Approval (1)
     $summary['waiting_approval_orders'] =
-        $this->db->where('status', 1)->from('order_master')->count_all_results()
-        +
-        $this->db->where('status', 1)->from('order_master2')->count_all_results();
+      $this->db->where('status', 1)->from('order_master')->count_all_results()
+      +
+      $this->db->where('status', 1)->from('order_master2')->count_all_results();
 
     // Rejected (6)
     $summary['rejected_orders'] =
-        $this->db->where('status', 6)->from('order_master')->count_all_results()
-        +
-        $this->db->where('status', 6)->from('order_master2')->count_all_results();
+      $this->db->where('status', 6)->from('order_master')->count_all_results()
+      +
+      $this->db->where('status', 6)->from('order_master2')->count_all_results();
 
     // Pending = NOT delivered
     $summary['pending_orders'] =
-        $this->db->where('status !=', 3)->from('order_master')->count_all_results()
-        +
-        $this->db->where('status !=', 3)->from('order_master2')->count_all_results();
+      $this->db->where('status !=', 3)->from('order_master')->count_all_results()
+      +
+      $this->db->where('status !=', 3)->from('order_master2')->count_all_results();
 
     // Total
     $summary['total_orders'] =
-        $this->db->count_all('order_master') +
-        $this->db->count_all('order_master2');
+      $this->db->count_all('order_master') +
+      $this->db->count_all('order_master2');
 
     return $summary;
-}
+  }
 
 }
